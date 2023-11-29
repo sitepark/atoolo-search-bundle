@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
+
+	<config name="testVersion" value="8.1-8.2"/>
+
+	<arg name="basepath" value="."/>
+	<arg name="cache" value="var/cache/.phpcs-compability-cache"/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="tab-width" value="4" />
+	<arg name="parallel" value="6"/>
+	<arg name="warning-severity" value="0"/>
+
+	<file>src/</file>
+
+	<rule ref="PHPCompatibility"/>
+</ruleset>

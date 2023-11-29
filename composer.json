@@ -1,0 +1,95 @@
+{
+    "name": "atoolo/search",
+    "description": "Indexing und searching",
+    "license": "MIT",
+    "type": "library",
+    "authors": [{
+        "name": "veltrup",
+        "email": "veltrup@sitepark.com"
+    }],
+    "autoload": {
+        "psr-4": {
+            "Atoolo\\Search\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Atoolo\\Search\\Test\\": "test"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.1 <8.3.0",
+        "atoolo/resource": "dev-feature/hierarchy-loader",
+        "solarium/solarium": "^6.3",
+        "symfony/config": "^6.3",
+        "symfony/console": "^6.3",
+        "symfony/dependency-injection": "^6.3",
+        "symfony/event-dispatcher": "^6.3",
+        "symfony/finder": "^6.3",
+        "symfony/yaml": "^6.3"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "infection/infection": "^0.27.6",
+        "phpcompatibility/php-compatibility": "^9.3",
+        "phpunit/phpunit": "^10.4",
+        "roave/security-advisories": "dev-latest",
+        "squizlabs/php_codesniffer": "^3.7"
+    },
+    "scripts": {
+
+        "post-install-cmd": "phive --no-progress install --force-accept-unsigned --trust-gpg-keys C00543248C87FB13,4AA394086372C20A,CF1A108D0E7AE720,51C67305FFC2E5C0",
+        "analyse": [
+            "@analyse:phplint",
+            "@analyse:phpstan",
+            "@analyse:phpcs",
+            "@analyse:compatibilitycheck"
+        ],
+        "analyse:compatibilitycheck": "./vendor/bin/phpcs --standard=./phpcs.compatibilitycheck.xml",
+        "analyse:phpcs": "./vendor/bin/phpcs",
+        "analyse:phplint": "./tools/phplint",
+        "analyse:phpstan": "./tools/phpstan analyse",
+        "cs-fix": [
+            "@cs-fix:phpcbf"
+        ],
+        "cs-fix:phpcbf": "./vendor/bin/phpcbf",
+        "report": [
+            "@report:phpcs",
+            "@report:phpstan"
+        ],
+        "report:phpcs": "./vendor/bin/phpcs || exit 0",
+        "report:phpstan": "./tools/phpstan analyse --no-progress --no-ansi --no-interaction --error-format=checkstyle > ./var/log/phpstan-report.xml || exit 0",
+        "test": [
+            "@test:phpunit"
+        ],
+        "test:phpunit": "./tools/phpunit.phar -c phpunit.xml --coverage-text",
+        "test:infection": "vendor/bin/infection --threads=8 --no-progress --only-covered -s || exit 0"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "infection/extension-installer": true
+        },
+        "optimize-autoloader": true,
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "composer-link": {
+            "atoolo/resource": {
+                "dev": false,
+                "version": "dev-feature/hierarchy-loader"
+            }
+        }
+    },
+    "repositories": {
+        "atoolo/resource": {
+            "type": "path",
+            "url": "/home/veltrup/.cache/composer/link/atoolo/resource"
+        }
+    }
+}
