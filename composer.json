@@ -77,19 +77,5 @@
             "*": "dist"
         },
         "sort-packages": true
-    },
-    "extra": {
-        "composer-link": {
-            "atoolo/resource": {
-                "dev": false,
-                "version": "dev-feature/hierarchy-loader"
-            }
-        }
-    },
-    "repositories": {
-        "atoolo/resource": {
-            "type": "path",
-            "url": "/home/veltrup/.cache/composer/link/atoolo/resource"
-        }
     }
 }
