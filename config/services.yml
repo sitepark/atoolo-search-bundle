@@ -1,0 +1,15 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+    _instanceof:
+        Symfony\Component\Console\Command\Command:
+            tags: ['command']
+
+    Atoolo\Search\Console\:
+        resource: '../src/Console'
+
+    Atoolo\Search\Console\Application:
+        public: true
+        arguments:
+            - !tagged command
