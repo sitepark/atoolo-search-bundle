@@ -9,7 +9,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 
 class SelectQueryBuilder
 {
-    private string $core = '';
+    private string $index = '';
     private string $text = '';
     private int $offset = 0;
     private int $limit = 10;
@@ -23,7 +23,8 @@ class SelectQueryBuilder
      */
     private array $facetList = [];
 
-    private QueryDefaultOperator $queryDefaultOperator = QueryDefaultOperator::AND;
+    private QueryDefaultOperator $queryDefaultOperator =
+        QueryDefaultOperator::AND;
 
     /**
      * @internal
@@ -32,21 +33,21 @@ class SelectQueryBuilder
     {
     }
 
-    public function core(string $core): SelectQueryBuilder
+    public function index(string $index): SelectQueryBuilder
     {
-        if (empty($core)) {
-            throw new \InvalidArgumentException('core is empty');
+        if (empty($index)) {
+            throw new \InvalidArgumentException('index is empty');
         }
-        $this->core = $core;
+        $this->index = $index;
         return $this;
     }
 
     /**
      * @internal
      */
-    public function getCore(): string
+    public function getIndex(): string
     {
-        return $this->core;
+        return $this->index;
     }
 
     public function text(string $text): SelectQueryBuilder
@@ -163,8 +164,8 @@ class SelectQueryBuilder
 
     public function build(): SelectQuery
     {
-        if (empty($this->core)) {
-            throw new \InvalidArgumentException('core is not set');
+        if (empty($this->index)) {
+            throw new \InvalidArgumentException('index is not set');
         }
         return new SelectQuery($this);
     }

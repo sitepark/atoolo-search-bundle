@@ -8,7 +8,8 @@ class FacetQuery implements Facet
 {
     public function __construct(
         private readonly string $key,
-        private readonly string $query
+        private readonly string $query,
+        private readonly ?string $excludeFilter
     ) {
     }
     public function getKey(): string
@@ -18,5 +19,9 @@ class FacetQuery implements Facet
     public function getQuery(): string
     {
         return $this->query;
+    }
+    public function getExcludeFilter(): ?string
+    {
+        return $this->excludeFilter;
     }
 }

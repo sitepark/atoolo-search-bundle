@@ -6,5 +6,6 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 
 interface Facet
 {
-    public function getKey(): string;
+    public function getKey(): ?string;
+    public function getExcludeFilter(): ?string;
 }

@@ -9,7 +9,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 
 class SelectQuery
 {
-    private readonly string $core;
+    private readonly string $index;
     private readonly string $text;
     private readonly int $offset;
     private readonly int $limit;
@@ -28,7 +28,7 @@ class SelectQuery
      */
     public function __construct(SelectQueryBuilder $builder)
     {
-        $this->core = $builder->getCore();
+        $this->index = $builder->getIndex();
         $this->text = $builder->getText();
         $this->offset = $builder->getOffset();
         $this->limit = $builder->getLimit();
@@ -42,9 +42,9 @@ class SelectQuery
         return new SelectQueryBuilder();
     }
 
-    public function getCore(): string
+    public function getIndex(): string
     {
-        return $this->core;
+        return $this->index;
     }
 
     public function getText(): string

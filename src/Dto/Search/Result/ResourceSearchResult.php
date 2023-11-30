@@ -15,34 +15,40 @@ use Traversable;
 class ResourceSearchResult implements IteratorAggregate
 {
     /**
-     * @param Resource[] $resourceList
-     * @param FacetGroup[] $facetGroupList
+     * @param Resource[] $results
+     * @param FacetGroup[] $facetGroups
      */
     public function __construct(
         private readonly int $total,
+        private readonly int $limit,
         private readonly int $offset,
-        private readonly array $resourceList,
-        private readonly array $facetGroupList,
+        private readonly array $results,
+        private readonly array $facetGroups,
         private readonly int $queryTime
     ) {
     }
 
     public function getIterator(): Traversable
     {
-        return new ArrayIterator($this->resourceList);
+        return new ArrayIterator($this->results);
     }
 
     /**
      * @return Resource[]
      */
-    public function getResourceList(): array
+    public function getResults(): array
     {
-        return $this->resourceList;
+        return $this->results;
     }
 
     public function getTotal(): int
     {
         return $this->total;
+    }
+
+    public function getLimit(): int
+    {
+        return $this->limit;
     }
 
     public function getOffset(): int
@@ -53,9 +59,9 @@ class ResourceSearchResult implements IteratorAggregate
     /**
      * @return FacetGroup[]
      */
-    public function getFacetGroupList(): array
+    public function getFacetGroups(): array
     {
-        return $this->facetGroupList;
+        return $this->facetGroups;
     }
 
     public function getQueryTime(): int

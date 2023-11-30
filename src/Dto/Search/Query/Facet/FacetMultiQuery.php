@@ -12,9 +12,11 @@ class FacetMultiQuery implements Facet
      */
     public function __construct(
         private readonly string $key,
-        private readonly array $queryList
+        private readonly array $queryList,
+        private readonly ?string $excludeFilter
     ) {
     }
+
     public function getKey(): string
     {
         return $this->key;
@@ -25,5 +27,10 @@ class FacetMultiQuery implements Facet
     public function getQueryList(): array
     {
         return $this->queryList;
+    }
+
+    public function getExcludeFilter(): ?string
+    {
+        return $this->excludeFilter;
     }
 }

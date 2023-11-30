@@ -12,6 +12,7 @@ use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema21DocumentEnricher;
 use Atoolo\Search\Service\Indexer\SolrIndexer;
 use Atoolo\Search\Service\SolrParameterClientFactory;
+use http\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -67,11 +68,14 @@ class Indexer extends Command
 
         $this->io = new SymfonyStyle($input, $output);
         $this->progressBar = new IndexerProgressProgressBar($output);
-        $this->resourceDir = $input->getArgument('resource-dir');
-        $directories = $input->getArgument('directories');
+        $this->resourceDir = $this->getStringArgument(
+            $input,
+            'resource-dir'
+        );
+        $directories = (array)$input->getArgument('directories');
 
         $cleanupThreshold = empty($directories)
-            ? $input->getArgument('cleanup-threshold')
+            ? $this->getIntArgument($input, 'cleanup-threshold')
             : 0;
 
         if (empty($directories)) {
@@ -82,7 +86,7 @@ class Indexer extends Command
         }
 
         $parameter = new IndexerParameter(
-            $input->getArgument('solr-core'),
+            $this->getStringArgument($input, 'solr-core'),
             $this->resourceDir,
             $cleanupThreshold,
             $directories
@@ -94,6 +98,33 @@ class Indexer extends Command
         $this->errorReport();
 
         return Command::SUCCESS;
+    }
+
+    private function getStringArgument(
+        InputInterface $input,
+        string $name
+    ): string {
+        $value = $input->getArgument($name);
+        if (!is_string($value)) {
+            throw new InvalidArgumentException(
+                $name . ' must be a string'
+            );
+        }
+        return strval($value);
+        return (string)$value;
+    }
+
+    private function getIntArgument(
+        InputInterface $input,
+        string $name
+    ): int {
+        $value = $input->getArgument($name);
+        if (!is_int($value)) {
+            throw new InvalidArgumentException(
+                $name . ' must be a integer'
+            );
+        }
+        return (int)$value;
     }
 
     protected function errorReport(): void

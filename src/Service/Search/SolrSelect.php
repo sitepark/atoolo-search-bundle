@@ -37,7 +37,7 @@ class SolrSelect implements SelectSearcher
 
     public function select(SelectQuery $query): ResourceSearchResult
     {
-        $client = $this->clientFactory->create($query->getCore());
+        $client = $this->clientFactory->create($query->getIndex());
 
         $solrQuery = $this->buildSolrQuery($client, $query);
         $result = $client->execute($solrQuery);
@@ -168,11 +168,13 @@ class SolrSelect implements SelectSearcher
         FacetField $facet
     ): void {
         $facetSet = $solrQuery->getFacetSet();
+        $field = $facet->getField();
         // https://solr.apache.org/guide/solr/latest/query-guide/faceting.html#tagging-and-excluding-filters
-        $fieldWithExclude = '{!ex=' . $facet->getKey() . '}' .
-            $facet->getField();
+        if ($facet->getExcludeFilter() !== null) {
+            $field = '{!ex=' . $facet->getExcludeFilter() . '}' . $field;
+        }
         $facetSet->createFacetField($facet->getKey())
-            ->setField($fieldWithExclude)
+            ->setField($field)
             ->setTerms($facet->getTerms());
     }
 
@@ -216,6 +218,7 @@ class SolrSelect implements SelectSearcher
 
         return new ResourceSearchResult(
             $result->getNumFound(),
+            $query->getLimit(),
             $query->getOffset(),
             $resourceList,
             $facetGroupList,

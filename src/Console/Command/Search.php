@@ -28,7 +28,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class Search extends Command
 {
     private SymfonyStyle $io;
-    private string $solrCore;
+    private string $index;
     private string $resourceDir;
 
 
@@ -37,7 +37,7 @@ class Search extends Command
         $this
             ->setHelp('Command to performs a search')
             ->addArgument(
-                'solr-core',
+                'index',
                 InputArgument::REQUIRED,
                 'Solr core to be used.'
             )
@@ -61,7 +61,7 @@ class Search extends Command
 
         $this->io = new SymfonyStyle($input, $output);
         $this->resourceDir = $input->getArgument('resource-dir');
-        $this->solrCore = $input->getArgument('solr-core');
+        $this->index = $input->getArgument('index');
 
         $searcher = $this->createSearch();
         $query = $this->buildQuery($input);
@@ -99,7 +99,7 @@ class Search extends Command
     protected function buildQuery(InputInterface $input): SelectQuery
     {
         $builder = SelectQuery::builder();
-        $builder->core($this->solrCore);
+        $builder->index($this->index);
 
         $text = $input->getArgument('text');
         if (is_array($text)) {

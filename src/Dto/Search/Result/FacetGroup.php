@@ -11,7 +11,7 @@ class FacetGroup
      */
     public function __construct(
         private readonly string $key,
-        private readonly array $facetList
+        private readonly array $facets
     ) {
     }
 
@@ -23,8 +23,8 @@ class FacetGroup
     /**
      * @return Facet[]
      */
-    public function getFacetList(): array
+    public function getFacets(): array
     {
-        return $this->facetList;
+        return $this->facets;
     }
 }

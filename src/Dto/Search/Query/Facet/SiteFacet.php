@@ -6,8 +6,19 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 
 class SiteFacet extends FacetField
 {
-    public function __construct(string $key, string ...$site)
-    {
-        parent::__construct($key, 'sp_site', $site);
+    /**
+     * @param string[] $sites
+     */
+    public function __construct(
+        string $key,
+        array $sites,
+        ?string $excludeFilter
+    ) {
+        parent::__construct(
+            $key,
+            'sp_site',
+            $sites,
+            $excludeFilter
+        );
     }
 }

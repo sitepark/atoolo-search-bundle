@@ -6,8 +6,19 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 
 class CategoryFacet extends FacetField
 {
-    public function __construct(string $key, string ...$category)
-    {
-        parent::__construct($key, 'sp_category_path', $category);
+    /**
+     * @param string[] $groups
+     */
+    public function __construct(
+        string $key,
+        array $categories,
+        ?string $excludeFilter
+    ) {
+        parent::__construct(
+            $key,
+            'sp_category_path',
+            $categories,
+            $excludeFilter
+        );
     }
 }

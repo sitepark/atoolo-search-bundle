@@ -12,7 +12,8 @@ class FacetField implements Facet
     public function __construct(
         private readonly string $key,
         private readonly string $field,
-        private readonly array $terms
+        private readonly array $terms,
+        private readonly ?string $excludeFilter
     ) {
     }
 
@@ -32,5 +33,10 @@ class FacetField implements Facet
     public function getTerms(): array
     {
         return $this->terms;
+    }
+
+    public function getExcludeFilter(): ?string
+    {
+        return $this->excludeFilter;
     }
 }
