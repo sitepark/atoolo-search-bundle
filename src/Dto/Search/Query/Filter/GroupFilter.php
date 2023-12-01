@@ -6,8 +6,10 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
 
 class GroupFilter extends FieldFilter
 {
-    public function __construct(string $key, string ...$group)
-    {
+    public function __construct(
+        ?string $key,
+        string ...$group
+    ) {
         parent::__construct(
             $key,
             'sp_group_path',

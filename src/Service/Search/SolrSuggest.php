@@ -30,7 +30,7 @@ class SolrSuggest implements SuggestSearcher
      */
     public function suggest(SuggestQuery $query): SuggestResult
     {
-        $client = $this->clientFactory->create($query->getCore());
+        $client = $this->clientFactory->create($query->getIndex());
 
         $solrQuery = $this->buildSolrQuery($client, $query);
         $solrResult = $client->select($solrQuery);
@@ -56,7 +56,7 @@ class SolrSuggest implements SuggestSearcher
         $solrQuery->addParam("facet.method", "enum");
         $solrQuery->addParam(
             "facet.prefix",
-            implode(' ', $query->getTermList())
+            $query->getText()
         );
         $solrQuery->addParam("facet.limit", $query->getLimit());
         $solrQuery->addParam("facet.field", $query->getField());
@@ -66,7 +66,7 @@ class SolrSuggest implements SuggestSearcher
         $solrQuery->setRows(0);
 
         // Filter
-        foreach ($query->getFilterList() as $filter) {
+        foreach ($query->getFilter() as $filter) {
             $solrQuery->createFilterQuery($filter->getKey())
                 ->setQuery($filter->getQuery())
                 ->setTags($filter->getTags());

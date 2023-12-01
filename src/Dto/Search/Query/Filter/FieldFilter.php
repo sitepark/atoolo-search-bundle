@@ -14,7 +14,7 @@ class FieldFilter extends Filter
      * @param string[] $values
      */
     public function __construct(
-        string $key,
+        ?string $key,
         private readonly string $field,
         string ...$values
     ) {

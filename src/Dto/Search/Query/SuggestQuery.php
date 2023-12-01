@@ -9,28 +9,27 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 class SuggestQuery
 {
     /**
-     * @param string[] $termList
-     * @param Filter[] $filterList
+     * @param Filter[] $filter
      */
     public function __construct(
-        private readonly string $core,
-        private readonly array $termList,
-        private readonly array $filterList = [],
+        private readonly string $index,
+        private readonly string $text,
+        private readonly array $filter = [],
         private readonly int $limit = 10,
         private readonly string $field = 'raw_content'
     ) {
     }
 
-    public function getCore(): string
+    public function getIndex(): string
     {
-        return $this->core;
+        return $this->index;
     }
     /**
      * @return string[]
      */
-    public function getTermList(): array
+    public function getText(): string
     {
-        return $this->termList;
+        return $this->text;
     }
 
     public function getLimit(): int
@@ -41,9 +40,9 @@ class SuggestQuery
     /**
      * @return Filter[]
      */
-    public function getFilterList(): array
+    public function getFilter(): array
     {
-        return $this->filterList;
+        return $this->filter;
     }
     public function getField(): string
     {

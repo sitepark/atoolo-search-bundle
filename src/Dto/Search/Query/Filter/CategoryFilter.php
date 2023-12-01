@@ -6,8 +6,10 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
 
 class CategoryFilter extends FieldFilter
 {
-    public function __construct(string $key, string ...$category)
-    {
+    public function __construct(
+        ?string $key,
+        string ...$category
+    ) {
         parent::__construct(
             $key,
             'sp_category_path',

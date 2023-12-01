@@ -6,8 +6,10 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
 
 class ObjectTypeFilter extends FieldFilter
 {
-    public function __construct(string $key, string ...$objectTypes)
-    {
+    public function __construct(
+        ?string $key,
+        string ...$objectTypes
+    ) {
         parent::__construct(
             $key,
             'sp_objecttype',

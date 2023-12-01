@@ -23,6 +23,14 @@ class SuggestResult implements IteratorAggregate
         return new ArrayIterator($this->suggestions);
     }
 
+    /**
+     * @return Suggestion[]
+     */
+    public function getSuggestions(): array
+    {
+        return $this->suggestions;
+    }
+
     public function getQueryTime(): int
     {
         return $this->queryTime;

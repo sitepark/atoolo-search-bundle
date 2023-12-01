@@ -6,8 +6,10 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
 
 class ContentSectionTypeFilter extends FieldFilter
 {
-    public function __construct(string $key, string ...$contentTypes)
-    {
+    public function __construct(
+        ?string $key,
+        string ...$contentTypes
+    ) {
         parent::__construct(
             $key,
             'sp_contenttype',

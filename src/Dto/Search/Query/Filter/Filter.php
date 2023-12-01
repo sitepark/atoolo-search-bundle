@@ -10,13 +10,13 @@ class Filter
      * @param string[] $tags
      */
     public function __construct(
-        private readonly string $key,
+        private readonly ?string $key,
         private readonly string $query,
         private readonly array $tags = []
     ) {
     }
 
-    public function getKey(): string
+    public function getKey(): ?string
     {
         return $this->key;
     }
