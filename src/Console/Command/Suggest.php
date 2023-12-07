@@ -23,6 +23,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class Suggest extends Command
 {
+    private InputInterface $input;
     private SymfonyStyle $io;
     private string $solrCore;
 
@@ -47,7 +48,7 @@ class Suggest extends Command
         InputInterface $input,
         OutputInterface $output
     ): int {
-
+        $this->input = $input;
         $this->io = new SymfonyStyle($input, $output);
         $this->solrCore = $input->getArgument('solr-core');
         $terms = $input->getArgument('terms');
@@ -65,6 +66,15 @@ class Suggest extends Command
     protected function createSearcher(): SolrSuggest
     {
         $clientFactory = new SolrParameterClientFactory();
+        $url = parse_url($this->input->getArgument('solr-connection-url'));
+        $clientFactory = new SolrParameterClientFactory(
+            $url['scheme'],
+            $url['host'],
+            $url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983),
+            $url['path'] ?? '',
+            null,
+            0
+        );
         return new SolrSuggest($clientFactory);
     }
 
@@ -74,7 +84,7 @@ class Suggest extends Command
         $excludeMedia = $excludeMedia->exclude();
         return new SuggestQuery(
             $this->solrCore,
-            $terms,
+            implode(' ', $terms),
             [
                 new ArchiveFilter(),
                 $excludeMedia

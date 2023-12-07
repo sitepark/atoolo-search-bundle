@@ -16,21 +16,31 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class SolrParameterClientFactory implements SolrClientFactory
 {
+    public function __construct(
+        private readonly string $scheme,
+        private readonly string $host,
+        private readonly int $port,
+        private readonly string $path = '',
+        private readonly ?string $proxy = null,
+        private readonly ?int $timeout = 0
+    ) {
+    }
+
     public function create(string $core): Client
     {
         $host = 'solr-neu-isenburg-whinchat.veltrup.sitepark.de';
 
         $adapter = new Curl();
-        $adapter->setTimeout(30);
-        //$adapter->setProxy('http://localhost:8889');
+        $adapter->setTimeout($this->timeout);
+        $adapter->setProxy($this->proxy);
         $eventDispatcher = new EventDispatcher();
         $config = [
             'endpoint' => [
                 $host => [
-                    'scheme' => 'https',
-                    'host' => $host,
-                    'port' => 443,
-                    'path' => '',
+                    'scheme' => $this->scheme,
+                    'host' => $this->host,
+                    'port' => $this->port,
+                    'path' => $this->path,
                     'core' => $core,
                 ]
             ]

@@ -17,5 +17,8 @@ use Atoolo\Search\Dto\Indexer\IndexerParameter;
  */
 interface Indexer
 {
-    public function index(IndexerParameter $parameter): void;
+    /**
+     * @return string process id
+     */
+    public function index(IndexerParameter $parameter): string;
 }

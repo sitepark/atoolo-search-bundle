@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Resource\Loader\SiteKitLoader;
+use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Search\Dto\Search\Query\SelectQuery;
 use Atoolo\Search\Dto\Search\Result\ResourceSearchResult;
 use Atoolo\Search\Service\Search\ExternalResourceFactory;
@@ -28,6 +29,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class Search extends Command
 {
     private SymfonyStyle $io;
+    private InputInterface $input;
     private string $index;
     private string $resourceDir;
 
@@ -59,6 +61,7 @@ class Search extends Command
         OutputInterface $output
     ): int {
 
+        $this->input = $input;
         $this->io = new SymfonyStyle($input, $output);
         $this->resourceDir = $input->getArgument('resource-dir');
         $this->index = $input->getArgument('index');
@@ -75,8 +78,19 @@ class Search extends Command
 
     protected function createSearch(): SolrSelect
     {
-        $resourceLoader = new SiteKitLoader($this->resourceDir);
-        $clientFactory = new SolrParameterClientFactory();
+        $resourceBaseLocator = new StaticResourceBaseLocator(
+            $this->resourceDir
+        );
+        $resourceLoader = new SiteKitLoader($resourceBaseLocator);
+        $url = parse_url($this->input->getArgument('solr-connection-url'));
+        $clientFactory = new SolrParameterClientFactory(
+            $url['scheme'],
+            $url['host'],
+            $url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983),
+            $url['path'] ?? '',
+            null,
+            0
+        );
         $defaultBoosting = new DefaultBoostModifier();
 
         $resourceFactoryList = [

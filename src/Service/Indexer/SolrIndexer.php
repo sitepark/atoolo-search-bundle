@@ -6,6 +6,7 @@ namespace Atoolo\Search\Service\Indexer;
 
 use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceBaseLocator;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Indexer;
@@ -25,21 +26,22 @@ class SolrIndexer implements Indexer
     public function __construct(
         private readonly iterable $documentEnricherList,
         private readonly IndexerProgressHandler $indexerProgressHandler,
+        private readonly ResourceBaseLocator $resourceBaseLocator,
         private readonly ResourceLoader $resourceLoader,
         private readonly SolrClientFactory $clientFactory,
         private readonly string $source
     ) {
     }
 
-    public function index(IndexerParameter $parameter): void
+    public function index(IndexerParameter $parameter): string
     {
-        $finder = new LocationFinder($parameter->basePath);
+        $finder = new LocationFinder($this->resourceBaseLocator->locate());
         if (empty($parameter->directories)) {
             $pathList = $finder->findAll();
         } else {
             $pathList = $finder->findInSubdirectories($parameter->directories);
         }
-        $this->indexResources($parameter, $pathList);
+        return $this->indexResources($parameter, $pathList);
     }
 
         /**
@@ -48,9 +50,9 @@ class SolrIndexer implements Indexer
     private function indexResources(
         IndexerParameter $parameter,
         array $pathList
-    ): void {
+    ): string {
         if (count($pathList) === 0) {
-            return;
+            return '';
         }
 
         $total = count($pathList);
@@ -65,7 +67,7 @@ class SolrIndexer implements Indexer
             while (true) {
                 $indexedCount = $this->indexChunks(
                     $processId,
-                    $parameter->coreId,
+                    $parameter->index,
                     $pathList,
                     $offset,
                     $chunkSize
@@ -81,9 +83,11 @@ class SolrIndexer implements Indexer
                 $parameter->cleanupThreshold > 0 &&
                 $successCount >= $parameter->cleanupThreshold
             ) {
-                $this->deleteByProcessId($parameter->coreId, $processId);
+                $this->deleteByProcessId($parameter->index, $processId);
             }
-            $this->commit($parameter->coreId);
+            $this->commit($parameter->index);
+
+            return $processId;
         } finally {
             $this->indexerProgressHandler->finish();
         }

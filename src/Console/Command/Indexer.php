@@ -7,6 +7,7 @@ namespace Atoolo\Search\Console\Command;
 use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Loader\SiteKitLoader;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
+use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Search\Console\Command\Io\IndexerProgressProgressBar;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema21DocumentEnricher;
@@ -28,12 +29,19 @@ class Indexer extends Command
 {
     private IndexerProgressProgressBar $progressBar;
     private SymfonyStyle $io;
+
+    private InputInterface $input;
     private string $resourceDir;
 
     protected function configure(): void
     {
         $this
             ->setHelp('Command to fill a search index')
+            ->addArgument(
+                'solr-connection-url',
+                InputArgument::REQUIRED,
+                'Solr connection url.'
+            )
             ->addArgument(
                 'solr-core',
                 InputArgument::REQUIRED,
@@ -66,16 +74,14 @@ class Indexer extends Command
         OutputInterface $output
     ): int {
 
+        $this->input = $input;
         $this->io = new SymfonyStyle($input, $output);
         $this->progressBar = new IndexerProgressProgressBar($output);
-        $this->resourceDir = $this->getStringArgument(
-            $input,
-            'resource-dir'
-        );
+        $this->resourceDir = $this->getStringArgument('resource-dir');
         $directories = (array)$input->getArgument('directories');
 
         $cleanupThreshold = empty($directories)
-            ? $this->getIntArgument($input, 'cleanup-threshold')
+            ? $this->getIntArgument('cleanup-threshold', 0)
             : 0;
 
         if (empty($directories)) {
@@ -86,8 +92,7 @@ class Indexer extends Command
         }
 
         $parameter = new IndexerParameter(
-            $this->getStringArgument($input, 'solr-core'),
-            $this->resourceDir,
+            $this->getStringArgument('solr-core'),
             $cleanupThreshold,
             $directories
         );
@@ -100,25 +105,23 @@ class Indexer extends Command
         return Command::SUCCESS;
     }
 
-    private function getStringArgument(
-        InputInterface $input,
-        string $name
-    ): string {
-        $value = $input->getArgument($name);
+    private function getStringArgument(string $name): string
+    {
+        $value = $this->input->getArgument($name);
         if (!is_string($value)) {
             throw new InvalidArgumentException(
                 $name . ' must be a string'
             );
         }
-        return strval($value);
-        return (string)$value;
+        return $value;
     }
 
-    private function getIntArgument(
-        InputInterface $input,
-        string $name
-    ): int {
-        $value = $input->getArgument($name);
+    private function getIntArgument(string $name, int $default): int
+    {
+        if (!$this->input->hasArgument($name)) {
+            return $default;
+        }
+        $value = $this->input->getArgument($name);
         if (!is_int($value)) {
             throw new InvalidArgumentException(
                 $name . ' must be a integer'
@@ -143,7 +146,10 @@ class Indexer extends Command
 
     protected function createIndexer(): SolrIndexer
     {
-        $resourceLoader = new SiteKitLoader($this->resourceDir);
+        $resourceBaseLocator = new StaticResourceBaseLocator(
+            $this->resourceDir
+        );
+        $resourceLoader = new SiteKitLoader($resourceBaseLocator);
         $navigationLoader = new SiteKitNavigationHierarchyLoader(
             $resourceLoader
         );
@@ -151,10 +157,21 @@ class Indexer extends Command
             $navigationLoader
         );
 
-        $clientFactory = new SolrParameterClientFactory();
+        $url = parse_url($this->getStringArgument('solr-connection-url'));
+
+        $clientFactory = new SolrParameterClientFactory(
+            $url['scheme'],
+            $url['host'],
+            $url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8382),
+            $url['path'] ?? '',
+            null,
+            0
+        );
+
         return new SolrIndexer(
             [$schema21],
             $this->progressBar,
+            $resourceBaseLocator,
             $resourceLoader,
             $clientFactory,
             'internal'

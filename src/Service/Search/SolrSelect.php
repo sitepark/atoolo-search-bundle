@@ -127,7 +127,8 @@ class SolrSelect implements SelectSearcher
     ): void {
 
         foreach ($filterList as $filter) {
-            $solrQuery->createFilterQuery($filter->getKey())
+            $key = $filter->getKey() ?? uniqid('', true);
+            $solrQuery->createFilterQuery($key)
                 ->setQuery($filter->getQuery())
                 ->setTags($filter->getTags());
         }
