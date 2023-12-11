@@ -9,6 +9,8 @@ use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceBaseLocator;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
+use Atoolo\Search\Dto\Indexer\IndexerResult;
+use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
 use Atoolo\Search\Service\SolrClientFactory;
 use Exception;
@@ -33,7 +35,7 @@ class SolrIndexer implements Indexer
     ) {
     }
 
-    public function index(IndexerParameter $parameter): string
+    public function index(IndexerParameter $parameter): IndexerStatus
     {
         $finder = new LocationFinder($this->resourceBaseLocator->locate());
         if (empty($parameter->directories)) {
@@ -50,9 +52,9 @@ class SolrIndexer implements Indexer
     private function indexResources(
         IndexerParameter $parameter,
         array $pathList
-    ): string {
+    ): IndexerStatus {
         if (count($pathList) === 0) {
-            return '';
+            return IndexerStatus::empty();
         }
 
         $total = count($pathList);
@@ -87,10 +89,11 @@ class SolrIndexer implements Indexer
             }
             $this->commit($parameter->index);
 
-            return $processId;
         } finally {
             $this->indexerProgressHandler->finish();
         }
+
+        return $this->indexerProgressHandler->getStatus();
     }
 
     /**

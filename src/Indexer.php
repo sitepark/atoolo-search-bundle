@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search;
 
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
+use Atoolo\Search\Dto\Indexer\IndexerStatus;
 
 /**
  * The service interface for indexing a search index.
@@ -20,5 +21,5 @@ interface Indexer
     /**
      * @return string process id
      */
-    public function index(IndexerParameter $parameter): string;
+    public function index(IndexerParameter $parameter): IndexerStatus;
 }

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command\Io;
 
+use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
-use Exception;
+use DateTime;
+use Throwable;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -13,6 +15,7 @@ class IndexerProgressProgressBar implements IndexerProgressHandler
 {
     private OutputInterface $output;
     private ProgressBar $progressBar;
+    private IndexerStatus $status;
 
     private array $errors = [];
 
@@ -25,11 +28,19 @@ class IndexerProgressProgressBar implements IndexerProgressHandler
     {
         $this->progressBar = new ProgressBar($this->output, $total);
         $this->formatProgressBar('green');
+        $this->status = new IndexerStatus(
+            new DateTime(),
+            null,
+            $total,
+            0,
+            0
+        );
     }
 
     public function advance(int $step): void
     {
         $this->progressBar->advance($step);
+        $this->status->processed += $step;
     }
 
     private function formatProgressBar(string $color): void
@@ -43,22 +54,29 @@ class IndexerProgressProgressBar implements IndexerProgressHandler
         );
     }
 
-    public function error(Exception $exception): void
+    public function error(Throwable $throwable): void
     {
         $this->formatProgressBar('red');
-        $this->errors[] = $exception;
+        $this->errors[] = $throwable;
+        $this->status->errors++;
     }
 
     public function finish(): void
     {
         $this->progressBar->finish();
+        $this->status->endTime = new DateTime();
     }
 
     /**
-     * @return array<Exception>
+     * @return array<Throwable>
      */
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    public function getStatus(): IndexerStatus
+    {
+        return $this->status;
     }
 }

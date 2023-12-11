@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use DateTime;
-use Exception;
-use SP\Util\Date;
+use Throwable;
+use JsonException;
 
 class BackgroundIndexerProgressState implements IndexerProgressHandler
 {
-    private BackgroundIndexerStatus $status;
+    private IndexerStatus $status;
 
     public function __construct(private readonly string $file)
     {
@@ -18,8 +19,8 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
 
     public function start(int $total): void
     {
-        $this->status = new BackgroundIndexerStatus(
-            new \DateTime(),
+        $this->status = new IndexerStatus(
+            new DateTime(),
             null,
             $total,
             0,
@@ -27,17 +28,23 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
         );
     }
 
+    /**
+     * @throws JsonException
+     */
     public function advance(int $step): void
     {
         $this->status->processed += $step;
         $this->status->store($this->file);
     }
 
-    public function error(Exception $exception): void
+    public function error(Throwable $throwable): void
     {
         $this->status->errors++;
     }
 
+    /**
+     * @throws JsonException
+     */
     public function finish(): void
     {
         $this->status->endTime = new DateTime();
@@ -45,15 +52,15 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
     }
 
     /**
-     * @return array<Exception>
+     * @return array<Throwable>
      */
     public function getErrors(): array
     {
         return [];
     }
 
-    private function getStatusLine(): string
+    public function getStatus(): IndexerStatus
     {
-        return $this->status->getStatusLine();
+        return $this->status;
     }
 }

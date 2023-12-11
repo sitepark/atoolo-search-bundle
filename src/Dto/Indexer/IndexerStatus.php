@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Atoolo\Search\Service\Indexer;
+namespace Atoolo\Search\Dto\Indexer;
 
 use DateTime;
+use JsonException;
 
-class BackgroundIndexerStatus
+class IndexerStatus
 {
     public function __construct(
         public readonly DateTime $startTime,
@@ -15,6 +16,18 @@ class BackgroundIndexerStatus
         public int $processed,
         public int $errors
     ) {
+    }
+
+    public static function empty(): IndexerStatus
+    {
+        $now = new DateTime();
+        return new IndexerStatus(
+            $now,
+            $now,
+            0,
+            0,
+            0
+        );
     }
 
     public function getStatusLine(): string
@@ -32,12 +45,12 @@ class BackgroundIndexerStatus
     }
 
     /**
-     * @throws \JsonException
+     * @throws JsonException
      */
-    public static function load(string $file): ?BackgroundIndexerStatus
+    public static function load(string $file): IndexerStatus
     {
         if (!file_exists($file)) {
-            return null;
+            return self::empty();
         }
         $content = file_get_contents($file);
         $data = json_decode(
@@ -56,7 +69,7 @@ class BackgroundIndexerStatus
             $endTime->setTimestamp($data['endTime']);
         }
 
-        return new BackgroundIndexerStatus(
+        return new IndexerStatus(
             $startTime,
             $endTime,
             $data['total'],
@@ -66,12 +79,12 @@ class BackgroundIndexerStatus
     }
 
     /**
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function store(string $file): void
     {
         $jsonString = json_encode([
-            'statusline' => $this->getStatusLine(),
+            'statusLine' => $this->getStatusLine(),
             'startTime' => $this->startTime->getTimestamp(),
             'endTime' => $this->endTime?->getTimestamp(),
             'total' => $this->total,

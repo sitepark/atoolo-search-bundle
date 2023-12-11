@@ -70,6 +70,9 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
         $doc->sp_changed = $this->toDateTime(
             $resource->getData('init.changed')
         );
+        $doc->sp_generated = $this->toDateTime(
+            $resource->getData('init.generated')
+        );
         $doc->sp_date = $this->toDateTime(
             $resource->getData('base.date')
         );
