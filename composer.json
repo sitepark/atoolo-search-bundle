@@ -28,8 +28,8 @@
         "symfony/dependency-injection": "^6.3 | ^7.0",
         "symfony/event-dispatcher": "^6.3 | ^7.0",
         "symfony/finder": "^6.3 | ^7.0",
-        "symfony/yaml": "^6.3 | ^7.0",
-        "symfony/lock": "^6.3 | ^7.0"
+        "symfony/lock": "^6.3 | ^7.0",
+        "symfony/yaml": "^6.3 | ^7.0"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
@@ -79,18 +79,6 @@
         },
         "sort-packages": true
     },
-    "extra": {
-        "composer-link": {
-            "atoolo/resource": {
-                "dev": false,
-                "version": "dev-feature/hierarchy-loader"
-            }
-        }
-    },
     "repositories": {
-        "atoolo/resource": {
-            "type": "path",
-            "url": "/home/veltrup/.cache/composer/link/atoolo/resource"
-        }
     }
 }
