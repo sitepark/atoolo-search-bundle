@@ -9,7 +9,6 @@ use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceBaseLocator;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
-use Atoolo\Search\Dto\Indexer\IndexerResult;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
 use Atoolo\Search\Service\SolrClientFactory;
@@ -31,22 +30,34 @@ class SolrIndexer implements Indexer
         private readonly ResourceBaseLocator $resourceBaseLocator,
         private readonly ResourceLoader $resourceLoader,
         private readonly SolrClientFactory $clientFactory,
+        private readonly IndexingAborter $aborter,
         private readonly string $source
     ) {
+    }
+
+    public function remove(string $index, string $id): void
+    {
+        $this->deleteById($index, $id);
+        $this->commit($index);
+    }
+
+    public function abort($index): void
+    {
+        $this->aborter->abort($index);
     }
 
     public function index(IndexerParameter $parameter): IndexerStatus
     {
         $finder = new LocationFinder($this->resourceBaseLocator->locate());
-        if (empty($parameter->directories)) {
+        if (empty($parameter->paths)) {
             $pathList = $finder->findAll();
         } else {
-            $pathList = $finder->findInSubdirectories($parameter->directories);
+            $pathList = $finder->findPaths($parameter->paths);
         }
         return $this->indexResources($parameter, $pathList);
     }
 
-        /**
+    /**
      * @param array<string> $pathList
      */
     private function indexResources(
@@ -58,7 +69,12 @@ class SolrIndexer implements Indexer
         }
 
         $total = count($pathList);
-        $this->indexerProgressHandler->start($total);
+        if (empty($parameter->paths)) {
+            $this->deleteErrorProtocol($parameter->index);
+            $this->indexerProgressHandler->start($total);
+        } else {
+            $this->indexerProgressHandler->startUpdate($total);
+        }
 
         $processId = uniqid('', true);
         $offset = 0;
@@ -88,7 +104,6 @@ class SolrIndexer implements Indexer
                 $this->deleteByProcessId($parameter->index, $processId);
             }
             $this->commit($parameter->index);
-
         } finally {
             $this->indexerProgressHandler->finish();
         }
@@ -114,6 +129,11 @@ class SolrIndexer implements Indexer
         if ($resourceList === false) {
             return false;
         }
+        if ($this->aborter->shouldAborted($solrCore)) {
+            $this->aborter->aborted($solrCore);
+            $this->indexerProgressHandler->abort();
+            return false;
+        }
         $this->indexerProgressHandler->advance(count($resourceList));
         $result = $this->add($solrCore, $processId, $resourceList);
 
@@ -135,7 +155,7 @@ class SolrIndexer implements Indexer
         array $pathList,
         int $offset,
         int $length
-    ): array | false {
+    ): array|false {
 
         $maxLength = (count($pathList) ?? 0) - $offset;
         if ($maxLength <= 0) {
@@ -176,6 +196,12 @@ class SolrIndexer implements Indexer
 
         $documents = [];
         foreach ($resources as $resource) {
+            foreach ($this->documentEnricherList as $enricher) {
+                if (!$enricher->isIndexable($resource)) {
+                    $this->indexerProgressHandler->skip(1);
+                    continue 2;
+                }
+            }
             $doc = $update->createDocument();
             foreach ($this->documentEnricherList as $enricher) {
                 $doc = $enricher->enrichDocument(
@@ -200,6 +226,23 @@ class SolrIndexer implements Indexer
             $core,
             '-crawl_process_id:' . $processId . ' AND ' .
             ' sp_source:' . $this->source
+        );
+    }
+
+    private function deleteById(string $core, string $id): void
+    {
+        $this->deleteByQuery(
+            $core,
+            'sp_id:' . $id . ' AND ' .
+            'sp_source:' . $this->source
+        );
+    }
+
+    private function deleteErrorProtocol(string $core): void
+    {
+        $this->deleteByQuery(
+            $core,
+            'crawl_status:error OR crawl_status:warning'
         );
     }
 

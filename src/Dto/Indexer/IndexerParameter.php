@@ -9,7 +9,7 @@ class IndexerParameter
     public function __construct(
         public readonly string $index,
         public readonly int $cleanupThreshold = 0,
-        public readonly array $directories = []
+        public readonly array $paths = []
     ) {
     }
 }

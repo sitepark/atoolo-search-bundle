@@ -10,10 +10,14 @@ use JsonException;
 class IndexerStatus
 {
     public function __construct(
+        public IndexerStatusState $state,
         public readonly DateTime $startTime,
         public ?DateTime $endTime,
         public int $total,
         public int $processed,
+        public int $skipped,
+        public DateTime $lastUpdate,
+        public int $updated,
         public int $errors
     ) {
     }
@@ -22,9 +26,13 @@ class IndexerStatus
     {
         $now = new DateTime();
         return new IndexerStatus(
+            IndexerStatusState::UNKNOWN,
             $now,
             $now,
             0,
+            0,
+            0,
+            $now,
             0,
             0
         );
@@ -38,9 +46,13 @@ class IndexerStatus
         }
         $duration = $this->startTime->diff($endTime);
         return
+            '[' . $this->state->name . '] ' .
             'start: ' . $this->startTime->format('d.m.Y H:i') . ', ' .
             'time: ' . $duration->format('%Hh %Im %Ss') . ', ' .
             'processed: ' . $this->processed . "/" . $this->total . ', ' .
+            'skipped: ' . $this->skipped . ', ' .
+            'lastUpdate: ' . $this->startTime->format('d.m.Y H:i') . ', ' .
+            'updated: ' . $this->updated . ', ' .
             'errors: ' . $this->errors;
     }
 
@@ -60,21 +72,37 @@ class IndexerStatus
             JSON_THROW_ON_ERROR
         );
 
+        $state = isset($data['state'])
+            ? IndexerStatusState::valueOf($data['state'])
+            : IndexerStatusState::UNKNOWN;
+
         $startTime = new DateTime();
         $startTime->setTimestamp($data['startTime']);
 
-        $endTime = null;
+        $endTime = new DateTime();
         if ($data['endTime'] !== null) {
-            $endTime = new DateTime();
             $endTime->setTimestamp($data['endTime']);
+        } else {
+            $endTime->setTimestamp(0);
+        }
+
+        $lastUpdate = new DateTime();
+        if ($data['lastUpdate'] !== null) {
+            $lastUpdate->setTimestamp($data['lastUpdate']);
+        } else {
+            $lastUpdate->setTimestamp(0);
         }
 
         return new IndexerStatus(
+            $state,
             $startTime,
             $endTime,
             $data['total'],
             $data['processed'],
-            $data['errors']
+            $data['skipped'] ?? 0,
+            $lastUpdate,
+            $data['updated'] ?? 0,
+            $data['errors'] ?? 0
         );
     }
 
@@ -84,11 +112,15 @@ class IndexerStatus
     public function store(string $file): void
     {
         $jsonString = json_encode([
+            'state' => $this->state->name,
             'statusLine' => $this->getStatusLine(),
             'startTime' => $this->startTime->getTimestamp(),
             'endTime' => $this->endTime?->getTimestamp(),
             'total' => $this->total,
             'processed' => $this->processed,
+            'skipped' => $this->skipped,
+            'lastUpdate' => $this->lastUpdate->getTimestamp(),
+            'updated' => $this->updated,
             'errors' => $this->errors
         ], JSON_THROW_ON_ERROR);
         file_put_contents($file, $jsonString);

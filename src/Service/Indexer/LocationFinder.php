@@ -37,16 +37,34 @@ class LocationFinder
     /**
      * @param string[] $directories
      */
-    public function findInSubdirectories(array $directories): array
+    public function findPaths(array $paths): array
     {
+        $pathList = [];
+
+        $directories = [];
+
         $finder = new Finder();
+        foreach ($paths as $path) {
+            $absolutePath = $this->basePath . '/' . $path;
+            if (is_file($absolutePath)) {
+                $pathList[] = $path;
+                continue;
+            }
+            if (is_dir($absolutePath)) {
+                $directories[] = $path;
+            }
+        }
+
+        if (empty($directories)) {
+            return $pathList;
+        }
+
         foreach ($directories as $directory) {
             $finder->in($this->basePath . '/' . $directory);
         }
         $finder->name('*.php');
         $finder->files();
 
-        $pathList = [];
         foreach ($finder as $file) {
             $pathList[] = $this->toRelativePath($file->getPathname());
         }

@@ -22,4 +22,8 @@ interface Indexer
      * @return string process id
      */
     public function index(IndexerParameter $parameter): IndexerStatus;
+
+    public function abort($index): void;
+
+    public function remove(string $index, string $id): void;
 }

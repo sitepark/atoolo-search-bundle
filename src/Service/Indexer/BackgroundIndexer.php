@@ -27,6 +27,7 @@ class BackgroundIndexer implements Indexer
         private readonly ResourceBaseLocator $resourceBaseLocator,
         private readonly ResourceLoader $resourceLoader,
         private readonly SolrClientFactory $clientFactory,
+        private readonly IndexingAborter $aborter,
         private readonly string $source,
         private readonly string $statusCacheDir
     ) {
@@ -41,6 +42,16 @@ class BackgroundIndexer implements Indexer
                 $concurrentDirectory
             ));
         }
+    }
+
+    public function remove(string $index, string $id): void
+    {
+        $this->getIndexer($index)->remove($index, $id);
+    }
+
+    public function abort($index): void
+    {
+        $this->getIndexer($index)->abort($index);
     }
 
     public function index(IndexerParameter $parameter): IndexerStatus
@@ -76,7 +87,8 @@ class BackgroundIndexer implements Indexer
             $this->resourceBaseLocator,
             $this->resourceLoader,
             $this->clientFactory,
-            $this->source,
+            $this->aborter,
+            $this->source
         );
     }
 

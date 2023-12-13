@@ -17,6 +17,11 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
     ) {
     }
 
+    public function isIndexable(Resource $resource): bool
+    {
+        $noIndex = $resource->getData('init.noIndex');
+        return $noIndex !== true;
+    }
     public function enrichDocument(
         Resource $resource,
         DocumentInterface $doc,

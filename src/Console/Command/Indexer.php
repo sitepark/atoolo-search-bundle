@@ -10,10 +10,11 @@ use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Search\Console\Command\Io\IndexerProgressProgressBar;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
+use Atoolo\Search\Service\Indexer\IndexingAborter;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema21DocumentEnricher;
 use Atoolo\Search\Service\Indexer\SolrIndexer;
 use Atoolo\Search\Service\SolrParameterClientFactory;
-use http\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -53,9 +54,9 @@ class Indexer extends Command
                 'Resource directory whose data is to be indexed.'
             )
             ->addArgument(
-                'directories',
+                'paths',
                 InputArgument::OPTIONAL | InputArgument::IS_ARRAY,
-                'Resources or directories of the resource to be indexed.'
+                'Resources paths or directories of resources to be indexed.'
             )
             ->addOption(
                 'cleanup-threshold',
@@ -78,23 +79,23 @@ class Indexer extends Command
         $this->io = new SymfonyStyle($input, $output);
         $this->progressBar = new IndexerProgressProgressBar($output);
         $this->resourceDir = $this->getStringArgument('resource-dir');
-        $directories = (array)$input->getArgument('directories');
+        $paths = (array)$input->getArgument('paths');
 
-        $cleanupThreshold = empty($directories)
+        $cleanupThreshold = empty($paths)
             ? $this->getIntArgument('cleanup-threshold', 0)
             : 0;
 
-        if (empty($directories)) {
+        if (empty($paths)) {
             $this->io->title('Index all resources');
         } else {
-            $this->io->title('Index resources subdirectories');
-            $this->io->listing($directories);
+            $this->io->title('Index resource paths');
+            $this->io->listing($paths);
         }
 
         $parameter = new IndexerParameter(
             $this->getStringArgument('solr-core'),
             $cleanupThreshold,
-            $directories
+            $paths
         );
 
         $indexer = $this->createIndexer();
@@ -127,7 +128,7 @@ class Indexer extends Command
                 $name . ' must be a integer'
             );
         }
-        return (int)$value;
+        return $value;
     }
 
     protected function errorReport(): void
@@ -168,12 +169,15 @@ class Indexer extends Command
             0
         );
 
+        $aborter = new IndexingAborter('.');
+
         return new SolrIndexer(
             [$schema21],
             $this->progressBar,
             $resourceBaseLocator,
             $resourceLoader,
             $clientFactory,
+            $aborter,
             'internal'
         );
     }

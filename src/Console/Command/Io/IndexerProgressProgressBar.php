@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command\Io;
 
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
+use Atoolo\Search\Dto\Indexer\IndexerStatusState;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use DateTime;
 use Throwable;
@@ -29,18 +30,31 @@ class IndexerProgressProgressBar implements IndexerProgressHandler
         $this->progressBar = new ProgressBar($this->output, $total);
         $this->formatProgressBar('green');
         $this->status = new IndexerStatus(
+            IndexerStatusState::RUNNING,
             new DateTime(),
             null,
             $total,
             0,
+            0,
+            new DateTime(),
+            0,
             0
         );
+    }
+
+    public function startUpdate(int $total): void
+    {
+        $this->start($total);
     }
 
     public function advance(int $step): void
     {
         $this->progressBar->advance($step);
         $this->status->processed += $step;
+    }
+
+    public function skip(int $step): void
+    {
     }
 
     private function formatProgressBar(string $color): void
@@ -64,6 +78,7 @@ class IndexerProgressProgressBar implements IndexerProgressHandler
     public function finish(): void
     {
         $this->progressBar->finish();
+        $this->status->state = IndexerStatusState::INDEXED;
         $this->status->endTime = new DateTime();
     }
 
@@ -78,5 +93,12 @@ class IndexerProgressProgressBar implements IndexerProgressHandler
     public function getStatus(): IndexerStatus
     {
         return $this->status;
+    }
+
+    public function abort(): void
+    {
+        $this->progressBar->finish();
+        $this->status->state = IndexerStatusState::ABORTED;
+        $this->status->endTime = new DateTime();
     }
 }

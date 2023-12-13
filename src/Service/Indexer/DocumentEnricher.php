@@ -13,6 +13,8 @@ use Solarium\Core\Query\DocumentInterface;
  */
 interface DocumentEnricher
 {
+    public function isIndexable(Resource $resource): bool;
+
     public function enrichDocument(
         Resource $resource,
         DocumentInterface $doc,
