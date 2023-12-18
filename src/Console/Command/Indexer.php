@@ -67,6 +67,16 @@ class Indexer extends Command
                 'can be deleted. Is only used for full indexing.',
                 0
             )
+            ->addOption(
+                'chunk-size',
+                null,
+                InputArgument::OPTIONAL,
+                'The chunk size determines how many documents are ' .
+                'indexed in an update request. The default value is 500. ' .
+                'Higher values no longer have a positive effect. Smaller ' .
+                'values can be selected if the memory limit is reached.',
+                500
+            )
         ;
     }
 
@@ -82,7 +92,7 @@ class Indexer extends Command
         $paths = (array)$input->getArgument('paths');
 
         $cleanupThreshold = empty($paths)
-            ? $this->getIntArgument('cleanup-threshold', 0)
+            ? $this->getIntOption('cleanup-threshold')
             : 0;
 
         if (empty($paths)) {
@@ -95,11 +105,18 @@ class Indexer extends Command
         $parameter = new IndexerParameter(
             $this->getStringArgument('solr-core'),
             $cleanupThreshold,
+            $this->getIntOption('chunk-size'),
             $paths
         );
 
         $indexer = $this->createIndexer();
         $indexer->index($parameter);
+
+        $this->io->text(print_r(gc_status(), true));
+        gc_collect_cycles();
+        $this->io->text(print_r(gc_status(), true));
+        $this->io->text(('memory_get_usage: ' . memory_get_usage()));
+        $this->io->text(('memory_get_peak_usage: ' . memory_get_peak_usage()));
 
         $this->errorReport();
 
@@ -117,12 +134,9 @@ class Indexer extends Command
         return $value;
     }
 
-    private function getIntArgument(string $name, int $default): int
+    private function getIntOption(string $name): int
     {
-        if (!$this->input->hasArgument($name)) {
-            return $default;
-        }
-        $value = $this->input->getArgument($name);
+        $value = $this->input->getOption($name);
         if (!is_int($value)) {
             throw new InvalidArgumentException(
                 $name . ' must be a integer'

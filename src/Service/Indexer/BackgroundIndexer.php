@@ -44,9 +44,12 @@ class BackgroundIndexer implements Indexer
         }
     }
 
-    public function remove(string $index, string $id): void
+    /**
+     * @param string[] $idList
+     */
+    public function remove(string $index, array $idList): void
     {
-        $this->getIndexer($index)->remove($index, $id);
+        $this->getIndexer($index)->remove($index, $idList);
     }
 
     public function abort($index): void

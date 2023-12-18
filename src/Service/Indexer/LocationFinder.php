@@ -22,7 +22,7 @@ class LocationFinder
     {
 
         $finder = new Finder();
-        $finder->in($this->basePath);
+        $finder->in($this->basePath)->exclude('WEB-IES');
         $finder->name('*.php');
         $finder->files();
 

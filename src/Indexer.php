@@ -25,5 +25,8 @@ interface Indexer
 
     public function abort($index): void;
 
-    public function remove(string $index, string $id): void;
+    /**
+     * @param string[] $idList
+     */
+    public function remove(string $index, array $idList): void;
 }

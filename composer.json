@@ -80,5 +80,17 @@
         "sort-packages": true
     },
     "repositories": {
+        "atoolo/resource": {
+            "type": "path",
+            "url": "/home/veltrup/.cache/composer/link/atoolo/resource"
+        }
+    },
+    "extra": {
+        "composer-link": {
+            "atoolo/resource": {
+                "dev": false,
+                "version": "dev-main"
+            }
+        }
     }
 }

@@ -35,9 +35,16 @@ class SolrIndexer implements Indexer
     ) {
     }
 
-    public function remove(string $index, string $id): void
+    /**
+     * @param string[] $idList
+     */
+    public function remove(string $index, array $idList): void
     {
-        $this->deleteById($index, $id);
+        if (empty($idList)) {
+            return;
+        }
+
+        $this->deleteByIdList($index, $idList);
         $this->commit($index);
     }
 
@@ -78,7 +85,6 @@ class SolrIndexer implements Indexer
 
         $processId = uniqid('', true);
         $offset = 0;
-        $chunkSize = 500;
         $successCount = 0;
 
         try {
@@ -88,13 +94,14 @@ class SolrIndexer implements Indexer
                     $parameter->index,
                     $pathList,
                     $offset,
-                    $chunkSize
+                    $parameter->chunkSize
                 );
                 if ($indexedCount === false) {
                     break;
                 }
                 $successCount += $indexedCount;
-                $offset += $chunkSize;
+                $offset += $parameter->chunkSize;
+                gc_collect_cycles();
             }
 
             if (
@@ -229,11 +236,14 @@ class SolrIndexer implements Indexer
         );
     }
 
-    private function deleteById(string $core, string $id): void
+    /**
+     * @param string[] $idList
+     */
+    private function deleteByIdList(string $core, array $idList): void
     {
         $this->deleteByQuery(
             $core,
-            'sp_id:' . $id . ' AND ' .
+            'sp_id:(' . implode(' ', $idList) . ') AND ' .
             'sp_source:' . $this->source
         );
     }
