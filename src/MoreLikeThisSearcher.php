@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search;
 
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
-use Atoolo\Search\Dto\Search\Result\ResourceSearchResult;
+use Atoolo\Search\Dto\Search\Result\SearchResult;
 
 /**
  * The service interface for a "More-Like-This" search.
@@ -22,5 +22,5 @@ interface MoreLikeThisSearcher
 {
     public function moreLikeThis(
         MoreLikeThisQuery $query
-    ): ResourceSearchResult;
+    ): SearchResult;
 }

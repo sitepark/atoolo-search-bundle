@@ -12,7 +12,7 @@ use Atoolo\Search\Dto\Search\Query\QueryDefaultOperator;
 use Atoolo\Search\Dto\Search\Query\SelectQuery;
 use Atoolo\Search\Dto\Search\Result\Facet;
 use Atoolo\Search\Dto\Search\Result\FacetGroup;
-use Atoolo\Search\Dto\Search\Result\ResourceSearchResult;
+use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\SelectSearcher;
 use Atoolo\Search\Service\SolrClientFactory;
 use Solarium\Component\Result\Facet\FacetResultInterface;
@@ -35,7 +35,7 @@ class SolrSelect implements SelectSearcher
     ) {
     }
 
-    public function select(SelectQuery $query): ResourceSearchResult
+    public function select(SelectQuery $query): SearchResult
     {
         $client = $this->clientFactory->create($query->getIndex());
 
@@ -206,13 +206,13 @@ class SolrSelect implements SelectSearcher
     private function buildResult(
         SelectQuery $query,
         ResultInterface $result
-    ): ResourceSearchResult {
+    ): SearchResult {
 
         $resourceList = $this->resultToResourceResolver
             ->loadResourceList($result);
         $facetGroupList = $this->buildFacetGroupList($query, $result);
 
-        return new ResourceSearchResult(
+        return new SearchResult(
             $result->getNumFound(),
             $query->getLimit(),
             $query->getOffset(),

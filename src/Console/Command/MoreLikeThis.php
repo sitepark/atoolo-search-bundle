@@ -7,7 +7,7 @@ namespace Atoolo\Search\Console\Command;
 use Atoolo\Resource\Loader\SiteKitLoader;
 use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
-use Atoolo\Search\Dto\Search\Result\ResourceSearchResult;
+use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\Service\Search\ExternalResourceFactory;
 use Atoolo\Search\Service\Search\InternalMediaResourceFactory;
 use Atoolo\Search\Service\Search\InternalResourceFactory;
@@ -122,7 +122,7 @@ class MoreLikeThis extends Command
         );
     }
 
-    protected function outputResult(ResourceSearchResult $result): void
+    protected function outputResult(SearchResult $result): void
     {
         $this->io->text($result->getTotal() . " Results:");
         foreach ($result as $resource) {

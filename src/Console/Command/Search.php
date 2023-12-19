@@ -7,7 +7,7 @@ namespace Atoolo\Search\Console\Command;
 use Atoolo\Resource\Loader\SiteKitLoader;
 use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Search\Dto\Search\Query\SelectQuery;
-use Atoolo\Search\Dto\Search\Result\ResourceSearchResult;
+use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\Service\Search\ExternalResourceFactory;
 use Atoolo\Search\Service\Search\InternalMediaResourceFactory;
 use Atoolo\Search\Service\Search\InternalResourceFactory;
@@ -128,7 +128,7 @@ class Search extends Command
     }
 
     protected function outputResult(
-        ResourceSearchResult $result
+        SearchResult $result
     ) {
         $this->io->title('Results (' . $result->getTotal() . ')');
         foreach ($result as $resource) {

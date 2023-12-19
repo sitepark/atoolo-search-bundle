@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
-use Atoolo\Search\Dto\Search\Result\ResourceSearchResult;
+use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\MoreLikeThisSearcher;
 use Atoolo\Search\Service\SolrClientFactory;
 use Solarium\Core\Client\Client;
@@ -26,7 +26,7 @@ class SolrMoreLikeThis implements MoreLikeThisSearcher
     ) {
     }
 
-    public function moreLikeThis(MoreLikeThisQuery $query): ResourceSearchResult
+    public function moreLikeThis(MoreLikeThisQuery $query): SearchResult
     {
         $client = $this->clientFactory->create($query->getCore());
         $solrQuery = $this->buildSolrQuery($client, $query);
@@ -61,12 +61,12 @@ class SolrMoreLikeThis implements MoreLikeThisSearcher
 
     private function buildResult(
         ResultInterface $result
-    ): ResourceSearchResult {
+    ): SearchResult {
 
         $resourceList = $this->resultToResourceResolver
             ->loadResourceList($result);
 
-        return new ResourceSearchResult(
+        return new SearchResult(
             $result->getNumFound(),
             0,
             $resourceList,

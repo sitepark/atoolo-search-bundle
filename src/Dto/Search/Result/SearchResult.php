@@ -12,7 +12,7 @@ use Traversable;
 /**
  * @implements IteratorAggregate<Resource>
  */
-class ResourceSearchResult implements IteratorAggregate
+class SearchResult implements IteratorAggregate
 {
     /**
      * @param Resource[] $results
