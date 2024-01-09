@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Search\Query\Filter;
 
-class Filter
+abstract class Filter
 {
     /**
      * @param string[] $tags
      */
     public function __construct(
         private readonly ?string $key,
-        private readonly string $query,
         private readonly array $tags = []
     ) {
     }
@@ -21,10 +20,7 @@ class Filter
         return $this->key;
     }
 
-    public function getQuery(): string
-    {
-        return $this->query;
-    }
+    abstract public function getQuery(): string;
 
     /**
      * @return string[]

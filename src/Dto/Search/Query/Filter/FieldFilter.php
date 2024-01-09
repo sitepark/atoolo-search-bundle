@@ -26,7 +26,6 @@ class FieldFilter extends Filter
         $this->values = $values;
         parent::__construct(
             $key,
-            $this->toQuery(),
             [$key]
         );
     }
@@ -34,7 +33,7 @@ class FieldFilter extends Filter
     /**
      * @param string[] $values
      */
-    private function toQuery(): string
+    public function getQuery(): string
     {
         $filterValue = count($this->values) === 1
             ? $this->values[0]

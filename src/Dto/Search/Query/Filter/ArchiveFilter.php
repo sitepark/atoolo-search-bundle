@@ -9,8 +9,12 @@ class ArchiveFilter extends Filter
     public function __construct()
     {
         parent::__construct(
-            'archive',
-            '-sp_archive:true'
+            'archive'
         );
+    }
+
+    public function getQuery(): string
+    {
+        return '-sp_archive:true';
     }
 }
