@@ -6,6 +6,8 @@ namespace Atoolo\Search\Dto\Search\Query;
 
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
+use GuzzleHttp\Promise\Create;
 
 class SelectQueryBuilder
 {
@@ -13,6 +15,10 @@ class SelectQueryBuilder
     private string $text = '';
     private int $offset = 0;
     private int $limit = 10;
+    /**
+     * @var Criteria[]
+     */
+    private array $sort = [];
     /**
      * @var array<string,Filter>
      */
@@ -96,6 +102,26 @@ class SelectQueryBuilder
     public function getLimit(): int
     {
         return $this->limit;
+    }
+
+    /**
+     * @param Criteria[] $criteriaList
+     */
+    public function sort(Criteria ...$criteriaList): SelectQueryBuilder
+    {
+        foreach ($criteriaList as $criteria) {
+            $this->sort[] = $criteria;
+        }
+        return $this;
+    }
+
+    /**
+     * @internal
+     * @return Criteria[]
+     */
+    public function getSort(): array
+    {
+        return $this->sort;
     }
 
     /**

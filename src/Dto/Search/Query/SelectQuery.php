@@ -6,6 +6,7 @@ namespace Atoolo\Search\Dto\Search\Query;
 
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 
 class SelectQuery
 {
@@ -13,6 +14,10 @@ class SelectQuery
     private readonly string $text;
     private readonly int $offset;
     private readonly int $limit;
+    /**
+     * @var Criteria[]
+     */
+    private readonly array $sort;
     /**
      * @var Filter[]
      */
@@ -32,6 +37,7 @@ class SelectQuery
         $this->text = $builder->getText();
         $this->offset = $builder->getOffset();
         $this->limit = $builder->getLimit();
+        $this->sort = $builder->getSort();
         $this->filterList = $builder->getFilterList();
         $this->facetList = $builder->getFacetList();
         $this->queryDefaultOperator = $builder->getQueryDefaultOperator();
@@ -60,6 +66,14 @@ class SelectQuery
     public function getLimit(): int
     {
         return $this->limit;
+    }
+
+    /**
+     * @return Criteria[]
+     */
+    public function getSort(): array
+    {
+        return $this->sort;
     }
 
     /**

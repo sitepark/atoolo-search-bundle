@@ -10,6 +10,12 @@ use Atoolo\Search\Dto\Search\Query\Facet\FacetQuery;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\QueryDefaultOperator;
 use Atoolo\Search\Dto\Search\Query\SelectQuery;
+use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
+use Atoolo\Search\Dto\Search\Query\Sort\Date;
+use Atoolo\Search\Dto\Search\Query\Sort\Headline;
+use Atoolo\Search\Dto\Search\Query\Sort\Name;
+use Atoolo\Search\Dto\Search\Query\Sort\Natural;
+use Atoolo\Search\Dto\Search\Query\Sort\Score;
 use Atoolo\Search\Dto\Search\Result\Facet;
 use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
@@ -62,6 +68,7 @@ class SolrSelect implements SelectSearcher
         // to get query-time
         $solrQuery->setOmitHeader(false);
 
+        $this->addSortToSolrQuery($solrQuery, $query->getSort());
         $this->addRequiredFieldListToSolrQuery($solrQuery);
         $this->addTextFilterToSolrQuery($solrQuery, $query->getText());
         $this->addQueryDefaultOperatorToSolrQuery(
@@ -78,6 +85,38 @@ class SolrSelect implements SelectSearcher
         );
 
         return $solrQuery;
+    }
+
+    /**
+     * @param Criteria[] $criteriaList
+     */
+    private function addSortToSolrQuery(
+        SolrSelectQuery $solrQuery,
+        array $criteriaList
+    ): void {
+        $sorts = [];
+        foreach ($criteriaList as $criteria) {
+            if ($criteria instanceof Name) {
+                $field = 'sp_name';
+            } elseif ($criteria instanceof Headline) {
+                $field = 'sp_headline';
+            } elseif ($criteria instanceof Date) {
+                $field = 'sp_date';
+            } elseif ($criteria instanceof Natural) {
+                $field = 'sp_sortvalue';
+            } elseif ($criteria instanceof Score) {
+                $field = 'score';
+            } else {
+                throw new \InvalidArgumentException(
+                    'unsupported sort criteria: ' . get_class($criteria)
+                );
+            }
+
+            $direction = strtolower($criteria->getDirection()->name);
+
+            $sorts[$field] = $direction;
+        }
+        $solrQuery->setSorts($sorts);
     }
 
     private function addRequiredFieldListToSolrQuery(
