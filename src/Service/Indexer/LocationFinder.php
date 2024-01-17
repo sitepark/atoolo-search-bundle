@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Resource\ResourceBaseLocator;
 use Symfony\Component\Finder\Finder;
 
 class LocationFinder
 {
-    private readonly string $basePath;
-
-    public function __construct(string $basePath)
-    {
-        $this->basePath = rtrim($basePath, '/');
+    public function __construct(
+        private readonly ResourceBaseLocator $baseLocator
+    ) {
     }
 
     /**
@@ -22,7 +21,7 @@ class LocationFinder
     {
 
         $finder = new Finder();
-        $finder->in($this->basePath)->exclude('WEB-IES');
+        $finder->in($this->getBasePath())->exclude('WEB-IES');
         $finder->name('*.php');
         $finder->files();
 
@@ -35,7 +34,8 @@ class LocationFinder
     }
 
     /**
-     * @param string[] $directories
+     * @param string[] $paths
+     * @return string[]
      */
     public function findPaths(array $paths): array
     {
@@ -45,7 +45,7 @@ class LocationFinder
 
         $finder = new Finder();
         foreach ($paths as $path) {
-            $absolutePath = $this->basePath . '/' . $path;
+            $absolutePath = $this->getBasePath() . '/' . $path;
             if (is_file($absolutePath)) {
                 $pathList[] = $path;
                 continue;
@@ -60,7 +60,7 @@ class LocationFinder
         }
 
         foreach ($directories as $directory) {
-            $finder->in($this->basePath . '/' . $directory);
+            $finder->in($this->getBasePath() . '/' . $directory);
         }
         $finder->name('*.php');
         $finder->files();
@@ -72,8 +72,13 @@ class LocationFinder
         return $pathList;
     }
 
+    private function getBasePath(): string
+    {
+        return rtrim($this->baseLocator->locate(), '/');
+    }
+
     private function toRelativePath(string $path): string
     {
-        return substr($path, strlen($this->basePath));
+        return substr($path, strlen($this->getBasePath()));
     }
 }

@@ -6,7 +6,6 @@ namespace Atoolo\Search\Service\Indexer;
 
 use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Resource;
-use Atoolo\Resource\ResourceBaseLocator;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
@@ -27,8 +26,9 @@ class SolrIndexer implements Indexer
     public function __construct(
         private readonly iterable $documentEnricherList,
         private readonly IndexerProgressHandler $indexerProgressHandler,
-        private readonly ResourceBaseLocator $resourceBaseLocator,
+        private readonly LocationFinder $finder,
         private readonly ResourceLoader $resourceLoader,
+        private readonly TranslationSplitter $translationSplitter,
         private readonly SolrClientFactory $clientFactory,
         private readonly IndexingAborter $aborter,
         private readonly string $source
@@ -55,12 +55,12 @@ class SolrIndexer implements Indexer
 
     public function index(IndexerParameter $parameter): IndexerStatus
     {
-        $finder = new LocationFinder($this->resourceBaseLocator->locate());
         if (empty($parameter->paths)) {
-            $pathList = $finder->findAll();
+            $pathList = $this->finder->findAll();
         } else {
-            $pathList = $finder->findPaths($parameter->paths);
+            $pathList = $this->finder->findPaths($parameter->paths);
         }
+
         return $this->indexResources($parameter, $pathList);
     }
 
@@ -83,42 +83,82 @@ class SolrIndexer implements Indexer
             $this->indexerProgressHandler->startUpdate($total);
         }
 
+
+        $availableIndexes = $this->getAvailableIndexes();
+
         $processId = uniqid('', true);
-        $offset = 0;
-        $successCount = 0;
 
-        try {
-            while (true) {
-                $indexedCount = $this->indexChunks(
-                    $processId,
-                    $parameter->index,
-                    $pathList,
-                    $offset,
-                    $parameter->chunkSize
-                );
-                if ($indexedCount === false) {
-                    break;
-                }
-                $successCount += $indexedCount;
-                $offset += $parameter->chunkSize;
-                gc_collect_cycles();
-            }
+        $splitterResult = $this->translationSplitter->split($pathList);
 
-            if (
-                $parameter->cleanupThreshold > 0 &&
-                $successCount >= $parameter->cleanupThreshold
-            ) {
-                $this->deleteByProcessId($parameter->index, $processId);
-            }
-            $this->commit($parameter->index);
-        } finally {
-            $this->indexerProgressHandler->finish();
+        if (in_array($parameter->index, $availableIndexes)) {
+            $this->indexResourcesPerLanguageIndex(
+                $processId,
+                $parameter,
+                $parameter->index,
+                $splitterResult->getBases()
+            );
+        } else {
+            $this->indexerProgressHandler->error(new Exception(
+                'Index "' . $parameter->index . '" not found'
+            ));
         }
+
+        foreach ($splitterResult->getLocales() as $locale) {
+            $localeIndex = $parameter->index . '-' . $locale;
+            if (in_array($localeIndex, $availableIndexes)) {
+                $this->indexResourcesPerLanguageIndex(
+                    $processId,
+                    $parameter,
+                    $localeIndex,
+                    $splitterResult->getTranslations($locale)
+                );
+            } else {
+                $this->indexerProgressHandler->error(new Exception(
+                    'Index "' . $localeIndex . '" not found'
+                ));
+            }
+        }
+
+        $this->indexerProgressHandler->finish();
 
         return $this->indexerProgressHandler->getStatus();
     }
 
-    /**
+    private function indexResourcesPerLanguageIndex(
+        string $processId,
+        IndexerParameter $parameter,
+        string $index,
+        array $pathList
+    ): void {
+        $offset = 0;
+        $successCount = 0;
+
+        while (true) {
+            $indexedCount = $this->indexChunks(
+                $processId,
+                $index,
+                $pathList,
+                $offset,
+                $parameter->chunkSize
+            );
+            if ($indexedCount === false) {
+                break;
+            }
+            $successCount += $indexedCount;
+            $offset += $parameter->chunkSize;
+            gc_collect_cycles();
+        }
+
+        if (
+            $parameter->cleanupThreshold > 0 &&
+            $successCount >= $parameter->cleanupThreshold
+        ) {
+            $this->deleteByProcessId($index, $processId);
+        }
+        $this->commit($index);
+    }
+
+        /**
      * @param string[] $pathList
      */
     private function indexChunks(
@@ -140,6 +180,9 @@ class SolrIndexer implements Indexer
             $this->aborter->aborted($solrCore);
             $this->indexerProgressHandler->abort();
             return false;
+        }
+        if (empty($resourceList)) {
+            return 0;
         }
         $this->indexerProgressHandler->advance(count($resourceList));
         $result = $this->add($solrCore, $processId, $resourceList);
@@ -271,5 +314,24 @@ class SolrIndexer implements Indexer
         $update->addCommit();
         $update->addOptimize();
         $client->update($update);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getAvailableIndexes(): array
+    {
+        $client = $this->clientFactory->create('');
+        $coreAdminQuery = $client->createCoreAdmin();
+        $statusAction = $coreAdminQuery->createStatus();
+        $coreAdminQuery->setAction($statusAction);
+
+        $availableIndexes = [];
+        $response = $client->coreAdmin($coreAdminQuery);
+        foreach ($response->getStatusResults() as $statusResult) {
+            $availableIndexes[] = $statusResult->getCoreName();
+        }
+
+        return $availableIndexes;
     }
 }

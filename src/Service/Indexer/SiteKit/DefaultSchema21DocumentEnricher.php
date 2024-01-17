@@ -19,7 +19,7 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
 
     public function isIndexable(Resource $resource): bool
     {
-        $noIndex = $resource->getData('init.noIndex');
+        $noIndex = $resource->getData()->getBool('init.noIndex');
         return $noIndex !== true;
     }
     public function enrichDocument(
@@ -29,40 +29,44 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
     ): DocumentInterface {
         $doc->sp_id = $resource->getId();
         $doc->sp_name = $resource->getName();
-        $doc->sp_anchor = $resource->getData('init.anchor');
-        $doc->title = $resource->getData('base.title');
-        $doc->description = $resource->getData('metadata.description');
+        $doc->sp_anchor = $resource->getData()->getString('init.anchor');
+        $doc->title = $resource->getData()->getString('base.title');
+        $doc->description = $resource->getData()->getString(
+            'metadata.description'
+        );
         $doc->sp_objecttype = $resource->getObjectType();
         $doc->sp_canonical = true;
         $doc->crawl_process_id = $processId;
 
-        $mediaUrl = $resource->getData('init.mediaUrl');
-        if ($mediaUrl !== null) {
+        $mediaUrl = $resource->getData()->getString('init.mediaUrl');
+        if (!empty($mediaUrl)) {
             $doc->id = $mediaUrl;
             $doc->url = $mediaUrl;
         } else {
-            $doc->id = $resource->getLocation();
-            $doc->url = $resource->getLocation();
+            $url = $resource->getData()->getString('init.url');
+            $doc->id = $url;
+            $doc->url = $url;
         }
 
         $spContentType = [$resource->getObjectType()];
-        if ($resource->getData('init.media') !== true) {
+        if ($resource->getData()->getBool('init.media') !== true) {
             $spContentType[] = 'article';
         }
-        $contentSectionTypes = $resource->getData('init.contentSectionTypes');
-        if (is_array($contentSectionTypes)) {
-            $spContentType = array_merge($spContentType, $contentSectionTypes);
-        }
-        if ($resource->getData('base.teaser.image') !== null) {
+        $contentSectionTypes = $resource->getData()->getArray(
+            'init.contentSectionTypes'
+        );
+        $spContentType = array_merge($spContentType, $contentSectionTypes);
+
+        if ($resource->getData()->has('base.teaser.image')) {
             $spContentType[] = 'teaserImage';
         }
-        if ($resource->getData('base.teaser.image.copyright') !== null) {
+        if ($resource->getData()->has('base.teaser.image.copyright')) {
             $spContentType[] = 'teaserImageCopyright';
         }
-        if ($resource->getData('base.teaser.headline') !== null) {
+        if ($resource->getData()->has('base.teaser.headline')) {
             $spContentType[] = 'teaserHeadline';
         }
-        if ($resource->getData('base.teaser.text') !== null) {
+        if ($resource->getData()->has('base.teaser.text')) {
             $spContentType[] = 'teaserText';
         }
         $doc->sp_contenttype = $spContentType;
@@ -73,51 +77,59 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
         $doc->meta_content_language = $lang;
 
         $doc->sp_changed = $this->toDateTime(
-            $resource->getData('init.changed')
+            $resource->getData()->getInt('init.changed')
         );
         $doc->sp_generated = $this->toDateTime(
-            $resource->getData('init.generated')
+            $resource->getData()->getInt('init.generated')
         );
         $doc->sp_date = $this->toDateTime(
-            $resource->getData('base.date')
+            $resource->getData()->getInt('base.date')
         );
 
-        $doc->sp_archive = $resource->getData('base.archive') ?? false;
+        $doc->sp_archive = $resource->getData()->getBool('base.archive');
 
-        $headline = $resource->getData('metadata.headline');
+        $headline = $resource->getData()->getString('metadata.headline');
         if (empty($headline)) {
-            $headline = $resource->getData('base.teaser.headline');
+            $headline = $resource->getData()->getString('base.teaser.headline');
         }
         if (empty($headline)) {
-            $headline = $resource->getData('base.title');
+            $headline = $resource->getData()->getString('base.title');
         }
         $doc->sp_title = $headline;
 
         // However, the teaser heading, if specified, must be used for sorting
-        $sortHeadline = $resource->getData('base.teaser.headline');
+        $sortHeadline = $resource->getData()->getString('base.teaser.headline');
         if (empty($sortHeadline)) {
-            $sortHeadline = $resource->getData('metadata.headline');
+            $sortHeadline = $resource->getData()->getString(
+                'metadata.headline'
+            );
         }
         if (empty($sortHeadline)) {
-            $sortHeadline = $resource->getData('base.title');
+            $sortHeadline = $resource->getData()->getString('base.title');
         }
         $doc->sp_sortvalue = $sortHeadline;
 
-        $doc->sp_boost_keywords = $resource->getData('metadata.boostKeywords');
+        $doc->keywords = $resource->getData()->getArray('metadata.keywords');
+
+        $doc->sp_boost_keywords = $resource->getData()->getArray(
+            'metadata.boostKeywords'
+        );
 
         $sites = $this->getParentSiteGroupIdList($resource);
 
         $navigationRoot = $this->navigationLoader->loadRoot(
             $resource->getLocation()
         );
-        $siteGroupId = $navigationRoot->getData('init.siteGroup.id');
-        if ($siteGroupId !== null) {
+        $siteGroupId = $navigationRoot->getData()->getInt('init.siteGroup.id');
+        if ($siteGroupId !== 0) {
             $sites[] = $siteGroupId;
         }
         $doc->sp_site = array_unique($sites);
 
-        $wktPrimaryList = $resource->getData('base.geo.wkt.primary');
-        if (is_array($wktPrimaryList)) {
+        $wktPrimaryList = $resource->getData()->getArray(
+            'base.geo.wkt.primary'
+        );
+        if (!empty($wktPrimaryList)) {
             $allWkt = [];
             foreach ($wktPrimaryList as $wkt) {
                 $allWkt[] = $wkt;
@@ -127,8 +139,8 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
             }
         }
 
-        $categoryList = $resource->getData('metadata.categories');
-        if (is_array($categoryList)) {
+        $categoryList = $resource->getData()->getArray('metadata.categories');
+        if (!empty($categoryList)) {
             $categoryIdList = [];
             foreach ($categoryList as $category) {
                 $categoryIdList[] = $category['id'];
@@ -136,8 +148,10 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
             $doc->sp_category = $categoryIdList;
         }
 
-        $categoryPath = $resource->getData('metadata.categoriesPath');
-        if (is_array($categoryPath)) {
+        $categoryPath = $resource->getData()->getArray(
+            'metadata.categoriesPath'
+        );
+        if (!empty($categoryPath)) {
             $categoryIdPath = [];
             foreach ($categoryPath as $category) {
                 $categoryIdPath[] = $category['id'];
@@ -145,18 +159,17 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
             $doc->sp_category_path = $categoryIdPath;
         }
 
-        $groupPath = $resource->getData('init.groupPath');
+        $groupPath = $resource->getData()->getArray('init.groupPath');
         $groupPathAsIdList = [];
-        if (is_array($groupPath)) {
-            foreach ($groupPath as $group) {
-                $groupPathAsIdList[] = $group['id'];
-            }
+        foreach ($groupPath as $group) {
+            $groupPathAsIdList[] = $group['id'];
         }
+
         $doc->sp_group = $groupPathAsIdList[count($groupPathAsIdList) - 2];
         $doc->sp_group_path = $groupPathAsIdList;
 
-        $schedulingList = $resource->getData('metadata.scheduling');
-        if (is_array($schedulingList) && count($schedulingList) > 0) {
+        $schedulingList = $resource->getData()->getArray('metadata.scheduling');
+        if (!empty($schedulingList)) {
             $doc->sp_date = $this->toDateTime($schedulingList[0]['from']);
             $dateList = [];
             $contentTypeList = [];
@@ -173,23 +186,25 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
             $doc->sp_date_list = $dateList;
         }
 
-        $contentType = $resource->getData('base.mime');
+        $contentType = $resource->getData()->getString('base.mime');
         if ($contentType === null) {
             $contentType = 'text/html; charset=UTF-8';
         }
         $doc->meta_content_type = $contentType;
-        $doc->content = $resource->getData('searchindexdata.content');
+        $doc->content = $resource->getData()->getString(
+            'searchindexdata.content'
+        );
 
-        $accessType = $resource->getData('init.access.type');
-        $groups = $resource->getData('init.access.groups');
+        $accessType = $resource->getData()->getString('init.access.type');
+        $groups = $resource->getData()->getArray('init.access.groups');
 
 
-        if ($accessType === 'allow' && is_array($groups)) {
+        if ($accessType === 'allow' && !empty($groups)) {
             $doc->include_groups = array_map(
                 fn($id): int => $this->idWithoutSignature($id),
                 $groups
             );
-        } elseif ($accessType === 'deny' && is_array($groups)) {
+        } elseif ($accessType === 'deny' && !empty($groups)) {
             $doc->exclude_groups = array_map(
                 fn($id): int => $this->idWithoutSignature($id),
                 $groups
@@ -219,7 +234,6 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
      * - https://gitlab.sitepark.com/customer-projects/stadtundland/blob/develop/stadtundland-module/src/publish/php/SP/Stadtundland/Component/ParkingSpaceExpose.php#L38
      * - https://gitlab.sitepark.com/customer-projects/stadtundland/blob/develop/stadtundland-module/src/publish/php/SP/Stadtundland/Component/Expose.php#L38
      * - https://gitlab.sitepark.com/customer-projects/stadtundland/blob/develop/stadtundland-module/src/publish/php/SP/Stadtundland/Component/PurchaseExpose.php#L38
-     * - https://gitlab.sitepark.com/customer-projects/stuttgart/blob/develop/stuttgart-module/src/publish/php/SP/Stuttgart/Component/JobOffer.php#L29
      * - https://gitlab.sitepark.com/customer-projects/stuttgart/blob/develop/stuttgart-module/src/publish/php/SP/Stuttgart/Component/EventsCalendarExtension.php#L124
      * - https://gitlab.sitepark.com/ies-modules/citycall/blob/develop/citycall-module/src/main/php/src/SP/CityCall/Component/Intro.php#L51
      * - https://gitlab.sitepark.com/ies-modules/citycall/blob/develop/citycall-module/src/main/php/src/SP/CityCall/Controller/Environment.php#L76
@@ -229,13 +243,13 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
     private function getLocaleFromResource(Resource $resource): string
     {
 
-        $locale = $resource->getData('init.locale');
-        if ($locale !== null) {
+        $locale = $resource->getData()->getString('init.locale');
+        if ($locale !== '') {
             return $locale;
         }
-        $groupPath = $resource->getData('init.groupPath');
-        $len = count($groupPath);
-        if (is_array($groupPath)) {
+        $groupPath = $resource->getData()->getArray('init.groupPath');
+        if (!empty($groupPath)) {
+            $len = count($groupPath);
             for ($i = $len - 1; $i >= 0; $i--) {
                 $group = $groupPath[$i];
                 if (isset($group['locale'])) {
@@ -256,11 +270,8 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
         return $locale;
     }
 
-    private function toDateTime(?int $timestamp): ?DateTime
+    private function toDateTime(int $timestamp): ?DateTime
     {
-        if ($timestamp === null) {
-            return null;
-        }
         if ($timestamp <= 0) {
             return null;
         }
@@ -288,11 +299,12 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
     }
 
     /**
-     * @return array
+     * @return array<string,mixed>
      */
     private function getNavigationParents(Resource $resource): array
     {
-        $parents = $resource->getData('base.trees.navigation.parents');
-        return $parents ?? [];
+        return $resource->getData()->getAssociativeArray(
+            'base.trees.navigation.parents'
+        );
     }
 }

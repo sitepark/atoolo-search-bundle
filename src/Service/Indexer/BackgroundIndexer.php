@@ -24,8 +24,9 @@ class BackgroundIndexer implements Indexer
      */
     public function __construct(
         private readonly iterable $documentEnricherList,
-        private readonly ResourceBaseLocator $resourceBaseLocator,
+        private readonly LocationFinder $finder,
         private readonly ResourceLoader $resourceLoader,
+        private readonly TranslationSplitter $translationSplitter,
         private readonly SolrClientFactory $clientFactory,
         private readonly IndexingAborter $aborter,
         private readonly string $source,
@@ -87,8 +88,9 @@ class BackgroundIndexer implements Indexer
         return new SolrIndexer(
             $this->documentEnricherList,
             $progressHandler,
-            $this->resourceBaseLocator,
+            $this->finder,
             $this->resourceLoader,
+            $this->translationSplitter,
             $this->clientFactory,
             $this->aborter,
             $this->source

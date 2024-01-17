@@ -11,7 +11,9 @@ use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Search\Console\Command\Io\IndexerProgressProgressBar;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
+use Atoolo\Search\Service\Indexer\LocationFinder;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema21DocumentEnricher;
+use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
 use Atoolo\Search\Service\Indexer\SolrIndexer;
 use Atoolo\Search\Service\SolrParameterClientFactory;
 use InvalidArgumentException;
@@ -33,6 +35,11 @@ class Indexer extends Command
 
     private InputInterface $input;
     private string $resourceDir;
+
+    public function __construct(private readonly iterable $documentEnricherList)
+    {
+        parent::__construct();
+    }
 
     protected function configure(): void
     {
@@ -89,6 +96,7 @@ class Indexer extends Command
         $this->io = new SymfonyStyle($input, $output);
         $this->progressBar = new IndexerProgressProgressBar($output);
         $this->resourceDir = $this->getStringArgument('resource-dir');
+        $_SERVER['RESOURCE_ROOT'] = $this->resourceDir;
         $paths = (array)$input->getArgument('paths');
 
         $cleanupThreshold = empty($paths)
@@ -112,12 +120,6 @@ class Indexer extends Command
         $indexer = $this->createIndexer();
         $indexer->index($parameter);
 
-        $this->io->text(print_r(gc_status(), true));
-        gc_collect_cycles();
-        $this->io->text(print_r(gc_status(), true));
-        $this->io->text(('memory_get_usage: ' . memory_get_usage()));
-        $this->io->text(('memory_get_peak_usage: ' . memory_get_peak_usage()));
-
         $this->errorReport();
 
         return Command::SUCCESS;
@@ -137,12 +139,12 @@ class Indexer extends Command
     private function getIntOption(string $name): int
     {
         $value = $this->input->getOption($name);
-        if (!is_int($value)) {
+        if (!is_numeric($value)) {
             throw new InvalidArgumentException(
-                $name . ' must be a integer'
+                $name . ' must be a integer: ' . $value
             );
         }
-        return $value;
+        return (int)$value;
     }
 
     protected function errorReport(): void
@@ -164,6 +166,7 @@ class Indexer extends Command
         $resourceBaseLocator = new StaticResourceBaseLocator(
             $this->resourceDir
         );
+        $finder = new LocationFinder($resourceBaseLocator);
         $resourceLoader = new SiteKitLoader($resourceBaseLocator);
         $navigationLoader = new SiteKitNavigationHierarchyLoader(
             $resourceLoader
@@ -172,6 +175,10 @@ class Indexer extends Command
             $navigationLoader
         );
 
+        $documentEnricherList = [$schema21];
+        foreach ($this->documentEnricherList as $enricher) {
+            $documentEnricherList[] = $enricher;
+        }
         $url = parse_url($this->getStringArgument('solr-connection-url'));
 
         $clientFactory = new SolrParameterClientFactory(
@@ -183,13 +190,16 @@ class Indexer extends Command
             0
         );
 
+        $translationSplitter = new SubDirTranslationSplitter();
+
         $aborter = new IndexingAborter('.');
 
         return new SolrIndexer(
-            [$schema21],
+            $documentEnricherList,
             $this->progressBar,
-            $resourceBaseLocator,
+            $finder,
             $resourceLoader,
+            $translationSplitter,
             $clientFactory,
             $aborter,
             'internal'
