@@ -20,4 +20,16 @@ class IndexSchema2xDocumentTest extends TestCase
             'unexpected fields'
         );
     }
+
+    public function testSetMetaString(): void
+    {
+        $doc = new IndexSchema2xDocument();
+        $doc->setMetaString('myname', 'myvalue');
+
+        $this->assertEquals(
+            ['sp_meta_string_myname' => 'myvalue'],
+            $doc->getFields(),
+            'unexpected meta fields'
+        );
+    }
 }
