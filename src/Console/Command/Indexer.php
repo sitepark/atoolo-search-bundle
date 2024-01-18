@@ -12,7 +12,7 @@ use Atoolo\Search\Console\Command\Io\IndexerProgressProgressBar;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
 use Atoolo\Search\Service\Indexer\LocationFinder;
-use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema21DocumentEnricher;
+use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema2xDocumentEnricher;
 use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
 use Atoolo\Search\Service\Indexer\SolrIndexer;
 use Atoolo\Search\Service\SolrParameterClientFactory;
@@ -171,7 +171,7 @@ class Indexer extends Command
         $navigationLoader = new SiteKitNavigationHierarchyLoader(
             $resourceLoader
         );
-        $schema21 = new DefaultSchema21DocumentEnricher(
+        $schema21 = new DefaultSchema2xDocumentEnricher(
             $navigationLoader
         );
 

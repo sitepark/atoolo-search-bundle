@@ -7,7 +7,7 @@ namespace Atoolo\Search\Test\Service\Indexer;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use PHPUnit\Framework\TestCase;
 
-class IndexSchema21DocumentTest extends TestCase
+class IndexSchema2xDocumentTest extends TestCase
 {
     public function testGetFields(): void
     {

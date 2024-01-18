@@ -11,7 +11,7 @@ services:
 
     Atoolo\Search\Console\Command\Indexer:
       arguments:
-        - !tagged_iterator { tag: 'atoolo.search.indexer.documentEnricher' }
+        - !tagged_iterator { tag: 'atoolo.search.indexer.documentEnricher.schema2x' }
 
     Atoolo\Search\Console\Application:
         public: true

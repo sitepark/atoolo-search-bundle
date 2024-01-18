@@ -10,12 +10,11 @@ use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexDocument;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use DateTime;
-use Solarium\Core\Query\DocumentInterface;
 
 /**
  * @implements DocumentEnricher<IndexSchema2xDocument>
  */
-class DefaultSchema21DocumentEnricher implements DocumentEnricher
+class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 {
     public function __construct(
         private readonly SiteKitNavigationHierarchyLoader $navigationLoader
