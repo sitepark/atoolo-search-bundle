@@ -243,6 +243,7 @@ class SolrIndexer implements Indexer
         $client = $this->clientFactory->create($solrCore);
 
         $update = $client->createUpdate();
+        $update->setDocumentClass(IndexSchema2xDocument::class);
 
         $documents = [];
         foreach ($resources as $resource) {

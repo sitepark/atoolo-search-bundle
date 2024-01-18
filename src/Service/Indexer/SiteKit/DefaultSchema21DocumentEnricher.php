@@ -7,9 +7,14 @@ namespace Atoolo\Search\Service\Indexer\SiteKit;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Resource\Resource;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
+use Atoolo\Search\Service\Indexer\IndexDocument;
+use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use DateTime;
 use Solarium\Core\Query\DocumentInterface;
 
+/**
+ * @implements DocumentEnricher<IndexSchema2xDocument>
+ */
 class DefaultSchema21DocumentEnricher implements DocumentEnricher
 {
     public function __construct(
@@ -22,11 +27,12 @@ class DefaultSchema21DocumentEnricher implements DocumentEnricher
         $noIndex = $resource->getData()->getBool('init.noIndex');
         return $noIndex !== true;
     }
+
     public function enrichDocument(
         Resource $resource,
-        DocumentInterface $doc,
+        IndexDocument $doc,
         string $processId
-    ): DocumentInterface {
+    ): IndexDocument {
         $doc->sp_id = $resource->getId();
         $doc->sp_name = $resource->getName();
         $doc->sp_anchor = $resource->getData()->getString('init.anchor');
