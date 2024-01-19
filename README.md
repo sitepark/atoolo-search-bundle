@@ -1,5 +1,5 @@
 [![codecov](https://codecov.io/gh/sitepark/atoolo-resource/graph/badge.svg?token=QwvDRxKEa2)](https://codecov.io/gh/sitepark/atoolo-resource)
 
-# Atoolo resource
+# Atoolo search
 
-In the Atoolo context, resources from IES (Sitepark's content management system) are aggregated data that can be handled through this library.
+Provides services with which a Solr index can be filled and searched for [resources](https://github.com/sitepark/atoolo-resource) via this index.
