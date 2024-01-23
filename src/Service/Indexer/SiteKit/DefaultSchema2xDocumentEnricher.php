@@ -11,6 +11,7 @@ use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexDocument;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use DateTime;
+use Exception;
 
 /**
  * @implements DocumentEnricher<IndexSchema2xDocument>
@@ -127,16 +128,28 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             )
         );
 
-        $sites = $this->getParentSiteGroupIdList($resource);
+        try {
+            $sites = $this->getParentSiteGroupIdList($resource);
 
-        $navigationRoot = $this->navigationLoader->loadRoot(
-            $resource->getLocation()
-        );
-        $siteGroupId = $navigationRoot->getData()->getInt('init.siteGroup.id');
-        if ($siteGroupId !== 0) {
-            $sites[] = $siteGroupId;
+            $navigationRoot = $this->navigationLoader->loadRoot(
+                $resource->getLocation()
+            );
+
+            $siteGroupId = $navigationRoot->getData()->getInt(
+                'init.siteGroup.id'
+            );
+            if ($siteGroupId !== 0) {
+                $sites[] = $siteGroupId;
+            }
+            $doc->sp_site = array_unique($sites);
+        } catch (Exception $e) {
+            throw new DocumentEnrichingException(
+                $resource->getLocation(),
+                'Unable to set sp_site',
+                0,
+                $e
+            );
         }
-        $doc->sp_site = array_unique($sites);
 
         $wktPrimaryList = $resource->getData()->getArray(
             'base.geo.wkt.primary'
