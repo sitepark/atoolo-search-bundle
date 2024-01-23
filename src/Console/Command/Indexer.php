@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Resource\Exception\InvalidResourceException;
+use Atoolo\Resource\Loader\ServerVarResourceBaseLocator;
 use Atoolo\Resource\Loader\SiteKitLoader;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Resource\Loader\StaticResourceBaseLocator;
@@ -156,8 +157,14 @@ class Indexer extends Command
 
     protected function createIndexer(): SolrIndexer
     {
-        $resourceBaseLocator = new StaticResourceBaseLocator(
-            $this->resourceDir
+        $subDirectory = null;
+        if (is_dir($this->resourceDir . '/objects')) {
+            $subDirectory = 'objects';
+        }
+        $_SERVER['RESOURCE_ROOT'] = $this->resourceDir;
+        $resourceBaseLocator = new ServerVarResourceBaseLocator(
+            'RESOURCE_ROOT',
+            $subDirectory
         );
         $finder = new LocationFinder($resourceBaseLocator);
         $resourceLoader = new SiteKitLoader($resourceBaseLocator);

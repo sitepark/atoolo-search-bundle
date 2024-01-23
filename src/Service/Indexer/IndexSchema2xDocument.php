@@ -147,13 +147,6 @@ class IndexSchema2xDocument extends Document implements IndexDocument
             $fields['sp_meta_string_' . $key] = $value;
         }
 
-        $fields = array_map(function ($value) {
-            if ($value instanceof DateTime) {
-                return $value->format(DateTimeInterface::ATOM);
-            }
-            return $value;
-        }, $fields);
-
         return $fields;
     }
 }

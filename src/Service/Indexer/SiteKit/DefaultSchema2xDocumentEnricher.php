@@ -145,7 +145,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         } catch (Exception $e) {
             throw new DocumentEnrichingException(
                 $resource->getLocation(),
-                'Unable to set sp_site',
+                'Unable to set sp_site: ' . $e->getMessage(),
                 0,
                 $e
             );
