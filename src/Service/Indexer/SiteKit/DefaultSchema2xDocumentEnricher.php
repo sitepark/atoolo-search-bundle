@@ -6,6 +6,7 @@ namespace Atoolo\Search\Service\Indexer\SiteKit;
 
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Resource\Resource;
+use Atoolo\Search\Exception\DocumentEnrichingException;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexDocument;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
@@ -27,6 +28,9 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         return $noIndex !== true;
     }
 
+    /**
+     * @throws DocumentEnrichingException
+     */
     public function enrichDocument(
         Resource $resource,
         IndexDocument $doc,
@@ -116,8 +120,11 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 
         $doc->keywords = $resource->getData()->getArray('metadata.keywords');
 
-        $doc->sp_boost_keywords = $resource->getData()->getArray(
-            'metadata.boostKeywords'
+        $doc->sp_boost_keywords = implode(
+            ' ',
+            $resource->getData()->getArray(
+                'metadata.boostKeywords'
+            )
         );
 
         $sites = $this->getParentSiteGroupIdList($resource);

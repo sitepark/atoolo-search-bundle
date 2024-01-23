@@ -41,7 +41,7 @@ class IndexerStatus
     public function getStatusLine(): string
     {
         $endTime = $this->endTime;
-        if ($endTime === null) {
+        if ($endTime === null || $endTime->getTimestamp() === 0) {
             $endTime = new DateTime();
         }
         $duration = $this->startTime->diff($endTime);

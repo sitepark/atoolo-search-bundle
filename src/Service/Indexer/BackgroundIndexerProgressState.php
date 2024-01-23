@@ -7,6 +7,8 @@ namespace Atoolo\Search\Service\Indexer;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Dto\Indexer\IndexerStatusState;
 use DateTime;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Throwable;
 use JsonException;
 
@@ -16,8 +18,10 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
 
     private bool $isUpdate = false;
 
-    public function __construct(private readonly string $file)
-    {
+    public function __construct(
+        private readonly string $file,
+        private readonly LoggerInterface $logger = new NullLogger()
+    ) {
     }
 
     public function start(int $total): void
@@ -74,6 +78,12 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
     public function error(Throwable $throwable): void
     {
         $this->status->errors++;
+        $this->logger->error(
+            $throwable->getMessage(),
+            [
+                'exception' => $throwable,
+            ]
+        );
     }
 
     /**
@@ -106,5 +116,10 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
     public function getStatus(): IndexerStatus
     {
         return $this->status;
+    }
+
+    public function getStatusFile(): string
+    {
+        return $this->file;
     }
 }

@@ -10,6 +10,8 @@ use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
 use Atoolo\Search\Service\SolrClientFactory;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use RuntimeException;
 use JsonException;
 use Symfony\Component\Lock\LockFactory;
@@ -30,7 +32,8 @@ class BackgroundIndexer implements Indexer
         private readonly SolrClientFactory $clientFactory,
         private readonly IndexingAborter $aborter,
         private readonly string $source,
-        private readonly string $statusCacheDir
+        private readonly string $statusCacheDir,
+        private readonly LoggerInterface $logger = new NullLogger()
     ) {
         $this->lockFactory = new LockFactory(new SemaphoreStore());
         if (
@@ -83,7 +86,8 @@ class BackgroundIndexer implements Indexer
     private function getIndexer(string $index): SolrIndexer
     {
         $progressHandler = new BackgroundIndexerProgressState(
-            $this->getStatusFile($index)
+            $this->getStatusFile($index),
+            $this->logger
         );
         return new SolrIndexer(
             $this->documentEnricherList,

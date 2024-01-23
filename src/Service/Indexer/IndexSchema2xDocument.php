@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Indexer;
 
 use DateTime;
-use Solarium\Core\Query\DocumentInterface;
+use DateTimeInterface;
+use Solarium\QueryType\Update\Query\Document;
 
-class IndexSchema2xDocument implements IndexDocument, DocumentInterface
+class IndexSchema2xDocument extends Document implements IndexDocument
 {
     public string $sp_id;
     public ?string $sp_name;
@@ -40,10 +41,7 @@ class IndexSchema2xDocument implements IndexDocument, DocumentInterface
      * @var string[]
      */
     public array $keywords;
-    /**
-     * @var string[]
-     */
-    public array $sp_boost_keywords;
+    public string $sp_boost_keywords;
     /**
      * @var string[]
      */
@@ -148,6 +146,13 @@ class IndexSchema2xDocument implements IndexDocument, DocumentInterface
         foreach ($this->metaString as $key => $value) {
             $fields['sp_meta_string_' . $key] = $value;
         }
+
+        $fields = array_map(function ($value) {
+            if ($value instanceof DateTime) {
+                return $value->format(DateTimeInterface::ATOM);
+            }
+            return $value;
+        }, $fields);
 
         return $fields;
     }

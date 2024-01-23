@@ -14,6 +14,7 @@ use Atoolo\Search\Service\SolrClientFactory;
 use Exception;
 use Solarium\Core\Query\Result\ResultInterface;
 use Solarium\QueryType\Update\Result;
+use Throwable;
 
 /**
  *  Implementation of the indexer on the basis of a Solr index.
@@ -222,7 +223,7 @@ class SolrIndexer implements Indexer
             try {
                 $resource = $this->resourceLoader->load($path);
                 $resourceList[] = $resource;
-            } catch (InvalidResourceException $e) {
+            } catch (Throwable $e) {
                 $this->indexerProgressHandler->error($e);
             }
         }
@@ -253,17 +254,20 @@ class SolrIndexer implements Indexer
                     continue 2;
                 }
             }
-            $doc = $update->createDocument();
-            foreach ($this->documentEnricherList as $enricher) {
-                $doc = $enricher->enrichDocument(
-                    $resource,
-                    $doc,
-                    $processId
-                );
+            try {
+                $doc = $update->createDocument();
+                foreach ($this->documentEnricherList as $enricher) {
+                    $doc = $enricher->enrichDocument(
+                        $resource,
+                        $doc,
+                        $processId
+                    );
+                }
+                $documents[] = $doc;
+            } catch (Throwable $e) {
+                $this->indexerProgressHandler->error($e);
             }
-            $documents[] = $doc;
         }
-
         // add the documents and a commit command to the update query
         $update->addDocuments($documents);
 
