@@ -150,14 +150,7 @@ class Indexer extends Command
     protected function errorReport(): void
     {
         foreach ($this->progressBar->getErrors() as $error) {
-            if ($error instanceof InvalidResourceException) {
-                $this->io->error(
-                    $error->getLocation() . ': ' .
-                    $error->getMessage()
-                );
-            } else {
-                $this->io->error($error->getMessage());
-            }
+            $this->io->error($error->getMessage());
         }
     }
 
