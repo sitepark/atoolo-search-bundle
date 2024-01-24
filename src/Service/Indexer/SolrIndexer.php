@@ -59,10 +59,28 @@ class SolrIndexer implements Indexer
         if (empty($parameter->paths)) {
             $pathList = $this->finder->findAll();
         } else {
-            $pathList = $this->finder->findPaths($parameter->paths);
+            $mappedPaths = $this->mapTranslationPaths($parameter->paths);
+            $pathList = $this->finder->findPaths($mappedPaths);
         }
 
         return $this->indexResources($parameter, $pathList);
+    }
+
+    private function mapTranslationPaths(array $pathList): array
+    {
+        return array_map(function ($path) {
+            $queryString = parse_url($path, PHP_URL_QUERY);
+            if ($queryString === null) {
+                return $path;
+            }
+            $path = parse_url($path, PHP_URL_PATH);
+            parse_str($queryString, $params);
+            if (!isset($params['loc'])) {
+                return $path;
+            }
+            $loc = $params['loc'];
+            return $path . '.translations/' . $loc . ".php";
+        }, $pathList);
     }
 
     /**
