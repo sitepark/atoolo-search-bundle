@@ -9,15 +9,18 @@ use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
+use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\LocationFinder;
 use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
 use Atoolo\Search\Service\Indexer\SolrIndexer;
 use Atoolo\Search\Service\Indexer\TranslationSplitter;
 use Atoolo\Search\Service\SolrClientFactory;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Solarium\Client;
+use Solarium\QueryType\Server\CoreAdmin\Result\Result as CoreAdminResult;
+use Solarium\QueryType\Server\CoreAdmin\Result\StatusResult;
 use Solarium\QueryType\Update\Query\Query as UpdateQuery;
 use Solarium\QueryType\Update\Result as UpdateResult;
 
@@ -67,10 +70,20 @@ class SolrIndexerTest extends TestCase
         $this->updateResult = $this->createStub(UpdateResult::class);
         $this->solrClient = $this->createMock(Client::class);
         $this->updateQuery = $this->createMock(UpdateQuery::class);
+        $this->updateQuery->method('createDocument')
+            ->willReturn($this->createStub(IndexSchema2xDocument::class));
+        $coreAdminResult = $this->createStub(CoreAdminResult::class);
+        $coreAdminResultStatus = $this->createStub(StatusResult::class);
+        $coreAdminResultStatus->method('getCoreName')
+            ->willReturn('test');
+        $coreAdminResult->method('getStatusResults')
+            ->willReturn([$coreAdminResultStatus]);
         $this->solrClient->method('createUpdate')
             ->willReturn($this->updateQuery);
         $this->solrClient->method('update')
             ->willReturn($this->updateResult);
+        $this->solrClient->method('coreAdmin')
+            ->willReturn($coreAdminResult);
         $solrClientFactory->method('create')
             ->willReturn($this->solrClient);
         $this->aborter =  $this->createMock(IndexingAborter::class);

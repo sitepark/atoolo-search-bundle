@@ -23,7 +23,7 @@ class LocationFinder
         $finder = new Finder();
         $finder->in($this->getBasePath())->exclude('WEB-IES');
         $finder->name('*.php');
-        $finder->notPath('*-1015t.php*'); // preview files
+        $finder->notPath('#.*-1015t.php.*#'); // preview files
         $finder->files();
 
         $pathList = [];
@@ -46,7 +46,10 @@ class LocationFinder
 
         $finder = new Finder();
         foreach ($paths as $path) {
-            $absolutePath = $this->getBasePath() . '/' . $path;
+            if (!str_starts_with($path, '/')) {
+                $path = '/' . $path;
+            }
+            $absolutePath = $this->getBasePath() . $path;
             if (is_file($absolutePath)) {
                 $pathList[] = $path;
                 continue;
@@ -61,10 +64,10 @@ class LocationFinder
         }
 
         foreach ($directories as $directory) {
-            $finder->in($this->getBasePath() . '/' . $directory);
+            $finder->in($this->getBasePath() . $directory);
         }
         $finder->name('*.php');
-        $finder->notPath('*-1015t.php*'); // preview files
+        $finder->notPath('#.*-1015t.php.*#'); // preview files
         $finder->files();
 
         foreach ($finder as $file) {

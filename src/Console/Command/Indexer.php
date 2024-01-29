@@ -4,19 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
-use Atoolo\Resource\Exception\InvalidResourceException;
-use Atoolo\Resource\Loader\ServerVarResourceBaseLocator;
-use Atoolo\Resource\Loader\SiteKitLoader;
-use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
-use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Search\Console\Command\Io\IndexerProgressProgressBar;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
-use Atoolo\Search\Service\Indexer\IndexingAborter;
-use Atoolo\Search\Service\Indexer\LocationFinder;
-use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema2xDocumentEnricher;
-use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
-use Atoolo\Search\Service\Indexer\SolrIndexer;
-use Atoolo\Search\Service\SolrParameterClientFactory;
 use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -35,10 +24,11 @@ class Indexer extends Command
     private SymfonyStyle $io;
 
     private InputInterface $input;
-    private string $resourceDir;
 
-    public function __construct(private readonly iterable $documentEnricherList)
-    {
+    public function __construct(
+        private readonly iterable $documentEnricherList,
+        private readonly SolrIndexerBuilder $solrIndexerBuilder
+    ) {
         parent::__construct();
     }
 
@@ -96,8 +86,7 @@ class Indexer extends Command
         $this->input = $input;
         $this->io = new SymfonyStyle($input, $output);
         $this->progressBar = new IndexerProgressProgressBar($output);
-        $this->resourceDir = $this->getStringArgument('resource-dir');
-        $_SERVER['RESOURCE_ROOT'] = $this->resourceDir;
+
         $paths = (array)$input->getArgument('paths');
 
         $cleanupThreshold = empty($paths)
@@ -118,7 +107,15 @@ class Indexer extends Command
             $paths
         );
 
-        $indexer = $this->createIndexer();
+        $this->solrIndexerBuilder
+            ->resourceDir($this->getStringArgument('resource-dir'))
+            ->progressBar($this->progressBar)
+            ->documentEnricherList($this->documentEnricherList)
+            ->solrConnectionUrl(
+                $this->getStringArgument('solr-connection-url')
+            );
+
+        $indexer = $this->solrIndexerBuilder->build();
         $indexer->index($parameter);
 
         $this->errorReport();
@@ -153,56 +150,5 @@ class Indexer extends Command
         foreach ($this->progressBar->getErrors() as $error) {
             $this->io->error($error->getMessage());
         }
-    }
-
-    protected function createIndexer(): SolrIndexer
-    {
-        $subDirectory = null;
-        if (is_dir($this->resourceDir . '/objects')) {
-            $subDirectory = 'objects';
-        }
-        $_SERVER['RESOURCE_ROOT'] = $this->resourceDir;
-        $resourceBaseLocator = new ServerVarResourceBaseLocator(
-            'RESOURCE_ROOT',
-            $subDirectory
-        );
-        $finder = new LocationFinder($resourceBaseLocator);
-        $resourceLoader = new SiteKitLoader($resourceBaseLocator);
-        $navigationLoader = new SiteKitNavigationHierarchyLoader(
-            $resourceLoader
-        );
-        $schema21 = new DefaultSchema2xDocumentEnricher(
-            $navigationLoader
-        );
-
-        $documentEnricherList = [$schema21];
-        foreach ($this->documentEnricherList as $enricher) {
-            $documentEnricherList[] = $enricher;
-        }
-        $url = parse_url($this->getStringArgument('solr-connection-url'));
-
-        $clientFactory = new SolrParameterClientFactory(
-            $url['scheme'],
-            $url['host'],
-            $url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8382),
-            $url['path'] ?? '',
-            null,
-            0
-        );
-
-        $translationSplitter = new SubDirTranslationSplitter();
-
-        $aborter = new IndexingAborter('.');
-
-        return new SolrIndexer(
-            $documentEnricherList,
-            $this->progressBar,
-            $finder,
-            $resourceLoader,
-            $translationSplitter,
-            $clientFactory,
-            $aborter,
-            'internal'
-        );
     }
 }

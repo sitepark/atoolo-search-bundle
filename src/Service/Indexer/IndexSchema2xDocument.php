@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Indexer;
 
 use DateTime;
-use DateTimeInterface;
 use Solarium\QueryType\Update\Query\Document;
 
 class IndexSchema2xDocument extends Document implements IndexDocument
@@ -103,7 +102,7 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     public ?string $sp_citygov_lastname;
 
     /**
-     * List of Organisation Id's
+     * List of Organisation Ids
      * @var int[]
      */
     public array $sp_organisation_path;
@@ -134,15 +133,33 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     public function getFields(): array
     {
         $fields = get_object_vars($this);
-        $fields = array_filter($fields, function ($value, $key) {
-            if (is_null($value)) {
-                return false;
-            }
-            if ($key === 'metaString') {
-                return false;
-            }
-            return true;
-        }, ARRAY_FILTER_USE_BOTH);
+
+        // filter out inherited fields
+
+        $fields = array_filter(
+            $fields,
+            static function ($value, $key) {
+
+                if (is_null($value)) {
+                    return false;
+                }
+
+                $inheritedFields = [
+                    'fields',
+                    'modifiers',
+                    'fieldBoosts'
+                ];
+                if (in_array($key, $inheritedFields, true)) {
+                    return false;
+                }
+
+                if ($key === 'metaString') {
+                    return false;
+                }
+                return true;
+            },
+            ARRAY_FILTER_USE_BOTH
+        );
         foreach ($this->metaString as $key => $value) {
             $fields['sp_meta_string_' . $key] = $value;
         }
