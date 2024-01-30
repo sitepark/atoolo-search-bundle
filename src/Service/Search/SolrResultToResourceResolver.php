@@ -66,5 +66,4 @@ class SolrResultToResourceResolver
         }
         return $fields[$name];
     }
-
 }
