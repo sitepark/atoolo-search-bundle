@@ -1,4 +1,5 @@
 [![codecov](https://codecov.io/gh/sitepark/atoolo-resource/graph/badge.svg?token=QwvDRxKEa2)](https://codecov.io/gh/sitepark/atoolo-resource)
+![phpstan](https://img.shields.io/badge/PHPStan-level%209-brightgreen)
 
 # Atoolo search
 
