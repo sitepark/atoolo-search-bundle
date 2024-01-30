@@ -4,6 +4,7 @@ namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Search\Service\Indexer\LocationFinder;
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -13,10 +14,12 @@ class LocationFinderTest extends TestCase
     private LocationFinder $locationFinder;
     protected function setUp(): void
     {
-        $file = __DIR__ . '/../../resources/Service/Indexer/LocationFinder';
         $base = realpath(
             __DIR__ . '/../../resources/Service/Indexer/LocationFinder'
         );
+        if ($base === false) {
+            throw new InvalidArgumentException('basepath not found');
+        }
         $this->locationFinder = new LocationFinder(
             new StaticResourceBaseLocator($base)
         );

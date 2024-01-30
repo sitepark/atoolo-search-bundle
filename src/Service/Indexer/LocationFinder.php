@@ -31,6 +31,8 @@ class LocationFinder
             $pathList[] = $this->toRelativePath($file->getPathname());
         }
 
+        sort($pathList);
+
         return $pathList;
     }
 
@@ -73,6 +75,8 @@ class LocationFinder
         foreach ($finder as $file) {
             $pathList[] = $this->toRelativePath($file->getPathname());
         }
+
+        sort($pathList);
 
         return $pathList;
     }
