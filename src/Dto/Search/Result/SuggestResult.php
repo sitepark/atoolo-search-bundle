@@ -8,16 +8,23 @@ use ArrayIterator;
 use IteratorAggregate;
 
 /**
- * @implements IteratorAggregate<Suggestion>
+ * @implements IteratorAggregate<int,Suggestion>
  */
 class SuggestResult implements IteratorAggregate
 {
+    /**
+     * @param Suggestion[] $suggestions
+     * @param int $queryTime
+     */
     public function __construct(
         private readonly array $suggestions,
         private readonly int $queryTime
     ) {
     }
 
+    /**
+     * @return ArrayIterator<int,Suggestion>
+     */
     public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->suggestions);

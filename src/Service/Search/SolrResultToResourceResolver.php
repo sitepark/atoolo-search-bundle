@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\Resource;
-use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Exception\MissMatchingResourceFactoryException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Solarium\Core\Query\Result\ResultInterface;
 use Solarium\QueryType\Select\Result\Document;
+use Solarium\QueryType\Select\Result\Result as SelectResult;
 
 /**
  * The loadResourceList() method receives a Solr result and generates the
@@ -31,9 +30,10 @@ class SolrResultToResourceResolver
     /**
      * @return array<Resource>
      */
-    public function loadResourceList(ResultInterface $result): array
+    public function loadResourceList(SelectResult $result): array
     {
         $resourceList = [];
+        /** @var Document $document */
         foreach ($result as $document) {
             try {
                 $resourceList[] = $this->loadResource($document);
@@ -53,6 +53,18 @@ class SolrResultToResourceResolver
             }
         }
 
-        throw new MissMatchingResourceFactoryException($document->url);
+        $location = $this->getField($document, 'url') ?? '';
+
+        throw new MissMatchingResourceFactoryException($location);
     }
+
+    private function getField(Document $document, string $name): ?string
+    {
+        $fields = $document->getFields();
+        if (!isset($fields[$name])) {
+            return null;
+        }
+        return $fields[$name];
+    }
+
 }

@@ -6,7 +6,6 @@ namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
-use Atoolo\Search\Service\Search\ResourceFactory;
 use Solarium\QueryType\Select\Result\Document;
 
 /**
@@ -23,11 +22,22 @@ class InternalResourceFactory implements ResourceFactory
 
     public function accept(Document $document): bool
     {
-        return str_ends_with($document->url, '.php');
+        $location = $this->getField($document, 'url') ?? '';
+        return str_ends_with($location, '.php');
     }
 
     public function create(Document $document): Resource
     {
-        return $this->resourceLoader->load($document->url);
+        $location = $this->getField($document, 'url') ?? '';
+        return $this->resourceLoader->load($location);
+    }
+
+    private function getField(Document $document, string $name): ?string
+    {
+        $fields = $document->getFields();
+        if (!isset($fields[$name])) {
+            return null;
+        }
+        return $fields[$name];
     }
 }

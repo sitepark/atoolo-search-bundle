@@ -7,7 +7,7 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 class CategoryFacet extends FacetField
 {
     /**
-     * @param string[] $groups
+     * @param string[] $categories
      */
     public function __construct(
         string $key,

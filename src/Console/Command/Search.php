@@ -15,6 +15,7 @@ use Atoolo\Search\Service\Search\SiteKit\DefaultBoostModifier;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use Atoolo\Search\Service\Search\SolrSelect;
 use Atoolo\Search\Service\SolrParameterClientFactory;
+use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -63,8 +64,8 @@ class Search extends Command
 
         $this->input = $input;
         $this->io = new SymfonyStyle($input, $output);
-        $this->resourceDir = $input->getArgument('resource-dir');
-        $this->index = $input->getArgument('index');
+        $this->resourceDir = $this->getStringArgument('resource-dir');
+        $this->index = $this->getStringArgument('index');
 
         $searcher = $this->createSearch();
         $query = $this->buildQuery($input);
@@ -76,17 +77,29 @@ class Search extends Command
         return Command::SUCCESS;
     }
 
+    private function getStringArgument(string $name): string
+    {
+        $value = $this->input->getArgument($name);
+        if (!is_string($value)) {
+            throw new InvalidArgumentException(
+                $name . ' must be a string'
+            );
+        }
+        return $value;
+    }
+
     protected function createSearch(): SolrSelect
     {
         $resourceBaseLocator = new StaticResourceBaseLocator(
             $this->resourceDir
         );
         $resourceLoader = new SiteKitLoader($resourceBaseLocator);
-        $url = parse_url($this->input->getArgument('solr-connection-url'));
+        /** @var string[] */
+        $url = parse_url($this->getStringArgument('solr-connection-url'));
         $clientFactory = new SolrParameterClientFactory(
             $url['scheme'],
             $url['host'],
-            $url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983),
+            (int)($url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983)),
             $url['path'] ?? '',
             null,
             0
@@ -129,18 +142,18 @@ class Search extends Command
 
     protected function outputResult(
         SearchResult $result
-    ) {
+    ): void {
         $this->io->title('Results (' . $result->getTotal() . ')');
         foreach ($result as $resource) {
             $this->io->text($resource->getLocation());
         }
 
-        if (count($result->getFacetGroupList()) > 0) {
+        if (count($result->getFacetGroups()) > 0) {
             $this->io->title('Facets');
-            foreach ($result->getFacetGroupList() as $facetGroup) {
+            foreach ($result->getFacetGroups() as $facetGroup) {
                 $this->io->section($facetGroup->getKey());
                 $listing = [];
-                foreach ($facetGroup->getFacetList() as $facet) {
+                foreach ($facetGroup->getFacets() as $facet) {
                     $listing[] =
                         $facet->getKey() .
                         ' (' . $facet->getHits() . ')';

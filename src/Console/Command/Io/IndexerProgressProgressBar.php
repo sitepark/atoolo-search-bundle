@@ -8,9 +8,9 @@ use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Dto\Indexer\IndexerStatusState;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use DateTime;
-use Throwable;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 class IndexerProgressProgressBar implements IndexerProgressHandler
 {
@@ -18,6 +18,9 @@ class IndexerProgressProgressBar implements IndexerProgressHandler
     private ProgressBar $progressBar;
     private IndexerStatus $status;
 
+    /**
+     * @var array<Throwable>
+     */
     private array $errors = [];
 
     public function __construct(OutputInterface $output)

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\Resource;
+use LogicException;
 use Solarium\QueryType\Select\Result\Document;
 
 /**
@@ -18,7 +19,10 @@ class ExternalResourceFactory implements ResourceFactory
 {
     public function accept(Document $document): bool
     {
-        $location = $document->url;
+        $location = $this->getField($document, 'url');
+        if ($location === null) {
+            return false;
+        }
         return (
             str_starts_with($location, 'http://') ||
             str_starts_with($location, 'https://')
@@ -27,12 +31,26 @@ class ExternalResourceFactory implements ResourceFactory
 
     public function create(Document $document): Resource
     {
+        $location = $this->getField($document, 'url');
+        if ($location === null) {
+            throw new LogicException('document should contains a url');
+        }
+
         return new Resource(
-            $document->url,
+            $location,
             '',
-            $document->title,
+            $this->getField($document, 'title') ?? '',
             'external',
             []
         );
+    }
+
+    private function getField(Document $document, string $name): ?string
+    {
+        $fields = $document->getFields();
+        if (!isset($fields[$name])) {
+            return null;
+        }
+        return $fields[$name];
     }
 }

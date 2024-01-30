@@ -21,10 +21,11 @@ use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\SelectSearcher;
 use Atoolo\Search\Service\SolrClientFactory;
-use Solarium\Component\Result\Facet\FacetResultInterface;
+use InvalidArgumentException;
+use Solarium\Component\Facet\Field;
 use Solarium\Core\Client\Client;
-use Solarium\Core\Query\Result\ResultInterface;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
+use Solarium\QueryType\Select\Result\Result as SelectResult;
 
 /**
  * Implementation of the searcher on the basis of a Solr index.
@@ -46,6 +47,7 @@ class SolrSelect implements SelectSearcher
         $client = $this->clientFactory->create($query->getIndex());
 
         $solrQuery = $this->buildSolrQuery($client, $query);
+        /** @var SelectResult $result */
         $result = $client->execute($solrQuery);
         return $this->buildResult($query, $result);
     }
@@ -107,7 +109,7 @@ class SolrSelect implements SelectSearcher
             } elseif ($criteria instanceof Score) {
                 $field = 'score';
             } else {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     'unsupported sort criteria: ' . get_class($criteria)
                 );
             }
@@ -133,11 +135,13 @@ class SolrSelect implements SelectSearcher
             return;
         }
         $terms = explode(' ', $text);
-        $terms = array_map(function ($term) use ($solrQuery) {
-            $term = trim($term);
-            return $solrQuery->getHelper()->escapeTerm($term);
-        },
-            $terms);
+        $terms = array_map(
+            static function ($term) use ($solrQuery) {
+                $term = trim($term);
+                return $solrQuery->getHelper()->escapeTerm($term);
+            },
+            $terms
+        );
         $text = implode(' ', $terms);
         $solrQuery->setQuery($text);
     }
@@ -174,7 +178,7 @@ class SolrSelect implements SelectSearcher
     }
 
     /**
-     * @param \Atoolo\Search\Dto\Search\Query\Facet\Facet[] $filterList
+     * @param \Atoolo\Search\Dto\Search\Query\Facet\Facet[] $facetList
      */
     private function addFacetListToSolrQuery(
         SolrSelectQuery $solrQuery,
@@ -188,7 +192,7 @@ class SolrSelect implements SelectSearcher
             } elseif ($facet instanceof FacetMultiQuery) {
                 $this->addFacetMultiQueryToSolrQuery($solrQuery, $facet);
             } else {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     'Unsupported facet-class ' . get_class($facet)
                 );
             }
@@ -208,7 +212,9 @@ class SolrSelect implements SelectSearcher
         if ($facet->getExcludeFilter() !== null) {
             $field = '{!ex=' . $facet->getExcludeFilter() . '}' . $field;
         }
-        $facetSet->createFacetField($facet->getKey())
+        /** @var Field $solariumFacet */
+        $solariumFacet = $facetSet->createFacetField($facet->getKey());
+        $solariumFacet
             ->setField($field)
             ->setTerms($facet->getTerms());
     }
@@ -244,7 +250,7 @@ class SolrSelect implements SelectSearcher
 
     private function buildResult(
         SelectQuery $query,
-        ResultInterface $result
+        SelectResult $result
     ): SearchResult {
 
         $resourceList = $this->resultToResourceResolver
@@ -252,22 +258,21 @@ class SolrSelect implements SelectSearcher
         $facetGroupList = $this->buildFacetGroupList($query, $result);
 
         return new SearchResult(
-            $result->getNumFound(),
+            $result->getNumFound() ?? 0,
             $query->getLimit(),
             $query->getOffset(),
             $resourceList,
             $facetGroupList,
-            $result->getQueryTime()
+            $result->getQueryTime() ?? 0
         );
     }
 
     /**
-     * @param ResultInterface $result
      * @return FacetGroup[]
      */
     private function buildFacetGroupList(
         SelectQuery $query,
-        ResultInterface $result
+        SelectResult $result
     ): array {
 
         $facetSet = $result->getFacetSet();
@@ -277,9 +282,14 @@ class SolrSelect implements SelectSearcher
 
         $facetGroupList = [];
         foreach ($query->getFacetList() as $facet) {
+            /** @var ?\Solarium\Component\Result\Facet\Field $resultFacet */
+            $resultFacet = $facetSet->getFacet($facet->getKey());
+            if ($resultFacet === null) {
+                continue;
+            }
             $facetGroupList[] = $this->buildFacetGroup(
                 $facet->getKey(),
-                $facetSet->getFacet($facet->getKey())
+                $resultFacet
             );
         }
         return $facetGroupList;
@@ -287,10 +297,15 @@ class SolrSelect implements SelectSearcher
 
     private function buildFacetGroup(
         string $key,
-        FacetResultInterface $solrFacet
+        \Solarium\Component\Result\Facet\Field $solrFacet
     ): FacetGroup {
         $facetList = [];
         foreach ($solrFacet as $value => $count) {
+            if (!is_int($count)) {
+                throw new InvalidArgumentException(
+                    'facet count should be a int: ' . $count
+                );
+            }
             $facetList[] = new Facet((string)$value, $count);
         }
         return new FacetGroup($key, $facetList);

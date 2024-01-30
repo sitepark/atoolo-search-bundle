@@ -6,6 +6,8 @@ namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Search\Console\Command\Io\IndexerProgressProgressBar;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
+use Atoolo\Search\Service\Indexer\DocumentEnricher;
+use Atoolo\Search\Service\Indexer\IndexDocument;
 use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -25,6 +27,10 @@ class Indexer extends Command
 
     private InputInterface $input;
 
+    /**
+     * phpcs:ignore
+     * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
+     */
     public function __construct(
         private readonly iterable $documentEnricherList,
         private readonly SolrIndexerBuilder $solrIndexerBuilder
@@ -87,7 +93,7 @@ class Indexer extends Command
         $this->io = new SymfonyStyle($input, $output);
         $this->progressBar = new IndexerProgressProgressBar($output);
 
-        $paths = (array)$input->getArgument('paths');
+        $paths = $this->getArrayArgument('paths');
 
         $cleanupThreshold = empty($paths)
             ? $this->getIntOption('cleanup-threshold')
@@ -143,6 +149,20 @@ class Indexer extends Command
             );
         }
         return (int)$value;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getArrayArgument(string $name): array
+    {
+        $value = $this->input->getArgument($name);
+        if (!is_array($value)) {
+            throw new InvalidArgumentException(
+                $name . ' must be a array'
+            );
+        }
+        return $value;
     }
 
     protected function errorReport(): void

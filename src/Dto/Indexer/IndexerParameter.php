@@ -6,6 +6,9 @@ namespace Atoolo\Search\Dto\Indexer;
 
 class IndexerParameter
 {
+    /**
+     * @param string[] $paths
+     */
     public function __construct(
         public readonly string $index,
         public readonly int $cleanupThreshold = 0,

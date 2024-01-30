@@ -10,9 +10,6 @@ class FieldFilter extends Filter
      * @var string[]
      */
     private readonly array $values;
-    /**
-     * @param string[] $values
-     */
     public function __construct(
         ?string $key,
         private readonly string $field,
@@ -26,13 +23,10 @@ class FieldFilter extends Filter
         $this->values = $values;
         parent::__construct(
             $key,
-            [$key]
+            $key !== null ? [$key] : []
         );
     }
 
-    /**
-     * @param string[] $values
-     */
     public function getQuery(): string
     {
         $filterValue = count($this->values) === 1

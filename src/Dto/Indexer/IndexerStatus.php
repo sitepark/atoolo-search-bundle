@@ -5,8 +5,23 @@ declare(strict_types=1);
 namespace Atoolo\Search\Dto\Indexer;
 
 use DateTime;
+use InvalidArgumentException;
 use JsonException;
 
+/**
+ * @phpstan-type JsonStatus array{
+ *  state: ?string,
+ *  statusLine: ?string,
+ *  startTime: int,
+ *  endTime: ?int,
+ *  total: int,
+ *  processed: int,
+ *  skipped: ?int,
+ *  lastUpdate: ?int,
+ *  updated: ?int,
+ *  errors: ?int
+ * }
+ */
 class IndexerStatus
 {
     public function __construct(
@@ -65,6 +80,10 @@ class IndexerStatus
             return self::empty();
         }
         $content = file_get_contents($file);
+        if ($content === false) {
+            throw new InvalidArgumentException('Cannot read file ' . $file);
+        }
+        /** @var JsonStatus $data */
         $data = json_decode(
             $content,
             true,

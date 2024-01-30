@@ -22,21 +22,19 @@ class SolrParameterClientFactory implements SolrClientFactory
         private readonly int $port,
         private readonly string $path = '',
         private readonly ?string $proxy = null,
-        private readonly ?int $timeout = 0
+        private readonly int $timeout = 0
     ) {
     }
 
     public function create(string $core): Client
     {
-        $host = 'solr-neu-isenburg-whinchat.veltrup.sitepark.de';
-
         $adapter = new Curl();
         $adapter->setTimeout($this->timeout);
         $adapter->setProxy($this->proxy);
         $eventDispatcher = new EventDispatcher();
         $config = [
             'endpoint' => [
-                $host => [
+                $this->host => [
                     'scheme' => $this->scheme,
                     'host' => $this->host,
                     'port' => $this->port,

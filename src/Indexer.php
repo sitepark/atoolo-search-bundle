@@ -18,12 +18,9 @@ use Atoolo\Search\Dto\Indexer\IndexerStatus;
  */
 interface Indexer
 {
-    /**
-     * @return string process id
-     */
     public function index(IndexerParameter $parameter): IndexerStatus;
 
-    public function abort($index): void;
+    public function abort(string $index): void;
 
     /**
      * @param string[] $idList

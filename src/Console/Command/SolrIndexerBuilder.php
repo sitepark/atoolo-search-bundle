@@ -8,6 +8,8 @@ use Atoolo\Resource\Loader\ServerVarResourceBaseLocator;
 use Atoolo\Resource\Loader\SiteKitLoader;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Search\Console\Command\Io\IndexerProgressProgressBar;
+use Atoolo\Search\Service\Indexer\DocumentEnricher;
+use Atoolo\Search\Service\Indexer\IndexDocument;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
 use Atoolo\Search\Service\Indexer\LocationFinder;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema2xDocumentEnricher;
@@ -18,6 +20,10 @@ use Atoolo\Search\Service\SolrParameterClientFactory;
 class SolrIndexerBuilder
 {
     private string $resourceDir;
+    /**
+     * phpcs:ignore
+     * @var iterable<DocumentEnricher<IndexDocument>>
+     */
     private iterable $documentEnricherList;
     private IndexerProgressProgressBar $progressBar;
     private string $solrConnectionUrl;
@@ -28,6 +34,10 @@ class SolrIndexerBuilder
         return $this;
     }
 
+    /**
+     * phpcs:ignore
+     * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
+     */
     public function documentEnricherList(
         iterable $documentEnricherList
     ): SolrIndexerBuilder {
@@ -69,16 +79,18 @@ class SolrIndexerBuilder
             $navigationLoader
         );
 
+        /** @var array<DocumentEnricher<IndexDocument>> $documentEnricherList */
         $documentEnricherList = [$schema21];
         foreach ($this->documentEnricherList as $enricher) {
             $documentEnricherList[] = $enricher;
         }
+        /** @var string[] $url */
         $url = parse_url($this->solrConnectionUrl);
 
         $clientFactory = new SolrParameterClientFactory(
             $url['scheme'],
             $url['host'],
-            $url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8382),
+            (int)($url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8382)),
             $url['path'] ?? '',
             null,
             0

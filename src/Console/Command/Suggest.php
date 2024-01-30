@@ -10,6 +10,7 @@ use Atoolo\Search\Dto\Search\Query\SuggestQuery;
 use Atoolo\Search\Dto\Search\Result\SuggestResult;
 use Atoolo\Search\Service\Search\SolrSuggest;
 use Atoolo\Search\Service\SolrParameterClientFactory;
+use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -50,8 +51,8 @@ class Suggest extends Command
     ): int {
         $this->input = $input;
         $this->io = new SymfonyStyle($input, $output);
-        $this->solrCore = $input->getArgument('solr-core');
-        $terms = $input->getArgument('terms');
+        $this->solrCore = $this->getStringArgument('solr-core');
+        $terms = $this->getArrayArgument('terms');
 
         $search = $this->createSearcher();
         $query = $this->buildQuery($terms);
@@ -65,12 +66,12 @@ class Suggest extends Command
 
     protected function createSearcher(): SolrSuggest
     {
-        $clientFactory = new SolrParameterClientFactory();
-        $url = parse_url($this->input->getArgument('solr-connection-url'));
+        /** @var string[] $url */
+        $url = parse_url($this->getStringArgument('solr-connection-url'));
         $clientFactory = new SolrParameterClientFactory(
             $url['scheme'],
             $url['host'],
-            $url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983),
+            (int)($url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983)),
             $url['path'] ?? '',
             null,
             0
@@ -78,6 +79,34 @@ class Suggest extends Command
         return new SolrSuggest($clientFactory);
     }
 
+    private function getStringArgument(string $name): string
+    {
+        $value = $this->input->getArgument($name);
+        if (!is_string($value)) {
+            throw new InvalidArgumentException(
+                $name . ' must be a string'
+            );
+        }
+        return $value;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getArrayArgument(string $name): array
+    {
+        $value = $this->input->getArgument($name);
+        if (!is_array($value)) {
+            throw new InvalidArgumentException(
+                $name . ' must be a array'
+            );
+        }
+        return $value;
+    }
+
+    /**
+     * @param string[] $terms
+     */
     protected function buildQuery(array $terms): SuggestQuery
     {
         $excludeMedia = new ObjectTypeFilter('media', 'media');

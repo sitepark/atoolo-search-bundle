@@ -9,7 +9,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 class MoreLikeThisQuery
 {
     /**
-     * @param string[] $fields
+     * @param string[] $fieldList
      * @param Filter[] $filterList
      */
     public function __construct(

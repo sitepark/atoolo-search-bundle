@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use Atoolo\Resource\ResourceBaseLocator;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
 use Atoolo\Search\Service\SolrClientFactory;
+use JsonException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
-use JsonException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\Store\SemaphoreStore;
 
@@ -22,7 +21,7 @@ class BackgroundIndexer implements Indexer
     private LockFactory $lockFactory;
 
     /**
-     * @param iterable<DocumentEnricher> $documentEnricherList
+     * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
      */
     public function __construct(
         private readonly iterable $documentEnricherList,
@@ -56,7 +55,7 @@ class BackgroundIndexer implements Indexer
         $this->getIndexer($index)->remove($index, $idList);
     }
 
-    public function abort($index): void
+    public function abort(string $index): void
     {
         $this->getIndexer($index)->abort($index);
     }

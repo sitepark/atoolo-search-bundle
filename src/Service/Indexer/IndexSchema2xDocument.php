@@ -130,6 +130,9 @@ class IndexSchema2xDocument extends Document implements IndexDocument
         $this->metaString[$name] = $value;
     }
 
+    /**
+     * @return array<String, mixed>
+     */
     public function getFields(): array
     {
         $fields = get_object_vars($this);

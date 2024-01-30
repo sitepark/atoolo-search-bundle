@@ -6,7 +6,6 @@ namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
-use Atoolo\Search\Service\Search\ResourceFactory;
 use Solarium\QueryType\Select\Result\Document;
 
 /**
@@ -37,6 +36,16 @@ class InternalMediaResourceFactory implements ResourceFactory
 
     private function getMetaLocation(Document $document): string
     {
-        return $document->url . '.meta.php';
+        $location = $this->getField($document, 'url') ?? '';
+        return $location . '.meta.php';
+    }
+
+    private function getField(Document $document, string $name): ?string
+    {
+        $fields = $document->getFields();
+        if (!isset($fields[$name])) {
+            return null;
+        }
+        return $fields[$name];
     }
 }

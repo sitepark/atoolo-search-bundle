@@ -9,17 +9,14 @@ use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\MoreLikeThisSearcher;
 use Atoolo\Search\Service\SolrClientFactory;
 use Solarium\Core\Client\Client;
-use Solarium\Core\Query\Result\ResultInterface;
 use Solarium\QueryType\MoreLikeThis\Query as SolrMoreLikeThisQuery;
+use Solarium\QueryType\Select\Result\Result as SelectResult;
 
 /**
  * Implementation of the "More-Like-This" on the basis of a Solr index.
  */
 class SolrMoreLikeThis implements MoreLikeThisSearcher
 {
-    /**
-     * @param iterable<ResourceFactory> $resourceFactoryList
-     */
     public function __construct(
         private readonly SolrClientFactory $clientFactory,
         private readonly SolrResultToResourceResolver $resultToResourceResolver
@@ -30,6 +27,7 @@ class SolrMoreLikeThis implements MoreLikeThisSearcher
     {
         $client = $this->clientFactory->create($query->getCore());
         $solrQuery = $this->buildSolrQuery($client, $query);
+        /** @var SelectResult $result */
         $result = $client->execute($solrQuery);
         return $this->buildResult($result);
     }
@@ -60,18 +58,19 @@ class SolrMoreLikeThis implements MoreLikeThisSearcher
     }
 
     private function buildResult(
-        ResultInterface $result
+        SelectResult $result
     ): SearchResult {
 
         $resourceList = $this->resultToResourceResolver
             ->loadResourceList($result);
 
         return new SearchResult(
-            $result->getNumFound(),
+            $result->getNumFound() ?? -1,
+            0,
             0,
             $resourceList,
             [],
-            $result->getQueryTime()
+            $result->getQueryTime() ?? -1
         );
     }
 }

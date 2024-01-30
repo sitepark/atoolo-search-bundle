@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
@@ -12,8 +11,7 @@ use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
 use Atoolo\Search\Service\SolrClientFactory;
 use Exception;
-use Solarium\Core\Query\Result\ResultInterface;
-use Solarium\QueryType\Update\Result;
+use Solarium\QueryType\Update\Result as UpdateResult;
 use Throwable;
 
 /**
@@ -22,7 +20,7 @@ use Throwable;
 class SolrIndexer implements Indexer
 {
     /**
-     * @param iterable<DocumentEnricher> $documentEnricherList
+     * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
      */
     public function __construct(
         private readonly iterable $documentEnricherList,
@@ -49,7 +47,7 @@ class SolrIndexer implements Indexer
         $this->commit($index);
     }
 
-    public function abort($index): void
+    public function abort(string $index): void
     {
         $this->aborter->abort($index);
     }
@@ -66,20 +64,27 @@ class SolrIndexer implements Indexer
         return $this->indexResources($parameter, $pathList);
     }
 
+    /**
+     * @param string[] $pathList
+     * @return string[]
+     */
     private function mapTranslationPaths(array $pathList): array
     {
-        return array_map(function ($path) {
+        return array_map(static function ($path) {
             $queryString = parse_url($path, PHP_URL_QUERY);
-            if ($queryString === null) {
+            if (!is_string($queryString)) {
                 return $path;
             }
-            $path = parse_url($path, PHP_URL_PATH);
-            parse_str($queryString, $params);
-            if (!isset($params['loc'])) {
+            $urlPath = parse_url($path, PHP_URL_PATH);
+            if (!is_string($urlPath)) {
                 return $path;
+            }
+            parse_str($queryString, $params);
+            if (!isset($params['loc']) || !is_string($params['loc'])) {
+                return $urlPath;
             }
             $loc = $params['loc'];
-            return $path . '.translations/' . $loc . ".php";
+            return $urlPath . '.translations/' . $loc . ".php";
         }, $pathList);
     }
 
@@ -143,6 +148,9 @@ class SolrIndexer implements Indexer
         return $this->indexerProgressHandler->getStatus();
     }
 
+    /**
+     * @param string[] $pathList
+     */
     private function indexResourcesPerLanguageIndex(
         string $processId,
         IndexerParameter $parameter,
@@ -226,7 +234,7 @@ class SolrIndexer implements Indexer
         int $length
     ): array|false {
 
-        $maxLength = (count($pathList) ?? 0) - $offset;
+        $maxLength = (count($pathList) - $offset);
         if ($maxLength <= 0) {
             return false;
         }
@@ -249,16 +257,13 @@ class SolrIndexer implements Indexer
     }
 
     /**
-     * @param string $solrCore
-     * @param string $processId
      * @param array<Resource> $resources
-     * @return ResultInterface|Result
      */
     private function add(
         string $solrCore,
         string $processId,
         array $resources
-    ): ResultInterface|Result {
+    ): UpdateResult {
         $client = $this->clientFactory->create($solrCore);
 
         $update = $client->createUpdate();
@@ -273,6 +278,7 @@ class SolrIndexer implements Indexer
                 }
             }
             try {
+                /** @var IndexSchema2xDocument $doc */
                 $doc = $update->createDocument();
                 foreach ($this->documentEnricherList as $enricher) {
                     $doc = $enricher->enrichDocument(
@@ -351,7 +357,8 @@ class SolrIndexer implements Indexer
 
         $availableIndexes = [];
         $response = $client->coreAdmin($coreAdminQuery);
-        foreach ($response->getStatusResults() as $statusResult) {
+        $statusResults = $response->getStatusResults() ?? [];
+        foreach ($statusResults as $statusResult) {
             $availableIndexes[] = $statusResult->getCoreName();
         }
 

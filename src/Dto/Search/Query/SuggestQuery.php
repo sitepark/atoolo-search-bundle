@@ -24,9 +24,6 @@ class SuggestQuery
     {
         return $this->index;
     }
-    /**
-     * @return string[]
-     */
     public function getText(): string
     {
         return $this->text;

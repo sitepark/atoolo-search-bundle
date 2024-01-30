@@ -10,12 +10,18 @@ use Atoolo\Search\Dto\Search\Result\SuggestResult;
 use Atoolo\Search\Exception\UnexpectedResultException;
 use Atoolo\Search\Service\SolrParameterClientFactory;
 use Atoolo\Search\SuggestSearcher;
+use JsonException;
 use Solarium\Core\Client\Client;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 use Solarium\QueryType\Select\Result\Result as SolrSelectResult;
-use JsonException;
 
 /**
+ *  @phpstan-type SolariumResponse array{
+ *      facet_counts: array{
+ *         facet_fields:array<string,array<string>>
+ *      }
+ *  }
+ *
  * Implementation of the "suggest search" based on a Solr index.
  */
 class SolrSuggest implements SuggestSearcher
@@ -83,7 +89,10 @@ class SolrSuggest implements SuggestSearcher
             $solrResult->getResponse()->getBody(),
             $resultField
         );
-        return new SuggestResult($suggestions, $solrResult->getQueryTime());
+        return new SuggestResult(
+            $suggestions,
+            $solrResult->getQueryTime() ?? 0
+        );
     }
 
     /**
@@ -95,6 +104,7 @@ class SolrSuggest implements SuggestSearcher
         string $facetField
     ): array {
         try {
+            /** @var SolariumResponse $json */
             $json = json_decode(
                 $responseBody,
                 true,
@@ -110,7 +120,7 @@ class SolrSuggest implements SuggestSearcher
             $suggestions = [];
             for ($i = 0; $i < $len; $i += 2) {
                 $term = $facets[$i];
-                $hits = $facets[$i + 1];
+                $hits = (int)$facets[$i + 1];
                 $suggestions[] = new Suggestion($term, $hits);
             }
 

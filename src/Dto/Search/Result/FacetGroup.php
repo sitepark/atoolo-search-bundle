@@ -7,7 +7,7 @@ namespace Atoolo\Search\Dto\Search\Result;
 class FacetGroup
 {
     /**
-     * @param Facet[] $facetList
+     * @param Facet[] $facets
      */
     public function __construct(
         private readonly string $key,

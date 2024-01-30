@@ -7,7 +7,6 @@ namespace Atoolo\Search\Dto\Search\Query;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
-use GuzzleHttp\Promise\Create;
 
 class SelectQueryBuilder
 {
@@ -104,9 +103,6 @@ class SelectQueryBuilder
         return $this->limit;
     }
 
-    /**
-     * @param Criteria[] $criteriaList
-     */
     public function sort(Criteria ...$criteriaList): SelectQueryBuilder
     {
         foreach ($criteriaList as $criteria) {
@@ -124,9 +120,6 @@ class SelectQueryBuilder
         return $this->sort;
     }
 
-    /**
-     * @param Filter[] $filterList
-     */
     public function filter(Filter ...$filterList): SelectQueryBuilder
     {
         foreach ($filterList as $filter) {
@@ -150,9 +143,6 @@ class SelectQueryBuilder
         return array_values($this->filterList);
     }
 
-    /**
-     * @param Filter[] $filterList
-     */
     public function facet(Facet ...$facetList): SelectQueryBuilder
     {
         foreach ($facetList as $facet) {

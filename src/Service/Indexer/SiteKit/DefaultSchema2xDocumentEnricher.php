@@ -58,6 +58,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $doc->url = $url;
         }
 
+        /** @var string[] $spContentType */
         $spContentType = [$resource->getObjectType()];
         if ($resource->getData()->getBool('init.media') !== true) {
             $spContentType[] = 'article';
@@ -119,7 +120,9 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         }
         $doc->sp_sortvalue = $sortHeadline;
 
-        $doc->keywords = $resource->getData()->getArray('metadata.keywords');
+        /** @var string[] $keyword */
+        $keyword = $resource->getData()->getArray('metadata.keywords');
+        $doc->keywords = $keyword;
 
         $doc->sp_boost_keywords = implode(
             ' ',
@@ -139,9 +142,9 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
                 'init.siteGroup.id'
             );
             if ($siteGroupId !== 0) {
-                $sites[] = $siteGroupId;
+                $sites[] = (string)$siteGroupId;
             }
-            $doc->sp_site = array_unique($sites);
+            $doc->sp_site = array_unique($sites, SORT_STRING);
         } catch (Exception $e) {
             throw new DocumentEnrichingException(
                 $resource->getLocation(),
@@ -151,39 +154,37 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             );
         }
 
+        /** @var string[] $wktPrimaryList */
         $wktPrimaryList = $resource->getData()->getArray(
             'base.geo.wkt.primary'
         );
         if (!empty($wktPrimaryList)) {
-            $allWkt = [];
-            foreach ($wktPrimaryList as $wkt) {
-                $allWkt[] = $wkt;
-            }
-            if (count($allWkt) > 0) {
-                $doc->sp_geo_points = $allWkt;
-            }
+            $doc->sp_geo_points = $wktPrimaryList;
         }
 
+        /** @var array<array{id: int}> $categoryList */
         $categoryList = $resource->getData()->getArray('metadata.categories');
         if (!empty($categoryList)) {
             $categoryIdList = [];
             foreach ($categoryList as $category) {
-                $categoryIdList[] = $category['id'];
+                $categoryIdList[] = (string)$category['id'];
             }
             $doc->sp_category = $categoryIdList;
         }
 
+        /** @var array<array{id: int}> $categoryPath */
         $categoryPath = $resource->getData()->getArray(
             'metadata.categoriesPath'
         );
         if (!empty($categoryPath)) {
             $categoryIdPath = [];
             foreach ($categoryPath as $category) {
-                $categoryIdPath[] = $category['id'];
+                $categoryIdPath[] = (string)$category['id'];
             }
             $doc->sp_category_path = $categoryIdPath;
         }
 
+        /** @var array<array{id: int}> $groupPath */
         $groupPath = $resource->getData()->getArray('init.groupPath');
         $groupPathAsIdList = [];
         foreach ($groupPath as $group) {
@@ -193,6 +194,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $doc->sp_group = $groupPathAsIdList[count($groupPathAsIdList) - 2];
         $doc->sp_group_path = $groupPathAsIdList;
 
+        /** @var array<array{from:int, contentType:string}> $schedulingList */
         $schedulingList = $resource->getData()->getArray('metadata.scheduling');
         if (!empty($schedulingList)) {
             $doc->sp_date = $this->toDateTime($schedulingList[0]['from']);
@@ -200,7 +202,10 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $contentTypeList = [];
             foreach ($schedulingList as $scheduling) {
                 $contentTypeList[] = explode(' ', $scheduling['contentType']);
-                $dateList[] = $this->toDateTime($scheduling['from']);
+                $from = $this->toDateTime($scheduling['from']);
+                if ($from !== null) {
+                    $dateList[] = $from;
+                }
             }
             $doc->sp_contenttype = array_merge(
                 $doc->sp_contenttype,
@@ -211,27 +216,28 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $doc->sp_date_list = $dateList;
         }
 
-        $contentType = $resource->getData()->getString('base.mime');
-        if ($contentType === null) {
-            $contentType = 'text/html; charset=UTF-8';
-        }
+        $contentType = $resource->getData()->getString(
+            'base.mime',
+            'text/html; charset=UTF-8'
+        );
         $doc->meta_content_type = $contentType;
         $doc->content = $resource->getData()->getString(
             'searchindexdata.content'
         );
 
         $accessType = $resource->getData()->getString('init.access.type');
-        $groups = $resource->getData()->getArray('init.access.groups');
 
+        /** @var string[] $groups */
+        $groups = $resource->getData()->getArray('init.access.groups');
 
         if ($accessType === 'allow' && !empty($groups)) {
             $doc->include_groups = array_map(
-                fn($id): int => $this->idWithoutSignature($id),
+                fn($id): string => (string)$this->idWithoutSignature($id),
                 $groups
             );
         } elseif ($accessType === 'deny' && !empty($groups)) {
             $doc->exclude_groups = array_map(
-                fn($id): int => $this->idWithoutSignature($id),
+                fn($id): string => (string)$this->idWithoutSignature($id),
                 $groups
             );
         } else {
@@ -259,7 +265,6 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
      * - https://gitlab.sitepark.com/customer-projects/stadtundland/blob/develop/stadtundland-module/src/publish/php/SP/Stadtundland/Component/ParkingSpaceExpose.php#L38
      * - https://gitlab.sitepark.com/customer-projects/stadtundland/blob/develop/stadtundland-module/src/publish/php/SP/Stadtundland/Component/Expose.php#L38
      * - https://gitlab.sitepark.com/customer-projects/stadtundland/blob/develop/stadtundland-module/src/publish/php/SP/Stadtundland/Component/PurchaseExpose.php#L38
-     * - https://gitlab.sitepark.com/customer-projects/stuttgart/blob/develop/stuttgart-module/src/publish/php/SP/Stuttgart/Component/EventsCalendarExtension.php#L124
      * - https://gitlab.sitepark.com/ies-modules/citycall/blob/develop/citycall-module/src/main/php/src/SP/CityCall/Component/Intro.php#L51
      * - https://gitlab.sitepark.com/ies-modules/citycall/blob/develop/citycall-module/src/main/php/src/SP/CityCall/Controller/Environment.php#L76
      * - https://gitlab.sitepark.com/ies-modules/sitekit-real-estate/blob/develop/src/publish/php/SP/RealEstate/Component/Expose.php#L47
@@ -272,6 +277,8 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         if ($locale !== '') {
             return $locale;
         }
+
+        /** @var array<array{locale: ?string}> $groupPath */
         $groupPath = $resource->getData()->getArray('init.groupPath');
         if (!empty($groupPath)) {
             $len = count($groupPath);
@@ -306,8 +313,13 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         return $dateTime;
     }
 
+    /**
+     * @param Resource $resource
+     * @return string[]
+     */
     private function getParentSiteGroupIdList(Resource $resource): array
     {
+        /** @var array<array{siteGroup: array{id: ?string}}> $parents */
         $parents = $this->getNavigationParents($resource);
         if (empty($parents)) {
             return [];

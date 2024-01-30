@@ -14,7 +14,7 @@ use Atoolo\Search\Service\Search\InternalResourceFactory;
 use Atoolo\Search\Service\Search\SolrMoreLikeThis;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use Atoolo\Search\Service\SolrParameterClientFactory;
-use Psr\Log\NullLogger;
+use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -50,12 +50,13 @@ class MoreLikeThis extends Command
             ->addArgument(
                 'resource-dir',
                 InputArgument::REQUIRED,
-                'Resource directory whose data is to be indexed.'
+                'Resource directory where the resources can be found.'
             )
             ->addArgument(
                 'location',
                 InputArgument::REQUIRED,
-                'Resource directory whose data is to be indexed.'
+                'Location of the resource to which the MoreLikeThis ' .
+                'search is to be applied..'
             )
         ;
     }
@@ -68,9 +69,9 @@ class MoreLikeThis extends Command
         $this->input = $input;
         $this->io = new SymfonyStyle($input, $output);
 
-        $this->solrCore = $input->getArgument('solr-core');
-        $this->resourceDir = $input->getArgument('resource-dir');
-        $location = $input->getArgument('location');
+        $this->solrCore = $this->getStringArgument('solr-core');
+        $this->resourceDir = $this->getStringArgument('resource-dir');
+        $location = $this->getStringArgument('location');
 
         $searcher = $this->createSearcher();
         $query = $this->buildQuery($location);
@@ -80,17 +81,29 @@ class MoreLikeThis extends Command
         return Command::SUCCESS;
     }
 
+    private function getStringArgument(string $name): string
+    {
+        $value = $this->input->getArgument($name);
+        if (!is_string($value)) {
+            throw new InvalidArgumentException(
+                $name . ' must be a string'
+            );
+        }
+        return $value;
+    }
+
     protected function createSearcher(): SolrMoreLikeThis
     {
         $resourceBaseLocator = new StaticResourceBaseLocator(
             $this->resourceDir
         );
         $resourceLoader = new SiteKitLoader($resourceBaseLocator);
-        $url = parse_url($this->input->getArgument('solr-connection-url'));
+        /** @var string[] */
+        $url = parse_url($this->getStringArgument('solr-connection-url'));
         $clientFactory = new SolrParameterClientFactory(
             $url['scheme'],
             $url['host'],
-            $url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983),
+            (int)($url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983)),
             $url['path'] ?? '',
             null,
             0

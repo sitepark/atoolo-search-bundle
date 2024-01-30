@@ -14,6 +14,9 @@ use Atoolo\Search\Service\Indexer\TranslationSplitterResult;
  */
 class SubDirTranslationSplitter implements TranslationSplitter
 {
+    /**
+     * @param string[] $pathList
+     */
     public function split(array $pathList): TranslationSplitterResult
     {
         $bases = [];
