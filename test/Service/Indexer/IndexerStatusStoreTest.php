@@ -139,7 +139,8 @@ class IndexerStatusStoreTest extends TestCase
      */
     public function testLoadFileNotReadable(): void
     {
-        $file = self::TEST_DIR . '/' . 'atoolo.search.index.test-not-readable.status.json';
+        $file = self::TEST_DIR . '/' .
+            'atoolo.search.index.test-not-readable.status.json';
 
         $filesystem = new Filesystem();
         $filesystem->touch($file);
