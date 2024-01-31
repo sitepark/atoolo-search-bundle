@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
-use Atoolo\Search\Console\Command\Io\IndexerProgressProgressBar;
+use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
+use Atoolo\Search\Console\Command\Io\IndexerProgressBarFactory;
+use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexDocument;
-use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,10 +23,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class Indexer extends Command
 {
-    private IndexerProgressProgressBar $progressBar;
+    private IndexerProgressBar $progressBar;
     private SymfonyStyle $io;
-
-    private InputInterface $input;
+    private TypifiedInput $input;
 
     /**
      * phpcs:ignore
@@ -33,7 +33,8 @@ class Indexer extends Command
      */
     public function __construct(
         private readonly iterable $documentEnricherList,
-        private readonly SolrIndexerBuilder $solrIndexerBuilder
+        private readonly SolrIndexerBuilder $solrIndexerBuilder,
+        private readonly IndexerProgressBarFactory $progressBarFactory
     ) {
         parent::__construct();
     }
@@ -89,14 +90,14 @@ class Indexer extends Command
         OutputInterface $output
     ): int {
 
-        $this->input = $input;
+        $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
-        $this->progressBar = new IndexerProgressProgressBar($output);
+        $this->progressBar = $this->progressBarFactory->create($output);
 
-        $paths = $this->getArrayArgument('paths');
+        $paths = $this->input->getArrayArgument('paths');
 
         $cleanupThreshold = empty($paths)
-            ? $this->getIntOption('cleanup-threshold')
+            ? $this->input->getIntOption('cleanup-threshold')
             : 0;
 
         if (empty($paths)) {
@@ -107,18 +108,18 @@ class Indexer extends Command
         }
 
         $parameter = new IndexerParameter(
-            $this->getStringArgument('solr-core'),
+            $this->input->getStringArgument('solr-core'),
             $cleanupThreshold,
-            $this->getIntOption('chunk-size'),
+            $this->input->getIntOption('chunk-size'),
             $paths
         );
 
         $this->solrIndexerBuilder
-            ->resourceDir($this->getStringArgument('resource-dir'))
+            ->resourceDir($this->input->getStringArgument('resource-dir'))
             ->progressBar($this->progressBar)
             ->documentEnricherList($this->documentEnricherList)
             ->solrConnectionUrl(
-                $this->getStringArgument('solr-connection-url')
+                $this->input->getStringArgument('solr-connection-url')
             );
 
         $indexer = $this->solrIndexerBuilder->build();
@@ -127,42 +128,6 @@ class Indexer extends Command
         $this->errorReport();
 
         return Command::SUCCESS;
-    }
-
-    private function getStringArgument(string $name): string
-    {
-        $value = $this->input->getArgument($name);
-        if (!is_string($value)) {
-            throw new InvalidArgumentException(
-                $name . ' must be a string'
-            );
-        }
-        return $value;
-    }
-
-    private function getIntOption(string $name): int
-    {
-        $value = $this->input->getOption($name);
-        if (!is_numeric($value)) {
-            throw new InvalidArgumentException(
-                $name . ' must be a integer: ' . $value
-            );
-        }
-        return (int)$value;
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getArrayArgument(string $name): array
-    {
-        $value = $this->input->getArgument($name);
-        if (!is_array($value)) {
-            throw new InvalidArgumentException(
-                $name . ' must be a array'
-            );
-        }
-        return $value;
     }
 
     protected function errorReport(): void

@@ -7,7 +7,7 @@ namespace Atoolo\Search\Console\Command;
 use Atoolo\Resource\Loader\ServerVarResourceBaseLocator;
 use Atoolo\Resource\Loader\SiteKitLoader;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
-use Atoolo\Search\Console\Command\Io\IndexerProgressProgressBar;
+use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexDocument;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
@@ -25,7 +25,7 @@ class SolrIndexerBuilder
      * @var iterable<DocumentEnricher<IndexDocument>>
      */
     private iterable $documentEnricherList;
-    private IndexerProgressProgressBar $progressBar;
+    private IndexerProgressBar $progressBar;
     private string $solrConnectionUrl;
 
     public function resourceDir(string $resourceDir): SolrIndexerBuilder
@@ -46,7 +46,7 @@ class SolrIndexerBuilder
     }
 
     public function progressBar(
-        IndexerProgressProgressBar $progressBar
+        IndexerProgressBar $progressBar
     ): SolrIndexerBuilder {
         $this->progressBar = $progressBar;
         return $this;
