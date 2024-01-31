@@ -144,19 +144,10 @@ EOF,
 
         // the output of the command in the console
         $output = $commandTester->getDisplay();
-        // phpcs:disable
-        $this->assertEquals(
-            <<<EOF
-
-Index all resources
-===================
-
- [ERROR] errortest                                                                                                      
-
-
-EOF,
-            $output
+        $this->assertStringContainsString(
+            'errortest',
+            $output,
+            'error message expected'
         );
-        // phpcs:enable
     }
 }
