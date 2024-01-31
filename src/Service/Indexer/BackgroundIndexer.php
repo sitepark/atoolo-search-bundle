@@ -9,12 +9,11 @@ use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
 use Atoolo\Search\Service\SolrClientFactory;
-use JsonException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use RuntimeException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\Store\SemaphoreStore;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 class BackgroundIndexer implements Indexer
 {
@@ -31,20 +30,10 @@ class BackgroundIndexer implements Indexer
         private readonly SolrClientFactory $clientFactory,
         private readonly IndexingAborter $aborter,
         private readonly string $source,
-        private readonly string $statusCacheDir,
+        private readonly IndexerStatusStore $statusStore,
         private readonly LoggerInterface $logger = new NullLogger()
     ) {
         $this->lockFactory = new LockFactory(new SemaphoreStore());
-        if (
-            !is_dir($concurrentDirectory = $this->statusCacheDir) &&
-            !mkdir($concurrentDirectory) &&
-            !is_dir($concurrentDirectory)
-        ) {
-            throw new RuntimeException(sprintf(
-                'Directory "%s" was not created',
-                $concurrentDirectory
-            ));
-        }
     }
 
     /**
@@ -74,18 +63,18 @@ class BackgroundIndexer implements Indexer
     }
 
     /**
-     * @throws JsonException
+     * @throws ExceptionInterface
      */
     public function getStatus(string $index): IndexerStatus
     {
-        $file = $this->getStatusFile($index);
-        return IndexerStatus::load($file);
+        return $this->statusStore->load($index);
     }
 
     private function getIndexer(string $index): SolrIndexer
     {
         $progressHandler = new BackgroundIndexerProgressState(
-            $this->getStatusFile($index),
+            $index,
+            $this->statusStore,
             $this->logger
         );
         return new SolrIndexer(
@@ -98,11 +87,5 @@ class BackgroundIndexer implements Indexer
             $this->aborter,
             $this->source
         );
-    }
-
-    private function getStatusFile(string $index): string
-    {
-        return $this->statusCacheDir .
-            '/atoolo.search.index.' . $index . ".status.json";
     }
 }

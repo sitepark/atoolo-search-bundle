@@ -7,10 +7,11 @@ namespace Atoolo\Search\Service\Indexer;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Dto\Indexer\IndexerStatusState;
 use DateTime;
+use JsonException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Throwable;
-use JsonException;
 
 class BackgroundIndexerProgressState implements IndexerProgressHandler
 {
@@ -19,7 +20,8 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
     private bool $isUpdate = false;
 
     public function __construct(
-        private readonly string $file,
+        private string $index,
+        private readonly IndexerStatusStore $statusStore,
         private readonly LoggerInterface $logger = new NullLogger()
     ) {
     }
@@ -39,10 +41,13 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
         );
     }
 
+    /**
+     * @throws ExceptionInterface
+     */
     public function startUpdate(int $total): void
     {
         $this->isUpdate = true;
-        $storedStatus = IndexerStatus::load($this->file);
+        $storedStatus = $this->statusStore->load($this->index);
         $this->status = new IndexerStatus(
             IndexerStatusState::RUNNING,
             $storedStatus->startTime,
@@ -66,7 +71,7 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
         if ($this->isUpdate) {
             $this->status->updated += $step;
         }
-        $this->status->store($this->file);
+        $this->statusStore->store($this->index, $this->status);
     }
 
 
@@ -97,7 +102,7 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
         if ($this->status->state === IndexerStatusState::RUNNING) {
             $this->status->state = IndexerStatusState::INDEXED;
         }
-        $this->status->store($this->file);
+        $this->statusStore->store($this->index, $this->status);
     }
 
     public function abort(): void
@@ -116,10 +121,5 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
     public function getStatus(): IndexerStatus
     {
         return $this->status;
-    }
-
-    public function getStatusFile(): string
-    {
-        return $this->file;
     }
 }

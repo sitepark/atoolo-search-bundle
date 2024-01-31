@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Indexer;
 
-enum IndexerStatusState
+enum IndexerStatusState: string
 {
-    case UNKNOWN;
-    case RUNNING;
-    case INDEXED;
-    case ABORTED;
+    case UNKNOWN = 'UNKNOWN';
+    case RUNNING = 'RUNNING';
+    case INDEXED = 'INDEXED';
+    case ABORTED = 'ABORTED';
 
     public static function valueOf(string $name): IndexerStatusState
     {
