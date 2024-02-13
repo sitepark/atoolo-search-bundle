@@ -13,6 +13,10 @@ services:
       arguments:
         - !tagged_iterator { tag: 'atoolo.search.indexer.documentEnricher.schema2x' }
 
+    Atoolo\Search\Console\Command\DumpIndexDocument:
+      arguments:
+        - !tagged_iterator { tag: 'atoolo.search.indexer.documentEnricher.schema2x' }
+
     Atoolo\Search\Console\Application:
         public: true
         arguments:
