@@ -44,6 +44,11 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $doc->description = $resource->getData()->getString(
             'metadata.description'
         );
+        if (empty($doc->description)) {
+            $doc->description = $resource->getData()->getString(
+                'metadata.intro'
+            );
+        }
         $doc->sp_objecttype = $resource->getObjectType();
         $doc->sp_canonical = true;
         $doc->crawl_process_id = $processId;
