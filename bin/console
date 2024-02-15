@@ -4,15 +4,15 @@
 
 require __DIR__.'/../vendor/autoload.php';
 
-use Symfony\Component\Config\FileLocator;
 use Atoolo\Search\Console\Application;
+use Symfony\Component\Config\FileLocator;
 
 $container = new Symfony\Component\DependencyInjection\ContainerBuilder();
 $loader    = new Symfony\Component\DependencyInjection\Loader\YamlFileLoader(
     $container,
     new FileLocator(__DIR__ . '/../config'));
 
-$loader->load('services.yml');
+$loader->load('commands.yml');
 $container->compile();
 
 $application = $container->get(Application::class);
