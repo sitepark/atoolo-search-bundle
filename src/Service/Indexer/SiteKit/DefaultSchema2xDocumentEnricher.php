@@ -7,6 +7,7 @@ namespace Atoolo\Search\Service\Indexer\SiteKit;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Resource\Resource;
 use Atoolo\Search\Exception\DocumentEnrichingException;
+use Atoolo\Search\Service\Indexer\ContentCollector;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexDocument;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
@@ -14,12 +15,37 @@ use DateTime;
 use Exception;
 
 /**
+ * @phpstan-type Phone array{
+ *     countryCode?:string,
+ *     areaCode?:string,
+ *     localNumber?:string
+ * }
+ * @phpstan-type PhoneData array{phone:Phone}
+ * @phpstan-type PhoneList array<PhoneData>
+ * @phpstan-type Email array{email:string}
+ * @phpstan-type EmailList array<Email>
+ * @phpstan-type ContactData array{
+ *     phoneList?:PhoneList,
+ *     emailList:EmailList
+ * }
+ * @phpstan-type AddressData array{
+ *     buildingName?:string,
+ *     street?:string,
+ *     postOfficeBoxData?: array{
+ *          buildingName?:string
+ *     }
+ * }
+ * @phpstan-type ContactPoint array{
+ *     contactData?:ContactData,
+ *     addressData?:AddressData
+ * }
  * @implements DocumentEnricher<IndexSchema2xDocument>
  */
 class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 {
     public function __construct(
-        private readonly SiteKitNavigationHierarchyLoader $navigationLoader
+        private readonly SiteKitNavigationHierarchyLoader $navigationLoader,
+        private readonly ContentCollector $contentCollector
     ) {
     }
 
@@ -149,7 +175,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             if ($siteGroupId !== 0) {
                 $sites[] = (string)$siteGroupId;
             }
-            $doc->sp_site = array_unique($sites, SORT_STRING);
+            $doc->sp_site = array_unique($sites);
         } catch (Exception $e) {
             throw new DocumentEnrichingException(
                 $resource->getLocation(),
@@ -226,9 +252,6 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             'text/html; charset=UTF-8'
         );
         $doc->meta_content_type = $contentType;
-        $doc->content = $resource->getData()->getString(
-            'searchindexdata.content'
-        );
 
         $accessType = $resource->getData()->getString('init.access.type');
 
@@ -252,7 +275,83 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 
         $doc->sp_source = ['internal'];
 
+        return $this->enrichContent($resource, $doc);
+    }
+
+    /**
+     * @param IndexSchema2xDocument $doc
+     * @return IndexSchema2xDocument
+     */
+    private function enrichContent(
+        Resource $resource,
+        IndexDocument $doc,
+    ): IndexDocument {
+
+        $content = [];
+        $content[] = $resource->getData()->getString(
+            'searchindexdata.content'
+        );
+
+        $content[] = $this->contentCollector->collect(
+            $resource->getData()->getArray('content')
+        );
+
+        /** @var ContactPoint $contactPoint */
+        $contactPoint = $resource->getData()->getArray('metadata.contactPoint');
+        $content[] = $this->contactPointToContent($contactPoint);
+
+        $cleanContent = preg_replace(
+            '/\s+/',
+            ' ',
+            implode(' ', $content)
+        );
+
+        $doc->content = trim($cleanContent ?? '');
+
         return $doc;
+    }
+
+    /**
+    * @param ContactPoint $contactPoint
+    * @return string
+     */
+    private function contactPointToContent(array $contactPoint): string
+    {
+        if (empty($contactPoint)) {
+            return '';
+        }
+
+        $content = [];
+        foreach (($contactPoint['contactData']['phoneList'] ?? []) as $phone) {
+            $countryCode = $phone['phone']['countryCode'] ?? '';
+            if (
+                !empty($countryCode) &&
+                !in_array($countryCode, $content, true)
+            ) {
+                $content[] = '+' . $countryCode;
+            }
+            $areaCode = $phone['phone']['areaCode'] ?? '';
+            if (!empty($areaCode) && !in_array($areaCode, $content, true)) {
+                $content[] = $areaCode;
+                $content[] = '0' . $areaCode;
+            }
+            $content[] = ($phone['phone']['localNumber'] ?? '');
+        }
+        foreach (($contactPoint['contactData']['emailList'] ?? []) as $email) {
+            $content[] = $email['email'];
+        }
+
+        if (isset($contactPoint['addressData'])) {
+            $addressData = $contactPoint['addressData'];
+            $content[] = ($addressData['street'] ?? '');
+            $content[] = ($addressData['buildingName'] ?? '');
+            $content[] = (
+                $addressData['postOfficeBoxData']['buildingName'] ??
+                ''
+            );
+        }
+
+        return implode(' ', $content);
     }
 
     private function idWithoutSignature(string $id): int

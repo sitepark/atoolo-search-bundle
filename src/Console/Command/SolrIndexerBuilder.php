@@ -8,11 +8,15 @@ use Atoolo\Resource\Loader\ServerVarResourceBaseLocator;
 use Atoolo\Resource\Loader\SiteKitLoader;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
+use Atoolo\Search\Service\Indexer\ContentCollector;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexDocument;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
 use Atoolo\Search\Service\Indexer\LocationFinder;
+use Atoolo\Search\Service\Indexer\SiteKit\ContentMatcher;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema2xDocumentEnricher;
+use Atoolo\Search\Service\Indexer\SiteKit\HeadlineMatcher;
+use Atoolo\Search\Service\Indexer\SiteKit\RichtTextMatcher;
 use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
 use Atoolo\Search\Service\Indexer\SolrIndexer;
 use Atoolo\Search\Service\SolrParameterClientFactory;
@@ -75,8 +79,17 @@ class SolrIndexerBuilder
         $navigationLoader = new SiteKitNavigationHierarchyLoader(
             $resourceLoader
         );
+
+        /** @var iterable<ContentMatcher> $matcher */
+        $matcher = [
+            new HeadlineMatcher(),
+            new RichtTextMatcher(),
+        ];
+        $contentCollector = new ContentCollector($matcher);
+
         $schema21 = new DefaultSchema2xDocumentEnricher(
-            $navigationLoader
+            $navigationLoader,
+            $contentCollector
         );
 
         /** @var array<DocumentEnricher<IndexDocument>> $documentEnricherList */
