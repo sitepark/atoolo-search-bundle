@@ -300,6 +300,12 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $contactPoint = $resource->getData()->getArray('metadata.contactPoint');
         $content[] = $this->contactPointToContent($contactPoint);
 
+        /** @var array<array{name?:string}> $categories */
+        $categories = $resource->getData()->getArray('metadata.categories');
+        foreach ($categories as $category) {
+            $content[] = $category['name'] ?? '';
+        }
+
         $cleanContent = preg_replace(
             '/\s+/',
             ' ',
