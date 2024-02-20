@@ -44,7 +44,7 @@ class SolrSelect implements SelectSearcher
 
     public function select(SelectQuery $query): SearchResult
     {
-        $client = $this->clientFactory->create($query->getIndex());
+        $client = $this->clientFactory->create($query->index);
 
         $solrQuery = $this->buildSolrQuery($client, $query);
         /** @var SelectResult $result */
@@ -64,26 +64,26 @@ class SolrSelect implements SelectSearcher
             $solrQuery = $solrQueryModifier->modify($solrQuery);
         }
 
-        $solrQuery->setStart($query->getOffset());
-        $solrQuery->setRows($query->getLimit());
+        $solrQuery->setStart($query->offset);
+        $solrQuery->setRows($query->limit);
 
         // to get query-time
         $solrQuery->setOmitHeader(false);
 
-        $this->addSortToSolrQuery($solrQuery, $query->getSort());
+        $this->addSortToSolrQuery($solrQuery, $query->sort);
         $this->addRequiredFieldListToSolrQuery($solrQuery);
-        $this->addTextFilterToSolrQuery($solrQuery, $query->getText());
+        $this->addTextFilterToSolrQuery($solrQuery, $query->text);
         $this->addQueryDefaultOperatorToSolrQuery(
             $solrQuery,
-            $query->getQueryDefaultOperator()
+            $query->queryDefaultOperator
         );
         $this->addFilterQueriesToSolrQuery(
             $solrQuery,
-            $query->getFilterList()
+            $query->filter
         );
         $this->addFacetListToSolrQuery(
             $solrQuery,
-            $query->getFacetList()
+            $query->facets
         );
 
         return $solrQuery;
@@ -101,7 +101,7 @@ class SolrSelect implements SelectSearcher
             if ($criteria instanceof Name) {
                 $field = 'sp_name';
             } elseif ($criteria instanceof Headline) {
-                $field = 'sp_headline';
+                $field = 'sp_title';
             } elseif ($criteria instanceof Date) {
                 $field = 'sp_date';
             } elseif ($criteria instanceof Natural) {
@@ -114,7 +114,7 @@ class SolrSelect implements SelectSearcher
                 );
             }
 
-            $direction = strtolower($criteria->getDirection()->name);
+            $direction = strtolower($criteria->direction->name);
 
             $sorts[$field] = $direction;
         }
@@ -170,10 +170,10 @@ class SolrSelect implements SelectSearcher
     ): void {
 
         foreach ($filterList as $filter) {
-            $key = $filter->getKey() ?? uniqid('', true);
+            $key = $filter->key ?? uniqid('', true);
             $solrQuery->createFilterQuery($key)
                 ->setQuery($filter->getQuery())
-                ->setTags($filter->getTags());
+                ->setTags($filter->tags);
         }
     }
 
@@ -207,16 +207,16 @@ class SolrSelect implements SelectSearcher
         FacetField $facet
     ): void {
         $facetSet = $solrQuery->getFacetSet();
-        $field = $facet->getField();
+        $field = $facet->field;
         // https://solr.apache.org/guide/solr/latest/query-guide/faceting.html#tagging-and-excluding-filters
-        if ($facet->getExcludeFilter() !== null) {
-            $field = '{!ex=' . $facet->getExcludeFilter() . '}' . $field;
+        if ($facet->excludeFilter !== null) {
+            $field = '{!ex=' . $facet->excludeFilter . '}' . $field;
         }
         /** @var Field $solariumFacet */
-        $solariumFacet = $facetSet->createFacetField($facet->getKey());
+        $solariumFacet = $facetSet->createFacetField($facet->key);
         $solariumFacet
             ->setField($field)
-            ->setTerms($facet->getTerms());
+            ->setTerms($facet->terms);
     }
 
     /**
@@ -227,8 +227,8 @@ class SolrSelect implements SelectSearcher
         FacetQuery $facet
     ): void {
         $facetSet = $solrQuery->getFacetSet();
-        $facetSet->createFacetQuery($facet->getKey())
-            ->setQuery($facet->getQuery());
+        $facetSet->createFacetQuery($facet->key)
+            ->setQuery($facet->query);
     }
 
     /**
@@ -239,11 +239,11 @@ class SolrSelect implements SelectSearcher
         FacetMultiQuery $facet
     ): void {
         $facetSet = $solrQuery->getFacetSet();
-        $solrFacet = $facetSet->createFacetMultiQuery($facet->getKey());
-        foreach ($facet->getQueryList() as $facetQuery) {
+        $solrFacet = $facetSet->createFacetMultiQuery($facet->key);
+        foreach ($facet->queries as $facetQuery) {
             $solrFacet->createQuery(
-                $facetQuery->getKey(),
-                $facetQuery->getQuery()
+                $facetQuery->key,
+                $facetQuery->query
             );
         }
     }
@@ -259,8 +259,8 @@ class SolrSelect implements SelectSearcher
 
         return new SearchResult(
             $result->getNumFound() ?? 0,
-            $query->getLimit(),
-            $query->getOffset(),
+            $query->limit,
+            $query->offset,
             $resourceList,
             $facetGroupList,
             $result->getQueryTime() ?? 0
@@ -281,14 +281,14 @@ class SolrSelect implements SelectSearcher
         }
 
         $facetGroupList = [];
-        foreach ($query->getFacetList() as $facet) {
+        foreach ($query->facets as $facet) {
             /** @var ?\Solarium\Component\Result\Facet\Field $resultFacet */
-            $resultFacet = $facetSet->getFacet($facet->getKey());
+            $resultFacet = $facetSet->getFacet($facet->key);
             if ($resultFacet === null) {
                 continue;
             }
             $facetGroupList[] = $this->buildFacetGroup(
-                $facet->getKey(),
+                $facet->key,
                 $resultFacet
             );
         }

@@ -21,19 +21,16 @@ class SelectQueryBuilder
     /**
      * @var array<string,Filter>
      */
-    private array $filterList = [];
+    private array $filter = [];
 
     /**
      * @var array<string,Facet>
      */
-    private array $facetList = [];
+    private array $facets = [];
 
     private QueryDefaultOperator $queryDefaultOperator =
         QueryDefaultOperator::AND;
 
-    /**
-     * @internal
-     */
     public function __construct()
     {
     }
@@ -47,26 +44,10 @@ class SelectQueryBuilder
         return $this;
     }
 
-    /**
-     * @internal
-     */
-    public function getIndex(): string
-    {
-        return $this->index;
-    }
-
     public function text(string $text): SelectQueryBuilder
     {
         $this->text = $text;
         return $this;
-    }
-
-    /**
-     * @internal
-     */
-    public function getText(): string
-    {
-        return $this->text;
     }
 
     public function offset(int $offset): SelectQueryBuilder
@@ -78,14 +59,6 @@ class SelectQueryBuilder
         return $this;
     }
 
-    /**
-     * @internal
-     */
-    public function getOffset(): int
-    {
-        return $this->offset;
-    }
-
     public function limit(int $limit): SelectQueryBuilder
     {
         if ($limit < 0) {
@@ -93,14 +66,6 @@ class SelectQueryBuilder
         }
         $this->limit = $limit;
         return $this;
-    }
-
-    /**
-     * @internal
-     */
-    public function getLimit(): int
-    {
-        return $this->limit;
     }
 
     public function sort(Criteria ...$criteriaList): SelectQueryBuilder
@@ -111,59 +76,32 @@ class SelectQueryBuilder
         return $this;
     }
 
-    /**
-     * @internal
-     * @return Criteria[]
-     */
-    public function getSort(): array
-    {
-        return $this->sort;
-    }
-
     public function filter(Filter ...$filterList): SelectQueryBuilder
     {
         foreach ($filterList as $filter) {
-            if (isset($this->filterList[$filter->getKey()])) {
+            if (isset($this->filter[$filter->key])) {
                 throw new \InvalidArgumentException(
-                    'filter key "' . $filter->getKey() .
+                    'filter key "' . $filter->key .
                             '" already exists'
                 );
             }
-            $this->filterList[$filter->getKey()] = $filter;
+            $this->filter[$filter->key] = $filter;
         }
         return $this;
-    }
-
-    /**
-     * @internal
-     * @return Filter[]
-     */
-    public function getFilterList(): array
-    {
-        return array_values($this->filterList);
     }
 
     public function facet(Facet ...$facetList): SelectQueryBuilder
     {
         foreach ($facetList as $facet) {
-            if (isset($this->facetList[$facet->getKey()])) {
+            if (isset($this->facets[$facet->key])) {
                 throw new \InvalidArgumentException(
-                    'facet key "' . $facet->getKey() .
+                    'facet key "' . $facet->key .
                     '" already exists'
                 );
             }
-            $this->facetList[$facet->getKey()] = $facet;
+            $this->facets[$facet->key] = $facet;
         }
         return $this;
-    }
-
-    /**
-     * @internal
-     * @return Facet[]
-     */
-    public function getFacetList(): array
-    {
-        return array_values($this->facetList);
     }
 
     public function queryDefaultOperator(
@@ -173,16 +111,20 @@ class SelectQueryBuilder
         return $this;
     }
 
-    public function getQueryDefaultOperator(): QueryDefaultOperator
-    {
-        return $this->queryDefaultOperator;
-    }
-
     public function build(): SelectQuery
     {
         if (empty($this->index)) {
             throw new \InvalidArgumentException('index is not set');
         }
-        return new SelectQuery($this);
+        return new SelectQuery(
+            $this->index,
+            $this->text,
+            $this->offset,
+            $this->limit,
+            $this->sort,
+            $this->filter,
+            $this->facets,
+            $this->queryDefaultOperator
+        );
     }
 }

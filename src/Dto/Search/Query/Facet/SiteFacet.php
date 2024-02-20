@@ -11,7 +11,7 @@ class SiteFacet extends FacetField
      */
     public function __construct(
         string $key,
-        array $sites,
+        public readonly array $sites,
         ?string $excludeFilter
     ) {
         parent::__construct(

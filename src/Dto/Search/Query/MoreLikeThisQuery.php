@@ -6,49 +6,26 @@ namespace Atoolo\Search\Dto\Search\Query;
 
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 
+/**
+ * MoreLikeThis is a function in search technologies that finds similar
+ * documents or content to a given document or query. It analyzes the
+ * properties of the reference document, such as keywords or structure,
+ * to identify other documents with similar characteristics in the
+ * database or search index.
+ */
 class MoreLikeThisQuery
 {
     /**
-     * @param string[] $fieldList
-     * @param Filter[] $filterList
+     * @param string $index name of the index to use
+     * @param Filter[] $filter
+     * @param string[] $fields
      */
     public function __construct(
-        private readonly string $core,
-        private readonly string $location,
-        private readonly array $filterList = [],
-        private readonly int $limit = 5,
-        private readonly array $fieldList = ['description', 'content']
+        public readonly string $index,
+        public readonly string $location,
+        public readonly array $filter = [],
+        public readonly int $limit = 5,
+        public readonly array $fields = ['description', 'content']
     ) {
-    }
-
-    public function getCore(): string
-    {
-        return $this->core;
-    }
-
-    public function getLocation(): string
-    {
-        return $this->location;
-    }
-
-    /**
-     * @return Filter[]
-     */
-    public function getFilterList(): array
-    {
-        return $this->filterList;
-    }
-
-    public function getLimit(): int
-    {
-        return $this->limit;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getFieldList(): array
-    {
-        return $this->fieldList;
     }
 }

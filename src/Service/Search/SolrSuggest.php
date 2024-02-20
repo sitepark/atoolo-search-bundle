@@ -26,6 +26,8 @@ use Solarium\QueryType\Select\Result\Result as SolrSelectResult;
  */
 class SolrSuggest implements SuggestSearcher
 {
+    private const INDEX_SUGGEST_FIELD = 'raw_content';
+
     public function __construct(
         private readonly SolrParameterClientFactory $clientFactory
     ) {
@@ -36,11 +38,11 @@ class SolrSuggest implements SuggestSearcher
      */
     public function suggest(SuggestQuery $query): SuggestResult
     {
-        $client = $this->clientFactory->create($query->getIndex());
+        $client = $this->clientFactory->create($query->index);
 
         $solrQuery = $this->buildSolrQuery($client, $query);
         $solrResult = $client->select($solrQuery);
-        return $this->buildResult($solrResult, $query->getField());
+        return $this->buildResult($solrResult);
     }
 
     private function buildSolrQuery(
@@ -62,17 +64,17 @@ class SolrSuggest implements SuggestSearcher
         $solrQuery->addParam("facet.method", "enum");
         $solrQuery->addParam(
             "facet.prefix",
-            $query->getText()
+            $query->text
         );
-        $solrQuery->addParam("facet.limit", $query->getLimit());
-        $solrQuery->addParam("facet.field", $query->getField());
+        $solrQuery->addParam("facet.limit", $query->limit);
+        $solrQuery->addParam("facet.field", self::INDEX_SUGGEST_FIELD);
 
         $solrQuery->setOmitHeader(false);
         $solrQuery->setStart(0);
         $solrQuery->setRows(0);
 
         // Filter
-        foreach ($query->getFilter() as $filter) {
+        foreach ($query->filter as $filter) {
             $solrQuery->createFilterQuery($filter->getKey())
                 ->setQuery($filter->getQuery())
                 ->setTags($filter->getTags());
@@ -82,12 +84,10 @@ class SolrSuggest implements SuggestSearcher
     }
 
     private function buildResult(
-        SolrSelectResult $solrResult,
-        string $resultField
+        SolrSelectResult $solrResult
     ): SuggestResult {
         $suggestions = $this->parseSuggestion(
-            $solrResult->getResponse()->getBody(),
-            $resultField
+            $solrResult->getResponse()->getBody()
         );
         return new SuggestResult(
             $suggestions,
@@ -100,8 +100,7 @@ class SolrSuggest implements SuggestSearcher
      * @return Suggestion[]
      */
     private function parseSuggestion(
-        string $responseBody,
-        string $facetField
+        string $responseBody
     ): array {
         try {
             /** @var SolariumResponse $json */
@@ -112,7 +111,7 @@ class SolrSuggest implements SuggestSearcher
                 JSON_THROW_ON_ERROR
             );
             $facets =
-                $json['facet_counts']['facet_fields'][$facetField]
+                $json['facet_counts']['facet_fields'][self::INDEX_SUGGEST_FIELD]
                 ?? [];
 
             $len = count($facets);

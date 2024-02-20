@@ -7,6 +7,7 @@ namespace Atoolo\Search\Console\Command;
 use Atoolo\Resource\Loader\SiteKitLoader;
 use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Search\Dto\Search\Query\SelectQuery;
+use Atoolo\Search\Dto\Search\Query\SelectQueryBuilder;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\Service\Search\ExternalResourceFactory;
 use Atoolo\Search\Service\Search\InternalMediaResourceFactory;
@@ -125,7 +126,7 @@ class Search extends Command
 
     protected function buildQuery(InputInterface $input): SelectQuery
     {
-        $builder = SelectQuery::builder();
+        $builder = new SelectQueryBuilder();
         $builder->index($this->index);
 
         $text = $input->getArgument('text');

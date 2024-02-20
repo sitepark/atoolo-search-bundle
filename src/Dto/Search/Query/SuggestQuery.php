@@ -6,43 +6,21 @@ namespace Atoolo\Search\Dto\Search\Query;
 
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 
+/**
+ * In the search context, "Suggest" refers to a feature that automatically
+ * makes suggestions as the user enters a search query to speed up and
+ * simplify the search process.
+ */
 class SuggestQuery
 {
     /**
      * @param Filter[] $filter
      */
     public function __construct(
-        private readonly string $index,
-        private readonly string $text,
-        private readonly array $filter = [],
-        private readonly int $limit = 10,
-        private readonly string $field = 'raw_content'
+        public readonly string $index,
+        public readonly string $text,
+        public readonly array $filter = [],
+        public readonly int $limit = 10
     ) {
-    }
-
-    public function getIndex(): string
-    {
-        return $this->index;
-    }
-    public function getText(): string
-    {
-        return $this->text;
-    }
-
-    public function getLimit(): int
-    {
-        return $this->limit;
-    }
-
-    /**
-     * @return Filter[]
-     */
-    public function getFilter(): array
-    {
-        return $this->filter;
-    }
-    public function getField(): string
-    {
-        return $this->field;
     }
 }

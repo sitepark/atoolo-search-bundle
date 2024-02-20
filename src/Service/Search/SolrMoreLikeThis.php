@@ -25,7 +25,7 @@ class SolrMoreLikeThis implements MoreLikeThisSearcher
 
     public function moreLikeThis(MoreLikeThisQuery $query): SearchResult
     {
-        $client = $this->clientFactory->create($query->getCore());
+        $client = $this->clientFactory->create($query->index);
         $solrQuery = $this->buildSolrQuery($client, $query);
         /** @var SelectResult $result */
         $result = $client->execute($solrQuery);
@@ -39,16 +39,16 @@ class SolrMoreLikeThis implements MoreLikeThisSearcher
 
         $solrQuery = $client->createMoreLikeThis();
         $solrQuery->setOmitHeader(false);
-        $solrQuery->setQuery('url:"' . $query->getLocation() . '"');
-        $solrQuery->setMltFields($query->getFieldList());
-        $solrQuery->setRows($query->getLimit());
+        $solrQuery->setQuery('url:"' . $query->location . '"');
+        $solrQuery->setMltFields($query->fields);
+        $solrQuery->setRows($query->limit);
         $solrQuery->setMinimumTermFrequency(2);
         $solrQuery->setMatchInclude(true);
         $solrQuery->createFilterQuery('nomedia')
             ->setQuery('-sp_objecttype:media');
 
         // Filter
-        foreach ($query->getFilterList() as $filter) {
+        foreach ($query->filter as $filter) {
             $solrQuery->createFilterQuery($filter->getKey())
                 ->setQuery($filter->getQuery())
                 ->setTags($filter->getTags());

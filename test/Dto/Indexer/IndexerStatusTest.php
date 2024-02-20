@@ -6,6 +6,7 @@ namespace Atoolo\Search\Test\Dto\Indexer;
 
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Dto\Indexer\IndexerStatusState;
+use DateTime;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -16,15 +17,15 @@ class IndexerStatusTest extends TestCase
 
     public function setUp(): void
     {
-        $startTime = new \DateTime();
+        $startTime = new DateTime();
         $startTime->setDate(2024, 1, 31);
         $startTime->setTime(11, 15, 10);
 
-        $endTime = new \DateTime();
+        $endTime = new DateTime();
         $endTime->setDate(2024, 1, 31);
         $endTime->setTime(12, 16, 11);
 
-        $lastUpdate = new \DateTime();
+        $lastUpdate = new DateTime();
         $lastUpdate->setDate(2024, 1, 31);
         $lastUpdate->setTime(13, 17, 12);
 
@@ -75,6 +76,37 @@ class IndexerStatusTest extends TestCase
             $patter,
             $status->getStatusLine(),
             "unexpected status line for empty status"
+        );
+    }
+
+    public function testStatusLineWithoutEndTime(): void
+    {
+        $startTime = new DateTime();
+        $startTime->setDate(2024, 1, 31);
+        $startTime->setTime(11, 15, 10);
+
+        $lastUpdate = new DateTime();
+        $lastUpdate->setTimestamp(0);
+
+        $status = new IndexerStatus(
+            IndexerStatusState::UNKNOWN,
+            $startTime,
+            null,
+            0,
+            0,
+            0,
+            $lastUpdate,
+            0,
+            0
+        );
+
+        $dateTimePattern = '[0-9]{2}\.[0-9]{2}\.[0-9]{4} [0-9]{2}:[0-9]{2}';
+        $patter = '/lastUpdate: ' . $dateTimePattern . ', /';
+
+        $this->assertMatchesRegularExpression(
+            $patter,
+            $status->getStatusLine(),
+            "unexpected status line without endTime"
         );
     }
 }

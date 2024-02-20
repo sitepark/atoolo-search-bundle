@@ -10,6 +10,7 @@ class FieldFilter extends Filter
      * @var string[]
      */
     private readonly array $values;
+
     public function __construct(
         ?string $key,
         private readonly string $field,
@@ -42,7 +43,7 @@ class FieldFilter extends Filter
             $field = '-' . $field;
         }
         return new FieldFilter(
-            $this->getKey(),
+            $this->key,
             $field,
             ...$this->values
         );

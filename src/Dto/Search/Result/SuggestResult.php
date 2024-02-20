@@ -17,8 +17,8 @@ class SuggestResult implements IteratorAggregate
      * @param int $queryTime
      */
     public function __construct(
-        private readonly array $suggestions,
-        private readonly int $queryTime
+        public readonly array $suggestions,
+        public readonly int $queryTime
     ) {
     }
 
@@ -28,18 +28,5 @@ class SuggestResult implements IteratorAggregate
     public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->suggestions);
-    }
-
-    /**
-     * @return Suggestion[]
-     */
-    public function getSuggestions(): array
-    {
-        return $this->suggestions;
-    }
-
-    public function getQueryTime(): int
-    {
-        return $this->queryTime;
     }
 }

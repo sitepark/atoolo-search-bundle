@@ -4,24 +4,13 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Search\Query\Facet;
 
-class FacetQuery implements Facet
+class FacetQuery extends Facet
 {
     public function __construct(
-        private readonly string $key,
-        private readonly string $query,
-        private readonly ?string $excludeFilter
+        string $key,
+        public readonly string $query,
+        ?string $excludeFilter
     ) {
-    }
-    public function getKey(): string
-    {
-        return $this->key;
-    }
-    public function getQuery(): string
-    {
-        return $this->query;
-    }
-    public function getExcludeFilter(): ?string
-    {
-        return $this->excludeFilter;
+        parent::__construct($key, $excludeFilter);
     }
 }
