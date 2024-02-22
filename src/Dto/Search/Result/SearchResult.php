@@ -11,6 +11,7 @@ use Traversable;
 
 /**
  * @implements IteratorAggregate<Resource>
+ * @codeCoverageIgnore
  */
 class SearchResult implements IteratorAggregate
 {

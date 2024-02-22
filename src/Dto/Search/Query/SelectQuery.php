@@ -8,6 +8,9 @@ use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 
+/**
+ * @codeCoverageIgnore
+ */
 class SelectQuery
 {
     /**

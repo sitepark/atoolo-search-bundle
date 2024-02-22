@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Search\Query\Sort;
 
-use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
-
+/**
+ * @codeCoverageIgnore
+ */
 class Name extends Criteria
 {
 }

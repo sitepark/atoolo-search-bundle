@@ -12,6 +12,8 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
  * properties of the reference document, such as keywords or structure,
  * to identify other documents with similar characteristics in the
  * database or search index.
+ *
+ * @codeCoverageIgnore
  */
 class MoreLikeThisQuery
 {

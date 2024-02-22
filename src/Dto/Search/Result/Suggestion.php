@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Search\Result;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Suggestion
 {
     public function __construct(

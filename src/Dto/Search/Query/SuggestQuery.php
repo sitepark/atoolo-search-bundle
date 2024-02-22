@@ -10,6 +10,8 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
  * In the search context, "Suggest" refers to a feature that automatically
  * makes suggestions as the user enters a search query to speed up and
  * simplify the search process.
+ *
+ * @codeCoverageIgnore
  */
 class SuggestQuery
 {

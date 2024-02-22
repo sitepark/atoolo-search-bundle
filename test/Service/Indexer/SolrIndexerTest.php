@@ -17,6 +17,7 @@ use Atoolo\Search\Service\Indexer\TranslationSplitter;
 use Atoolo\Search\Service\SolrClientFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Solarium\Client;
 use Solarium\QueryType\Server\CoreAdmin\Result\Result as CoreAdminResult;
@@ -27,7 +28,7 @@ use Solarium\QueryType\Update\Result as UpdateResult;
 #[CoversClass(SolrIndexer::class)]
 class SolrIndexerTest extends TestCase
 {
-    private ResourceLoader $resourceLoader;
+    private ResourceLoader&Stub $resourceLoader;
 
     private IndexerProgressHandler $indexerProgressHandler;
 
@@ -41,7 +42,7 @@ class SolrIndexerTest extends TestCase
 
     private UpdateResult $updateResult;
 
-    private IndexingAborter $aborter;
+    private IndexingAborter&Stub $aborter;
 
     private DocumentEnricher $documentEnricher;
 
@@ -55,7 +56,7 @@ class SolrIndexerTest extends TestCase
         $this->indexerProgressHandler = $this->createMock(
             IndexerProgressHandler::class
         );
-        $this->finder = $this->createStub(LocationFinder::class);
+        $this->finder = $this->createMock(LocationFinder::class);
         $this->documentEnricher = $this->createMock(DocumentEnricher::class);
         $this->translationSplitter = new SubDirTranslationSplitter();
         $this->resourceLoader = $this->createStub(ResourceLoader::class);
@@ -343,6 +344,60 @@ class SolrIndexerTest extends TestCase
             [
                 '/a/b.php',
                 '/a/c.php'
+            ]
+        );
+
+        $this->indexer->index($parameter);
+    }
+
+    public function testIndexPathWithParameter(): void
+    {
+        $this->finder->expects($this->once())
+            ->method('findPaths')
+            ->with($this->equalTo(['?a=b']));
+
+        $parameter = new IndexerParameter(
+            'test',
+            10,
+            10,
+            [
+                '?a=b'
+            ]
+        );
+
+        $this->indexer->index($parameter);
+    }
+
+    public function testIndexPathWithParameterAndPath(): void
+    {
+        $this->finder->expects($this->once())
+            ->method('findPaths')
+            ->with($this->equalTo(['/test.php']));
+
+        $parameter = new IndexerParameter(
+            'test',
+            10,
+            10,
+            [
+                '/test.php?a=b'
+            ]
+        );
+
+        $this->indexer->index($parameter);
+    }
+
+    public function testIndexPathWithLocParameterAndPath(): void
+    {
+        $this->finder->expects($this->once())
+            ->method('findPaths')
+            ->with($this->equalTo(['/test.php.translations/en.php']));
+
+        $parameter = new IndexerParameter(
+            'test',
+            10,
+            10,
+            [
+                '/test.php?loc=en'
             ]
         );
 

@@ -6,8 +6,10 @@ namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Search\Service\Indexer\ContentCollector;
 use Atoolo\Search\Service\Indexer\SiteKit\ContentMatcher;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(ContentCollector::class)]
 class ContentCollectorTest extends TestCase
 {
     public function testCollect(): void

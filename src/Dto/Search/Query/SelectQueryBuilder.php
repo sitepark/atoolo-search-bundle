@@ -122,8 +122,8 @@ class SelectQueryBuilder
             $this->offset,
             $this->limit,
             $this->sort,
-            $this->filter,
-            $this->facets,
+            array_values($this->filter),
+            array_values($this->facets),
             $this->queryDefaultOperator
         );
     }

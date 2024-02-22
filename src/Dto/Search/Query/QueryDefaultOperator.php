@@ -2,6 +2,9 @@
 
 namespace Atoolo\Search\Dto\Search\Query;
 
+/**
+ * @codeCoverageIgnore
+ */
 enum QueryDefaultOperator: string
 {
     case AND = 'AND';

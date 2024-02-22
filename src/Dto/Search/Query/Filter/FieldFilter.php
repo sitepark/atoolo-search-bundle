@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Search\Query\Filter;
 
+use InvalidArgumentException;
+
 class FieldFilter extends Filter
 {
     /**
@@ -17,7 +19,7 @@ class FieldFilter extends Filter
         string ...$values
     ) {
         if (count($values) === 0) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'values is an empty array'
             );
         }

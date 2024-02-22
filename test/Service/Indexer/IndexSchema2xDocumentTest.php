@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(IndexSchema2xDocument::class)]
 class IndexSchema2xDocumentTest extends TestCase
 {
     public function testGetFields(): void
