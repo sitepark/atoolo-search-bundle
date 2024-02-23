@@ -10,8 +10,10 @@ use Atoolo\Search\Dto\Search\Query\QueryDefaultOperator;
 use Atoolo\Search\Dto\Search\Query\SelectQueryBuilder;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(SelectQueryBuilder::class)]
 class SelectQueryBuilderTest extends TestCase
 {
     private SelectQueryBuilder $builder;

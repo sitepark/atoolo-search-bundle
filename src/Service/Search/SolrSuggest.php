@@ -8,7 +8,7 @@ use Atoolo\Search\Dto\Search\Query\SuggestQuery;
 use Atoolo\Search\Dto\Search\Result\Suggestion;
 use Atoolo\Search\Dto\Search\Result\SuggestResult;
 use Atoolo\Search\Exception\UnexpectedResultException;
-use Atoolo\Search\Service\SolrParameterClientFactory;
+use Atoolo\Search\Service\SolrClientFactory;
 use Atoolo\Search\SuggestSearcher;
 use JsonException;
 use Solarium\Core\Client\Client;
@@ -29,7 +29,7 @@ class SolrSuggest implements SuggestSearcher
     private const INDEX_SUGGEST_FIELD = 'raw_content';
 
     public function __construct(
-        private readonly SolrParameterClientFactory $clientFactory
+        private readonly SolrClientFactory $clientFactory
     ) {
     }
 
@@ -75,9 +75,9 @@ class SolrSuggest implements SuggestSearcher
 
         // Filter
         foreach ($query->filter as $filter) {
-            $solrQuery->createFilterQuery($filter->getKey())
+            $solrQuery->createFilterQuery($filter->key)
                 ->setQuery($filter->getQuery())
-                ->setTags($filter->getTags());
+                ->setTags($filter->tags);
         }
 
         return $solrQuery;

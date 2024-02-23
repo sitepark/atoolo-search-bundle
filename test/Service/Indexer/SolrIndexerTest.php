@@ -17,6 +17,7 @@ use Atoolo\Search\Service\Indexer\TranslationSplitter;
 use Atoolo\Search\Service\SolrClientFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Solarium\Client;
@@ -28,9 +29,11 @@ use Solarium\QueryType\Update\Result as UpdateResult;
 #[CoversClass(SolrIndexer::class)]
 class SolrIndexerTest extends TestCase
 {
+    private array $availableIndexes = ['test', 'test-en_US'];
+
     private ResourceLoader&Stub $resourceLoader;
 
-    private IndexerProgressHandler $indexerProgressHandler;
+    private IndexerProgressHandler&MockObject $indexerProgressHandler;
 
     private SolrIndexer $indexer;
 
@@ -44,7 +47,7 @@ class SolrIndexerTest extends TestCase
 
     private IndexingAborter&Stub $aborter;
 
-    private DocumentEnricher $documentEnricher;
+    private DocumentEnricher&MockObject $documentEnricher;
 
     private TranslationSplitter $translationSplitter;
 
@@ -74,11 +77,17 @@ class SolrIndexerTest extends TestCase
         $this->updateQuery->method('createDocument')
             ->willReturn($this->createStub(IndexSchema2xDocument::class));
         $coreAdminResult = $this->createStub(CoreAdminResult::class);
-        $coreAdminResultStatus = $this->createStub(StatusResult::class);
-        $coreAdminResultStatus->method('getCoreName')
-            ->willReturn('test');
         $coreAdminResult->method('getStatusResults')
-            ->willReturn([$coreAdminResultStatus]);
+            ->willReturnCallback(function () {
+                $results = [];
+                foreach($this->availableIndexes as $index) {
+                    $result = $this->createStub(StatusResult::class);
+                    $result->method('getCoreName')
+                        ->willReturn($index);
+                    $results[] = $result;
+                }
+                return $results;
+            });
         $this->solrClient->method('createUpdate')
             ->willReturn($this->updateQuery);
         $this->solrClient->method('update')
@@ -131,7 +140,9 @@ class SolrIndexerTest extends TestCase
         $this->finder->method('findAll')
             ->willReturn([
                 '/a/b.php',
+                '/a/b.php.translations/en_US.php',
                 '/a/c.php',
+                '/a/c.php.translations/fr_FR.php',
                 '/a/d.php',
                 '/a/e.php',
                 '/a/f.php',
@@ -140,7 +151,8 @@ class SolrIndexerTest extends TestCase
                 '/a/i.php',
                 '/a/j.php',
                 '/a/k.php',
-                '/a/l.php'
+                '/a/l.php',
+                '/a/error.php'
             ]);
 
         $this->updateResult->method('getStatus')
@@ -149,11 +161,17 @@ class SolrIndexerTest extends TestCase
         $this->documentEnricher->method('isIndexable')
             ->willReturn(true);
 
-        $this->documentEnricher->expects($this->exactly(11))
-            ->method('enrichDocument');
+        $this->documentEnricher
+            ->method('enrichDocument')
+            ->willReturnCallback(function ($resource, $doc) {
+                if ($resource->getLocation() === '/a/error.php') {
+                    throw new \Exception('test');
+                }
+                return $doc;
+            });
 
         $addDocumentsCalls = 0;
-        $this->updateQuery->expects($this->exactly(2))
+        $this->updateQuery->expects($this->exactly(3))
             ->method('addDocuments')
             ->willReturnCallback(
                 function ($documents) use (&$addDocumentsCalls) {
@@ -180,6 +198,9 @@ class SolrIndexerTest extends TestCase
             10,
             10
         );
+
+        $this->indexerProgressHandler->expects($this->exactly(2))
+            ->method('error');
 
         $this->indexer->index($parameter);
     }
@@ -400,6 +421,37 @@ class SolrIndexerTest extends TestCase
                 '/test.php?loc=en'
             ]
         );
+
+        $this->indexer->index($parameter);
+    }
+
+    public function testWithoutAvailableIndexes(): void
+    {
+
+        $this->availableIndexes = [];
+        $this->finder->method('findAll')
+            ->willReturn([
+                '/a/b.php',
+                '/a/c.php',
+                '/a/d.php',
+                '/a/e.php',
+                '/a/f.php',
+                '/a/g.php',
+                '/a/h.php',
+                '/a/i.php',
+                '/a/j.php',
+                '/a/k.php',
+                '/a/l.php'
+            ]);
+
+        $parameter = new IndexerParameter(
+            'test',
+            10,
+            10
+        );
+
+        $this->indexerProgressHandler->expects($this->once())
+            ->method('error');
 
         $this->indexer->index($parameter);
     }

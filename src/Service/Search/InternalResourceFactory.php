@@ -6,6 +6,7 @@ namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
+use LogicException;
 use Solarium\QueryType\Select\Result\Document;
 
 /**
@@ -22,13 +23,19 @@ class InternalResourceFactory implements ResourceFactory
 
     public function accept(Document $document): bool
     {
-        $location = $this->getField($document, 'url') ?? '';
+        $location = $this->getField($document, 'url');
+        if ($location === null) {
+            return false;
+        }
         return str_ends_with($location, '.php');
     }
 
     public function create(Document $document): Resource
     {
-        $location = $this->getField($document, 'url') ?? '';
+        $location = $this->getField($document, 'url');
+        if ($location === null) {
+            throw new LogicException('document should contains a url');
+        }
         return $this->resourceLoader->load($location);
     }
 

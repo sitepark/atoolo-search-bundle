@@ -10,7 +10,7 @@ namespace Atoolo\Search\Dto\Search\Query\Sort;
 abstract class Criteria
 {
     public function __construct(
-        public readonly Direction $direction
+        public readonly Direction $direction = Direction::ASC
     ) {
     }
 }

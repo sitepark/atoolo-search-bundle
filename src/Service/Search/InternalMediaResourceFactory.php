@@ -6,6 +6,7 @@ namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
+use LogicException;
 use Solarium\QueryType\Select\Result\Document;
 
 /**
@@ -25,18 +26,27 @@ class InternalMediaResourceFactory implements ResourceFactory
     public function accept(Document $document): bool
     {
         $metaLocation = $this->getMetaLocation($document);
+        if ($metaLocation === null) {
+            return false;
+        }
         return $this->resourceLoader->exists($metaLocation);
     }
 
     public function create(Document $document): Resource
     {
         $metaLocation = $this->getMetaLocation($document);
+        if ($metaLocation === null) {
+            throw new LogicException('document should contains a url');
+        }
         return $this->resourceLoader->load($metaLocation);
     }
 
-    private function getMetaLocation(Document $document): string
+    private function getMetaLocation(Document $document): ?string
     {
-        $location = $this->getField($document, 'url') ?? '';
+        $location = $this->getField($document, 'url');
+        if ($location === null) {
+            return null;
+        }
         return $location . '.meta.php';
     }
 
