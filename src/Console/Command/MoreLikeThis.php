@@ -4,17 +4,10 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
-use Atoolo\Resource\Loader\SiteKitLoader;
-use Atoolo\Resource\Loader\StaticResourceBaseLocator;
+use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
-use Atoolo\Search\Service\Search\ExternalResourceFactory;
-use Atoolo\Search\Service\Search\InternalMediaResourceFactory;
-use Atoolo\Search\Service\Search\InternalResourceFactory;
 use Atoolo\Search\Service\Search\SolrMoreLikeThis;
-use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
-use Atoolo\Search\Service\SolrParameterClientFactory;
-use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -29,9 +22,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class MoreLikeThis extends Command
 {
     private SymfonyStyle $io;
-    private InputInterface $input;
+    private TypifiedInput $input;
     private string $solrCore;
-    private string $resourceDir;
+
+    public function __construct(
+        private readonly SolrMoreLikeThisBuilder $solrMoreLikeThisBuilder
+    ) {
+        parent::__construct();
+    }
 
     protected function configure(): void
     {
@@ -66,12 +64,11 @@ class MoreLikeThis extends Command
         OutputInterface $output
     ): int {
 
-        $this->input = $input;
+        $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
 
-        $this->solrCore = $this->getStringArgument('solr-core');
-        $this->resourceDir = $this->getStringArgument('resource-dir');
-        $location = $this->getStringArgument('location');
+        $this->solrCore = $this->input->getStringArgument('solr-core');
+        $location = $this->input->getStringArgument('location');
 
         $searcher = $this->createSearcher();
         $query = $this->buildQuery($location);
@@ -81,46 +78,16 @@ class MoreLikeThis extends Command
         return Command::SUCCESS;
     }
 
-    private function getStringArgument(string $name): string
-    {
-        $value = $this->input->getArgument($name);
-        if (!is_string($value)) {
-            throw new InvalidArgumentException(
-                $name . ' must be a string'
-            );
-        }
-        return $value;
-    }
-
     protected function createSearcher(): SolrMoreLikeThis
     {
-        $resourceBaseLocator = new StaticResourceBaseLocator(
-            $this->resourceDir
+        $this->solrMoreLikeThisBuilder->solrConnectionUrl(
+            $this->input->getStringArgument('solr-connection-url')
         );
-        $resourceLoader = new SiteKitLoader($resourceBaseLocator);
-        /** @var string[] */
-        $url = parse_url($this->getStringArgument('solr-connection-url'));
-        $clientFactory = new SolrParameterClientFactory(
-            $url['scheme'],
-            $url['host'],
-            (int)($url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983)),
-            $url['path'] ?? '',
-            null,
-            0
-        );
-        $resourceFactoryList = [
-            new ExternalResourceFactory(),
-            new InternalResourceFactory($resourceLoader),
-            new InternalMediaResourceFactory($resourceLoader)
-        ];
-        $solrResultToResourceResolver = new SolrResultToResourceResolver(
-            $resourceFactoryList
+        $this->solrMoreLikeThisBuilder->resourceDir(
+            $this->input->getStringArgument('resource-dir')
         );
 
-        return new SolrMoreLikeThis(
-            $clientFactory,
-            $solrResultToResourceResolver
-        );
+        return $this->solrMoreLikeThisBuilder->build();
     }
 
     protected function buildQuery(string $location): MoreLikeThisQuery
@@ -137,10 +104,10 @@ class MoreLikeThis extends Command
 
     protected function outputResult(SearchResult $result): void
     {
-        $this->io->text($result->getTotal() . " Results:");
+        $this->io->text($result->total . " Results:");
         foreach ($result as $resource) {
             $this->io->text($resource->getLocation());
         }
-        $this->io->text('Query-Time: ' . $result->getQueryTime() . 'ms');
+        $this->io->text('Query-Time: ' . $result->queryTime . 'ms');
     }
 }

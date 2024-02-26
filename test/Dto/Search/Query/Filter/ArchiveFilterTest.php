@@ -17,7 +17,7 @@ class ArchiveFilterTest extends TestCase
         $this->assertEquals(
             '-sp_archive:true',
             $filter->getQuery(),
-        'unexpected query'
+            'unexpected query'
         );
     }
 }

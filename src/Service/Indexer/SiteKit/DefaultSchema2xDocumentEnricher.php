@@ -222,7 +222,9 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $groupPathAsIdList[] = $group['id'];
         }
 
-        $doc->sp_group = $groupPathAsIdList[count($groupPathAsIdList) - 2];
+        if (count($groupPathAsIdList) > 2) {
+            $doc->sp_group = $groupPathAsIdList[count($groupPathAsIdList) - 2];
+        }
         $doc->sp_group_path = $groupPathAsIdList;
 
         /** @var array<array{from:int, contentType:string}> $schedulingList */
@@ -352,8 +354,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $content[] = ($addressData['street'] ?? '');
             $content[] = ($addressData['buildingName'] ?? '');
             $content[] = (
-                $addressData['postOfficeBoxData']['buildingName'] ??
-                ''
+                $addressData['postOfficeBoxData']['buildingName'] ?? ''
             );
         }
 

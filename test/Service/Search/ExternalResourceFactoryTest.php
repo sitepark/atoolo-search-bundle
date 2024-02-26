@@ -12,7 +12,6 @@ use Solarium\QueryType\Select\Result\Document;
 #[CoversClass(ExternalResourceFactory::class)]
 class ExternalResourceFactoryTest extends TestCase
 {
-
     private ExternalResourceFactory $factory;
 
     protected function setUp(): void

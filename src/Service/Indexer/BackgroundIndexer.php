@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
-use Atoolo\Search\Service\SolrClientFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Lock\LockFactory;
@@ -17,23 +15,14 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 class BackgroundIndexer implements Indexer
 {
-    private LockFactory $lockFactory;
-
-    /**
-     * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
-     */
     public function __construct(
-        private readonly iterable $documentEnricherList,
-        private readonly LocationFinder $finder,
-        private readonly ResourceLoader $resourceLoader,
-        private readonly TranslationSplitter $translationSplitter,
-        private readonly SolrClientFactory $clientFactory,
-        private readonly IndexingAborter $aborter,
-        private readonly string $source,
+        private readonly SolrIndexerFactory $indexerFactory,
         private readonly IndexerStatusStore $statusStore,
-        private readonly LoggerInterface $logger = new NullLogger()
+        private readonly LoggerInterface $logger = new NullLogger(),
+        private readonly LockFactory $lockFactory = new LockFactory(
+            new SemaphoreStore()
+        )
     ) {
-        $this->lockFactory = new LockFactory(new SemaphoreStore());
     }
 
     /**
@@ -77,15 +66,7 @@ class BackgroundIndexer implements Indexer
             $this->statusStore,
             $this->logger
         );
-        return new SolrIndexer(
-            $this->documentEnricherList,
-            $progressHandler,
-            $this->finder,
-            $this->resourceLoader,
-            $this->translationSplitter,
-            $this->clientFactory,
-            $this->aborter,
-            $this->source
-        );
+
+        return $this->indexerFactory->create($progressHandler);
     }
 }

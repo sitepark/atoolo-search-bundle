@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use phpDocumentor\Reflection\Types\Boolean;
-
 class IndexingAborter
 {
     public function __construct(
@@ -30,6 +28,6 @@ class IndexingAborter
 
     private function getAbortMarkerFile(string $index): string
     {
-        return $this->workdir . '/background-indexer-' . $index . ".abort";
+        return $this->workdir . '/background-indexer-' . $index . '.abort';
     }
 }

@@ -58,6 +58,7 @@ class IndexerProgressBar implements IndexerProgressHandler
 
     public function skip(int $step): void
     {
+        $this->status->skipped++;
     }
 
     private function formatProgressBar(string $color): void

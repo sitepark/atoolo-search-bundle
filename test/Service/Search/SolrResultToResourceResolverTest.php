@@ -16,7 +16,6 @@ use Solarium\QueryType\Select\Result\Result as SelectResult;
 #[CoversClass(SolrResultToResourceResolver::class)]
 class SolrResultToResourceResolverTest extends TestCase
 {
-
     public function testLoadResourceList(): void
     {
         $document = $this->createStub(Document::class);
@@ -84,5 +83,4 @@ class SolrResultToResourceResolverTest extends TestCase
             'resourceList should be empty'
         );
     }
-
 }

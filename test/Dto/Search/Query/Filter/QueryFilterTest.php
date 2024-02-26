@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(QueryFilter::class)]
 class QueryFilterTest extends TestCase
 {
-
     public function testGetQuery(): void
     {
         $filter = new QueryFilter(null, 'a:b');

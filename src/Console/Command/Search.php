@@ -4,19 +4,11 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
-use Atoolo\Resource\Loader\SiteKitLoader;
-use Atoolo\Resource\Loader\StaticResourceBaseLocator;
+use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Search\Query\SelectQuery;
 use Atoolo\Search\Dto\Search\Query\SelectQueryBuilder;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
-use Atoolo\Search\Service\Search\ExternalResourceFactory;
-use Atoolo\Search\Service\Search\InternalMediaResourceFactory;
-use Atoolo\Search\Service\Search\InternalResourceFactory;
-use Atoolo\Search\Service\Search\SiteKit\DefaultBoostModifier;
-use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use Atoolo\Search\Service\Search\SolrSelect;
-use Atoolo\Search\Service\SolrParameterClientFactory;
-use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -31,15 +23,24 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class Search extends Command
 {
     private SymfonyStyle $io;
-    private InputInterface $input;
+    private TypifiedInput $input;
     private string $index;
-    private string $resourceDir;
 
+    public function __construct(
+        private readonly SolrSelectBuilder $solrSelectBuilder
+    ) {
+        parent::__construct();
+    }
 
     protected function configure(): void
     {
         $this
             ->setHelp('Command to performs a search')
+            ->addArgument(
+                'solr-connection-url',
+                InputArgument::REQUIRED,
+                'Solr connection url.'
+            )
             ->addArgument(
                 'index',
                 InputArgument::REQUIRED,
@@ -63,10 +64,9 @@ class Search extends Command
         OutputInterface $output
     ): int {
 
-        $this->input = $input;
+        $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
-        $this->resourceDir = $this->getStringArgument('resource-dir');
-        $this->index = $this->getStringArgument('index');
+        $this->index = $this->input->getStringArgument('index');
 
         $searcher = $this->createSearch();
         $query = $this->buildQuery($input);
@@ -78,50 +78,15 @@ class Search extends Command
         return Command::SUCCESS;
     }
 
-    private function getStringArgument(string $name): string
-    {
-        $value = $this->input->getArgument($name);
-        if (!is_string($value)) {
-            throw new InvalidArgumentException(
-                $name . ' must be a string'
-            );
-        }
-        return $value;
-    }
-
     protected function createSearch(): SolrSelect
     {
-        $resourceBaseLocator = new StaticResourceBaseLocator(
-            $this->resourceDir
+        $this->solrSelectBuilder->resourceDir(
+            $this->input->getStringArgument('resource-dir')
         );
-        $resourceLoader = new SiteKitLoader($resourceBaseLocator);
-        /** @var string[] */
-        $url = parse_url($this->getStringArgument('solr-connection-url'));
-        $clientFactory = new SolrParameterClientFactory(
-            $url['scheme'],
-            $url['host'],
-            (int)($url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983)),
-            $url['path'] ?? '',
-            null,
-            0
+        $this->solrSelectBuilder->solrConnectionUrl(
+            $this->input->getStringArgument('solr-connection-url')
         );
-        $defaultBoosting = new DefaultBoostModifier();
-
-        $resourceFactoryList = [
-            new ExternalResourceFactory(),
-            new InternalResourceFactory($resourceLoader),
-            new InternalMediaResourceFactory($resourceLoader)
-        ];
-
-        $solrResultToResourceResolver = new SolrResultToResourceResolver(
-            $resourceFactoryList
-        );
-
-        return new SolrSelect(
-            $clientFactory,
-            [$defaultBoosting],
-            $solrResultToResourceResolver
-        );
+        return $this->solrSelectBuilder->build();
     }
 
     protected function buildQuery(InputInterface $input): SelectQuery
@@ -144,25 +109,25 @@ class Search extends Command
     protected function outputResult(
         SearchResult $result
     ): void {
-        $this->io->title('Results (' . $result->getTotal() . ')');
+        $this->io->title('Results (' . $result->total . ')');
         foreach ($result as $resource) {
             $this->io->text($resource->getLocation());
         }
 
-        if (count($result->getFacetGroups()) > 0) {
+        if (count($result->facetGroups) > 0) {
             $this->io->title('Facets');
-            foreach ($result->getFacetGroups() as $facetGroup) {
-                $this->io->section($facetGroup->getKey());
+            foreach ($result->facetGroups as $facetGroup) {
+                $this->io->section($facetGroup->key);
                 $listing = [];
-                foreach ($facetGroup->getFacets() as $facet) {
+                foreach ($facetGroup->facets as $facet) {
                     $listing[] =
-                        $facet->getKey() .
-                        ' (' . $facet->getHits() . ')';
+                        $facet->key .
+                        ' (' . $facet->hits . ')';
                 }
                 $this->io->listing($listing);
             }
         }
 
-        $this->io->text('Query-Time: ' . $result->getQueryTime() . 'ms');
+        $this->io->text('Query-Time: ' . $result->queryTime . 'ms');
     }
 }

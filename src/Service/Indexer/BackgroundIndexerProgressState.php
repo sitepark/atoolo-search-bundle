@@ -110,14 +110,6 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
         $this->status->state = IndexerStatusState::ABORTED;
     }
 
-    /**
-     * @return array<Throwable>
-     */
-    public function getErrors(): array
-    {
-        return [];
-    }
-
     public function getStatus(): IndexerStatus
     {
         return $this->status;

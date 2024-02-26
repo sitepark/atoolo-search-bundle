@@ -8,6 +8,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Filter\OrFilter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+
 use function PHPUnit\Framework\assertEquals;
 
 #[CoversClass(OrFilter::class)]

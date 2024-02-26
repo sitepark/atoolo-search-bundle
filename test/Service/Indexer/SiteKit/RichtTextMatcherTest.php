@@ -61,5 +61,4 @@ class RichtTextMatcherTest extends TestCase
             'should not find any content'
         );
     }
-
 }

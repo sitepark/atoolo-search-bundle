@@ -80,7 +80,7 @@ class SolrIndexerTest extends TestCase
         $coreAdminResult->method('getStatusResults')
             ->willReturnCallback(function () {
                 $results = [];
-                foreach($this->availableIndexes as $index) {
+                foreach ($this->availableIndexes as $index) {
                     $result = $this->createStub(StatusResult::class);
                     $result->method('getCoreName')
                         ->willReturn($index);
