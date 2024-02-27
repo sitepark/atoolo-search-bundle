@@ -25,7 +25,7 @@ class Indexer extends Command
 {
     private IndexerProgressBar $progressBar;
     private SymfonyStyle $io;
-    private TypifiedInput $input;
+    private OutputInterface $output;
 
     /**
      * phpcs:ignore
@@ -90,14 +90,15 @@ class Indexer extends Command
         OutputInterface $output
     ): int {
 
-        $this->input = new TypifiedInput($input);
+        $typedInput = new TypifiedInput($input);
+        $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
         $this->progressBar = $this->progressBarFactory->create($output);
 
-        $paths = $this->input->getArrayArgument('paths');
+        $paths = $typedInput->getArrayArgument('paths');
 
         $cleanupThreshold = empty($paths)
-            ? $this->input->getIntOption('cleanup-threshold')
+            ? $typedInput->getIntOption('cleanup-threshold')
             : 0;
 
         if (empty($paths)) {
@@ -108,18 +109,18 @@ class Indexer extends Command
         }
 
         $parameter = new IndexerParameter(
-            $this->input->getStringArgument('solr-core'),
+            $typedInput->getStringArgument('solr-core'),
             $cleanupThreshold,
-            $this->input->getIntOption('chunk-size'),
+            $typedInput->getIntOption('chunk-size'),
             $paths
         );
 
         $this->solrIndexerBuilder
-            ->resourceDir($this->input->getStringArgument('resource-dir'))
+            ->resourceDir($typedInput->getStringArgument('resource-dir'))
             ->progressBar($this->progressBar)
             ->documentEnricherList($this->documentEnricherList)
             ->solrConnectionUrl(
-                $this->input->getStringArgument('solr-connection-url')
+                $typedInput->getStringArgument('solr-connection-url')
             );
 
         $indexer = $this->solrIndexerBuilder->build();
@@ -133,7 +134,11 @@ class Indexer extends Command
     protected function errorReport(): void
     {
         foreach ($this->progressBar->getErrors() as $error) {
-            $this->io->error($error->getMessage());
+            if ($this->io->isVerbose() && $this->getApplication() !== null) {
+                $this->getApplication()->renderThrowable($error, $this->output);
+            } else {
+                $this->io->error($error->getMessage());
+            }
         }
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
-use Atoolo\Resource\Loader\ServerVarResourceBaseLocator;
 use Atoolo\Resource\Loader\SiteKitLoader;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
@@ -32,6 +31,10 @@ class SolrIndexerBuilder
     private IndexerProgressBar $progressBar;
     private string $solrConnectionUrl;
 
+    public function __construct(
+        private readonly ResourceBaseLocatorBuilder $resourceBaseLocatorBuilder
+    ) {
+    }
     public function resourceDir(string $resourceDir): SolrIndexerBuilder
     {
         $this->resourceDir = $resourceDir;
@@ -65,14 +68,8 @@ class SolrIndexerBuilder
 
     public function build(): SolrIndexer
     {
-        $subDirectory = null;
-        if (is_dir($this->resourceDir . '/objects')) {
-            $subDirectory = 'objects';
-        }
-        $_SERVER['RESOURCE_ROOT'] = $this->resourceDir;
-        $resourceBaseLocator = new ServerVarResourceBaseLocator(
-            'RESOURCE_ROOT',
-            $subDirectory
+        $resourceBaseLocator = $this->resourceBaseLocatorBuilder->build(
+            $this->resourceDir
         );
         $finder = new LocationFinder($resourceBaseLocator);
         $resourceLoader = new SiteKitLoader($resourceBaseLocator);

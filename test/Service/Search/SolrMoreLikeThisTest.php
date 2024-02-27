@@ -15,8 +15,8 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Solarium\Client;
 use Solarium\QueryType\MoreLikeThis\Query as SolrMoreLikeThisQuery;
+use Solarium\QueryType\MoreLikeThis\Result as SolrMoreLikeThisResult;
 use Solarium\QueryType\Select\Query\FilterQuery;
-use Solarium\QueryType\Select\Result\Result as SelectResult;
 
 #[CoversClass(SolrMoreLikeThis::class)]
 class SolrMoreLikeThisTest extends TestCase
@@ -39,7 +39,7 @@ class SolrMoreLikeThisTest extends TestCase
 
         $client->method('createMoreLikeThis')->willReturn($query);
 
-        $result = $this->createStub(SelectResult::class);
+        $result = $this->createStub(SolrMoreLikeThisResult::class);
         $client->method('execute')->willReturn($result);
 
         $this->resource = $this->createStub(Resource::class);

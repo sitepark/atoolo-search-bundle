@@ -5,18 +5,25 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Resource\Loader\SiteKitLoader;
-use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Search\Service\Search\ExternalResourceFactory;
 use Atoolo\Search\Service\Search\InternalMediaResourceFactory;
 use Atoolo\Search\Service\Search\InternalResourceFactory;
 use Atoolo\Search\Service\Search\SolrMoreLikeThis;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use Atoolo\Search\Service\SolrParameterClientFactory;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class SolrMoreLikeThisBuilder
 {
     private string $resourceDir;
     private string $solrConnectionUrl;
+
+    public function __construct(
+        private readonly ResourceBaseLocatorBuilder $resourceBaseLocatorBuilder,
+        private readonly LoggerInterface $logger = new NullLogger()
+    ) {
+    }
 
     public function resourceDir(string $resourceDir): SolrMoreLikeThisBuilder
     {
@@ -33,7 +40,7 @@ class SolrMoreLikeThisBuilder
 
     public function build(): SolrMoreLikeThis
     {
-        $resourceBaseLocator = new StaticResourceBaseLocator(
+        $resourceBaseLocator = $this->resourceBaseLocatorBuilder->build(
             $this->resourceDir
         );
         $resourceLoader = new SiteKitLoader($resourceBaseLocator);
@@ -53,7 +60,8 @@ class SolrMoreLikeThisBuilder
             new InternalMediaResourceFactory($resourceLoader)
         ];
         $solrResultToResourceResolver = new SolrResultToResourceResolver(
-            $resourceFactoryList
+            $resourceFactoryList,
+            $this->logger
         );
 
         return new SolrMoreLikeThis(

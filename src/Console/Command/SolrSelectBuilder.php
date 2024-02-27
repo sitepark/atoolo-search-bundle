@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Resource\Loader\SiteKitLoader;
-use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Search\Service\Search\ExternalResourceFactory;
 use Atoolo\Search\Service\Search\InternalMediaResourceFactory;
 use Atoolo\Search\Service\Search\InternalResourceFactory;
@@ -18,6 +17,11 @@ class SolrSelectBuilder
 {
     private string $resourceDir;
     private string $solrConnectionUrl;
+
+    public function __construct(
+        private readonly ResourceBaseLocatorBuilder $resourceBaseLocatorBuilder
+    ) {
+    }
 
     public function resourceDir(string $resourceDir): SolrSelectBuilder
     {
@@ -34,7 +38,7 @@ class SolrSelectBuilder
 
     public function build(): SolrSelect
     {
-        $resourceBaseLocator = new StaticResourceBaseLocator(
+        $resourceBaseLocator = $this->resourceBaseLocatorBuilder->build(
             $this->resourceDir
         );
         $resourceLoader = new SiteKitLoader($resourceBaseLocator);

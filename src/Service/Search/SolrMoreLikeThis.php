@@ -10,7 +10,7 @@ use Atoolo\Search\MoreLikeThisSearcher;
 use Atoolo\Search\Service\SolrClientFactory;
 use Solarium\Core\Client\Client;
 use Solarium\QueryType\MoreLikeThis\Query as SolrMoreLikeThisQuery;
-use Solarium\QueryType\Select\Result\Result as SelectResult;
+use Solarium\QueryType\MoreLikeThis\Result as SolrMoreLikeThisResult;
 
 /**
  * Implementation of the "More-Like-This" on the basis of a Solr index.
@@ -58,7 +58,7 @@ class SolrMoreLikeThis implements MoreLikeThisSearcher
     }
 
     private function buildResult(
-        SelectResult $result
+        SolrMoreLikeThisResult $result
     ): SearchResult {
 
         $resourceList = $this->resultToResourceResolver
