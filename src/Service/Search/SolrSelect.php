@@ -171,7 +171,6 @@ class SolrSelect implements SelectSearcher
 
         foreach ($filterList as $filter) {
             $key = $filter->key ?? uniqid('', true);
-            $fq = $solrQuery->createFilterQuery($key);
             $solrQuery->createFilterQuery($key)
                 ->setQuery($filter->getQuery())
                 ->setTags($filter->tags);
