@@ -6,4 +6,6 @@
 
 # Atoolo search
 
-Provides services with which a Solr index can be filled and searched for [resources](https://github.com/sitepark/atoolo-resource) via this index.
+Provides services with which a Solr index can be filled and searched for [resources](https://github.com/sitepark/atoolo-resource) via a index.
+
+[Documentation](https://sitepark.github.io/atoolo-docs/develop/components/search/)
