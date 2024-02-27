@@ -15,7 +15,25 @@ use Solarium\QueryType\Update\Result as UpdateResult;
 use Throwable;
 
 /**
- *  Implementation of the indexer on the basis of a Solr index.
+ * Implementation of the indexer on the basis of a Solr index.
+ *
+ * Resources are loaded via the indexer, mapped to an IndexDocument and
+ * then transferred to Solr in order to index it.
+ *
+ * This is done in several stages:
+ *
+ * 1. first, the PHP files containing the resource data are determined via
+ *    the file system. This can be an entire directory tree or just
+ *    individual files.
+ * 2. resources may have been translated into several languages and are also
+ *    available in translated form as PHP files in the file system. A separate
+ *    Solr index is used for each language. The PHP files are therefore
+ *    assigned to the respective language.
+ * 3. the resources are loaded separately for each language, mapped to the
+ *    index documents and indexed for the corresponding index.
+ * 4. for performance reasons, the documents are not indexed individually,
+ *    but always a list of documents. The entire list is divided into chunks
+ *    and indexed chunk-wise.
  */
 class SolrIndexer implements Indexer
 {
@@ -52,6 +70,10 @@ class SolrIndexer implements Indexer
         $this->aborter->abort($index);
     }
 
+    /**
+     * Indexes an entire directory structure or only selected files
+     * if `paths` was specified in `$parameter`.
+     */
     public function index(IndexerParameter $parameter): IndexerStatus
     {
         if (empty($parameter->paths)) {
@@ -65,6 +87,12 @@ class SolrIndexer implements Indexer
     }
 
     /**
+     * If a path is to be indexed in a translated language, this can also
+     * be specified via the URL parameter `loc`. For example,
+     * `/dir/file.php?loc=it_IT` defines that the path
+     * `/dir/file.php.translations/it_IT.php` is to be used.
+     * This method translates the URL parameter into the correct path.
+     *
      * @param string[] $pathList
      * @return string[]
      */
@@ -89,6 +117,8 @@ class SolrIndexer implements Indexer
     }
 
     /**
+     * Indexes the resources of all passed paths.
+     *
      * @param array<string> $pathList
      */
     private function indexResources(
@@ -107,12 +137,36 @@ class SolrIndexer implements Indexer
             $this->indexerProgressHandler->startUpdate($total);
         }
 
-
         $availableIndexes = $this->getAvailableIndexes();
+        $splitterResult = $this->translationSplitter->split($pathList);
+
+        $this->indexTranslationSplittedResources(
+            $parameter,
+            $availableIndexes,
+            $splitterResult
+        );
+
+        $this->indexerProgressHandler->finish();
+
+        return $this->indexerProgressHandler->getStatus();
+    }
+
+    /**
+     * There is a separate Solr index for each language. This allows
+     * language-specific tokenizers and other language-relevant configurations
+     * to be used. Via the `$splitterResult` all paths are separated according
+     * to their languages and can be indexed separately. Each language is
+     * indexed separately here.
+     *
+     * @param string[] $availableIndexes
+     */
+    private function indexTranslationSplittedResources(
+        IndexerParameter $parameter,
+        array $availableIndexes,
+        TranslationSplitterResult $splitterResult
+    ): void {
 
         $processId = uniqid('', true);
-
-        $splitterResult = $this->translationSplitter->split($pathList);
 
         if (in_array($parameter->index, $availableIndexes)) {
             $this->indexResourcesPerLanguageIndex(
@@ -142,13 +196,11 @@ class SolrIndexer implements Indexer
                 ));
             }
         }
-
-        $this->indexerProgressHandler->finish();
-
-        return $this->indexerProgressHandler->getStatus();
     }
 
     /**
+     * The resources for a language are indexed here.
+     *
      * @param string[] $pathList
      */
     private function indexResourcesPerLanguageIndex(
@@ -185,7 +237,13 @@ class SolrIndexer implements Indexer
         $this->commit($index);
     }
 
-        /**
+    /**
+     * For performance reasons, not every resource is indexed individually,
+     * but the index documents are first generated from several resources.
+     * These are then passed to Solr for indexing via a request. These
+     * methods accept a chunk with all paths that are to be indexed via a
+     * request.
+     *
      * @param string[] $pathList
      */
     private function indexChunks(
