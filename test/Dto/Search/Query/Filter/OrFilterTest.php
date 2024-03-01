@@ -24,7 +24,7 @@ class OrFilterTest extends TestCase
         $b->method('getQuery')
             ->willReturn('b');
 
-        $and = new OrFilter(null, [$a, $b]);
+        $and = new OrFilter([$a, $b]);
 
         assertEquals(
             '(a OR b)',

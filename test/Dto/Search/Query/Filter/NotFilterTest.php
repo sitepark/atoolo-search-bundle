@@ -17,7 +17,7 @@ class NotFilterTest extends TestCase
         $filter = $this->createStub(Filter::class);
         $filter->method('getQuery')
             ->willReturn('a:b');
-        $notFilter = new NotFilter(null, $filter);
+        $notFilter = new NotFilter($filter);
 
         $this->assertEquals(
             'NOT a:b',

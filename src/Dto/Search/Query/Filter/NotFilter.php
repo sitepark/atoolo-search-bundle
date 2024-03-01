@@ -7,8 +7,8 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
 class NotFilter extends Filter
 {
     public function __construct(
-        ?string $key,
         private readonly Filter $filter,
+        ?string $key = null,
         array $tags = []
     ) {
         parent::__construct($key, $tags);

@@ -7,8 +7,8 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
 class QueryFilter extends Filter
 {
     public function __construct(
-        ?string $key,
-        private readonly string $query
+        private readonly string $query,
+        ?string $key = null,
     ) {
         parent::__construct(
             $key

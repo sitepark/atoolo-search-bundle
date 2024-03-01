@@ -87,7 +87,7 @@ class Suggest extends Command
      */
     protected function buildQuery(array $terms): SuggestQuery
     {
-        $excludeMedia = new ObjectTypeFilter('media', 'media');
+        $excludeMedia = new ObjectTypeFilter(['media'], 'media');
         $excludeMedia = $excludeMedia->exclude();
         return new SuggestQuery(
             $this->solrCore,

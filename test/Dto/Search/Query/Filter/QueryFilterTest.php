@@ -13,7 +13,7 @@ class QueryFilterTest extends TestCase
 {
     public function testGetQuery(): void
     {
-        $filter = new QueryFilter(null, 'a:b');
+        $filter = new QueryFilter('a:b');
         $this->assertEquals(
             'a:b',
             $filter->getQuery(),

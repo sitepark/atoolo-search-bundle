@@ -10,8 +10,8 @@ class AndFilter extends Filter
      * @param Filter[] $filter
      */
     public function __construct(
-        ?string $key,
         private readonly array $filter,
+        ?string $key = null,
         array $tags = []
     ) {
         parent::__construct($key, $tags);

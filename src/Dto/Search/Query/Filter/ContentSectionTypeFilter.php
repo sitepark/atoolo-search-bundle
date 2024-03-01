@@ -9,14 +9,17 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
  */
 class ContentSectionTypeFilter extends FieldFilter
 {
+    /**
+     * @param string[] $contentTypes
+     */
     public function __construct(
-        ?string $key,
-        string ...$contentTypes
+        array $contentTypes,
+        ?string $key = null,
     ) {
         parent::__construct(
-            $key,
             'sp_contenttype',
-            ...$contentTypes
+            $contentTypes,
+            $key
         );
     }
 }

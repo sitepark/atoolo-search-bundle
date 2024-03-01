@@ -9,14 +9,17 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
  */
 class CategoryFilter extends FieldFilter
 {
+    /**
+     * @param string[] $category
+     */
     public function __construct(
-        ?string $key,
-        string ...$category
+        array $category,
+        ?string $key = null
     ) {
         parent::__construct(
-            $key,
             'sp_category_path',
-            ...$category
+            $category,
+            $key
         );
     }
 }

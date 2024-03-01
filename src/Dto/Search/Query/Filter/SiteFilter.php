@@ -9,14 +9,17 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
  */
 class SiteFilter extends FieldFilter
 {
+    /**
+     * @param string[] $site
+     */
     public function __construct(
-        ?string $key,
-        string ...$site
+        array $site,
+        ?string $key = null,
     ) {
         parent::__construct(
-            $key,
             'sp_site',
-            ...$site
+            $site,
+            $key
         );
     }
 }

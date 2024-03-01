@@ -8,10 +8,11 @@ class OrFilter extends Filter
 {
     /**
      * @param Filter[] $filter
+     * @param string[] $tags
      */
     public function __construct(
-        ?string $key,
         private readonly array $filter,
+        ?string $key = null,
         array $tags = []
     ) {
         parent::__construct($key, $tags);

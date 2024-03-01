@@ -27,7 +27,7 @@ class SolrMoreLikeThis implements MoreLikeThisSearcher
     {
         $client = $this->clientFactory->create($query->index);
         $solrQuery = $this->buildSolrQuery($client, $query);
-        /** @var SelectResult $result */
+        /** @var SolrMoreLikeThisResult $result */
         $result = $client->execute($solrQuery);
         return $this->buildResult($result);
     }

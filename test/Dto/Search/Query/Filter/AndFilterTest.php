@@ -24,7 +24,7 @@ class AndFilterTest extends TestCase
         $b->method('getQuery')
             ->willReturn('b');
 
-        $and = new AndFilter(null, [$a, $b]);
+        $and = new AndFilter([$a, $b]);
 
         assertEquals(
             '(a AND b)',

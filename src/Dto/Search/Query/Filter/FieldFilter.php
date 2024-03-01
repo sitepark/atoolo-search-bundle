@@ -13,10 +13,13 @@ class FieldFilter extends Filter
      */
     private readonly array $values;
 
+    /**
+     * @param string[] $values
+     */
     public function __construct(
-        ?string $key,
         private readonly string $field,
-        string ...$values
+        array $values,
+        ?string $key = null
     ) {
         if (count($values) === 0) {
             throw new InvalidArgumentException(
@@ -45,9 +48,9 @@ class FieldFilter extends Filter
             $field = '-' . $field;
         }
         return new FieldFilter(
-            $this->key,
             $field,
-            ...$this->values
+            $this->values,
+            $this->key
         );
     }
 }

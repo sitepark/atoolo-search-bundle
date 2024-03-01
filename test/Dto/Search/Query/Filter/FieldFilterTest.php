@@ -15,12 +15,12 @@ class FieldFilterTest extends TestCase
     public function testEmptyValues(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        new FieldFilter(null, 'test');
+        new FieldFilter('test', []);
     }
 
     public function testGetQueryWithOneField(): void
     {
-        $field = new FieldFilter(null, 'test', 'a');
+        $field = new FieldFilter('test', ['a']);
         $this->assertEquals(
             'test:a',
             $field->getQuery(),
@@ -30,7 +30,7 @@ class FieldFilterTest extends TestCase
 
     public function testGetQueryWithTwoFields(): void
     {
-        $field = new FieldFilter(null, 'test', 'a', 'b');
+        $field = new FieldFilter('test', ['a', 'b']);
         $this->assertEquals(
             'test:(a b)',
             $field->getQuery(),
@@ -40,7 +40,7 @@ class FieldFilterTest extends TestCase
 
     public function testExclude(): void
     {
-        $field = new FieldFilter(null, 'test', 'a');
+        $field = new FieldFilter('test', ['a']);
         $exclude = $field->exclude();
         $this->assertEquals(
             '-test:a',
