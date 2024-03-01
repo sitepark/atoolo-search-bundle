@@ -7,6 +7,13 @@ namespace Atoolo\Search\Service\Search\SiteKit;
 use Atoolo\Search\Service\Search\SolrQueryModifier;
 use Solarium\QueryType\Select\Query\Query as SelectQuery;
 
+/**
+ * Set solr boost definitions for certain fields.
+ * This influences the relevance of the fields in the search.
+ *
+ * The values defined here have been developed through experience in
+ * many projects.
+ */
 class DefaultBoostModifier implements SolrQueryModifier
 {
     public function modify(SelectQuery $query): SelectQuery

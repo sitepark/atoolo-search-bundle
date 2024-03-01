@@ -7,6 +7,16 @@ namespace Atoolo\Search\Service\Indexer;
 use Atoolo\Resource\ResourceBaseLocator;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * The LocationFinder searches recursively for files that represent a
+ * resource. The corresponding files are
+ * recognized and returned according to certain rules.
+ *
+ * The rules are:
+ * - files must have the extension `.php
+ * - files must not be located in the `WEB-IES` directory
+ * - files must not have the name `.*-1015t.php.*`
+ */
 class LocationFinder
 {
     public function __construct(
