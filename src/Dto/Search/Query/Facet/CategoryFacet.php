@@ -15,7 +15,7 @@ class CategoryFacet extends FacetField
     public function __construct(
         string $key,
         array $categories,
-        ?string $excludeFilter
+        ?string $excludeFilter = null
     ) {
         parent::__construct(
             $key,

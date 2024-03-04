@@ -15,7 +15,7 @@ class GroupFacet extends FacetField
     public function __construct(
         string $key,
         public readonly array $groups,
-        ?string $excludeFilter
+        ?string $excludeFilter = null
     ) {
         parent::__construct(
             $key,

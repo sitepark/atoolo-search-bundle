@@ -11,7 +11,7 @@ abstract class Facet
 {
     public function __construct(
         public readonly string $key,
-        public readonly ?string $excludeFilter
+        public readonly ?string $excludeFilter = null
     ) {
     }
 }

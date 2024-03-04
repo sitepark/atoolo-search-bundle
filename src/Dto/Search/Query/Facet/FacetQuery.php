@@ -12,7 +12,7 @@ class FacetQuery extends Facet
     public function __construct(
         string $key,
         public readonly string $query,
-        ?string $excludeFilter
+        ?string $excludeFilter = null
     ) {
         parent::__construct($key, $excludeFilter);
     }

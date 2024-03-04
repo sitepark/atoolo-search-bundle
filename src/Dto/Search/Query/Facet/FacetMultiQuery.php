@@ -16,7 +16,7 @@ class FacetMultiQuery extends Facet
     public function __construct(
         string $key,
         public readonly array $queries,
-        ?string $excludeFilter
+        ?string $excludeFilter = null
     ) {
         parent::__construct($key, $excludeFilter);
     }

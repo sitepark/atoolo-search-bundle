@@ -16,7 +16,7 @@ class FacetField extends Facet
         string $key,
         public readonly string $field,
         public readonly array $terms,
-        ?string $excludeFilter
+        ?string $excludeFilter = null
     ) {
         parent::__construct($key, $excludeFilter);
     }

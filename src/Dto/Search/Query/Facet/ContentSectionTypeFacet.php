@@ -15,7 +15,7 @@ class ContentSectionTypeFacet extends FacetField
     public function __construct(
         string $key,
         array $contentSectionTypes,
-        ?string $excludeFilter
+        ?string $excludeFilter = null
     ) {
         parent::__construct(
             $key,
