@@ -18,9 +18,13 @@ class IndexingAborterTest extends TestCase
     {
         $workdir = __DIR__ .
             '/../../../var/test/IndexingAborterTest';
-        mkdir($workdir, 0777, true);
+        if (!is_dir($workdir)) {
+            mkdir($workdir, 0777, true);
+        }
         $this->file = $workdir . '/background-indexer-test.abort';
-        unlink($this->file);
+        if (file_exists($this->file)) {
+            unlink($this->file);
+        }
         $this->aborter = new IndexingAborter($workdir);
     }
 

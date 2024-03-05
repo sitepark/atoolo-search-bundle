@@ -254,8 +254,8 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     {
         $doc = $this->enrichWithData(['init' => [
             'groupPath' => [
-                ['locale' => 'fr_FR'],
-                ['locale' => 'it_IT']
+                ['id' => 1, 'locale' => 'fr_FR'],
+                ['id' => 2, 'locale' => 'it_IT']
             ]
         ]]);
         $this->assertEquals(
@@ -693,8 +693,8 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $doc = $this->enrichWithData([
             'metadata' => [
                 'categories' => [
-                    ['name' => 'CategoryA'],
-                    ['name' => 'CategoryB']
+                    ['id' => 1, 'name' => 'CategoryA'],
+                    ['id' => 2, 'name' => 'CategoryB']
                 ]
             ],
             'searchindexdata' => ['content' => 'abc']

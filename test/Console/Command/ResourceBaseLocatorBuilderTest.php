@@ -17,7 +17,9 @@ class ResourceBaseLocatorBuilderTest extends TestCase
         $resourceDir = __DIR__ .
             '/../../../var/test/ResourceBaseLocatorBuilderTest';
         $objectsDir = $resourceDir . '/objects';
-        mkdir($objectsDir, 0777, true);
+        if (!is_dir($objectsDir)) {
+            mkdir($objectsDir, 0777, true);
+        }
 
         $builder = new ResourceBaseLocatorBuilder();
         $locator = $builder->build($resourceDir);

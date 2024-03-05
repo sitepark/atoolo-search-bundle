@@ -12,6 +12,7 @@ use Atoolo\Search\Console\Command\SolrIndexerBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 #[CoversClass(Indexer::class)]
@@ -148,6 +149,64 @@ EOF,
             'errortest',
             $output,
             'error message expected'
+        );
+    }
+
+
+    /**
+     * @throws Exception
+     */
+    public function testExecuteIndexWithErrorsAndStackTrace(): void
+    {
+
+        $indexBuilder = $this->createStub(
+            SolrIndexerBuilder::class
+        );
+
+        $progressBar = $this->createStub(
+            IndexerProgressBar::class
+        );
+        $progressBar
+            ->method('getErrors')
+            ->willReturn([new \Exception('errortest')]);
+
+        $progressBarFactory = $this->createStub(
+            IndexerProgressBarFactory::class
+        );
+        $progressBarFactory
+            ->method('create')
+            ->willReturn($progressBar);
+
+        $indexer = new Indexer(
+            [],
+            $indexBuilder,
+            $progressBarFactory
+        );
+
+        $application = new Application([
+            $indexer
+        ]);
+
+        $command = $application->find('atoolo:indexer');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            // pass arguments to the helper
+            'resource-dir' => 'abc',
+            'solr-connection-url' => 'http://localhost:8080',
+            'solr-core' => 'test'
+        ], [
+            'verbosity' => OutputInterface::VERBOSITY_VERBOSE
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+
+        // the output of the command in the console
+        $output = $commandTester->getDisplay();
+        $this->assertStringContainsString(
+            'Exception trace',
+            $output,
+            'error message should contains stack trace'
         );
     }
 }

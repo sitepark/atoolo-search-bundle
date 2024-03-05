@@ -71,7 +71,7 @@ class IndexerStatusStoreTest extends TestCase
         );
     }
 
-    public function testStoreWithNonWritableStatusFile(): void
+    public function testStoreWithNonWritableBaseDir(): void
     {
         $status = $this->createIndexerStatus();
         $baseDir = self::TEST_DIR . '/non-writable';
@@ -79,6 +79,36 @@ class IndexerStatusStoreTest extends TestCase
         $filesystem = new Filesystem();
         $filesystem->mkdir($baseDir);
         $filesystem->chmod($baseDir, 0000);
+
+        $store = new IndexerStatusStore($baseDir);
+
+        $this->expectException(RuntimeException::class);
+        $store->store('test', $status);
+    }
+
+    public function testStoreWithNonWritableStatusFile(): void
+    {
+        $status = $this->createIndexerStatus();
+        $baseDir = self::TEST_DIR . '/writable';
+
+        $filesystem = new Filesystem();
+        $filesystem->mkdir($baseDir);
+
+        $file = $baseDir . '/atoolo.search.index.test-not-writable.status.json';
+        touch($file);
+        $filesystem->chmod($file, 0000);
+
+        $store = new IndexerStatusStore($baseDir);
+
+        $this->expectException(RuntimeException::class);
+        $store->store('test-not-writable', $status);
+    }
+
+    public function testStoreWithBaseDirNoADirectory(): void
+    {
+        $status = $this->createIndexerStatus();
+        $baseDir = self::TEST_DIR . '/non-dir';
+        touch($baseDir);
 
         $store = new IndexerStatusStore($baseDir);
 

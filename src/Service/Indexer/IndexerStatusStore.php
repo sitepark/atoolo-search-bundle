@@ -31,9 +31,15 @@ class IndexerStatusStore
             return IndexerStatus::empty();
         }
 
+        if (!is_readable($file)) {
+            throw new InvalidArgumentException('Cannot read file ' . $file);
+        }
+
         $json = file_get_contents($file);
         if ($json === false) {
+            // @codeCoverageIgnoreStart
             throw new InvalidArgumentException('Cannot read file ' . $file);
+            // @codeCoverageIgnoreEnd
         }
 
         /** @var IndexerStatus $status */
@@ -49,14 +55,21 @@ class IndexerStatusStore
         $this->createBaseDirectory();
 
         $file = $this->getStatusFile($index);
+        if (file_exists($file) && !is_writable($file)) {
+            throw new RuntimeException(
+                'File ' . $file . ' is not writable'
+            );
+        }
         $json = $this
             ->createSerializer()
             ->serialize($status, 'json');
         $result = file_put_contents($file, $json);
         if ($result === false) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException(
                 'Unable to write indexer-status file ' . $file
             );
+            // @codeCoverageIgnoreEnd
         }
     }
 
@@ -64,13 +77,19 @@ class IndexerStatusStore
     {
         if (
             !is_dir($concurrentDirectory = $this->basedir) &&
-            !mkdir($concurrentDirectory) &&
+            !@mkdir($concurrentDirectory) &&
             !is_dir($concurrentDirectory)
         ) {
             throw new RuntimeException(sprintf(
                 'Directory "%s" was not created',
                 $concurrentDirectory
             ));
+        }
+
+        if (!is_writable($this->basedir)) {
+            throw new RuntimeException(
+                'Directory ' . $this->basedir . ' is not writable'
+            );
         }
     }
 
