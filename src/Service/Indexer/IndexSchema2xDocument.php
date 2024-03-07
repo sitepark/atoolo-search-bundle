@@ -125,7 +125,12 @@ class IndexSchema2xDocument extends Document implements IndexDocument
      */
     private array $metaString = [];
 
-    public function setMetaString(string $name, string $value): void
+    /**
+     * @param string $name
+     * @param string|string[] $value
+     * @return void
+     */
+    public function setMetaString(string $name, string|array $value): void
     {
         $this->metaString[$name] = $value;
     }
