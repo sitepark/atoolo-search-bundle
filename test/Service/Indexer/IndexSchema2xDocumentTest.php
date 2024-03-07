@@ -34,4 +34,16 @@ class IndexSchema2xDocumentTest extends TestCase
             'unexpected meta fields'
         );
     }
+
+    public function testSetMetaBool(): void
+    {
+        $doc = new IndexSchema2xDocument();
+        $doc->setMetaBool('myname', true);
+
+        $this->assertEquals(
+            ['sp_meta_bool_myname' => true],
+            $doc->getFields(),
+            'unexpected meta fields'
+        );
+    }
 }

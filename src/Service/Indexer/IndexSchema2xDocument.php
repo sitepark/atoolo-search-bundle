@@ -121,9 +121,14 @@ class IndexSchema2xDocument extends Document implements IndexDocument
 
     public ?string $sp_citygov_function;
     /**
-     * @var array<string,string>
+     * @var array<string,string|string[]>
      */
     private array $metaString = [];
+
+    /**
+     * @var array<string,bool>
+     */
+    private array $metaBool = [];
 
     /**
      * @param string $name
@@ -133,6 +138,11 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     public function setMetaString(string $name, string|array $value): void
     {
         $this->metaString[$name] = $value;
+    }
+
+    public function setMetaBool(string $name, bool $value): void
+    {
+        $this->metaBool[$name] = $value;
     }
 
     /**
@@ -161,7 +171,10 @@ class IndexSchema2xDocument extends Document implements IndexDocument
                     return false;
                 }
 
-                if ($key === 'metaString') {
+                if (
+                    $key === 'metaString' ||
+                    $key === 'metaBool'
+                ) {
                     return false;
                 }
                 return true;
@@ -170,6 +183,10 @@ class IndexSchema2xDocument extends Document implements IndexDocument
         );
         foreach ($this->metaString as $key => $value) {
             $fields['sp_meta_string_' . $key] = $value;
+        }
+
+        foreach ($this->metaBool as $key => $value) {
+            $fields['sp_meta_bool_' . $key] = $value;
         }
 
         return $fields;
