@@ -35,6 +35,18 @@ class IndexSchema2xDocumentTest extends TestCase
         );
     }
 
+    public function testSetMetaText(): void
+    {
+        $doc = new IndexSchema2xDocument();
+        $doc->setMetaText('myname', 'myvalue');
+
+        $this->assertEquals(
+            ['sp_meta_text_myname' => 'myvalue'],
+            $doc->getFields(),
+            'unexpected meta fields'
+        );
+    }
+
     public function testSetMetaBool(): void
     {
         $doc = new IndexSchema2xDocument();

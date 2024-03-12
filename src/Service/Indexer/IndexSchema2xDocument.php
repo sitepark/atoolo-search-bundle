@@ -128,18 +128,29 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     private array $metaString = [];
 
     /**
+     * @var array<string,string|string[]>
+     */
+    private array $metaText = [];
+
+    /**
      * @var array<string,bool>
      */
     private array $metaBool = [];
 
     /**
-     * @param string $name
      * @param string|string[] $value
-     * @return void
      */
     public function setMetaString(string $name, string|array $value): void
     {
         $this->metaString[$name] = $value;
+    }
+
+    /**
+     * @param string|string[] $value
+     */
+    public function setMetaText(string $name, string|array $value): void
+    {
+        $this->metaText[$name] = $value;
     }
 
     public function setMetaBool(string $name, bool $value): void
@@ -175,6 +186,7 @@ class IndexSchema2xDocument extends Document implements IndexDocument
 
                 if (
                     $key === 'metaString' ||
+                    $key === 'metaText' ||
                     $key === 'metaBool'
                 ) {
                     return false;
@@ -185,6 +197,10 @@ class IndexSchema2xDocument extends Document implements IndexDocument
         );
         foreach ($this->metaString as $key => $value) {
             $fields['sp_meta_string_' . $key] = $value;
+        }
+
+        foreach ($this->metaText as $key => $value) {
+            $fields['sp_meta_text_' . $key] = $value;
         }
 
         foreach ($this->metaBool as $key => $value) {
