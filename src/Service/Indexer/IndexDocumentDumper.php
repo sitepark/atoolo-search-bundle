@@ -19,7 +19,9 @@ class IndexDocumentDumper
 
     /**
      * @param string[] $paths
-     * @return array<int,array<string,mixed>>.
+     * @return array<int,array<string,mixed>>
+     *    Returns the raw array data of the documents to be able to
+     *    output them as JSON, for example.
      */
     public function dump(array $paths): array
     {

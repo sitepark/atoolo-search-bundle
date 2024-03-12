@@ -6,8 +6,8 @@ namespace Atoolo\Search\Test\Console;
 
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Indexer;
+use Atoolo\Search\Console\Command\InternalResourceIndexerBuilder;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBarFactory;
-use Atoolo\Search\Console\Command\SolrIndexerBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +21,7 @@ class ApplicationTest extends TestCase
     public function testConstruct(): void
     {
         $indexBuilder = $this->createStub(
-            SolrIndexerBuilder::class
+            InternalResourceIndexerBuilder::class
         );
         $application = new Application([
             new Indexer([], $indexBuilder, new IndexerProgressBarFactory())

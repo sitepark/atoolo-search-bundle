@@ -7,8 +7,8 @@ namespace Atoolo\Search\Test\Service\Indexer;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\BackgroundIndexer;
 use Atoolo\Search\Service\Indexer\IndexerStatusStore;
-use Atoolo\Search\Service\Indexer\SolrIndexer;
-use Atoolo\Search\Service\Indexer\SolrIndexerFactory;
+use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
+use Atoolo\Search\Service\Indexer\InternalResourceIndexerFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -19,14 +19,14 @@ use Symfony\Component\Lock\SharedLockInterface;
 #[CoversClass(BackgroundIndexer::class)]
 class BackgroundIndexerTest extends TestCase
 {
-    private SolrIndexer&MockObject $solrIndexer;
+    private InternalResourceIndexer&MockObject $solrIndexer;
     private IndexerStatusStore&MockObject $statusStore;
     private BackgroundIndexer $indexer;
 
     public function setUp(): void
     {
-        $this->solrIndexer = $this->createMock(SolrIndexer::class);
-        $solrIndexerFactory = $this->createStub(SolrIndexerFactory::class);
+        $this->solrIndexer = $this->createMock(InternalResourceIndexer::class);
+        $solrIndexerFactory = $this->createStub(InternalResourceIndexerFactory::class);
         $solrIndexerFactory->method('create')
             ->willReturn($this->solrIndexer);
         $this->statusStore = $this->createMock(IndexerStatusStore::class);
@@ -62,7 +62,7 @@ class BackgroundIndexerTest extends TestCase
     {
         $lockFactory = $this->createStub(LockFactory::class);
         $indexer = new BackgroundIndexer(
-            $this->createStub(SolrIndexerFactory::class),
+            $this->createStub(InternalResourceIndexerFactory::class),
             $this->statusStore,
             new NullLogger(),
             $lockFactory

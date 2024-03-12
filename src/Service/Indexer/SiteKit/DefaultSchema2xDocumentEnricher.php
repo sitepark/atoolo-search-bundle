@@ -378,7 +378,6 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
      * - https://gitlab.sitepark.com/customer-projects/stadtundland/blob/develop/stadtundland-module/src/publish/php/SP/Stadtundland/Component/PurchaseExpose.php#L38
      * - https://gitlab.sitepark.com/ies-modules/citycall/blob/develop/citycall-module/src/main/php/src/SP/CityCall/Component/Intro.php#L51
      * - https://gitlab.sitepark.com/ies-modules/sitekit-real-estate/blob/develop/src/publish/php/SP/RealEstate/Component/Expose.php#L47
-     * - https://gitlab.sitepark.com/sitekit/xzufi-php/-/blob/develop/php/SP/Xzufi/Renderer/SolrData.php?ref_type=heads#L78
      */
 
     private function getLocaleFromResource(Resource $resource): string

@@ -6,9 +6,9 @@ namespace Atoolo\Search\Test\Console\Command;
 
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Indexer;
+use Atoolo\Search\Console\Command\InternalResourceIndexerBuilder;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBarFactory;
-use Atoolo\Search\Console\Command\SolrIndexerBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
@@ -26,7 +26,7 @@ class IndexerTest extends TestCase
     public function setUp(): void
     {
         $indexBuilder = $this->createStub(
-            SolrIndexerBuilder::class
+            InternalResourceIndexerBuilder::class
         );
 
         $indexer = new Indexer(
@@ -104,7 +104,7 @@ EOF,
     {
 
         $indexBuilder = $this->createStub(
-            SolrIndexerBuilder::class
+            InternalResourceIndexerBuilder::class
         );
 
         $progressBar = $this->createStub(
@@ -160,7 +160,7 @@ EOF,
     {
 
         $indexBuilder = $this->createStub(
-            SolrIndexerBuilder::class
+            InternalResourceIndexerBuilder::class
         );
 
         $progressBar = $this->createStub(

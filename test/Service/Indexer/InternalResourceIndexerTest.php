@@ -10,24 +10,21 @@ use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
+use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
 use Atoolo\Search\Service\Indexer\LocationFinder;
 use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
-use Atoolo\Search\Service\Indexer\SolrIndexer;
+use Atoolo\Search\Service\Indexer\SolrIndexService;
+use Atoolo\Search\Service\Indexer\SolrIndexUpdater;
 use Atoolo\Search\Service\Indexer\TranslationSplitter;
-use Atoolo\Search\Service\SolrClientFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Solarium\Client;
-use Solarium\QueryType\Server\CoreAdmin\Result\Result as CoreAdminResult;
-use Solarium\QueryType\Server\CoreAdmin\Result\StatusResult;
-use Solarium\QueryType\Update\Query\Query as UpdateQuery;
 use Solarium\QueryType\Update\Result as UpdateResult;
 
-#[CoversClass(SolrIndexer::class)]
-class SolrIndexerTest extends TestCase
+#[CoversClass(InternalResourceIndexer::class)]
+class InternalResourceIndexerTest extends TestCase
 {
     private array $availableIndexes = ['test', 'test-en_US'];
 
@@ -35,17 +32,17 @@ class SolrIndexerTest extends TestCase
 
     private IndexerProgressHandler&MockObject $indexerProgressHandler;
 
-    private SolrIndexer $indexer;
+    private InternalResourceIndexer $indexer;
 
-    private Client $solrClient;
+    private SolrIndexService $solrIndexService;
 
-    private LocationFinder $finder;
+    private LocationFinder&MockObject $finder;
 
-    private UpdateQuery $updateQuery;
+    private SolrIndexUpdater&MockObject $updater;
 
-    private UpdateResult $updateResult;
+    private UpdateResult&Stub $updateResult;
 
-    private IndexingAborter&Stub $aborter;
+    private IndexingAborter&MockObject $aborter;
 
     private DocumentEnricher&MockObject $documentEnricher;
 
@@ -61,6 +58,11 @@ class SolrIndexerTest extends TestCase
         );
         $this->finder = $this->createMock(LocationFinder::class);
         $this->documentEnricher = $this->createMock(DocumentEnricher::class);
+        $this->documentEnricher
+            ->method('enrichDocument')
+            ->willReturnCallback(function ($resource, $doc) {
+                return $doc;
+            });
         $this->translationSplitter = new SubDirTranslationSplitter();
         $this->resourceLoader = $this->createStub(ResourceLoader::class);
         $this->resourceLoader->method('load')
@@ -70,41 +72,28 @@ class SolrIndexerTest extends TestCase
                     ->willReturn($path);
                 return $resource;
             });
-        $solrClientFactory = $this->createStub(SolrClientFactory::class);
+        $this->solrIndexService = $this->createMock(SolrIndexService::class);
         $this->updateResult = $this->createStub(UpdateResult::class);
-        $this->solrClient = $this->createMock(Client::class);
-        $this->updateQuery = $this->createMock(UpdateQuery::class);
-        $this->updateQuery->method('createDocument')
-            ->willReturn($this->createStub(IndexSchema2xDocument::class));
-        $coreAdminResult = $this->createStub(CoreAdminResult::class);
-        $coreAdminResult->method('getStatusResults')
+        $this->updater = $this->createMock(SolrIndexUpdater::class);
+        $this->updater->method('update')->willReturn($this->updateResult);
+        $this->updater->method('createDocument')->willReturn(
+            new IndexSchema2xDocument()
+        );
+        $this->solrIndexService->method('getAvailableIndexes')
             ->willReturnCallback(function () {
-                $results = [];
-                foreach ($this->availableIndexes as $index) {
-                    $result = $this->createStub(StatusResult::class);
-                    $result->method('getCoreName')
-                        ->willReturn($index);
-                    $results[] = $result;
-                }
-                return $results;
+                return $this->availableIndexes;
             });
-        $this->solrClient->method('createUpdate')
-            ->willReturn($this->updateQuery);
-        $this->solrClient->method('update')
-            ->willReturn($this->updateResult);
-        $this->solrClient->method('coreAdmin')
-            ->willReturn($coreAdminResult);
-        $solrClientFactory->method('create')
-            ->willReturn($this->solrClient);
+        $this->solrIndexService->method('updater')
+            ->willReturn($this->updater);
         $this->aborter =  $this->createMock(IndexingAborter::class);
 
-        $this->indexer = new SolrIndexer(
+        $this->indexer = new InternalResourceIndexer(
             [ $this->documentEnricher ],
             $this->indexerProgressHandler,
             $this->finder,
             $this->resourceLoader,
             $this->translationSplitter,
-            $solrClientFactory,
+            $this->solrIndexService,
             $this->aborter,
             'test'
         );
@@ -121,16 +110,16 @@ class SolrIndexerTest extends TestCase
 
     public function testRemove(): void
     {
-        $this->solrClient->expects($this->exactly(2))
-            ->method('update');
+        $this->solrIndexService->expects($this->once())
+            ->method('deleteByIdList');
 
         $this->indexer->remove('test', ['123']);
     }
 
     public function testRemoveEmpty(): void
     {
-        $this->solrClient->expects($this->exactly(0))
-            ->method('update');
+        $this->solrIndexService->expects($this->exactly(0))
+            ->method('deleteByIdList');
 
         $this->indexer->remove('test', []);
     }
@@ -170,28 +159,11 @@ class SolrIndexerTest extends TestCase
                 return $doc;
             });
 
-        $addDocumentsCalls = 0;
-        $this->updateQuery->expects($this->exactly(3))
-            ->method('addDocuments')
-            ->willReturnCallback(
-                function ($documents) use (&$addDocumentsCalls) {
-                    if ($addDocumentsCalls === 0) {
-                        $this->assertCount(
-                            10,
-                            $documents,
-                            "10 documents expected"
-                        );
-                    } elseif ($addDocumentsCalls === 1) {
-                        $this->assertCount(
-                            1,
-                            $documents,
-                            "1 document expected"
-                        );
-                    }
-                    $addDocumentsCalls++;
-                    return $this->updateQuery;
-                }
-            );
+        $this->updater->expects($this->exactly(12))
+            ->method('addDocument');
+
+        $this->updater->expects($this->exactly(3))
+            ->method('update');
 
         $parameter = new IndexerParameter(
             'test',
@@ -222,19 +194,11 @@ class SolrIndexerTest extends TestCase
                 return ($location !== '/a/b.php');
             });
 
-        $this->documentEnricher->expects($this->exactly(1))
-            ->method('enrichDocument');
+        $this->updater->expects($this->exactly(1))
+            ->method('addDocument');
 
-        $this->updateQuery->expects($this->exactly(1))
-            ->method('addDocuments')
-            ->willReturnCallback(function ($documents) {
-                $this->assertCount(
-                    1,
-                    $documents,
-                    "one document exprected"
-                );
-                return $this->updateQuery;
-            });
+        $this->updater->expects($this->exactly(1))
+            ->method('update');
 
         $parameter = new IndexerParameter(
             'test',
@@ -244,6 +208,7 @@ class SolrIndexerTest extends TestCase
 
         $this->indexer->index($parameter);
     }
+
     public function testAborted(): void
     {
         $this->finder->method('findAll')
@@ -347,16 +312,11 @@ class SolrIndexerTest extends TestCase
         $this->documentEnricher->method('isIndexable')
             ->willReturn(true);
 
-        $this->updateQuery->expects($this->exactly(1))
-            ->method('addDocuments')
-            ->willReturnCallback(function ($documents) {
-                $this->assertCount(
-                    2,
-                    $documents,
-                    "two documents exprected"
-                );
-                return $this->updateQuery;
-            });
+        $this->updater->expects($this->exactly(2))
+            ->method('addDocument');
+
+        $this->updater->expects($this->exactly(1))
+            ->method('update');
 
         $parameter = new IndexerParameter(
             'test',

@@ -33,7 +33,7 @@ class Indexer extends Command
      */
     public function __construct(
         private readonly iterable $documentEnricherList,
-        private readonly SolrIndexerBuilder $solrIndexerBuilder,
+        private readonly InternalResourceIndexerBuilder $solrIndexerBuilder,
         private readonly IndexerProgressBarFactory $progressBarFactory
     ) {
         parent::__construct();

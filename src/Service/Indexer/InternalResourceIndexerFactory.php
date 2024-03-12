@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Indexer;
 
 use Atoolo\Resource\ResourceLoader;
-use Atoolo\Search\Service\SolrClientFactory;
 
-class SolrIndexerFactory
+class InternalResourceIndexerFactory
 {
     /**
      * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
@@ -17,7 +16,7 @@ class SolrIndexerFactory
         private readonly LocationFinder $finder,
         private readonly ResourceLoader $resourceLoader,
         private readonly TranslationSplitter $translationSplitter,
-        private readonly SolrClientFactory $clientFactory,
+        private readonly SolrIndexService $solrService,
         private readonly IndexingAborter $aborter,
         private readonly string $source
     ) {
@@ -25,14 +24,14 @@ class SolrIndexerFactory
 
     public function create(
         IndexerProgressHandler $progressHandler
-    ): SolrIndexer {
-        return new SolrIndexer(
+    ): InternalResourceIndexer {
+        return new InternalResourceIndexer(
             $this->documentEnricherList,
             $progressHandler,
             $this->finder,
             $this->resourceLoader,
             $this->translationSplitter,
-            $this->clientFactory,
+            $this->solrService,
             $this->aborter,
             $this->source
         );

@@ -9,7 +9,6 @@ use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
-use Atoolo\Search\Service\SolrClientFactory;
 use Exception;
 use Solarium\QueryType\Update\Result as UpdateResult;
 use Throwable;
@@ -35,7 +34,7 @@ use Throwable;
  *    but always a list of documents. The entire list is divided into chunks
  *    and indexed chunk-wise.
  */
-class SolrIndexer implements Indexer
+class InternalResourceIndexer implements Indexer
 {
     /**
      * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
@@ -46,7 +45,7 @@ class SolrIndexer implements Indexer
         private readonly LocationFinder $finder,
         private readonly ResourceLoader $resourceLoader,
         private readonly TranslationSplitter $translationSplitter,
-        private readonly SolrClientFactory $clientFactory,
+        private readonly SolrIndexService $indexService,
         private readonly IndexingAborter $aborter,
         private readonly string $source
     ) {
@@ -61,8 +60,8 @@ class SolrIndexer implements Indexer
             return;
         }
 
-        $this->deleteByIdList($index, $idList);
-        $this->commit($index);
+        $this->indexService->deleteByIdList($index, $this->source, $idList);
+        $this->indexService->commit($index);
     }
 
     public function abort(string $index): void
@@ -137,7 +136,7 @@ class SolrIndexer implements Indexer
             $this->indexerProgressHandler->startUpdate($total);
         }
 
-        $availableIndexes = $this->getAvailableIndexes();
+        $availableIndexes = $this->indexService->getAvailableIndexes();
         $splitterResult = $this->translationSplitter->split($pathList);
 
         $this->indexTranslationSplittedResources(
@@ -232,9 +231,13 @@ class SolrIndexer implements Indexer
             $parameter->cleanupThreshold > 0 &&
             $successCount >= $parameter->cleanupThreshold
         ) {
-            $this->deleteByProcessId($index, $processId);
+            $this->indexService->deleteExcludingProcessId(
+                $index,
+                $this->source,
+                $processId
+            );
         }
-        $this->commit($index);
+        $this->indexService->commit($index);
     }
 
     /**
@@ -322,12 +325,9 @@ class SolrIndexer implements Indexer
         string $processId,
         array $resources
     ): UpdateResult {
-        $client = $this->clientFactory->create($solrCore);
 
-        $update = $client->createUpdate();
-        $update->setDocumentClass(IndexSchema2xDocument::class);
+        $updater = $this->indexService->updater($solrCore);
 
-        $documents = [];
         foreach ($resources as $resource) {
             foreach ($this->documentEnricherList as $enricher) {
                 if (!$enricher->isIndexable($resource)) {
@@ -337,7 +337,7 @@ class SolrIndexer implements Indexer
             }
             try {
                 /** @var IndexSchema2xDocument $doc */
-                $doc = $update->createDocument();
+                $doc = $updater->createDocument();
                 foreach ($this->documentEnricherList as $enricher) {
                     $doc = $enricher->enrichDocument(
                         $resource,
@@ -345,81 +345,21 @@ class SolrIndexer implements Indexer
                         $processId
                     );
                 }
-                $documents[] = $doc;
+                $updater->addDocument($doc);
             } catch (Throwable $e) {
                 $this->indexerProgressHandler->error($e);
             }
         }
-        // add the documents and a commit command to the update query
-        $update->addDocuments($documents);
 
         // this executes the query and returns the result
-        return $client->update($update);
-    }
-
-    private function deleteByProcessId(string $core, string $processId): void
-    {
-        $this->deleteByQuery(
-            $core,
-            '-crawl_process_id:' . $processId . ' AND ' .
-            ' sp_source:' . $this->source
-        );
-    }
-
-    /**
-     * @param string[] $idList
-     */
-    private function deleteByIdList(string $core, array $idList): void
-    {
-        $this->deleteByQuery(
-            $core,
-            'sp_id:(' . implode(' ', $idList) . ') AND ' .
-            'sp_source:' . $this->source
-        );
+        return $updater->update();
     }
 
     private function deleteErrorProtocol(string $core): void
     {
-        $this->deleteByQuery(
+        $this->indexService->deleteByQuery(
             $core,
             'crawl_status:error OR crawl_status:warning'
         );
-    }
-
-    private function deleteByQuery(string $core, string $query): void
-    {
-        $client = $this->clientFactory->create($core);
-        $update = $client->createUpdate();
-        $update->addDeleteQuery($query);
-        $client->update($update);
-    }
-
-    private function commit(string $core): void
-    {
-        $client = $this->clientFactory->create($core);
-        $update = $client->createUpdate();
-        $update->addCommit();
-        $update->addOptimize();
-        $client->update($update);
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getAvailableIndexes(): array
-    {
-        $client = $this->clientFactory->create('');
-        $coreAdminQuery = $client->createCoreAdmin();
-        $statusAction = $coreAdminQuery->createStatus();
-        $coreAdminQuery->setAction($statusAction);
-
-        $availableIndexes = [];
-        $response = $client->coreAdmin($coreAdminQuery);
-        $statusResults = $response->getStatusResults() ?? [];
-        foreach ($statusResults as $statusResult) {
-            $availableIndexes[] = $statusResult->getCoreName();
-        }
-
-        return $availableIndexes;
     }
 }

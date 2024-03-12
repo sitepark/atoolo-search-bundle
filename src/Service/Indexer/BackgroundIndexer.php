@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 class BackgroundIndexer implements Indexer
 {
     public function __construct(
-        private readonly SolrIndexerFactory $indexerFactory,
+        private readonly InternalResourceIndexerFactory $indexerFactory,
         private readonly IndexerStatusStore $statusStore,
         private readonly LoggerInterface $logger = new NullLogger(),
         private readonly LockFactory $lockFactory = new LockFactory(
@@ -59,7 +59,7 @@ class BackgroundIndexer implements Indexer
         return $this->statusStore->load($index);
     }
 
-    private function getIndexer(string $index): SolrIndexer
+    private function getIndexer(string $index): InternalResourceIndexer
     {
         $progressHandler = new BackgroundIndexerProgressState(
             $index,
