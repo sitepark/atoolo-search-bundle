@@ -29,6 +29,8 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     public ?DateTime $sp_changed;
     public ?DateTime $sp_generated;
     public ?DateTime $sp_date;
+    public ?DateTime $sp_date_from;
+    public ?DateTime $sp_date_to;
     /**
      * @var DateTime[]
      */
