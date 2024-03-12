@@ -26,7 +26,9 @@ class BackgroundIndexerTest extends TestCase
     public function setUp(): void
     {
         $this->solrIndexer = $this->createMock(InternalResourceIndexer::class);
-        $solrIndexerFactory = $this->createStub(InternalResourceIndexerFactory::class);
+        $solrIndexerFactory = $this->createStub(
+            InternalResourceIndexerFactory::class
+        );
         $solrIndexerFactory->method('create')
             ->willReturn($this->solrIndexer);
         $this->statusStore = $this->createMock(IndexerStatusStore::class);

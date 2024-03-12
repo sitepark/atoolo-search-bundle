@@ -339,6 +339,7 @@ class InternalResourceIndexer implements Indexer
                 /** @var IndexSchema2xDocument $doc */
                 $doc = $updater->createDocument();
                 foreach ($this->documentEnricherList as $enricher) {
+                    /** @var IndexSchema2xDocument $doc */
                     $doc = $enricher->enrichDocument(
                         $resource,
                         $doc,
