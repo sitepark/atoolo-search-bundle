@@ -19,6 +19,7 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     public ?string $crawl_process_id;
     public ?string $id;
     public ?string $url;
+    public ?string $contenttype;
     /**
      * @var string[]
      */
