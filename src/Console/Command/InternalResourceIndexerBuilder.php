@@ -19,7 +19,7 @@ use Atoolo\Search\Service\Indexer\SiteKit\HeadlineMatcher;
 use Atoolo\Search\Service\Indexer\SiteKit\RichtTextMatcher;
 use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
 use Atoolo\Search\Service\Indexer\SolrIndexService;
-use Atoolo\Search\Service\SolrParameterClientFactory;
+use Atoolo\Search\Service\ParameterSolrClientFactory;
 
 class InternalResourceIndexerBuilder
 {
@@ -99,7 +99,7 @@ class InternalResourceIndexerBuilder
         /** @var string[] $url */
         $url = parse_url($this->solrConnectionUrl);
 
-        $clientFactory = new SolrParameterClientFactory(
+        $clientFactory = new ParameterSolrClientFactory(
             $url['scheme'],
             $url['host'],
             (int)($url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8382)),

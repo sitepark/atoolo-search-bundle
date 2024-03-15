@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service;
 
-use Atoolo\Search\Service\SolrParameterClientFactory;
+use Atoolo\Search\Service\ParameterSolrClientFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(SolrParameterClientFactory::class)]
+#[CoversClass(ParameterSolrClientFactory::class)]
 class SolrParameterClientFactoryTest extends TestCase
 {
     public function testCreate(): void
     {
-        $factory = new SolrParameterClientFactory(
+        $factory = new ParameterSolrClientFactory(
             'http',
             'localhost',
             8080

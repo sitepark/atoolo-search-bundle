@@ -9,6 +9,7 @@ use Atoolo\Search\Dto\Indexer\IndexerStatusState;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use DateTime;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 
@@ -23,14 +24,10 @@ class IndexerProgressBar implements IndexerProgressHandler
      */
     private array $errors = [];
 
-    public function __construct(OutputInterface $output)
-    {
-        $this->output = $output;
-    }
-
     public function start(int $total): void
     {
-        $this->progressBar = new ProgressBar($this->output, $total);
+        $output = new ConsoleOutput();
+        $this->progressBar = new ProgressBar($output, $total);
         $this->formatProgressBar('green');
         $this->status = new IndexerStatus(
             IndexerStatusState::RUNNING,

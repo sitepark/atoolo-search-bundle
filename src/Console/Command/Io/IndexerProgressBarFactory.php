@@ -10,6 +10,8 @@ class IndexerProgressBarFactory
 {
     public function create(OutputInterface $output): IndexerProgressBar
     {
-        return new IndexerProgressBar($output);
+        $progressBar =  new IndexerProgressBar();
+        $progressBar->init($output);
+        return $progressBar;
     }
 }

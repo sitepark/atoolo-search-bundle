@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
+use Atoolo\Search\Service\ParameterSolrClientFactory;
 use Atoolo\Search\Service\Search\SolrSuggest;
-use Atoolo\Search\Service\SolrParameterClientFactory;
 
 class SolrSuggestBuilder
 {
@@ -22,7 +22,7 @@ class SolrSuggestBuilder
     {
         /** @var string[] $url */
         $url = parse_url($this->solrConnectionUrl);
-        $clientFactory = new SolrParameterClientFactory(
+        $clientFactory = new ParameterSolrClientFactory(
             $url['scheme'],
             $url['host'],
             (int)($url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983)),

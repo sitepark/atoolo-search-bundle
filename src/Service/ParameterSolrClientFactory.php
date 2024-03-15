@@ -11,12 +11,13 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * With this SolrClientFactory implementation, the necessary connection data
  * for the Solr client is transferred via the client constructor argument.
- * The SolrParameterClientFactory can be registered as a DependencyInjection
+ * The ParameterSolrClientFactory can be registered as a DependencyInjection
  * service by passing the necessary transfer arguments as parameters.
  */
-class SolrParameterClientFactory implements SolrClientFactory
+class ParameterSolrClientFactory implements SolrClientFactory
 {
     public function __construct(
+        private readonly SolrCoreName $coreName,
         private readonly string $scheme,
         private readonly string $host,
         private readonly int $port,
@@ -26,8 +27,9 @@ class SolrParameterClientFactory implements SolrClientFactory
     ) {
     }
 
-    public function create(string $core): Client
+    public function create(?string $locale = null): Client
     {
+        $core = $this->coreName->name($locale);
         $adapter = new Curl();
         $adapter->setTimeout($this->timeout);
         $adapter->setProxy($this->proxy);

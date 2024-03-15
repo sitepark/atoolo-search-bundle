@@ -7,7 +7,8 @@ namespace Atoolo\Search\Service\Indexer;
 class IndexingAborter
 {
     public function __construct(
-        private readonly string $workdir
+        private readonly string $workdir,
+        private readonly string $type
     ) {
     }
 
@@ -28,6 +29,6 @@ class IndexingAborter
 
     private function getAbortMarkerFile(string $index): string
     {
-        return $this->workdir . '/background-indexer-' . $index . '.abort';
+        return $this->workdir . '/' . $this->type . '-' . $index . '.abort';
     }
 }

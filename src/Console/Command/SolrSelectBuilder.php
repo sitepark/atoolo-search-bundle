@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Resource\Loader\SiteKitLoader;
+use Atoolo\Search\Service\ParameterSolrClientFactory;
 use Atoolo\Search\Service\Search\ExternalResourceFactory;
 use Atoolo\Search\Service\Search\InternalMediaResourceFactory;
 use Atoolo\Search\Service\Search\InternalResourceFactory;
 use Atoolo\Search\Service\Search\SiteKit\DefaultBoostModifier;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use Atoolo\Search\Service\Search\SolrSelect;
-use Atoolo\Search\Service\SolrParameterClientFactory;
 
 class SolrSelectBuilder
 {
@@ -44,7 +44,7 @@ class SolrSelectBuilder
         $resourceLoader = new SiteKitLoader($resourceBaseLocator);
         /** @var string[] */
         $url = parse_url($this->solrConnectionUrl);
-        $clientFactory = new SolrParameterClientFactory(
+        $clientFactory = new ParameterSolrClientFactory(
             $url['scheme'],
             $url['host'],
             (int)($url['port'] ?? ($url['scheme'] === 'https' ? 443 : 8983)),
