@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Dto\Search\Query;
 
+use Atoolo\Search\Dto\Search\Query\DefaultQueryOperator;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
-use Atoolo\Search\Dto\Search\Query\QueryDefaultOperator;
 use Atoolo\Search\Dto\Search\Query\SelectQueryBuilder;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use InvalidArgumentException;
@@ -141,11 +141,11 @@ class SelectQueryBuilderTest extends TestCase
 
     public function testSetQueryDefaultOperator(): void
     {
-        $this->builder->queryDefaultOperator(QueryDefaultOperator::AND);
+        $this->builder->defaultQueryOperator(DefaultQueryOperator::AND);
         $query = $this->builder->build();
         $this->assertEquals(
-            QueryDefaultOperator::AND,
-            $query->queryDefaultOperator,
+            DefaultQueryOperator::AND,
+            $query->defaultQueryOperator,
             'unexpected queryDefaultOperator'
         );
     }

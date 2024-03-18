@@ -28,8 +28,8 @@ class SelectQueryBuilder
      */
     private array $facets = [];
 
-    private QueryDefaultOperator $queryDefaultOperator =
-        QueryDefaultOperator::AND;
+    private DefaultQueryOperator $defaultQueryOperator =
+        DefaultQueryOperator::AND;
 
     public function __construct()
     {
@@ -104,10 +104,10 @@ class SelectQueryBuilder
         return $this;
     }
 
-    public function queryDefaultOperator(
-        QueryDefaultOperator $queryDefaultOperator
+    public function defaultQueryOperator(
+        DefaultQueryOperator $defaultQueryOperator
     ): SelectQueryBuilder {
-        $this->queryDefaultOperator = $queryDefaultOperator;
+        $this->defaultQueryOperator = $defaultQueryOperator;
         return $this;
     }
 
@@ -124,7 +124,7 @@ class SelectQueryBuilder
             $this->sort,
             array_values($this->filter),
             array_values($this->facets),
-            $this->queryDefaultOperator
+            $this->defaultQueryOperator
         );
     }
 }

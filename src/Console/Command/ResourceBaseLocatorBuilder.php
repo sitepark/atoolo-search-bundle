@@ -11,14 +11,9 @@ class ResourceBaseLocatorBuilder
 {
     public function build(string $resourceDir): ResourceBaseLocator
     {
-        $subDirectory = null;
-        if (is_dir($resourceDir . '/objects')) {
-            $subDirectory = 'objects';
-        }
         $_SERVER['RESOURCE_ROOT'] = $resourceDir;
         return new ServerVarResourceBaseLocator(
-            'RESOURCE_ROOT',
-            $subDirectory
+            'RESOURCE_ROOT'
         );
     }
 }
