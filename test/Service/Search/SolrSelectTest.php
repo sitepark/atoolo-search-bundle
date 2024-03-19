@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Search;
 
 use Atoolo\Resource\Resource;
+use Atoolo\Search\Dto\Search\Query\DefaultQueryOperator;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Facet\FacetMultiQuery;
 use Atoolo\Search\Dto\Search\Query\Facet\FacetQuery;
 use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
-use Atoolo\Search\Dto\Search\Query\QueryDefaultOperator;
 use Atoolo\Search\Dto\Search\Query\SelectQuery;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
@@ -93,7 +93,7 @@ class SolrSelectTest extends TestCase
             ],
             [],
             [],
-            QueryDefaultOperator::OR
+            DefaultQueryOperator::OR
         );
 
         $searchResult = $this->searcher->select($query);
@@ -116,7 +116,7 @@ class SolrSelectTest extends TestCase
             ],
             [],
             [],
-            QueryDefaultOperator::OR
+            DefaultQueryOperator::OR
         );
 
         $searchResult = $this->searcher->select($query);
@@ -144,7 +144,7 @@ class SolrSelectTest extends TestCase
             ],
             [],
             [],
-            QueryDefaultOperator::OR
+            DefaultQueryOperator::OR
         );
 
         $searchResult = $this->searcher->select($query);
@@ -168,7 +168,7 @@ class SolrSelectTest extends TestCase
             [$sort],
             [],
             [],
-            QueryDefaultOperator::OR
+            DefaultQueryOperator::OR
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -185,7 +185,7 @@ class SolrSelectTest extends TestCase
             [],
             [],
             [],
-            QueryDefaultOperator::AND
+            DefaultQueryOperator::AND
         );
 
         $searchResult = $this->searcher->select($query);
@@ -211,7 +211,7 @@ class SolrSelectTest extends TestCase
             [],
             [$filter],
             [],
-            QueryDefaultOperator::OR
+            DefaultQueryOperator::OR
         );
 
         $searchResult = $this->searcher->select($query);
@@ -244,7 +244,7 @@ class SolrSelectTest extends TestCase
             [],
             [],
             $facets,
-            QueryDefaultOperator::OR
+            DefaultQueryOperator::OR
         );
 
         $searchResult = $this->searcher->select($query);
@@ -271,7 +271,7 @@ class SolrSelectTest extends TestCase
             [],
             [],
             $facets,
-            QueryDefaultOperator::OR
+            DefaultQueryOperator::OR
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -310,7 +310,7 @@ class SolrSelectTest extends TestCase
             [],
             [],
             $facets,
-            QueryDefaultOperator::OR
+            DefaultQueryOperator::OR
         );
 
         $searchResult = $this->searcher->select($query);
@@ -353,7 +353,7 @@ class SolrSelectTest extends TestCase
             [],
             [],
             $facets,
-            QueryDefaultOperator::OR
+            DefaultQueryOperator::OR
         );
 
         $this->expectException(InvalidArgumentException::class);

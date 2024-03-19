@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Search;
 
+use Atoolo\Search\Dto\Search\Query\DefaultQueryOperator;
 use Atoolo\Search\Dto\Search\Query\Facet\FacetField;
 use Atoolo\Search\Dto\Search\Query\Facet\FacetMultiQuery;
 use Atoolo\Search\Dto\Search\Query\Facet\FacetQuery;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
-use Atoolo\Search\Dto\Search\Query\QueryDefaultOperator;
 use Atoolo\Search\Dto\Search\Query\SelectQuery;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
@@ -75,7 +75,7 @@ class SolrSelect implements SelectSearcher
         $this->addTextFilterToSolrQuery($solrQuery, $query->text);
         $this->addQueryDefaultOperatorToSolrQuery(
             $solrQuery,
-            $query->queryDefaultOperator
+            $query->defaultQueryOperator
         );
         $this->addFilterQueriesToSolrQuery(
             $solrQuery,
@@ -148,9 +148,9 @@ class SolrSelect implements SelectSearcher
 
     private function addQueryDefaultOperatorToSolrQuery(
         SolrSelectQuery $solrQuery,
-        QueryDefaultOperator $operator
+        DefaultQueryOperator $operator
     ): void {
-        if ($operator === QueryDefaultOperator::OR) {
+        if ($operator === DefaultQueryOperator::OR) {
             $solrQuery->setQueryDefaultOperator(
                 SolrSelectQuery::QUERY_OPERATOR_OR
             );

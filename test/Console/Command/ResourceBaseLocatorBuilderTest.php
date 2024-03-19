@@ -25,7 +25,7 @@ class ResourceBaseLocatorBuilderTest extends TestCase
         $locator = $builder->build($resourceDir);
 
         $this->assertEquals(
-            $objectsDir,
+            $resourceDir,
             $locator->locate(),
             'unexpected resource dir'
         );

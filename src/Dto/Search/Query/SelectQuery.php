@@ -28,7 +28,7 @@ class SelectQuery
         public readonly array $sort,
         public readonly array $filter,
         public readonly array $facets,
-        public readonly QueryDefaultOperator $queryDefaultOperator
+        public readonly DefaultQueryOperator $defaultQueryOperator
     ) {
     }
 }
