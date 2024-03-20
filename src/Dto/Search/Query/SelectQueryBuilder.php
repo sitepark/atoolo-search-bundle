@@ -28,8 +28,8 @@ class SelectQueryBuilder
      */
     private array $facets = [];
 
-    private DefaultQueryOperator $defaultQueryOperator =
-        DefaultQueryOperator::AND;
+    private QueryOperator $defaultQueryOperator =
+        QueryOperator::AND;
 
     public function __construct()
     {
@@ -105,7 +105,7 @@ class SelectQueryBuilder
     }
 
     public function defaultQueryOperator(
-        DefaultQueryOperator $defaultQueryOperator
+        QueryOperator $defaultQueryOperator
     ): SelectQueryBuilder {
         $this->defaultQueryOperator = $defaultQueryOperator;
         return $this;
