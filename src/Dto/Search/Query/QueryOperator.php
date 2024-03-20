@@ -5,7 +5,7 @@ namespace Atoolo\Search\Dto\Search\Query;
 /**
  * @codeCoverageIgnore
  */
-enum DefaultQueryOperator: string
+enum QueryOperator: string
 {
     case AND = 'AND';
     case OR = 'OR';
