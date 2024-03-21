@@ -78,7 +78,7 @@ class InternalResourceIndexer implements Indexer
         if (empty($parameter->paths)) {
             $pathList = $this->finder->findAll();
         } else {
-            $mappedPaths = $this->mapTranslationPaths($parameter->paths);
+            $mappedPaths = $this->normalizePaths($parameter->paths);
             $pathList = $this->finder->findPaths($mappedPaths);
         }
 
@@ -86,8 +86,8 @@ class InternalResourceIndexer implements Indexer
     }
 
     /**
-     * If a path is to be indexed in a translated language, this can also
-     * be specified via the URL parameter `loc`. For example,
+     * A path can signal to be translated into another language via
+     * the URL parameter loc. For example,
      * `/dir/file.php?loc=it_IT` defines that the path
      * `/dir/file.php.translations/it_IT.php` is to be used.
      * This method translates the URL parameter into the correct path.
@@ -95,7 +95,7 @@ class InternalResourceIndexer implements Indexer
      * @param string[] $pathList
      * @return string[]
      */
-    private function mapTranslationPaths(array $pathList): array
+    private function normalizePaths(array $pathList): array
     {
         return array_map(static function ($path) {
             $queryString = parse_url($path, PHP_URL_QUERY);
