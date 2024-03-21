@@ -22,7 +22,7 @@ class TypifiedInput
         $value = $this->input->getOption($name);
         if (!is_numeric($value)) {
             throw new InvalidArgumentException(
-                'option' . $name . ' must be a integer: ' . $value
+                'option ' . $name . ' must be a integer: ' . $value
             );
         }
         return (int)$value;
@@ -33,7 +33,7 @@ class TypifiedInput
         $value = $this->input->getArgument($name);
         if (!is_string($value)) {
             throw new InvalidArgumentException(
-                'argument' . $name . ' must be a string'
+                'argument ' . $name . ' must be a string'
             );
         }
         return $value;
