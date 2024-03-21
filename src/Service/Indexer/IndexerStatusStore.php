@@ -16,8 +16,18 @@ use Symfony\Component\Serializer\Serializer;
 
 class IndexerStatusStore
 {
+    private readonly Serializer $serializer;
+
     public function __construct(private readonly string $basedir)
     {
+        $encoders = [new JsonEncoder()];
+        $normalizers = [
+            new BackedEnumNormalizer(),
+            new DateTimeNormalizer(),
+            new PropertyNormalizer()
+        ];
+
+        $this->serializer = new Serializer($normalizers, $encoders);
     }
 
     /**
@@ -44,7 +54,7 @@ class IndexerStatusStore
 
         /** @var IndexerStatus $status */
         $status = $this
-            ->createSerializer()
+            ->serializer
             ->deserialize($json, IndexerStatus::class, 'json');
 
         return $status;
@@ -61,7 +71,7 @@ class IndexerStatusStore
             );
         }
         $json = $this
-            ->createSerializer()
+            ->serializer
             ->serialize($status, 'json');
         $result = file_put_contents($file, $json);
         if ($result === false) {
@@ -97,18 +107,6 @@ class IndexerStatusStore
                 'Directory ' . $this->basedir . ' is not writable'
             );
         }
-    }
-
-    private function createSerializer(): Serializer
-    {
-        $encoders = [new JsonEncoder()];
-        $normalizers = [
-            new BackedEnumNormalizer(),
-            new DateTimeNormalizer(),
-            new PropertyNormalizer()
-        ];
-
-        return new Serializer($normalizers, $encoders);
     }
 
     private function getStatusFile(string $index): string
