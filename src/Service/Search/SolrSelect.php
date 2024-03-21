@@ -124,7 +124,7 @@ class SolrSelect implements SelectSearcher
     private function addRequiredFieldListToSolrQuery(
         SolrSelectQuery $solrQuery
     ): void {
-        $solrQuery->setFields(['url']);
+        $solrQuery->setFields(['url', 'title', 'sp_id']);
     }
 
     private function addTextFilterToSolrQuery(
