@@ -44,9 +44,10 @@ class Indexer extends Command
                 'cleanup-threshold',
                 null,
                 InputArgument::OPTIONAL,
-                'Specifies the number of indexed documents from ' .
-                'which indexing is considered successful and old entries ' .
-                'can be deleted. Is only used for full indexing.',
+                'Specifies the number of documents required to be indexed ' .
+                'successfully for the entire process to be considered ' .
+                'successfull. Old entries will only ever be removed if this ' .
+                'threshold is reached. Only relevant for full-indexing.',
                 0
             )
             ->addOption(

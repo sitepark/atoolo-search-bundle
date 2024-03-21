@@ -129,7 +129,7 @@ class BackgroundIndexerProgressStateTest extends TestCase
         $this->state->finish();
 
         $this->assertMatchesRegularExpression(
-            '/\[INDEXED]/',
+            '/\[FINISHED]/',
             $this->state->getStatus()->getStatusLine(),
             "unexpected status line"
         );

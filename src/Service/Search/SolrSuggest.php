@@ -17,13 +17,13 @@ use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 use Solarium\QueryType\Select\Result\Result as SolrSelectResult;
 
 /**
+ * Implementation of the "suggest search" based on a Solr index.
+ *
  *  @phpstan-type SolariumResponse array{
  *      facet_counts: array{
- *         facet_fields:array<string,array<string>>
+ *         facet_fields: array<string, array<string>>
  *      }
  *  }
- *
- * Implementation of the "suggest search" based on a Solr index.
  */
 class SolrSuggest implements SuggestSearcher
 {
@@ -78,9 +78,9 @@ class SolrSuggest implements SuggestSearcher
 
         // Filter
         foreach ($query->filter as $filter) {
-            $solrQuery->createFilterQuery($filter->key)
-                ->setQuery($filter->getQuery())
-                ->setTags($filter->tags);
+            $filterQuery = $solrQuery->createFilterQuery($filter->key);
+            $filterQuery->setQuery($filter->getQuery());
+            $filterQuery->setTags($filter->tags);
         }
 
         return $solrQuery;
@@ -120,7 +120,7 @@ class SolrSuggest implements SuggestSearcher
             $len = count($facets);
 
             $suggestions = [];
-            for ($i = 0; $i < $len; $i += 2) {
+            for ($i = 0; $i < $len - 1; $i += 2) {
                 $term = $facets[$i];
                 $hits = (int)$facets[$i + 1];
                 $suggestions[] = new Suggestion($term, $hits);

@@ -15,7 +15,7 @@ class ContentCollectorTest extends TestCase
     public function testCollect(): void
     {
         $matcher = (new class implements ContentMatcher {
-            public function match(array $path, array $value): bool|string
+            public function match(array $path, array $value): string|false
             {
                 $modelType = $value['modelType'] ?? false;
                 if ($modelType !== 'html.richText') {

@@ -112,7 +112,7 @@ class InternalResourceIndexerTest extends TestCase
     public function testAbort(): void
     {
         $this->aborter->expects($this->once())
-            ->method('abort')
+            ->method('requestAbortion')
             ->with('test');
 
         $this->indexer->abort();
@@ -225,11 +225,11 @@ class InternalResourceIndexerTest extends TestCase
                 '/a/c.php'
             ]);
 
-        $this->aborter->method('shouldAborted')
+        $this->aborter->method('isAbortionRequested')
             ->willReturn(true);
 
         $this->aborter->expects($this->once())
-            ->method('aborted');
+            ->method('resetAbortionRequest');
 
         $this->indexerProgressHandler->expects($this->once())
             ->method('abort');

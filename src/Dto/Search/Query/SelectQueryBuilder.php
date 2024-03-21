@@ -35,19 +35,28 @@ class SelectQueryBuilder
     {
     }
 
-    public function text(string $text): SelectQueryBuilder
+    /**
+     * @return $this
+     */
+    public function text(string $text): static
     {
         $this->text = $text;
         return $this;
     }
 
-    public function lang(string $lang): SelectQueryBuilder
+    /**
+     * @return $this
+     */
+    public function lang(string $lang): static
     {
         $this->lang = $lang;
         return $this;
     }
 
-    public function offset(int $offset): SelectQueryBuilder
+    /**
+     * @return $this
+     */
+    public function offset(int $offset): static
     {
         if ($offset < 0) {
             throw new \InvalidArgumentException('offset is lower then 0');
@@ -56,16 +65,22 @@ class SelectQueryBuilder
         return $this;
     }
 
-    public function limit(int $limit): SelectQueryBuilder
+    /**
+     * @return $this
+     */
+    public function limit(int $limit): static
     {
         if ($limit < 0) {
-            throw new \InvalidArgumentException('offset is lower then 0');
+            throw new \InvalidArgumentException('limit is lower then 0');
         }
         $this->limit = $limit;
         return $this;
     }
 
-    public function sort(Criteria ...$criteriaList): SelectQueryBuilder
+    /**
+     * @return $this
+     */
+    public function sort(Criteria ...$criteriaList): static
     {
         foreach ($criteriaList as $criteria) {
             $this->sort[] = $criteria;
@@ -73,7 +88,10 @@ class SelectQueryBuilder
         return $this;
     }
 
-    public function filter(Filter ...$filterList): SelectQueryBuilder
+    /**
+     * @return $this
+     */
+    public function filter(Filter ...$filterList): static
     {
         foreach ($filterList as $filter) {
             if (isset($this->filter[$filter->key])) {
@@ -87,7 +105,10 @@ class SelectQueryBuilder
         return $this;
     }
 
-    public function facet(Facet ...$facetList): SelectQueryBuilder
+    /**
+     * @return $this
+     */
+    public function facet(Facet ...$facetList): static
     {
         foreach ($facetList as $facet) {
             if (isset($this->facets[$facet->key])) {
@@ -101,9 +122,12 @@ class SelectQueryBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function defaultQueryOperator(
         QueryOperator $defaultQueryOperator
-    ): SelectQueryBuilder {
+    ): static {
         $this->defaultQueryOperator = $defaultQueryOperator;
         return $this;
     }

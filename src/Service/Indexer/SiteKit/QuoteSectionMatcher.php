@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Indexer\SiteKit;
 
 /**
- *  @phpstan-type Model array{quote?:string, citation?:string}
+ *  @phpstan-type Model array{quote?: ?string, citation?: ?string}
  */
 class QuoteSectionMatcher implements ContentMatcher
 {
     /**
      * @inheritDoc
      */
-    public function match(array $path, array $value): bool|string
+    public function match(array $path, array $value): string|false
     {
         $len = count($path);
         if ($len < 1) {

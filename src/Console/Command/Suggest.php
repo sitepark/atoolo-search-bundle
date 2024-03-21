@@ -35,10 +35,10 @@ class Suggest extends Command
     protected function configure(): void
     {
         $this
-            ->setHelp('Command to performs a suggest search')
+            ->setHelp('Command that performs a suggest search')
             ->addArgument(
                 'terms',
-                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+                InputArgument::REQUIRED,
                 'Suggest terms.'
             )
             ->addOption(
@@ -57,7 +57,7 @@ class Suggest extends Command
     ): int {
         $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
-        $terms = $this->input->getArrayArgument('terms');
+        $terms = $this->input->getStringArgument('terms');
         $lang = $this->input->getStringOption('lang');
 
         $query = $this->buildQuery($terms, $lang);
@@ -69,15 +69,12 @@ class Suggest extends Command
         return Command::SUCCESS;
     }
 
-    /**
-     * @param string[] $terms
-     */
-    protected function buildQuery(array $terms, string $lang): SuggestQuery
+    protected function buildQuery(string $terms, string $lang): SuggestQuery
     {
         $excludeMedia = new ObjectTypeFilter(['media'], 'media');
         $excludeMedia = $excludeMedia->exclude();
         return new SuggestQuery(
-            implode(' ', $terms),
+            $terms,
             $lang,
             [
                 new ArchiveFilter(),

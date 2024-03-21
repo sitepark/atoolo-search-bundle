@@ -39,8 +39,8 @@ class SolrSelect implements SelectSearcher
     public function __construct(
         private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
-        private readonly iterable $solrQueryModifierList,
-        private readonly SolrResultToResourceResolver $resultToResourceResolver
+        private readonly SolrResultToResourceResolver $resultToResourceResolver,
+        private readonly iterable $solrQueryModifierList = []
     ) {
     }
 
@@ -127,7 +127,7 @@ class SolrSelect implements SelectSearcher
     private function addRequiredFieldListToSolrQuery(
         SolrSelectQuery $solrQuery
     ): void {
-        $solrQuery->setFields(['url']);
+        $solrQuery->setFields(['url', 'title', 'sp_id']);
     }
 
     private function addTextFilterToSolrQuery(
@@ -139,10 +139,7 @@ class SolrSelect implements SelectSearcher
         }
         $terms = explode(' ', $text);
         $terms = array_map(
-            static function ($term) use ($solrQuery) {
-                $term = trim($term);
-                return $solrQuery->getHelper()->escapeTerm($term);
-            },
+            fn ($term) => $solrQuery->getHelper()->escapeTerm(trim($term)),
             $terms
         );
         $text = implode(' ', $terms);
@@ -153,15 +150,11 @@ class SolrSelect implements SelectSearcher
         SolrSelectQuery $solrQuery,
         QueryOperator $operator
     ): void {
-        if ($operator === QueryOperator::OR) {
-            $solrQuery->setQueryDefaultOperator(
-                SolrSelectQuery::QUERY_OPERATOR_OR
-            );
-        } else {
-            $solrQuery->setQueryDefaultOperator(
-                SolrSelectQuery::QUERY_OPERATOR_AND
-            );
-        }
+        $solrQuery->setQueryDefaultOperator(
+            $operator === QueryOperator::OR
+                ? SolrSelectQuery::QUERY_OPERATOR_OR
+                : SolrSelectQuery::QUERY_OPERATOR_AND
+        );
     }
 
     /**
@@ -174,9 +167,9 @@ class SolrSelect implements SelectSearcher
 
         foreach ($filterList as $filter) {
             $key = $filter->key ?? uniqid('', true);
-            $solrQuery->createFilterQuery($key)
-                ->setQuery($filter->getQuery())
-                ->setTags($filter->tags);
+            $filterQuery = $solrQuery->createFilterQuery($key);
+            $filterQuery->setQuery($filter->getQuery());
+            $filterQuery->setTags($filter->tags);
         }
     }
 

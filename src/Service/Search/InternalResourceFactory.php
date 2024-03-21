@@ -34,17 +34,13 @@ class InternalResourceFactory implements ResourceFactory
     {
         $location = $this->getField($document, 'url');
         if ($location === null) {
-            throw new LogicException('document should contains a url');
+            throw new LogicException('document should contain an url');
         }
         return $this->resourceLoader->load($location, $lang);
     }
 
     private function getField(Document $document, string $name): ?string
     {
-        $fields = $document->getFields();
-        if (!isset($fields[$name])) {
-            return null;
-        }
-        return $fields[$name];
+        return $document->getFields()[$name] ?? null;
     }
 }

@@ -15,7 +15,7 @@ class UnexpectedResultException extends RuntimeException
         ?\Throwable $previous = null
     ) {
         parent::__construct(
-            $message . "\n" . $this->result,
+            $message . ": " . $this->result,
             $code,
             $previous
         );

@@ -80,8 +80,8 @@ class SolrSelectTest extends TestCase
         $this->searcher = new SolrSelect(
             $indexName,
             $clientFactory,
+            $resultToResourceResolver,
             [$solrQueryModifier],
-            $resultToResourceResolver
         );
     }
 

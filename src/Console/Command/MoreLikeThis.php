@@ -38,7 +38,7 @@ class MoreLikeThis extends Command
                 'location',
                 InputArgument::REQUIRED,
                 'Location of the resource to which the MoreLikeThis ' .
-                'search is to be applied..'
+                'search is to be applied.'
             )
             ->addOption(
                 'lang',

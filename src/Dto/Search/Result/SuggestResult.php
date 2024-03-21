@@ -9,7 +9,7 @@ use IteratorAggregate;
 
 /**
  * @implements IteratorAggregate<int,Suggestion>
-@codeCoverageIgnore
+ * @codeCoverageIgnore
  */
 class SuggestResult implements IteratorAggregate
 {

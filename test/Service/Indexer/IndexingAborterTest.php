@@ -28,38 +28,38 @@ class IndexingAborterTest extends TestCase
         $this->aborter = new IndexingAborter($workdir, 'background-indexer');
     }
 
-    public function testShouldNotAborted(): void
+    public function testIsAbortionRequested(): void
     {
         $this->assertFalse(
-            $this->aborter->shouldAborted('test'),
+            $this->aborter->isAbortionRequested('test'),
             'should not aborted'
         );
     }
-    public function testShouldAborted(): void
+    public function testIsAbortionRequestedWithExistsMarkerFile(): void
     {
         touch($this->file);
         $this->assertTrue(
-            $this->aborter->shouldAborted('test'),
+            $this->aborter->isAbortionRequested('test'),
             'should not aborted'
         );
     }
 
-    public function testAbort(): void
+    public function testRequestAbortion(): void
     {
-        $this->aborter->abort('test');
+        $this->aborter->requestAbortion('test');
         $this->assertFileExists(
             $this->file,
-            'abort call should create file'
+            'requestAbortion call should create file'
         );
     }
 
-    public function testAborted(): void
+    public function testResetAbortionRequest(): void
     {
         touch($this->file);
-        $this->aborter->aborted('test');
+        $this->aborter->resetAbortionRequest('test');
         $this->assertFileDoesNotExist(
             $this->file,
-            'aborted call should remove file'
+            'resetAbortionRequest call should remove file'
         );
     }
 }

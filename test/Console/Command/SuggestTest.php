@@ -47,7 +47,7 @@ class SuggestTest extends TestCase
     public function testExecute(): void
     {
         $this->commandTester->execute([
-            'terms' => ['sec']
+            'terms' => 'sec'
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();

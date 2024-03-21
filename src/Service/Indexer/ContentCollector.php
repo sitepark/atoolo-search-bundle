@@ -57,6 +57,6 @@ class ContentCollector
             }
         }
 
-        return array_merge([], ...$contentCollections);
+        return array_merge(...$contentCollections);
     }
 }

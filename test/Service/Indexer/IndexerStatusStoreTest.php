@@ -43,7 +43,7 @@ class IndexerStatusStoreTest extends TestCase
 
         $expected =
             '{' .
-            '"state":"INDEXED",' .
+            '"state":"FINISHED",' .
             '"startTime":"2024-01-31T11:15:10+00:00",' .
             '"endTime":"2024-01-31T12:16:11+00:00",' .
             '"total":10,' .
@@ -198,7 +198,7 @@ class IndexerStatusStoreTest extends TestCase
         $lastUpdate->setTime(13, 17, 12);
 
         return new IndexerStatus(
-            IndexerStatusState::INDEXED,
+            IndexerStatusState::FINISHED,
             $startTime,
             $endTime,
             10,

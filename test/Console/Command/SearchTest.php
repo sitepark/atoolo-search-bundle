@@ -58,7 +58,7 @@ class SearchTest extends TestCase
     public function testExecute(): void
     {
         $this->commandTester->execute([
-            'text' => ['test', 'abc']
+            'text' => 'test abc'
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();

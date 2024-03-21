@@ -53,17 +53,8 @@ class SolrResultToResourceResolver
             }
         }
 
-        $location = $this->getField($document, 'url') ?? '';
-
-        throw new MissMatchingResourceFactoryException($location);
-    }
-
-    private function getField(Document $document, string $name): ?string
-    {
-        $fields = $document->getFields();
-        if (!isset($fields[$name])) {
-            return null;
-        }
-        return $fields[$name];
+        throw new MissMatchingResourceFactoryException(
+            $document->getFields()['url'] ?? ''
+        );
     }
 }

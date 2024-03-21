@@ -69,7 +69,7 @@ class InternalResourceIndexer implements Indexer
 
     public function abort(): void
     {
-        $this->aborter->abort($this->getBaseIndex());
+        $this->aborter->requestAbortion($this->getBaseIndex());
     }
 
     /**
@@ -81,7 +81,7 @@ class InternalResourceIndexer implements Indexer
         if (empty($parameter->paths)) {
             $pathList = $this->finder->findAll();
         } else {
-            $mappedPaths = $this->mapTranslationPaths($parameter->paths);
+            $mappedPaths = $this->normalizePaths($parameter->paths);
             $pathList = $this->finder->findPaths($mappedPaths);
         }
 
@@ -94,8 +94,8 @@ class InternalResourceIndexer implements Indexer
     }
 
     /**
-     * If a path is to be indexed in a translated language, this can also
-     * be specified via the URL parameter `loc`. For example,
+     * A path can signal to be translated into another language via
+     * the URL parameter loc. For example,
      * `/dir/file.php?loc=it_IT` defines that the path
      * `/dir/file.php.translations/it_IT.php` is to be used.
      * This method translates the URL parameter into the correct path.
@@ -103,7 +103,7 @@ class InternalResourceIndexer implements Indexer
      * @param string[] $pathList
      * @return string[]
      */
-    private function mapTranslationPaths(array $pathList): array
+    private function normalizePaths(array $pathList): array
     {
         return array_map(static function ($path) {
             $queryString = parse_url($path, PHP_URL_QUERY);
@@ -235,12 +235,12 @@ class InternalResourceIndexer implements Indexer
                 $offset,
                 $parameter->chunkSize
             );
+            gc_collect_cycles();
             if ($indexedCount === false) {
                 break;
             }
             $successCount += $indexedCount;
             $offset += $parameter->chunkSize;
-            gc_collect_cycles();
         }
 
         if (
@@ -281,8 +281,8 @@ class InternalResourceIndexer implements Indexer
             return false;
         }
         $index = $this->indexService->getIndex($lang);
-        if ($this->aborter->shouldAborted($index)) {
-            $this->aborter->aborted($index);
+        if ($this->aborter->isAbortionRequested($index)) {
+            $this->aborter->resetAbortionRequest($index);
             $this->indexerProgressHandler->abort();
             return false;
         }
@@ -312,17 +312,15 @@ class InternalResourceIndexer implements Indexer
         int $length
     ): array|false {
 
-        $maxLength = (count($pathList) - $offset);
+        $maxLength = count($pathList) - $offset;
         if ($maxLength <= 0) {
             return false;
         }
 
-        if ($length > $maxLength) {
-            $length = $maxLength;
-        }
+        $end = min($length, $maxLength) + $offset;
 
         $resourceList = [];
-        for ($i = $offset; $i < ($length + $offset); $i++) {
+        for ($i = $offset; $i < $end; $i++) {
             $path = $pathList[$i];
             try {
                 $resource = $this->resourceLoader->load($path);
