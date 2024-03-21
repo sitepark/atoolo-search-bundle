@@ -177,36 +177,17 @@ class IndexSchema2xDocument extends Document implements IndexDocument
      */
     public function getFields(): array
     {
-        $fields = get_object_vars($this);
-
-        // filter out inherited and meta fields
-
-        $fields = array_filter(
-            $fields,
-            static function ($value, $key) {
-
-                if (is_null($value)) {
-                    return false;
-                }
-
-                if (in_array($key, self::INHERITED_FIELDS, true)) {
-                    return false;
-                }
-
-                if (in_array($key, self::META_FIELDS, true)) {
-                    return false;
-                }
-
-                return true;
-            },
-            ARRAY_FILTER_USE_BOTH
-        );
-
-        return array_merge(
-            $fields,
-            $this->metaString,
-            $this->metaText,
-            $this->metaBool
-        );
+        return [
+            ...array_filter(
+                get_object_vars($this),
+                fn($value, $key) => !is_null($value)
+                    && !in_array($key, self::INHERITED_FIELDS, true)
+                    && !in_array($key, self::META_FIELDS, true),
+                ARRAY_FILTER_USE_BOTH
+            ),
+            ... $this->metaString,
+            ... $this->metaText,
+            ... $this->metaBool,
+        ];
     }
 }
