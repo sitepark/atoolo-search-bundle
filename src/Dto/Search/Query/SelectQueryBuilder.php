@@ -74,7 +74,7 @@ class SelectQueryBuilder
     public function limit(int $limit): static
     {
         if ($limit < 0) {
-            throw new \InvalidArgumentException('offset is lower then 0');
+            throw new \InvalidArgumentException('limit is lower then 0');
         }
         $this->limit = $limit;
         return $this;
