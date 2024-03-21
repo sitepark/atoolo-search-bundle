@@ -144,12 +144,12 @@ class InternalResourceIndexer implements Indexer
             $this->indexerProgressHandler->startUpdate($total);
         }
 
-        $availableIndexes = $this->indexService->getManagedIndexes();
+        $managedIndices = $this->indexService->getManagedIndices();
         $splitterResult = $this->translationSplitter->split($pathList);
 
         $this->indexTranslationSplittedResources(
             $parameter,
-            $availableIndexes,
+            $managedIndices,
             $splitterResult
         );
 
@@ -165,11 +165,11 @@ class InternalResourceIndexer implements Indexer
      * to their languages and can be indexed separately. Each language is
      * indexed separately here.
      *
-     * @param string[] $availableIndexes
+     * @param string[] $managedIndices
      */
     private function indexTranslationSplittedResources(
         IndexerParameter $parameter,
-        array $availableIndexes,
+        array $managedIndices,
         TranslationSplitterResult $splitterResult
     ): void {
 
@@ -178,7 +178,7 @@ class InternalResourceIndexer implements Indexer
         $index = $this->indexService->getIndex('');
 
         if (count($splitterResult->getBases()) > 0) {
-            if (in_array($index, $availableIndexes)) {
+            if (in_array($index, $managedIndices)) {
                 $this->indexResourcesPerLanguageIndex(
                     $processId,
                     $parameter,
@@ -197,7 +197,7 @@ class InternalResourceIndexer implements Indexer
             $langIndex = $this->indexService->getIndex($lang);
             if (
                 $index !== $langIndex &&
-                in_array($langIndex, $availableIndexes)
+                in_array($langIndex, $managedIndices)
             ) {
                 $this->indexResourcesPerLanguageIndex(
                     $processId,

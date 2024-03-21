@@ -57,7 +57,7 @@ class SolrIndexService
 
     public function deleteByQueryForAllLanguages(string $query): void
     {
-        foreach ($this->getManagedIndexes() as $index) {
+        foreach ($this->getManagedIndices() as $index) {
             $client = $this->clientFactory->create($index);
             $update = $client->createUpdate();
             $update->addDeleteQuery($query);
@@ -84,7 +84,7 @@ class SolrIndexService
 
     public function commitForAllLanguages(): void
     {
-        foreach ($this->getManagedIndexes() as $index) {
+        foreach ($this->getManagedIndices() as $index) {
             $client = $this->clientFactory->create($index);
             $update = $client->createUpdate();
             $update->addCommit();
@@ -96,7 +96,7 @@ class SolrIndexService
     /**
      * @return string[]
      */
-    public function getManagedIndexes(): array
+    public function getManagedIndices(): array
     {
         $client = $this->createClient('');
         $coreAdminQuery = $client->createCoreAdmin();
