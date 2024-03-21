@@ -9,120 +9,120 @@ use Solarium\QueryType\Update\Query\Document;
 
 class IndexSchema2xDocument extends Document implements IndexDocument
 {
-    public string $sp_id;
-    public ?string $sp_name;
-    public ?string $sp_anchor;
-    public ?string $title;
-    public ?string $description;
-    public ?string $sp_objecttype;
-    public bool $sp_canonical;
-    public ?string $crawl_process_id;
-    public ?string $id;
-    public ?string $url;
-    public ?string $contenttype;
+    public ?string $sp_id = null;
+    public ?string $sp_name = null;
+    public ?string $sp_anchor = null;
+    public ?string $title = null;
+    public ?string $description = null;
+    public ?string $sp_objecttype = null;
+    public ?bool $sp_canonical = null;
+    public ?string $crawl_process_id = null;
+    public ?string $id = null;
+    public ?string $url = null;
+    public ?string $contenttype = null;
     /**
      * @var string[]
      */
-    public array $sp_contenttype;
-    public ?string $sp_language;
-    public ?string $meta_content_language;
-    public ?string $meta_content_type;
-    public ?DateTime $sp_changed;
-    public ?DateTime $sp_generated;
-    public ?DateTime $sp_date;
-    public ?DateTime $sp_date_from;
-    public ?DateTime $sp_date_to;
+    public ?array $sp_contenttype = null;
+    public ?string $sp_language = null;
+    public ?string $meta_content_language = null;
+    public ?string $meta_content_type = null;
+    public ?DateTime $sp_changed = null;
+    public ?DateTime $sp_generated = null;
+    public ?DateTime $sp_date = null;
+    public ?DateTime $sp_date_from = null;
+    public ?DateTime $sp_date_to = null;
     /**
      * @var DateTime[]
      */
-    public array $sp_date_list;
-    public bool $sp_archive;
-    public ?string $sp_title;
-    public ?string $sp_sortvalue;
+    public ?array $sp_date_list = null;
+    public ?bool $sp_archive = null;
+    public ?string $sp_title = null;
+    public ?string $sp_sortvalue = null;
     /**
      * @var string[]
      */
-    public array $keywords;
-    public string $sp_boost_keywords;
+    public ?array $keywords = null;
+    public ?string $sp_boost_keywords = null;
     /**
      * @var string[]
      */
-    public array $sp_site;
+    public ?array $sp_site = null;
     /**
      * @var string[]
      */
-    public array $sp_geo_points;
+    public ?array $sp_geo_points = null;
     /**
      * @var string[]
      */
-    public array $sp_category;
+    public ?array $sp_category = null;
     /**
      * @var string[]
      */
-    public array $sp_category_path;
-    public int $sp_group;
+    public ?array $sp_category_path = null;
+    public ?int $sp_group = null;
     /**
      * @var int[]
      */
-    public array $sp_group_path;
-    public ?string $content;
+    public ?array $sp_group_path = null;
+    public ?string $content = null;
     /**
      * @var string[]
      */
-    public array $include_groups;
+    public ?array $include_groups = null;
     /**
      * @var string[]
      */
-    public array $exclude_groups;
+    public ?array $exclude_groups = null;
     /**
      * @var string[]
      */
-    public array $sp_source;
-
-    /**
-     * @var string[]
-     */
-    public array $sp_citygov_phone;
+    public ?array $sp_source = null;
 
     /**
      * @var string[]
      */
-    public array $sp_citygov_email;
-
-    public ?string $sp_citygov_address;
-
-    public ?string $sp_citygov_startletter;
+    public ?array $sp_citygov_phone = null;
 
     /**
      * @var string[]
      */
-    public array $sp_citygov_organisationtoken;
+    public ?array $sp_citygov_email = null;
 
-    public int $sp_organisation;
+    public ?string $sp_citygov_address = null;
 
-    public ?string $sp_citygov_firstname;
+    public ?string $sp_citygov_startletter = null;
 
-    public ?string $sp_citygov_lastname;
+    /**
+     * @var string[]
+     */
+    public ?array $sp_citygov_organisationtoken = null;
+
+    public ?int $sp_organisation = null;
+
+    public ?string $sp_citygov_firstname = null;
+
+    public ?string $sp_citygov_lastname = null;
 
     /**
      * List of Organisation Ids
      * @var int[]
      */
-    public array $sp_organisation_path;
+    public ?array $sp_organisation_path = null;
 
     /**
      * List of Organisationnames
      * @var string[]
      */
-    public array $sp_citygov_organisation;
+    public ?array $sp_citygov_organisation = null;
 
     /**
      * List of Productnames
      * @var string[]
      */
-    public array $sp_citygov_product;
+    public ?array $sp_citygov_product = null;
 
-    public ?string $sp_citygov_function;
+    public ?string $sp_citygov_function = null;
     /**
      * @var array<string,string|string[]>
      */
