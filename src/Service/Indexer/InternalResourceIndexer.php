@@ -295,17 +295,15 @@ class InternalResourceIndexer implements Indexer
         int $length
     ): array|false {
 
-        $maxLength = (count($pathList) - $offset);
+        $maxLength = count($pathList) - $offset;
         if ($maxLength <= 0) {
             return false;
         }
 
-        if ($length > $maxLength) {
-            $length = $maxLength;
-        }
+        $end = min($length, $maxLength) + $offset;
 
         $resourceList = [];
-        for ($i = $offset; $i < ($length + $offset); $i++) {
+        for ($i = $offset; $i < $end; $i++) {
             $path = $pathList[$i];
             try {
                 $resource = $this->resourceLoader->load($path);

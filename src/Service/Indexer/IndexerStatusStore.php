@@ -48,7 +48,12 @@ class IndexerStatusStore
         $json = file_get_contents($file);
         if ($json === false) {
             // @codeCoverageIgnoreStart
-            throw new InvalidArgumentException('Cannot read file ' . $file);
+            $message = 'Failed to read file ' . $file;
+            $error = error_get_last();
+            if ($error !== null) {
+                $message .= ': ' . $error['message'];
+            }
+            throw new RuntimeException($message);
             // @codeCoverageIgnoreEnd
         }
 
@@ -76,9 +81,12 @@ class IndexerStatusStore
         $result = file_put_contents($file, $json);
         if ($result === false) {
             // @codeCoverageIgnoreStart
-            throw new RuntimeException(
-                'Unable to write indexer-status file ' . $file
-            );
+            $message = 'Unable to write indexer-status file ' . $file;
+            $error = error_get_last();
+            if ($error !== null) {
+                $message .= ': ' . $error['message'];
+            }
+            throw new RuntimeException($message);
             // @codeCoverageIgnoreEnd
         }
     }

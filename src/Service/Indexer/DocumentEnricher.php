@@ -18,8 +18,9 @@ interface DocumentEnricher
     public function isIndexable(Resource $resource): bool;
 
     /**
-     * @param T $doc
-     * @return T
+     * @template E of T
+     * @param E $doc
+     * @return E
      * @throws DocumentEnrichingException
      */
     public function enrichDocument(

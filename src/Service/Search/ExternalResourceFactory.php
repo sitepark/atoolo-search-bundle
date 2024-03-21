@@ -9,7 +9,7 @@ use LogicException;
 use Solarium\QueryType\Select\Result\Document;
 
 /**
- * External resources are data that are not provided by the CMS, but are
+ * External resources are data that is not provided by the CMS, but are
  * transferred to the Solr index via special indexers, for example.
  * In these cases, the search result leads to an external page.
  * This factory recognizes external content using the Solr document field url.
@@ -33,7 +33,7 @@ class ExternalResourceFactory implements ResourceFactory
     {
         $location = $this->getField($document, 'url');
         if ($location === null) {
-            throw new LogicException('document should contains a url');
+            throw new LogicException('document should contain an url');
         }
 
         return new Resource(
@@ -47,10 +47,6 @@ class ExternalResourceFactory implements ResourceFactory
 
     private function getField(Document $document, string $name): ?string
     {
-        $fields = $document->getFields();
-        if (!isset($fields[$name])) {
-            return null;
-        }
-        return $fields[$name];
+        return $document->getFields()[$name] ?? null;
     }
 }

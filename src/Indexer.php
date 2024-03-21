@@ -13,7 +13,7 @@ use Atoolo\Search\Dto\Indexer\IndexerStatus;
  * The main task of an indexer is to systematically analyze documents or
  * content in order to extract relevant information from them. This information
  * is structured and stored in a search index to enable efficient search
- * queries. The indexer organizes the data and extract hierarchical structure
+ * queries. The indexer organizes the data and extracts hierarchical structures
  * that search engines use to deliver fast and accurate search results.
  */
 interface Indexer

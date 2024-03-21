@@ -49,9 +49,9 @@ class SolrMoreLikeThis implements MoreLikeThisSearcher
 
         // Filter
         foreach ($query->filter as $filter) {
-            $solrQuery->createFilterQuery($filter->key)
-                ->setQuery($filter->getQuery())
-                ->setTags($filter->tags);
+            $filterQuery = $solrQuery->createFilterQuery($filter->key);
+            $filterQuery->setQuery($filter->getQuery());
+            $filterQuery->setTags($filter->tags);
         }
 
         return $solrQuery;
