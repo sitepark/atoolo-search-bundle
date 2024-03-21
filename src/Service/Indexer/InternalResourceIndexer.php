@@ -144,12 +144,10 @@ class InternalResourceIndexer implements Indexer
             $this->indexerProgressHandler->startUpdate($total);
         }
 
-        $managedIndices = $this->indexService->getManagedIndices();
         $splitterResult = $this->translationSplitter->split($pathList);
 
         $this->indexTranslationSplittedResources(
             $parameter,
-            $managedIndices,
             $splitterResult
         );
 
@@ -164,52 +162,47 @@ class InternalResourceIndexer implements Indexer
      * to be used. Via the `$splitterResult` all paths are separated according
      * to their languages and can be indexed separately. Each language is
      * indexed separately here.
-     *
-     * @param string[] $managedIndices
      */
     private function indexTranslationSplittedResources(
         IndexerParameter $parameter,
-        array $managedIndices,
         TranslationSplitterResult $splitterResult
     ): void {
+
+        $managedIndices = $this->indexService->getManagedIndices();
 
         $processId = uniqid('', true);
 
         $index = $this->indexService->getIndex('');
 
         if (count($splitterResult->getBases()) > 0) {
-            if (in_array($index, $managedIndices)) {
-                $this->indexResourcesPerLanguageIndex(
-                    $processId,
-                    $parameter,
-                    '',
-                    $splitterResult->getBases()
-                );
-            } else {
-                $this->indexerProgressHandler->error(new Exception(
-                    'Index "' . $index . '" not found'
-                ));
-            }
+            $this->indexResourcesPerLanguageIndex(
+                $processId,
+                $parameter,
+                '',
+                $index,
+                $splitterResult->getBases()
+            );
         }
 
         foreach ($splitterResult->getLocales() as $locale) {
             $lang = substr($locale, 0, 2);
             $langIndex = $this->indexService->getIndex($lang);
-            if (
-                $index !== $langIndex &&
-                in_array($langIndex, $managedIndices)
-            ) {
-                $this->indexResourcesPerLanguageIndex(
-                    $processId,
-                    $parameter,
-                    $lang,
-                    $splitterResult->getTranslations($locale)
-                );
-            } else {
+
+            if ($index === $langIndex) {
                 $this->indexerProgressHandler->error(new Exception(
-                    'Index "' . $langIndex . '" not found'
+                    'No Index for language "' . $lang . '" ' .
+                    'found (base index: "' . $index . '")'
                 ));
+                continue;
             }
+
+            $this->indexResourcesPerLanguageIndex(
+                $processId,
+                $parameter,
+                $lang,
+                $langIndex,
+                $splitterResult->getTranslations($locale)
+            );
         }
     }
 
@@ -222,10 +215,19 @@ class InternalResourceIndexer implements Indexer
         string $processId,
         IndexerParameter $parameter,
         string $lang,
+        string $index,
         array $pathList
     ): void {
         $offset = 0;
         $successCount = 0;
+
+        $managedIndices = $this->indexService->getManagedIndices();
+        if (!in_array($index, $managedIndices)) {
+            $this->indexerProgressHandler->error(new Exception(
+                'Index "' . $index . '" not found'
+            ));
+            return;
+        }
 
         while (true) {
             $indexedCount = $this->indexChunks(
