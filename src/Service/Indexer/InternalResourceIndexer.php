@@ -234,6 +234,7 @@ class InternalResourceIndexer implements Indexer
             $indexedCount = $this->indexChunks(
                 $processId,
                 $lang,
+                $index,
                 $pathList,
                 $offset,
                 $parameter->chunkSize
@@ -271,6 +272,7 @@ class InternalResourceIndexer implements Indexer
     private function indexChunks(
         string $processId,
         string $lang,
+        string $index,
         array $pathList,
         int $offset,
         int $length
@@ -283,7 +285,6 @@ class InternalResourceIndexer implements Indexer
         if ($resourceList === false) {
             return false;
         }
-        $index = $this->indexService->getIndex($lang);
         if ($this->aborter->isAbortionRequested($index)) {
             $this->aborter->resetAbortionRequest($index);
             $this->indexerProgressHandler->abort();
