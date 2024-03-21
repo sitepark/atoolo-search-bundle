@@ -66,8 +66,8 @@ class SolrSelectBuilder
 
         return new SolrSelect(
             $clientFactory,
+            $solrResultToResourceResolver,
             [$defaultBoosting],
-            $solrResultToResourceResolver
         );
     }
 }

@@ -281,8 +281,9 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
     }
 
     /**
-     * @param IndexSchema2xDocument $doc
-     * @return IndexSchema2xDocument
+     * @template E of IndexSchema2xDocument
+     * @param E $doc
+     * @return E
      */
     private function enrichContent(
         Resource $resource,

@@ -77,8 +77,8 @@ class SolrSelectTest extends TestCase
 
         $this->searcher = new SolrSelect(
             $clientFactory,
+            $resultToResourceResolver,
             [$solrQueryModifier],
-            $resultToResourceResolver
         );
     }
 

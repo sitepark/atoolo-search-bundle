@@ -53,6 +53,8 @@ class SolrResultToResourceResolver
             }
         }
 
-        throw new MissMatchingResourceFactoryException($document->getFields()['url'] ?? '');
+        throw new MissMatchingResourceFactoryException(
+            $document->getFields()['url'] ?? ''
+        );
     }
 }
