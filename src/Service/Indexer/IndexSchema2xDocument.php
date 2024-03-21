@@ -9,6 +9,19 @@ use Solarium\QueryType\Update\Query\Document;
 
 class IndexSchema2xDocument extends Document implements IndexDocument
 {
+
+    private const INHERITED_FIELDS = [
+        'fields',
+        'modifiers',
+        'fieldBoosts'
+    ];
+
+    private const META_FIELDS = [
+        'metaString',
+        'metaText',
+        'metaBool'
+    ];
+
     public ?string $sp_id = null;
     public ?string $sp_name = null;
     public ?string $sp_anchor = null;
@@ -143,7 +156,7 @@ class IndexSchema2xDocument extends Document implements IndexDocument
      */
     public function setMetaString(string $name, string|array $value): void
     {
-        $this->metaString[$name] = $value;
+        $this->metaString['sp_meta_string_' . $name] = $value;
     }
 
     /**
@@ -151,12 +164,12 @@ class IndexSchema2xDocument extends Document implements IndexDocument
      */
     public function setMetaText(string $name, string|array $value): void
     {
-        $this->metaText[$name] = $value;
+        $this->metaText['sp_meta_text_' . $name] = $value;
     }
 
     public function setMetaBool(string $name, bool $value): void
     {
-        $this->metaBool[$name] = $value;
+        $this->metaBool['sp_meta_bool_' . $name] = $value;
     }
 
     /**
@@ -166,7 +179,7 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     {
         $fields = get_object_vars($this);
 
-        // filter out inherited fields
+        // filter out inherited and meta fields
 
         $fields = array_filter(
             $fields,
@@ -176,38 +189,24 @@ class IndexSchema2xDocument extends Document implements IndexDocument
                     return false;
                 }
 
-                $inheritedFields = [
-                    'fields',
-                    'modifiers',
-                    'fieldBoosts'
-                ];
-                if (in_array($key, $inheritedFields, true)) {
+                if (in_array($key, self::INHERITED_FIELDS, true)) {
                     return false;
                 }
 
-                if (
-                    $key === 'metaString' ||
-                    $key === 'metaText' ||
-                    $key === 'metaBool'
-                ) {
+                if (in_array($key, self::META_FIELDS, true)) {
                     return false;
                 }
+
                 return true;
             },
             ARRAY_FILTER_USE_BOTH
         );
-        foreach ($this->metaString as $key => $value) {
-            $fields['sp_meta_string_' . $key] = $value;
-        }
 
-        foreach ($this->metaText as $key => $value) {
-            $fields['sp_meta_text_' . $key] = $value;
-        }
-
-        foreach ($this->metaBool as $key => $value) {
-            $fields['sp_meta_bool_' . $key] = $value;
-        }
-
-        return $fields;
+        return array_merge(
+            $fields,
+            $this->metaString,
+            $this->metaText,
+            $this->metaBool
+        );
     }
 }
