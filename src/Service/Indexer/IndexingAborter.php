@@ -11,17 +11,17 @@ class IndexingAborter
     ) {
     }
 
-    public function shouldAborted(string $index): bool
+    public function isAbortionRequested(string $index): bool
     {
         return file_exists($this->getAbortMarkerFile($index));
     }
 
-    public function abort(string $index): void
+    public function requestAbortion(string $index): void
     {
         touch($this->getAbortMarkerFile($index));
     }
 
-    public function aborted(string $index): void
+    public function resetAbortionRequest(string $index): void
     {
         unlink($this->getAbortMarkerFile($index));
     }

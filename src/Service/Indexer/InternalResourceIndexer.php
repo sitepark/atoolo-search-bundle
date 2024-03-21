@@ -66,7 +66,7 @@ class InternalResourceIndexer implements Indexer
 
     public function abort(string $index): void
     {
-        $this->aborter->abort($index);
+        $this->aborter->requestAbortion($index);
     }
 
     /**
@@ -264,8 +264,8 @@ class InternalResourceIndexer implements Indexer
         if ($resourceList === false) {
             return false;
         }
-        if ($this->aborter->shouldAborted($solrCore)) {
-            $this->aborter->aborted($solrCore);
+        if ($this->aborter->isAbortionRequested($solrCore)) {
+            $this->aborter->resetAbortionRequest($solrCore);
             $this->indexerProgressHandler->abort();
             return false;
         }
