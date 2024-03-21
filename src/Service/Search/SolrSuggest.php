@@ -117,7 +117,7 @@ class SolrSuggest implements SuggestSearcher
             $len = count($facets);
 
             $suggestions = [];
-            for ($i = 0; $i < $len; $i += 2) {
+            for ($i = 0; $i < $len - 1; $i += 2) {
                 $term = $facets[$i];
                 $hits = (int)$facets[$i + 1];
                 $suggestions[] = new Suggestion($term, $hits);
