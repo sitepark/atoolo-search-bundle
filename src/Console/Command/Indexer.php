@@ -68,9 +68,9 @@ class Indexer extends Command
                 null,
                 InputArgument::OPTIONAL,
                 'Specifies the number of documents required to be indexed ' .
-                'successfully for the entire process to be considered successfull. ' .
-                'Old entries will only ever be removed if this threshold is reached. ' .
-                'Only relevant for full-indexing.',
+                'successfully for the entire process to be considered ' .
+                'successfull. Old entries will only ever be removed if this ' .
+                'threshold is reached. Only relevant for full-indexing.',
                 0
             )
             ->addOption(
