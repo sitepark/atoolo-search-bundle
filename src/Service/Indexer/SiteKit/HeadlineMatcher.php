@@ -9,7 +9,7 @@ class HeadlineMatcher implements ContentMatcher
     /**
      * @inheritDoc
      */
-    public function match(array $path, array $value): bool|string
+    public function match(array $path, array $value): string|false
     {
         $len = count($path);
         if ($len < 2) {

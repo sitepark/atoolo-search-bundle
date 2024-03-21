@@ -219,12 +219,12 @@ class InternalResourceIndexer implements Indexer
                 $offset,
                 $parameter->chunkSize
             );
+            gc_collect_cycles();
             if ($indexedCount === false) {
                 break;
             }
             $successCount += $indexedCount;
             $offset += $parameter->chunkSize;
-            gc_collect_cycles();
         }
 
         if (

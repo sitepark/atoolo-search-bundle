@@ -12,8 +12,24 @@ namespace Atoolo\Search\Service\Indexer\SiteKit;
 interface ContentMatcher
 {
     /**
-     * @param string[] $path
-     * @param array<mixed, mixed> $value
+     * @param string[] $path Contains all array-keys of the nested data
+     * structure that lead to the transferred value. E.g. ['a', 'b', 'c']
+     * for the following structure.
+     * ```
+     * [
+     *   'a' => [
+     *     'b' => [
+     *       'c' => [
+     *         ...
+     *       ]
+     *     ]
+     *   ]
+     * ]
+     * ```
+     * @param array<mixed, mixed> $value Value within a data structure
+     *        that is to be checked.
+     * @return string|false The extracted content or `false` if the
+     *         content is not relevant for the search index.
      */
-    public function match(array $path, array $value): bool|string;
+    public function match(array $path, array $value): string|false;
 }

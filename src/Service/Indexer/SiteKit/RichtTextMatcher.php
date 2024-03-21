@@ -9,7 +9,7 @@ class RichtTextMatcher implements ContentMatcher
     /**
      * @inheritDoc
      */
-    public function match(array $path, array $value): bool|string
+    public function match(array $path, array $value): string|false
     {
         $modelType = $value['modelType'] ?? false;
         if ($modelType !== 'html.richText') {
