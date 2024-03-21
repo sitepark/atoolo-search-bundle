@@ -79,7 +79,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->updater->method('createDocument')->willReturn(
             new IndexSchema2xDocument()
         );
-        $this->solrIndexService->method('getAvailableIndexes')
+        $this->solrIndexService->method('getAvailableIndices')
             ->willReturnCallback(function () {
                 return $this->availableIndexes;
             });

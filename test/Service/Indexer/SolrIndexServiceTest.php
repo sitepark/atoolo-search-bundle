@@ -65,7 +65,7 @@ class SolrIndexServiceTest extends TestCase
         $response->method('getStatusResults')->willReturn([$statusResult]);
         $this->client->method('coreAdmin')->willReturn($response);
 
-        $cores = $this->indexService->getAvailableIndexes();
+        $cores = $this->indexService->getAvailableIndices();
 
         $this->assertEquals(['test'], $cores, 'Cores should be returned');
     }

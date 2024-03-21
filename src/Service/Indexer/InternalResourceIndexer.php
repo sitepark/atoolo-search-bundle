@@ -136,7 +136,7 @@ class InternalResourceIndexer implements Indexer
             $this->indexerProgressHandler->startUpdate($total);
         }
 
-        $availableIndexes = $this->indexService->getAvailableIndexes();
+        $availableIndexes = $this->indexService->getAvailableIndices();
         $splitterResult = $this->translationSplitter->split($pathList);
 
         $this->indexTranslationSplittedResources(

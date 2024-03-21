@@ -69,7 +69,7 @@ class SolrIndexService
     /**
      * @return string[]
      */
-    public function getAvailableIndexes(): array
+    public function getAvailableIndices(): array
     {
         $client = $this->clientFactory->create('');
         $coreAdminQuery = $client->createCoreAdmin();
