@@ -9,7 +9,6 @@ use Solarium\QueryType\Update\Query\Document;
 
 class IndexSchema2xDocument extends Document implements IndexDocument
 {
-
     private const INHERITED_FIELDS = [
         'fields',
         'modifiers',
