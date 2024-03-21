@@ -168,21 +168,17 @@ class InternalResourceIndexer implements Indexer
         TranslationSplitterResult $splitterResult
     ): void {
 
-        $managedIndices = $this->indexService->getManagedIndices();
-
         $processId = uniqid('', true);
 
         $index = $this->indexService->getIndex('');
 
-        if (count($splitterResult->getBases()) > 0) {
-            $this->indexResourcesPerLanguageIndex(
-                $processId,
-                $parameter,
-                '',
-                $index,
-                $splitterResult->getBases()
-            );
-        }
+        $this->indexResourcesPerLanguageIndex(
+            $processId,
+            $parameter,
+            '',
+            $index,
+            $splitterResult->getBases()
+        );
 
         foreach ($splitterResult->getLocales() as $locale) {
             $lang = substr($locale, 0, 2);
@@ -218,6 +214,11 @@ class InternalResourceIndexer implements Indexer
         string $index,
         array $pathList
     ): void {
+
+        if (empty($pathList)) {
+            return;
+        }
+
         $offset = 0;
         $successCount = 0;
 
