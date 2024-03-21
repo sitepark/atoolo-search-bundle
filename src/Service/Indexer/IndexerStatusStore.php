@@ -77,8 +77,14 @@ class IndexerStatusStore
     {
         if (
             !is_dir($concurrentDirectory = $this->basedir) &&
-            !@mkdir($concurrentDirectory) &&
-            !is_dir($concurrentDirectory)
+            (
+                !@mkdir(
+                    $concurrentDirectory,
+                    0777,
+                    true
+                ) &&
+                !is_dir($concurrentDirectory)
+            )
         ) {
             throw new RuntimeException(sprintf(
                 'Directory "%s" was not created',
