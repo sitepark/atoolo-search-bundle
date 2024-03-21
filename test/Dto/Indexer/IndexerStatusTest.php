@@ -30,7 +30,7 @@ class IndexerStatusTest extends TestCase
         $lastUpdate->setTime(13, 17, 12);
 
         $this->status = new IndexerStatus(
-            IndexerStatusState::INDEXED,
+            IndexerStatusState::FINISHED,
             $startTime,
             $endTime,
             10,
@@ -45,7 +45,7 @@ class IndexerStatusTest extends TestCase
     public function testGetStatus(): void
     {
         $this->assertEquals(
-            '[INDEXED] ' .
+            '[FINISHED] ' .
                 'start: 31.01.2024 11:15, ' .
                 'time: 01h 01m 01s, ' .
                 'processed: 5/10, ' .

@@ -58,7 +58,7 @@ class SuggestTest extends TestCase
         $this->commandTester->execute([
             'solr-connection-url' => 'http://localhost:8382',
             'solr-core' => 'test',
-            'terms' => ['sec']
+            'terms' => 'sec'
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();

@@ -11,6 +11,6 @@ enum IndexerStatusState: string
 {
     case UNKNOWN = 'UNKNOWN';
     case RUNNING = 'RUNNING';
-    case INDEXED = 'INDEXED';
+    case FINISHED = 'FINISHED';
     case ABORTED = 'ABORTED';
 }

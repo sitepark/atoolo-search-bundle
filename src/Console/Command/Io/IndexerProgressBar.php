@@ -82,7 +82,7 @@ class IndexerProgressBar implements IndexerProgressHandler
     public function finish(): void
     {
         $this->progressBar->finish();
-        $this->status->state = IndexerStatusState::INDEXED;
+        $this->status->state = IndexerStatusState::FINISHED;
         $this->status->endTime = new DateTime();
     }
 

@@ -72,7 +72,7 @@ class SearchTest extends TestCase
             'solr-connection-url' => 'http://localhost:8382',
             'index' => 'test',
             'resource-dir' => 'abc',
-            'text' => ['test', 'abc']
+            'text' => 'test abc'
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();

@@ -100,7 +100,7 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
             $this->status->endTime = new DateTime();
         }
         if ($this->status->state === IndexerStatusState::RUNNING) {
-            $this->status->state = IndexerStatusState::INDEXED;
+            $this->status->state = IndexerStatusState::FINISHED;
         }
         $this->statusStore->store($this->index, $this->status);
     }
