@@ -9,6 +9,7 @@ use Atoolo\Search\Service\Indexer\BackgroundIndexer;
 use Atoolo\Search\Service\Indexer\IndexerStatusStore;
 use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
 use Atoolo\Search\Service\Indexer\InternalResourceIndexerFactory;
+use Atoolo\Search\Service\IndexName;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -19,12 +20,15 @@ use Symfony\Component\Lock\SharedLockInterface;
 #[CoversClass(BackgroundIndexer::class)]
 class BackgroundIndexerTest extends TestCase
 {
+    private IndexName $indexName;
     private InternalResourceIndexer&MockObject $solrIndexer;
     private IndexerStatusStore&MockObject $statusStore;
     private BackgroundIndexer $indexer;
 
     public function setUp(): void
     {
+
+        $this->indexName = $this->createMock(IndexName::class);
         $this->solrIndexer = $this->createMock(InternalResourceIndexer::class);
         $solrIndexerFactory = $this->createStub(
             InternalResourceIndexerFactory::class
@@ -34,6 +38,7 @@ class BackgroundIndexerTest extends TestCase
         $this->statusStore = $this->createMock(IndexerStatusStore::class);
         $this->indexer = new BackgroundIndexer(
             $solrIndexerFactory,
+            $this->indexName,
             $this->statusStore
         );
     }
@@ -42,19 +47,19 @@ class BackgroundIndexerTest extends TestCase
     {
         $this->solrIndexer->expects($this->once())
             ->method('remove');
-        $this->indexer->remove('test', ['123']);
+        $this->indexer->remove(['123']);
     }
 
     public function testAbort(): void
     {
         $this->solrIndexer->expects($this->once())
             ->method('abort');
-        $this->indexer->abort('test');
+        $this->indexer->abort();
     }
 
     public function testIndex(): void
     {
-        $params = new IndexerParameter('test');
+        $params = new IndexerParameter();
         $this->solrIndexer->expects($this->once())
             ->method('index');
         $this->indexer->index($params);
@@ -65,6 +70,7 @@ class BackgroundIndexerTest extends TestCase
         $lockFactory = $this->createStub(LockFactory::class);
         $indexer = new BackgroundIndexer(
             $this->createStub(InternalResourceIndexerFactory::class),
+            $this->createStub(IndexName::class),
             $this->statusStore,
             new NullLogger(),
             $lockFactory
@@ -79,15 +85,14 @@ class BackgroundIndexerTest extends TestCase
         $this->solrIndexer->expects($this->exactly(0))
             ->method('index');
 
-        $params = new IndexerParameter('test');
+        $params = new IndexerParameter();
         $indexer->index($params);
     }
 
     public function testGetStatus(): void
     {
-        $params = new IndexerParameter('test');
         $this->statusStore->expects($this->once())
             ->method('load');
-        $this->indexer->getStatus('test');
+        $this->indexer->getStatus();
     }
 }

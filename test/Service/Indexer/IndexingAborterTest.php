@@ -25,7 +25,7 @@ class IndexingAborterTest extends TestCase
         if (file_exists($this->file)) {
             unlink($this->file);
         }
-        $this->aborter = new IndexingAborter($workdir);
+        $this->aborter = new IndexingAborter($workdir, 'background-indexer');
     }
 
     public function testShouldNotAborted(): void

@@ -17,6 +17,17 @@ class TypifiedInput
     {
     }
 
+    public function getStringOption(string $name): string
+    {
+        $value = $this->input->getOption($name);
+        if (!is_string($value)) {
+            throw new InvalidArgumentException(
+                'option' . $name . ' must be a string: ' . $value
+            );
+        }
+        return $value;
+    }
+
     public function getIntOption(string $name): int
     {
         $value = $this->input->getOption($name);

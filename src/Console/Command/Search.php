@@ -24,10 +24,9 @@ class Search extends Command
 {
     private SymfonyStyle $io;
     private TypifiedInput $input;
-    private string $index;
 
     public function __construct(
-        private readonly SolrSelectBuilder $solrSelectBuilder
+        private readonly SolrSelect $searcher
     ) {
         parent::__construct();
     }
@@ -37,24 +36,16 @@ class Search extends Command
         $this
             ->setHelp('Command to performs a search')
             ->addArgument(
-                'solr-connection-url',
-                InputArgument::REQUIRED,
-                'Solr connection url.'
-            )
-            ->addArgument(
-                'index',
-                InputArgument::REQUIRED,
-                'Solr core to be used.'
-            )
-            ->addArgument(
-                'resource-dir',
-                InputArgument::REQUIRED,
-                'Resource directory whose data is to be indexed.'
-            )
-            ->addArgument(
                 'text',
                 InputArgument::IS_ARRAY,
                 'Text with which to search.'
+            )
+            ->addOption(
+                'lang',
+                null,
+                InputArgument::OPTIONAL,
+                'Language to be used for the search. (de, en, fr, it, ...)',
+                ''
             )
         ;
     }
@@ -66,38 +57,27 @@ class Search extends Command
 
         $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
-        $this->index = $this->input->getStringArgument('index');
 
-        $searcher = $this->createSearch();
         $query = $this->buildQuery($input);
 
-        $result = $searcher->select($query);
+        $result = $this->searcher->select($query);
 
         $this->outputResult($result);
 
         return Command::SUCCESS;
     }
 
-    protected function createSearch(): SolrSelect
-    {
-        $this->solrSelectBuilder->resourceDir(
-            $this->input->getStringArgument('resource-dir')
-        );
-        $this->solrSelectBuilder->solrConnectionUrl(
-            $this->input->getStringArgument('solr-connection-url')
-        );
-        return $this->solrSelectBuilder->build();
-    }
-
     protected function buildQuery(InputInterface $input): SelectQuery
     {
         $builder = new SelectQueryBuilder();
-        $builder->index($this->index);
 
-        $text = $input->getArgument('text');
+        $text = $this->input->getArrayArgument('text');
         if (is_array($text)) {
             $builder->text(implode(' ', $text));
         }
+        $lang = $this->input->getStringOption('lang');
+        $builder->lang($lang);
+
 
         // TODO: filter
 

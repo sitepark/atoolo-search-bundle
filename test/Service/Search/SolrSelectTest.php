@@ -18,6 +18,7 @@ use Atoolo\Search\Dto\Search\Query\Sort\Headline;
 use Atoolo\Search\Dto\Search\Query\Sort\Name;
 use Atoolo\Search\Dto\Search\Query\Sort\Natural;
 use Atoolo\Search\Dto\Search\Query\Sort\Score;
+use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\Search\SolrQueryModifier;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use Atoolo\Search\Service\Search\SolrSelect;
@@ -44,6 +45,7 @@ class SolrSelectTest extends TestCase
 
     protected function setUp(): void
     {
+        $indexName = $this->createStub(IndexName::class);
         $clientFactory = $this->createStub(
             SolrClientFactory::class
         );
@@ -76,6 +78,7 @@ class SolrSelectTest extends TestCase
             ->willReturn([$this->resource]);
 
         $this->searcher = new SolrSelect(
+            $indexName,
             $clientFactory,
             [$solrQueryModifier],
             $resultToResourceResolver
@@ -85,7 +88,7 @@ class SolrSelectTest extends TestCase
     public function testSelectEmpty(): void
     {
         $query = new SelectQuery(
-            'myindex',
+            '',
             '',
             0,
             1,
@@ -108,8 +111,8 @@ class SolrSelectTest extends TestCase
     public function testSelectWithText(): void
     {
         $query = new SelectQuery(
-            'myindex',
             'cat dog',
+            '',
             0,
             10,
             [
@@ -131,7 +134,7 @@ class SolrSelectTest extends TestCase
     public function testSelectWithSort(): void
     {
         $query = new SelectQuery(
-            'myindex',
+            '',
             '',
             0,
             10,
@@ -161,7 +164,7 @@ class SolrSelectTest extends TestCase
         $sort = $this->createStub(Criteria::class);
 
         $query = new SelectQuery(
-            'myindex',
+            '',
             '',
             0,
             10,
@@ -178,7 +181,7 @@ class SolrSelectTest extends TestCase
     public function testSelectWithAndDefaultOperator(): void
     {
         $query = new SelectQuery(
-            'myindex',
+            '',
             '',
             0,
             10,
@@ -204,7 +207,7 @@ class SolrSelectTest extends TestCase
             ->getMock();
 
         $query = new SelectQuery(
-            'myindex',
+            '',
             '',
             0,
             10,
@@ -237,7 +240,7 @@ class SolrSelectTest extends TestCase
         ];
 
         $query = new SelectQuery(
-            'myindex',
+            '',
             '',
             0,
             10,
@@ -264,7 +267,7 @@ class SolrSelectTest extends TestCase
         ];
 
         $query = new SelectQuery(
-            'myindex',
+            '',
             '',
             0,
             10,
@@ -303,7 +306,7 @@ class SolrSelectTest extends TestCase
         ];
 
         $query = new SelectQuery(
-            'myindex',
+            '',
             '',
             0,
             10,
@@ -346,7 +349,7 @@ class SolrSelectTest extends TestCase
         ];
 
         $query = new SelectQuery(
-            'myindex',
+            '',
             '',
             0,
             10,

@@ -26,6 +26,9 @@ use Solarium\QueryType\Update\Result as UpdateResult;
 #[CoversClass(InternalResourceIndexer::class)]
 class InternalResourceIndexerTest extends TestCase
 {
+    /**
+    * @var string[]
+     */
     private array $availableIndexes = ['test', 'test-en_US'];
 
     private ResourceLoader&Stub $resourceLoader;
@@ -79,9 +82,16 @@ class InternalResourceIndexerTest extends TestCase
         $this->updater->method('createDocument')->willReturn(
             new IndexSchema2xDocument()
         );
-        $this->solrIndexService->method('getAvailableIndexes')
+        $this->solrIndexService->method('getManagedIndexes')
             ->willReturnCallback(function () {
                 return $this->availableIndexes;
+            });
+        $this->solrIndexService->method('getIndex')
+            ->willReturnCallback(function ($lang) {
+                if ($lang === 'en') {
+                    return 'test-en_US';
+                }
+                return 'test';
             });
         $this->solrIndexService->method('updater')
             ->willReturn($this->updater);
@@ -95,7 +105,7 @@ class InternalResourceIndexerTest extends TestCase
             $this->translationSplitter,
             $this->solrIndexService,
             $this->aborter,
-            'test'
+            'test-source'
         );
     }
 
@@ -105,23 +115,23 @@ class InternalResourceIndexerTest extends TestCase
             ->method('abort')
             ->with('test');
 
-        $this->indexer->abort('test');
+        $this->indexer->abort();
     }
 
     public function testRemove(): void
     {
         $this->solrIndexService->expects($this->once())
-            ->method('deleteByIdList');
+            ->method('deleteByIdListForAllLanguages');
 
-        $this->indexer->remove('test', ['123']);
+        $this->indexer->remove(['123']);
     }
 
     public function testRemoveEmpty(): void
     {
         $this->solrIndexService->expects($this->exactly(0))
-            ->method('deleteByIdList');
+            ->method('deleteByIdListForAllLanguages');
 
-        $this->indexer->remove('test', []);
+        $this->indexer->remove([]);
     }
 
     public function testIndexAllWithChunks(): void
@@ -166,7 +176,6 @@ class InternalResourceIndexerTest extends TestCase
             ->method('update');
 
         $parameter = new IndexerParameter(
-            'test',
             10,
             10
         );
@@ -201,7 +210,6 @@ class InternalResourceIndexerTest extends TestCase
             ->method('update');
 
         $parameter = new IndexerParameter(
-            'test',
             10,
             10
         );
@@ -227,7 +235,6 @@ class InternalResourceIndexerTest extends TestCase
             ->method('abort');
 
         $parameter = new IndexerParameter(
-            'test',
             10,
             10
         );
@@ -253,7 +260,6 @@ class InternalResourceIndexerTest extends TestCase
             ->method('error');
 
         $parameter = new IndexerParameter(
-            'test',
             10,
             10
         );
@@ -275,7 +281,6 @@ class InternalResourceIndexerTest extends TestCase
             ->method('error');
 
         $parameter = new IndexerParameter(
-            'test',
             10,
             10
         );
@@ -289,7 +294,6 @@ class InternalResourceIndexerTest extends TestCase
             ->willReturn([]);
 
         $parameter = new IndexerParameter(
-            'test',
             10,
             10
         );
@@ -319,7 +323,6 @@ class InternalResourceIndexerTest extends TestCase
             ->method('update');
 
         $parameter = new IndexerParameter(
-            'test',
             10,
             10,
             [
@@ -338,7 +341,6 @@ class InternalResourceIndexerTest extends TestCase
             ->with($this->equalTo(['?a=b']));
 
         $parameter = new IndexerParameter(
-            'test',
             10,
             10,
             [
@@ -356,7 +358,6 @@ class InternalResourceIndexerTest extends TestCase
             ->with($this->equalTo(['/test.php']));
 
         $parameter = new IndexerParameter(
-            'test',
             10,
             10,
             [
@@ -374,7 +375,6 @@ class InternalResourceIndexerTest extends TestCase
             ->with($this->equalTo(['/test.php.translations/en.php']));
 
         $parameter = new IndexerParameter(
-            'test',
             10,
             10,
             [
@@ -405,7 +405,6 @@ class InternalResourceIndexerTest extends TestCase
             ]);
 
         $parameter = new IndexerParameter(
-            'test',
             10,
             10
         );

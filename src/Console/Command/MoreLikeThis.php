@@ -23,10 +23,9 @@ class MoreLikeThis extends Command
 {
     private SymfonyStyle $io;
     private TypifiedInput $input;
-    private string $solrCore;
 
     public function __construct(
-        private readonly SolrMoreLikeThisBuilder $solrMoreLikeThisBuilder
+        private readonly SolrMoreLikeThis $searcher
     ) {
         parent::__construct();
     }
@@ -36,25 +35,17 @@ class MoreLikeThis extends Command
         $this
             ->setHelp('Command to performs a more-like-this search')
             ->addArgument(
-                'solr-connection-url',
-                InputArgument::REQUIRED,
-                'Solr connection url.'
-            )
-            ->addArgument(
-                'solr-core',
-                InputArgument::REQUIRED,
-                'Solr core to be used.'
-            )
-            ->addArgument(
-                'resource-dir',
-                InputArgument::REQUIRED,
-                'Resource directory where the resources can be found.'
-            )
-            ->addArgument(
                 'location',
                 InputArgument::REQUIRED,
                 'Location of the resource to which the MoreLikeThis ' .
                 'search is to be applied..'
+            )
+            ->addOption(
+                'lang',
+                null,
+                InputArgument::OPTIONAL,
+                'Language to be used for the search. (de, en, fr, it, ...)',
+                ''
             )
         ;
     }
@@ -67,35 +58,24 @@ class MoreLikeThis extends Command
         $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
 
-        $this->solrCore = $this->input->getStringArgument('solr-core');
         $location = $this->input->getStringArgument('location');
+        $lang = $this->input->getStringOption('lang');
 
-        $searcher = $this->createSearcher();
-        $query = $this->buildQuery($location);
-        $result = $searcher->moreLikeThis($query);
+        $query = $this->buildQuery($location, $lang);
+        $result = $this->searcher->moreLikeThis($query);
         $this->outputResult($result);
 
         return Command::SUCCESS;
     }
 
-    protected function createSearcher(): SolrMoreLikeThis
-    {
-        $this->solrMoreLikeThisBuilder->solrConnectionUrl(
-            $this->input->getStringArgument('solr-connection-url')
-        );
-        $this->solrMoreLikeThisBuilder->resourceDir(
-            $this->input->getStringArgument('resource-dir')
-        );
-
-        return $this->solrMoreLikeThisBuilder->build();
-    }
-
-    protected function buildQuery(string $location): MoreLikeThisQuery
-    {
+    protected function buildQuery(
+        string $location,
+        string $lang
+    ): MoreLikeThisQuery {
         $filterList = [];
         return new MoreLikeThisQuery(
-            $this->solrCore,
             $location,
+            $lang,
             $filterList,
             5,
             ['content']

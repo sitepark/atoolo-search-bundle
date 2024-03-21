@@ -12,5 +12,5 @@ use Solarium\Client;
  */
 interface SolrClientFactory
 {
-    public function create(?string $locale = null): Client;
+    public function create(string $core): Client;
 }

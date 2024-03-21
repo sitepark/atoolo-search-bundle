@@ -7,7 +7,6 @@ namespace Atoolo\Search\Test\Console\Command;
 use Atoolo\Resource\Resource;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Search;
-use Atoolo\Search\Console\Command\SolrSelectBuilder;
 use Atoolo\Search\Dto\Search\Result\Facet;
 use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
@@ -48,19 +47,9 @@ class SearchTest extends TestCase
         $solrSelect->method('select')
             ->willReturn($result);
 
-        $solrSelectBuilder = $this->createStub(
-            SolrSelectBuilder::class
-        );
-        $solrSelectBuilder->method('build')
-            ->willReturn($solrSelect);
+        $command = new Search($solrSelect);
 
-        $search = new Search(
-            $solrSelectBuilder
-        );
-
-        $application = new Application([
-            $search
-        ]);
+        $application = new Application([$command]);
 
         $command = $application->find('atoolo:search');
         $this->commandTester = new CommandTester($command);
@@ -69,9 +58,6 @@ class SearchTest extends TestCase
     public function testExecute(): void
     {
         $this->commandTester->execute([
-            'solr-connection-url' => 'http://localhost:8382',
-            'index' => 'test',
-            'resource-dir' => 'abc',
             'text' => ['test', 'abc']
         ]);
 

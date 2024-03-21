@@ -17,7 +17,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 class ParameterSolrClientFactory implements SolrClientFactory
 {
     public function __construct(
-        private readonly SolrCoreName $coreName,
         private readonly string $scheme,
         private readonly string $host,
         private readonly int $port,
@@ -27,9 +26,8 @@ class ParameterSolrClientFactory implements SolrClientFactory
     ) {
     }
 
-    public function create(?string $locale = null): Client
+    public function create(string $core): Client
     {
-        $core = $this->coreName->name($locale);
         $adapter = new Curl();
         $adapter->setTimeout($this->timeout);
         $adapter->setProxy($this->proxy);

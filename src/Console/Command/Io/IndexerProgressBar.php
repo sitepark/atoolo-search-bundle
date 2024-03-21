@@ -24,10 +24,14 @@ class IndexerProgressBar implements IndexerProgressHandler
      */
     private array $errors = [];
 
+    public function __construct(OutputInterface $output = new ConsoleOutput())
+    {
+        $this->output = $output;
+    }
+
     public function start(int $total): void
     {
-        $output = new ConsoleOutput();
-        $this->progressBar = new ProgressBar($output, $total);
+        $this->progressBar = new ProgressBar($this->output, $total);
         $this->formatProgressBar('green');
         $this->status = new IndexerStatus(
             IndexerStatusState::RUNNING,

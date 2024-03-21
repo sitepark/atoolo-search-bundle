@@ -4,29 +4,26 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
-use LogicException;
+use Solarium\Client;
 
 class SolrIndexService
 {
     public function __construct(
+        private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory
     ) {
     }
 
-    public function getIndex(?string $locale = null): string
+    public function getIndex(string $lang): string
     {
-        $client = $this->clientFactory->create($locale);
-        $core = $client->getEndpoint()->getCore();
-        if ($core === null) {
-            throw new LogicException('Core is not set in Solr client');
-        }
-        return $core;
+        return $this->index->name($lang);
     }
 
-    public function updater(?string $locale = null): SolrIndexUpdater
+    public function updater(string $lang): SolrIndexUpdater
     {
-        $client = $this->clientFactory->create($locale);
+        $client = $this->createClient($lang);
         $update = $client->createUpdate();
         $update->setDocumentClass(IndexSchema2xDocument::class);
 
@@ -34,12 +31,12 @@ class SolrIndexService
     }
 
     public function deleteExcludingProcessId(
-        ?string $locale,
+        string $lang,
         string $source,
         string $processId
     ): void {
         $this->deleteByQuery(
-            $locale,
+            $lang,
             '-crawl_process_id:' . $processId . ' AND ' .
             ' sp_source:' . $source
         );
@@ -48,52 +45,81 @@ class SolrIndexService
     /**
      * @param string[] $idList
      */
-    public function deleteByIdList(
-        ?string $locale,
+    public function deleteByIdListForAllLanguages(
         string $source,
         array $idList
     ): void {
-        $this->deleteByQuery(
-            $locale,
+        $this->deleteByQueryForAllLanguages(
             'sp_id:(' . implode(' ', $idList) . ') AND ' .
             'sp_source:' . $source
         );
     }
 
-    public function deleteByQuery(?string $locale, string $query): void
+    public function deleteByQueryForAllLanguages(string $query): void
     {
-        $client = $this->clientFactory->create($locale);
+        foreach ($this->getManagedIndexes() as $index) {
+            $client = $this->clientFactory->create($index);
+            $update = $client->createUpdate();
+            $update->addDeleteQuery($query);
+            $client->update($update);
+        }
+    }
+
+    public function deleteByQuery(string $lang, string $query): void
+    {
+        $client = $this->createClient($lang);
         $update = $client->createUpdate();
         $update->addDeleteQuery($query);
         $client->update($update);
     }
 
-    public function commit(?string $locale): void
+    public function commit(string $lang): void
     {
-        $client = $this->clientFactory->create($locale);
+        $client = $this->createClient($lang);
         $update = $client->createUpdate();
         $update->addCommit();
         $update->addOptimize();
         $client->update($update);
     }
 
+    public function commitForAllLanguages(): void
+    {
+        foreach ($this->getManagedIndexes() as $index) {
+            $client = $this->clientFactory->create($index);
+            $update = $client->createUpdate();
+            $update->addCommit();
+            $update->addOptimize();
+            $client->update($update);
+        }
+    }
+
     /**
      * @return string[]
      */
-    public function getAvailableIndexes(): array
+    public function getManagedIndexes(): array
     {
-        $client = $this->clientFactory->create('');
+        $client = $this->createClient('');
         $coreAdminQuery = $client->createCoreAdmin();
         $statusAction = $coreAdminQuery->createStatus();
         $coreAdminQuery->setAction($statusAction);
 
-        $availableIndexes = [];
+        $requiredIndexes = $this->index->names();
+
+        $managedIndexes = [];
         $response = $client->coreAdmin($coreAdminQuery);
         $statusResults = $response->getStatusResults() ?? [];
         foreach ($statusResults as $statusResult) {
-            $availableIndexes[] = $statusResult->getCoreName();
+            $index = $statusResult->getCoreName();
+            if (in_array($index, $requiredIndexes, true)) {
+                $managedIndexes[] = $index;
+            }
         }
 
-        return $availableIndexes;
+        return $managedIndexes;
+    }
+
+    private function createClient(string $lang): Client
+    {
+        return $this->clientFactory->create($this->index->name($lang));
     }
 }

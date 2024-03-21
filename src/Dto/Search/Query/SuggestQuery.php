@@ -19,8 +19,8 @@ class SuggestQuery
      * @param Filter[] $filter
      */
     public function __construct(
-        public readonly string $index,
         public readonly string $text,
+        public readonly string $lang = '',
         public readonly array $filter = [],
         public readonly int $limit = 10
     ) {

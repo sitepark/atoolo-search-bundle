@@ -30,13 +30,13 @@ class InternalResourceFactory implements ResourceFactory
         return str_ends_with($location, '.php');
     }
 
-    public function create(Document $document): Resource
+    public function create(Document $document, string $lang): Resource
     {
         $location = $this->getField($document, 'url');
         if ($location === null) {
             throw new LogicException('document should contains a url');
         }
-        return $this->resourceLoader->load($location);
+        return $this->resourceLoader->load($location, $lang);
     }
 
     private function getField(Document $document, string $name): ?string

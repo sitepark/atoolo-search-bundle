@@ -42,6 +42,35 @@ class TypifiedInputTest extends TestCase
         $input->getIntOption('a');
     }
 
+    public function testGetStringOption(): void
+    {
+        $symfonyInput = $this->createStub(InputInterface::class);
+        $symfonyInput
+            ->method('getOption')
+            ->willReturn('abc');
+
+        $input = new TypifiedInput($symfonyInput);
+
+        $this->assertEquals(
+            'abc',
+            $input->getStringOption('a'),
+            'unexpected option value'
+        );
+    }
+
+    public function testGetStringOptWithInvalidValue(): void
+    {
+        $symfonyInput = $this->createStub(InputInterface::class);
+        $symfonyInput
+            ->method('getOption')
+            ->willReturn(123);
+
+        $input = new TypifiedInput($symfonyInput);
+
+        $this->expectException(InvalidArgumentException::class);
+        $input->getStringOption('a');
+    }
+
     public function testGetStringArgument(): void
     {
         $symfonyInput = $this->createStub(InputInterface::class);

@@ -29,7 +29,7 @@ class ExternalResourceFactory implements ResourceFactory
         );
     }
 
-    public function create(Document $document): Resource
+    public function create(Document $document, string $lang): Resource
     {
         $location = $this->getField($document, 'url');
         if ($location === null) {
@@ -41,7 +41,8 @@ class ExternalResourceFactory implements ResourceFactory
             '',
             $this->getField($document, 'title') ?? '',
             'external',
-            []
+            $this->getField($document, 'meta_content_language') ?? '',
+            [],
         );
     }
 

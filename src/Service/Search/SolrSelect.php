@@ -20,6 +20,7 @@ use Atoolo\Search\Dto\Search\Result\Facet;
 use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\SelectSearcher;
+use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use InvalidArgumentException;
 use Solarium\Component\Facet\Field;
@@ -36,6 +37,7 @@ class SolrSelect implements SelectSearcher
      * @param iterable<SolrQueryModifier> $solrQueryModifierList
      */
     public function __construct(
+        private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
         private readonly iterable $solrQueryModifierList,
         private readonly SolrResultToResourceResolver $resultToResourceResolver
@@ -44,12 +46,13 @@ class SolrSelect implements SelectSearcher
 
     public function select(SelectQuery $query): SearchResult
     {
-        $client = $this->clientFactory->create($query->index);
+        $index = $this->index->name($query->lang);
+        $client = $this->clientFactory->create($index);
 
         $solrQuery = $this->buildSolrQuery($client, $query);
         /** @var SelectResult $result */
         $result = $client->execute($solrQuery);
-        return $this->buildResult($query, $result);
+        return $this->buildResult($query, $result, $query->lang);
     }
 
     private function buildSolrQuery(
@@ -250,11 +253,12 @@ class SolrSelect implements SelectSearcher
 
     private function buildResult(
         SelectQuery $query,
-        SelectResult $result
+        SelectResult $result,
+        string $lang
     ): SearchResult {
 
         $resourceList = $this->resultToResourceResolver
-            ->loadResourceList($result);
+            ->loadResourceList($result, $lang);
         $facetGroupList = $this->buildFacetGroupList($query, $result);
 
         return new SearchResult(

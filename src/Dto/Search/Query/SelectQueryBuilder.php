@@ -10,8 +10,8 @@ use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 
 class SelectQueryBuilder
 {
-    private string $index = '';
     private string $text = '';
+    private string $lang = '';
     private int $offset = 0;
     private int $limit = 10;
     /**
@@ -35,18 +35,15 @@ class SelectQueryBuilder
     {
     }
 
-    public function index(string $index): SelectQueryBuilder
-    {
-        if (empty($index)) {
-            throw new \InvalidArgumentException('index is empty');
-        }
-        $this->index = $index;
-        return $this;
-    }
-
     public function text(string $text): SelectQueryBuilder
     {
         $this->text = $text;
+        return $this;
+    }
+
+    public function lang(string $lang): SelectQueryBuilder
+    {
+        $this->lang = $lang;
         return $this;
     }
 
@@ -113,12 +110,9 @@ class SelectQueryBuilder
 
     public function build(): SelectQuery
     {
-        if (empty($this->index)) {
-            throw new \InvalidArgumentException('index is not set');
-        }
         return new SelectQuery(
-            $this->index,
             $this->text,
+            $this->lang,
             $this->offset,
             $this->limit,
             $this->sort,

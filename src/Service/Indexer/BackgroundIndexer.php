@@ -7,6 +7,7 @@ namespace Atoolo\Search\Service\Indexer;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
+use Atoolo\Search\Service\IndexName;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Lock\LockFactory;
@@ -17,6 +18,7 @@ class BackgroundIndexer implements Indexer
 {
     public function __construct(
         private readonly InternalResourceIndexerFactory $indexerFactory,
+        private readonly IndexName $index,
         private readonly IndexerStatusStore $statusStore,
         private readonly LoggerInterface $logger = new NullLogger(),
         private readonly LockFactory $lockFactory = new LockFactory(
@@ -28,24 +30,24 @@ class BackgroundIndexer implements Indexer
     /**
      * @param string[] $idList
      */
-    public function remove(string $index, array $idList): void
+    public function remove(array $idList): void
     {
-        $this->getIndexer($index)->remove($index, $idList);
+        $this->getIndexer()->remove($idList);
     }
 
-    public function abort(string $index): void
+    public function abort(): void
     {
-        $this->getIndexer($index)->abort($index);
+        $this->getIndexer()->abort();
     }
 
     public function index(IndexerParameter $parameter): IndexerStatus
     {
-        $lock = $this->lockFactory->createLock($parameter->index);
+        $lock = $this->lockFactory->createLock($this->getIndex());
         if (!$lock->acquire()) {
             return IndexerStatus::empty();
         }
         try {
-            return $this->getIndexer($parameter->index)->index($parameter);
+            return $this->getIndexer()->index($parameter);
         } finally {
             $lock->release();
         }
@@ -54,19 +56,28 @@ class BackgroundIndexer implements Indexer
     /**
      * @throws ExceptionInterface
      */
-    public function getStatus(string $index): IndexerStatus
+    public function getStatus(): IndexerStatus
     {
-        return $this->statusStore->load($index);
+        return $this->statusStore->load($this->getIndex());
     }
 
-    private function getIndexer(string $index): InternalResourceIndexer
+    private function getIndexer(): InternalResourceIndexer
     {
         $progressHandler = new BackgroundIndexerProgressState(
-            $index,
+            $this->index->name(''),
             $this->statusStore,
             $this->logger
         );
 
         return $this->indexerFactory->create($progressHandler);
+    }
+
+    private function getIndex(): string
+    {
+        /*
+         * The indexer always requires the default index, as the language is
+         * determined via the resources to be indexed.
+         */
+        return $this->index->name('');
     }
 }

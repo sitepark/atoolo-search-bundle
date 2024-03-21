@@ -7,6 +7,7 @@ namespace Atoolo\Search\Test\Service\Search;
 use Atoolo\Resource\Resource;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
+use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\Search\SolrMoreLikeThis;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use Atoolo\Search\Service\SolrClientFactory;
@@ -27,6 +28,8 @@ class SolrMoreLikeThisTest extends TestCase
 
     protected function setUp(): void
     {
+
+        $indexName = $this->createStub(IndexName::class);
         $clientFactory = $this->createStub(
             SolrClientFactory::class
         );
@@ -52,6 +55,7 @@ class SolrMoreLikeThisTest extends TestCase
             ->willReturn([$this->resource]);
 
         $this->searcher = new SolrMoreLikeThis(
+            $indexName,
             $clientFactory,
             $resultToResourceResolver
         );
@@ -64,8 +68,8 @@ class SolrMoreLikeThisTest extends TestCase
             ->getMock();
 
         $query = new MoreLikeThisQuery(
-            'myindex',
             '/test.php',
+            '',
             [$filter]
         );
 

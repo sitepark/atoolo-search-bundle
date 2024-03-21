@@ -9,13 +9,68 @@ services:
     Atoolo\Search\Console\:
         resource: '../src/Console'
 
-    Atoolo\Search\Console\Command\Indexer:
+    Atoolo\Search\Service\Indexer\IndexDocumentDumper:
       arguments:
+        - '@atoolo.resource.resourceLoader'
         - !tagged_iterator { tag: 'atoolo.search.indexer.documentEnricher.schema2x' }
 
     Atoolo\Search\Console\Command\DumpIndexDocument:
       arguments:
-        - !tagged_iterator { tag: 'atoolo.search.indexer.documentEnricher.schema2x' }
+        - '@Atoolo\Search\Service\Indexer\IndexDocumentDumper'
+
+    atoolo.search.indexer.progressBar:
+        class:  'Atoolo\Search\Console\Command\Io\IndexerProgressBar'
+
+    atoolo.search.indexer.internalResourceIndexer:
+      class: Atoolo\Search\Service\Indexer\InternalResourceIndexer
+      arguments:
+        - !tagged_iterator atoolo.search.indexer.documentEnricher.schema2x
+        - '@atoolo.search.indexer.progressBar'
+        - '@atoolo.search.indexer.locationFinder'
+        - '@atoolo.resource.resourceLoader'
+        - '@atoolo.search.indexer.translationSplitter'
+        - '@atoolo.search.indexer.solrIndexService'
+        - '@atoolo.search.indexer.aborter'
+        - 'internal'
+
+    atoolo.search.selectSearcher:
+      class: Atoolo\Search\Service\Search\SolrSelect
+      arguments:
+        - '@atoolo.search.indexName'
+        - '@atoolo.search.solariumClientFactory'
+        - !tagged_iterator atoolo.search.queryModifier
+        - '@atoolo.search.resultToResourceResolver'
+
+    atoolo.search.suggestSearcher:
+      class: Atoolo\Search\Service\Search\SolrSuggest
+      arguments:
+        - '@atoolo.search.indexName'
+        - '@atoolo.search.solariumClientFactory'
+
+    atoolo.search.moreLikeThisSearcher:
+      class: Atoolo\Search\Service\Search\SolrMoreLikeThis
+      arguments:
+        - '@atoolo.search.indexName'
+        - '@atoolo.search.solariumClientFactory'
+        - '@atoolo.search.resultToResourceResolver'
+
+    Atoolo\Search\Console\Command\Indexer:
+      arguments:
+        - '@atoolo.search.indexer.progressBar'
+        - '@atoolo.search.indexer.internalResourceIndexer'
+
+    Atoolo\Search\Console\Command\Search:
+      arguments:
+        - '@atoolo.search.selectSearcher'
+
+    Atoolo\Search\Console\Command\Suggest:
+      arguments:
+        - '@atoolo.search.suggestSearcher'
+
+    Atoolo\Search\Console\Command\MoreLikeThis:
+      arguments:
+        - '@atoolo.search.moreLikeThisSearcher'
+
 
     Atoolo\Search\Console\Application:
         public: true

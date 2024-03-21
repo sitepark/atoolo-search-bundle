@@ -49,7 +49,7 @@ class ExternalResourceFactoryTest extends TestCase
     public function testCreate(): void
     {
         $document = $this->createDocument('https://www.sitepark.com');
-        $resource = $this->factory->create($document);
+        $resource = $this->factory->create($document, 'de');
 
         $this->assertEquals(
             'https://www.sitepark.com',
@@ -61,7 +61,7 @@ class ExternalResourceFactoryTest extends TestCase
     public function testCreateWithName(): void
     {
         $document = $this->createDocument('https://www.sitepark.com', 'Test');
-        $resource = $this->factory->create($document);
+        $resource = $this->factory->create($document, 'de');
 
         $this->assertEquals(
             'Test',
@@ -75,7 +75,7 @@ class ExternalResourceFactoryTest extends TestCase
         $document = $this->createStub(Document::class);
 
         $this->expectException(\LogicException::class);
-        $this->factory->create($document);
+        $this->factory->create($document, 'de');
     }
 
     private function createDocument(string $url, string $title = ''): Document

@@ -11,6 +11,7 @@ use Atoolo\Search\Dto\Search\Query\SelectQueryBuilder;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(SelectQueryBuilder::class)]
@@ -21,34 +22,6 @@ class SelectQueryBuilderTest extends TestCase
     protected function setUp(): void
     {
         $this->builder = new SelectQueryBuilder();
-        $this->builder->index('myindex');
-    }
-
-    public function testBuildWithoutIndex(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $builder = new SelectQueryBuilder();
-        $builder->build();
-    }
-
-    public function testSetEmptyIndex(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $builder = new SelectQueryBuilder();
-        $builder->index('');
-    }
-
-    public function testSetIndex(): void
-    {
-        $builder = new SelectQueryBuilder();
-        $builder->index('myindex');
-        $query = $builder->build();
-
-        $this->assertEquals(
-            'myindex',
-            $query->index,
-            'unexpected index'
-        );
     }
 
     public function testSetText(): void
@@ -56,6 +29,13 @@ class SelectQueryBuilderTest extends TestCase
         $this->builder->text('abc');
         $query = $this->builder->build();
         $this->assertEquals('abc', $query->text, 'unexpected text');
+    }
+
+    public function testSetLang(): void
+    {
+        $this->builder->lang('en');
+        $query = $this->builder->build();
+        $this->assertEquals('en', $query->lang, 'unexpected lang');
     }
 
     public function testSetOffset(): void
@@ -84,6 +64,9 @@ class SelectQueryBuilderTest extends TestCase
         $this->builder->limit(-1);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testSetSort(): void
     {
         $criteria = $this->createStub(Criteria::class);

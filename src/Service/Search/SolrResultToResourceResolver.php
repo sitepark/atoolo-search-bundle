@@ -30,13 +30,13 @@ class SolrResultToResourceResolver
     /**
      * @return array<Resource>
      */
-    public function loadResourceList(SelectResult $result): array
+    public function loadResourceList(SelectResult $result, string $lang): array
     {
         $resourceList = [];
         /** @var Document $document */
         foreach ($result as $document) {
             try {
-                $resourceList[] = $this->loadResource($document);
+                $resourceList[] = $this->loadResource($document, $lang);
             } catch (\Exception $e) {
                 $this->logger->error($e->getMessage(), ['exception' => $e]);
             }
@@ -44,12 +44,12 @@ class SolrResultToResourceResolver
         return $resourceList;
     }
 
-    private function loadResource(Document $document): Resource
+    private function loadResource(Document $document, string $lang): Resource
     {
 
         foreach ($this->resourceFactoryList as $resourceFactory) {
             if ($resourceFactory->accept($document)) {
-                return $resourceFactory->create($document);
+                return $resourceFactory->create($document, $lang);
             }
         }
 

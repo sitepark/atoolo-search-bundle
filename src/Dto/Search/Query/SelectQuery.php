@@ -21,8 +21,8 @@ class SelectQuery
      *  but the SelectQueryBuilder
      */
     public function __construct(
-        public readonly string $index,
         public readonly string $text,
+        public readonly string $lang,
         public readonly int $offset,
         public readonly int $limit,
         public readonly array $sort,

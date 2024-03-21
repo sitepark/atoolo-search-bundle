@@ -18,13 +18,12 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 class MoreLikeThisQuery
 {
     /**
-     * @param string $index name of the index to use
      * @param Filter[] $filter
      * @param string[] $fields
      */
     public function __construct(
-        public readonly string $index,
         public readonly string $location,
+        public readonly string $lang = '',
         public readonly array $filter = [],
         public readonly int $limit = 5,
         public readonly array $fields = ['description', 'content']

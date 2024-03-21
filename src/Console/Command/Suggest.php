@@ -25,10 +25,9 @@ class Suggest extends Command
 {
     private TypifiedInput $input;
     private SymfonyStyle $io;
-    private string $solrCore;
 
     public function __construct(
-        private readonly SolrSuggestBuilder $solrSuggestBuilder
+        private readonly SolrSuggest $search
     ) {
         parent::__construct();
     }
@@ -38,19 +37,16 @@ class Suggest extends Command
         $this
             ->setHelp('Command to performs a suggest search')
             ->addArgument(
-                'solr-connection-url',
-                InputArgument::REQUIRED,
-                'Solr connection url.'
-            )
-            ->addArgument(
-                'solr-core',
-                InputArgument::REQUIRED,
-                'Solr core to be used.'
-            )
-            ->addArgument(
                 'terms',
                 InputArgument::REQUIRED | InputArgument::IS_ARRAY,
                 'Suggest terms.'
+            )
+            ->addOption(
+                'lang',
+                null,
+                InputArgument::OPTIONAL,
+                'Language to be used for the search. (de, en, fr, it, ...)',
+                ''
             )
         ;
     }
@@ -61,37 +57,28 @@ class Suggest extends Command
     ): int {
         $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
-        $this->solrCore = $this->input->getStringArgument('solr-core');
         $terms = $this->input->getArrayArgument('terms');
+        $lang = $this->input->getStringOption('lang');
 
-        $search = $this->createSearcher();
-        $query = $this->buildQuery($terms);
+        $query = $this->buildQuery($terms, $lang);
 
-        $result = $search->suggest($query);
+        $result = $this->search->suggest($query);
 
         $this->outputResult($result);
 
         return Command::SUCCESS;
     }
 
-    protected function createSearcher(): SolrSuggest
-    {
-        $this->solrSuggestBuilder->solrConnectionUrl(
-            $this->input->getStringArgument('solr-connection-url')
-        );
-        return $this->solrSuggestBuilder->build();
-    }
-
     /**
      * @param string[] $terms
      */
-    protected function buildQuery(array $terms): SuggestQuery
+    protected function buildQuery(array $terms, string $lang): SuggestQuery
     {
         $excludeMedia = new ObjectTypeFilter(['media'], 'media');
         $excludeMedia = $excludeMedia->exclude();
         return new SuggestQuery(
-            $this->solrCore,
             implode(' ', $terms),
+            $lang,
             [
                 new ArchiveFilter(),
                 $excludeMedia

@@ -28,17 +28,9 @@ class DumpIndexDocumentTest extends TestCase
             ->willReturn([
                 ['sp_id' => '123']
             ]);
-        $dumperBuilder = $this->createStub(IndexDocumentDumperBuilder::class);
-        $dumperBuilder->method('resourceDir')
-            ->willReturn($dumperBuilder);
-        $dumperBuilder->method('documentEnricherList')
-            ->willReturn($dumperBuilder);
-        $dumperBuilder->method('build')
-            ->willReturn($dumper);
 
         $dumperCommand = new DumpIndexDocument(
-            [],
-            $dumperBuilder
+            $dumper
         );
 
         $application = new Application([
@@ -52,7 +44,6 @@ class DumpIndexDocumentTest extends TestCase
     public function testExecute(): void
     {
         $this->commandTester->execute([
-            'resource-dir' => 'abc',
             'paths' => ['test.php']
         ]);
 

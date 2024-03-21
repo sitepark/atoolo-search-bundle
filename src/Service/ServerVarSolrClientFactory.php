@@ -9,28 +9,13 @@ use Solarium\Core\Client\Adapter\Curl;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * Determines the Solr connection information via server variables.
- * The following server variables are used:
- * - SOLR_SCHEME (default: http)
- * - SOLR_HOST (default: localhost)
- * - SOLR_PORT (default: 8382)
- * - SOLR_URL (default: '')
- *
- * The SOLR_URL variable is used to specify the full URL to the Solr server.
- * If the SOLR_URL variable is set, the other variables are ignored.
  */
 class ServerVarSolrClientFactory implements SolrClientFactory
 {
     private const IES_WEBNODE_SOLR_PORT = '8382';
 
-    public function __construct(
-        private readonly SolrCoreName $coreName
-    ) {
-    }
-
-    public function create(?string $locale = null): Client
+    public function create(string $core): Client
     {
-        $core = $this->coreName->name($locale);
         $adapter = new Curl();
         /*
         $adapter->setTimeout($this->timeout);
@@ -58,7 +43,7 @@ class ServerVarSolrClientFactory implements SolrClientFactory
      *     core: string
      * }>
      */
-    public function getEndpointConfig(string $core): array
+    private function getEndpointConfig(string $core): array
     {
         $url = $_SERVER['SOLR_URL'] ?? '';
 

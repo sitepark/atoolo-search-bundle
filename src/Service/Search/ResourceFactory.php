@@ -23,5 +23,5 @@ use Solarium\QueryType\Select\Result\Document;
 interface ResourceFactory
 {
     public function accept(Document $document): bool;
-    public function create(Document $document): Resource;
+    public function create(Document $document, string $lang): Resource;
 }

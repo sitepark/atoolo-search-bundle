@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
-use Atoolo\Search\Service\Indexer\DocumentEnricher;
-use Atoolo\Search\Service\Indexer\IndexDocument;
+use Atoolo\Search\Service\Indexer\IndexDocumentDumper;
 use JsonException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -20,13 +19,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class DumpIndexDocument extends Command
 {
-    /**
-     * phpcs:ignore
-     * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
-     */
     public function __construct(
-        private readonly iterable $documentEnricherList,
-        private readonly IndexDocumentDumperBuilder $indexDocumentDumperBuilder
+        private readonly IndexDocumentDumper $dumper
     ) {
         parent::__construct();
     }
@@ -35,11 +29,6 @@ class DumpIndexDocument extends Command
     {
         $this
             ->setHelp('Command to dump a index-document')
-            ->addArgument(
-                'resource-dir',
-                InputArgument::REQUIRED,
-                'Resource directory whose data is to be indexed.'
-            )
             ->addArgument(
                 'paths',
                 InputArgument::OPTIONAL | InputArgument::IS_ARRAY,
@@ -58,15 +47,9 @@ class DumpIndexDocument extends Command
 
         $typedInput = new TypifiedInput($input);
 
-        $resourceDir = $typedInput->getStringArgument('resource-dir');
-
-        $dumper = $this->indexDocumentDumperBuilder
-            ->resourceDir($resourceDir)
-            ->documentEnricherList($this->documentEnricherList)
-            ->build();
-
         $paths = $typedInput->getArrayArgument('paths');
-        $dump = $dumper->dump($paths);
+
+        $dump = $this->dumper->dump($paths);
 
         foreach ($dump as $fields) {
             $output->writeln(json_encode(

@@ -54,19 +54,22 @@ class InternalResourceIndexer implements Indexer
     /**
      * @param string[] $idList
      */
-    public function remove(string $index, array $idList): void
+    public function remove(array $idList): void
     {
         if (empty($idList)) {
             return;
         }
 
-        $this->indexService->deleteByIdList($index, $this->source, $idList);
-        $this->indexService->commit($index);
+        $this->indexService->deleteByIdListForAllLanguages(
+            $this->source,
+            $idList
+        );
+        $this->indexService->commitForAllLanguages();
     }
 
-    public function abort(string $index): void
+    public function abort(): void
     {
-        $this->aborter->abort($index);
+        $this->aborter->abort($this->getBaseIndex());
     }
 
     /**
@@ -83,6 +86,11 @@ class InternalResourceIndexer implements Indexer
         }
 
         return $this->indexResources($parameter, $pathList);
+    }
+
+    private function getBaseIndex(): string
+    {
+        return $this->indexService->getIndex('');
     }
 
     /**
@@ -130,13 +138,13 @@ class InternalResourceIndexer implements Indexer
 
         $total = count($pathList);
         if (empty($parameter->paths)) {
-            $this->deleteErrorProtocol($parameter->index);
+            $this->deleteErrorProtocol($this->getBaseIndex());
             $this->indexerProgressHandler->start($total);
         } else {
             $this->indexerProgressHandler->startUpdate($total);
         }
 
-        $availableIndexes = $this->indexService->getAvailableIndexes();
+        $availableIndexes = $this->indexService->getManagedIndexes();
         $splitterResult = $this->translationSplitter->split($pathList);
 
         $this->indexTranslationSplittedResources(
@@ -167,31 +175,39 @@ class InternalResourceIndexer implements Indexer
 
         $processId = uniqid('', true);
 
-        if (in_array($parameter->index, $availableIndexes)) {
-            $this->indexResourcesPerLanguageIndex(
-                $processId,
-                $parameter,
-                $parameter->index,
-                $splitterResult->getBases()
-            );
-        } else {
-            $this->indexerProgressHandler->error(new Exception(
-                'Index "' . $parameter->index . '" not found'
-            ));
-        }
+        $index = $this->indexService->getIndex('');
 
-        foreach ($splitterResult->getLocales() as $locale) {
-            $localeIndex = $parameter->index . '-' . $locale;
-            if (in_array($localeIndex, $availableIndexes)) {
+        if (count($splitterResult->getBases()) > 0) {
+            if (in_array($index, $availableIndexes)) {
                 $this->indexResourcesPerLanguageIndex(
                     $processId,
                     $parameter,
-                    $localeIndex,
+                    '',
+                    $splitterResult->getBases()
+                );
+            } else {
+                $this->indexerProgressHandler->error(new Exception(
+                    'Index "' . $index . '" not found'
+                ));
+            }
+        }
+
+        foreach ($splitterResult->getLocales() as $locale) {
+            $lang = substr($locale, 0, 2);
+            $langIndex = $this->indexService->getIndex($lang);
+            if (
+                $index !== $langIndex &&
+                in_array($langIndex, $availableIndexes)
+            ) {
+                $this->indexResourcesPerLanguageIndex(
+                    $processId,
+                    $parameter,
+                    $lang,
                     $splitterResult->getTranslations($locale)
                 );
             } else {
                 $this->indexerProgressHandler->error(new Exception(
-                    'Index "' . $localeIndex . '" not found'
+                    'Index "' . $langIndex . '" not found'
                 ));
             }
         }
@@ -205,7 +221,7 @@ class InternalResourceIndexer implements Indexer
     private function indexResourcesPerLanguageIndex(
         string $processId,
         IndexerParameter $parameter,
-        string $index,
+        string $lang,
         array $pathList
     ): void {
         $offset = 0;
@@ -214,7 +230,7 @@ class InternalResourceIndexer implements Indexer
         while (true) {
             $indexedCount = $this->indexChunks(
                 $processId,
-                $index,
+                $lang,
                 $pathList,
                 $offset,
                 $parameter->chunkSize
@@ -232,12 +248,12 @@ class InternalResourceIndexer implements Indexer
             $successCount >= $parameter->cleanupThreshold
         ) {
             $this->indexService->deleteExcludingProcessId(
-                $index,
+                $lang,
                 $this->source,
                 $processId
             );
         }
-        $this->indexService->commit($index);
+        $this->indexService->commit($lang);
     }
 
     /**
@@ -251,7 +267,7 @@ class InternalResourceIndexer implements Indexer
      */
     private function indexChunks(
         string $processId,
-        string $solrCore,
+        string $lang,
         array $pathList,
         int $offset,
         int $length
@@ -264,8 +280,9 @@ class InternalResourceIndexer implements Indexer
         if ($resourceList === false) {
             return false;
         }
-        if ($this->aborter->shouldAborted($solrCore)) {
-            $this->aborter->aborted($solrCore);
+        $index = $this->indexService->getIndex($lang);
+        if ($this->aborter->shouldAborted($index)) {
+            $this->aborter->aborted($index);
             $this->indexerProgressHandler->abort();
             return false;
         }
@@ -273,7 +290,7 @@ class InternalResourceIndexer implements Indexer
             return 0;
         }
         $this->indexerProgressHandler->advance(count($resourceList));
-        $result = $this->add($solrCore, $processId, $resourceList);
+        $result = $this->add($lang, $processId, $resourceList);
 
         if ($result->getStatus() !== 0) {
             $this->indexerProgressHandler->error(new Exception(
@@ -321,12 +338,12 @@ class InternalResourceIndexer implements Indexer
      * @param array<Resource> $resources
      */
     private function add(
-        string $solrCore,
+        string $lang,
         string $processId,
         array $resources
     ): UpdateResult {
 
-        $updater = $this->indexService->updater($solrCore);
+        $updater = $this->indexService->updater($lang);
 
         foreach ($resources as $resource) {
             foreach ($this->documentEnricherList as $enricher) {

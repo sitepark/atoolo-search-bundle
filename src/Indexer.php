@@ -20,10 +20,10 @@ interface Indexer
 {
     public function index(IndexerParameter $parameter): IndexerStatus;
 
-    public function abort(string $index): void;
+    public function abort(): void;
 
     /**
      * @param string[] $idList
      */
-    public function remove(string $index, array $idList): void;
+    public function remove(array $idList): void;
 }

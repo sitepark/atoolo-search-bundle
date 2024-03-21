@@ -8,6 +8,7 @@ use Atoolo\Search\Dto\Search\Query\SuggestQuery;
 use Atoolo\Search\Dto\Search\Result\Suggestion;
 use Atoolo\Search\Dto\Search\Result\SuggestResult;
 use Atoolo\Search\Exception\UnexpectedResultException;
+use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use Atoolo\Search\SuggestSearcher;
 use JsonException;
@@ -29,6 +30,7 @@ class SolrSuggest implements SuggestSearcher
     private const INDEX_SUGGEST_FIELD = 'raw_content';
 
     public function __construct(
+        private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory
     ) {
     }
@@ -38,7 +40,8 @@ class SolrSuggest implements SuggestSearcher
      */
     public function suggest(SuggestQuery $query): SuggestResult
     {
-        $client = $this->clientFactory->create($query->index);
+        $index = $this->index->name($query->lang);
+        $client = $this->clientFactory->create($index);
 
         $solrQuery = $this->buildSolrQuery($client, $query);
         $solrResult = $client->select($solrQuery);

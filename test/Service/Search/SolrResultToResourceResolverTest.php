@@ -32,7 +32,7 @@ class SolrResultToResourceResolverTest extends TestCase
 
         $resolver = new SolrResultToResourceResolver([$resourceFactory]);
 
-        $resourceList = $resolver->loadResourceList($result);
+        $resourceList = $resolver->loadResourceList($result, '');
 
         $this->assertEquals(
             [$resource],
@@ -55,7 +55,7 @@ class SolrResultToResourceResolverTest extends TestCase
 
         $resolver = new SolrResultToResourceResolver([$resourceFactory]);
 
-        $resourceList = $resolver->loadResourceList($result);
+        $resourceList = $resolver->loadResourceList($result, '');
 
         $this->assertEmpty(
             $resourceList,
@@ -76,7 +76,7 @@ class SolrResultToResourceResolverTest extends TestCase
 
         $resolver = new SolrResultToResourceResolver([$resourceFactory]);
 
-        $resourceList = $resolver->loadResourceList($result);
+        $resourceList = $resolver->loadResourceList($result, '');
 
         $this->assertEmpty(
             $resourceList,

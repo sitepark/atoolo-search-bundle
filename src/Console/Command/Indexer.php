@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
-use Atoolo\Search\Console\Command\Io\IndexerProgressBarFactory;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
-use Atoolo\Search\Service\Indexer\DocumentEnricher;
-use Atoolo\Search\Service\Indexer\IndexDocument;
+use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -23,18 +21,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class Indexer extends Command
 {
-    private IndexerProgressBar $progressBar;
     private SymfonyStyle $io;
     private OutputInterface $output;
 
-    /**
-     * phpcs:ignore
-     * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
-     */
     public function __construct(
-        private readonly iterable $documentEnricherList,
-        private readonly InternalResourceIndexerBuilder $solrIndexerBuilder,
-        private readonly IndexerProgressBarFactory $progressBarFactory
+        private readonly IndexerProgressBar $progressBar,
+        private readonly InternalResourceIndexer $indexer,
     ) {
         parent::__construct();
     }
@@ -43,21 +35,6 @@ class Indexer extends Command
     {
         $this
             ->setHelp('Command to fill a search index')
-            ->addArgument(
-                'solr-connection-url',
-                InputArgument::REQUIRED,
-                'Solr connection url.'
-            )
-            ->addArgument(
-                'solr-core',
-                InputArgument::REQUIRED,
-                'Solr core to be used.'
-            )
-            ->addArgument(
-                'resource-dir',
-                InputArgument::REQUIRED,
-                'Resource directory whose data is to be indexed.'
-            )
             ->addArgument(
                 'paths',
                 InputArgument::OPTIONAL | InputArgument::IS_ARRAY,
@@ -93,7 +70,6 @@ class Indexer extends Command
         $typedInput = new TypifiedInput($input);
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
-        $this->progressBar = $this->progressBarFactory->create($output);
 
         $paths = $typedInput->getArrayArgument('paths');
 
@@ -109,22 +85,12 @@ class Indexer extends Command
         }
 
         $parameter = new IndexerParameter(
-            $typedInput->getStringArgument('solr-core'),
             $cleanupThreshold,
             $typedInput->getIntOption('chunk-size'),
             $paths
         );
 
-        $this->solrIndexerBuilder
-            ->resourceDir($typedInput->getStringArgument('resource-dir'))
-            ->progressBar($this->progressBar)
-            ->documentEnricherList($this->documentEnricherList)
-            ->solrConnectionUrl(
-                $typedInput->getStringArgument('solr-connection-url')
-            );
-
-        $indexer = $this->solrIndexerBuilder->build();
-        $indexer->index($parameter);
+        $this->indexer->index($parameter);
 
         $this->errorReport();
 

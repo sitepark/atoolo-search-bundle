@@ -32,13 +32,13 @@ class InternalMediaResourceFactory implements ResourceFactory
         return $this->resourceLoader->exists($metaLocation);
     }
 
-    public function create(Document $document): Resource
+    public function create(Document $document, string $lang): Resource
     {
         $metaLocation = $this->getMetaLocation($document);
         if ($metaLocation === null) {
             throw new LogicException('document should contains a url');
         }
-        return $this->resourceLoader->load($metaLocation);
+        return $this->resourceLoader->load($metaLocation, $lang);
     }
 
     private function getMetaLocation(Document $document): ?string

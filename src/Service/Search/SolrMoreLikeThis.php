@@ -7,6 +7,7 @@ namespace Atoolo\Search\Service\Search;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\MoreLikeThisSearcher;
+use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use Solarium\Core\Client\Client;
 use Solarium\QueryType\MoreLikeThis\Query as SolrMoreLikeThisQuery;
@@ -18,6 +19,7 @@ use Solarium\QueryType\MoreLikeThis\Result as SolrMoreLikeThisResult;
 class SolrMoreLikeThis implements MoreLikeThisSearcher
 {
     public function __construct(
+        private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
         private readonly SolrResultToResourceResolver $resultToResourceResolver
     ) {
@@ -25,11 +27,12 @@ class SolrMoreLikeThis implements MoreLikeThisSearcher
 
     public function moreLikeThis(MoreLikeThisQuery $query): SearchResult
     {
-        $client = $this->clientFactory->create($query->index);
+        $index = $this->index->name($query->lang);
+        $client = $this->clientFactory->create($index);
         $solrQuery = $this->buildSolrQuery($client, $query);
         /** @var SolrMoreLikeThisResult $result */
         $result = $client->execute($solrQuery);
-        return $this->buildResult($result);
+        return $this->buildResult($result, $query->lang);
     }
 
     private function buildSolrQuery(
@@ -58,11 +61,12 @@ class SolrMoreLikeThis implements MoreLikeThisSearcher
     }
 
     private function buildResult(
-        SolrMoreLikeThisResult $result
+        SolrMoreLikeThisResult $result,
+        string $lang
     ): SearchResult {
 
         $resourceList = $this->resultToResourceResolver
-            ->loadResourceList($result);
+            ->loadResourceList($result, $lang);
 
         return new SearchResult(
             $result->getNumFound() ?? -1,

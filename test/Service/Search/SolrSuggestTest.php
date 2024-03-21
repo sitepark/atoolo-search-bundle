@@ -8,6 +8,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\SuggestQuery;
 use Atoolo\Search\Dto\Search\Result\Suggestion;
 use Atoolo\Search\Exception\UnexpectedResultException;
+use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\Search\SolrSuggest;
 use Atoolo\Search\Service\SolrClientFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -28,6 +29,7 @@ class SolrSuggestTest extends TestCase
 
     protected function setUp(): void
     {
+        $indexName = $this->createStub(IndexName::class);
         $clientFactory = $this->createStub(
             SolrClientFactory::class
         );
@@ -44,7 +46,7 @@ class SolrSuggestTest extends TestCase
         $this->result = $this->createStub(SelectResult::class);
         $client->method('select')->willReturn($this->result);
 
-        $this->searcher = new SolrSuggest($clientFactory);
+        $this->searcher = new SolrSuggest($indexName, $clientFactory);
     }
 
     public function testSuggest(): void

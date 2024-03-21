@@ -35,19 +35,10 @@ class SuggestTest extends TestCase
         $solrSuggest = $this->createStub(SolrSuggest::class);
         $solrSuggest->method('suggest')
             ->willReturn($result);
-        $solrSuggestBuilder = $this->createStub(
-            SolrSuggestBuilder::class
-        );
-        $solrSuggestBuilder->method('build')
-            ->willReturn($solrSuggest);
 
-        $suggest = new Suggest(
-            $solrSuggestBuilder
-        );
+        $command = new Suggest($solrSuggest);
 
-        $application = new Application([
-            $suggest
-        ]);
+        $application = new Application([$command]);
 
         $command = $application->find('atoolo:suggest');
         $this->commandTester = new CommandTester($command);
@@ -56,8 +47,6 @@ class SuggestTest extends TestCase
     public function testExecute(): void
     {
         $this->commandTester->execute([
-            'solr-connection-url' => 'http://localhost:8382',
-            'solr-core' => 'test',
             'terms' => ['sec']
         ]);
 

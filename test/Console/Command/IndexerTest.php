@@ -6,9 +6,8 @@ namespace Atoolo\Search\Test\Console\Command;
 
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Indexer;
-use Atoolo\Search\Console\Command\InternalResourceIndexerBuilder;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
-use Atoolo\Search\Console\Command\Io\IndexerProgressBarFactory;
+use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
@@ -25,19 +24,17 @@ class IndexerTest extends TestCase
      */
     public function setUp(): void
     {
-        $indexBuilder = $this->createStub(
-            InternalResourceIndexerBuilder::class
+        $indexer = $this->createStub(
+            InternalResourceIndexer::class
+        );
+        $progressBar = $this->createStub(IndexerProgressBar::class);
+
+        $command = new Indexer(
+            $progressBar,
+            $indexer,
         );
 
-        $indexer = new Indexer(
-            [],
-            $indexBuilder,
-            new IndexerProgressBarFactory()
-        );
-
-        $application = new Application([
-            $indexer
-        ]);
+        $application = new Application([$command]);
 
         $command = $application->find('atoolo:indexer');
         $this->commandTester = new CommandTester($command);
@@ -45,12 +42,7 @@ class IndexerTest extends TestCase
 
     public function testExecuteIndexAll(): void
     {
-        $this->commandTester->execute([
-            // pass arguments to the helper
-            'resource-dir' => 'abc',
-            'solr-connection-url' => 'http://localhost:8080',
-            'solr-core' => 'test'
-        ]);
+        $this->commandTester->execute([]);
 
         $this->commandTester->assertCommandIsSuccessful();
 
@@ -72,9 +64,6 @@ EOF,
     {
         $this->commandTester->execute([
             // pass arguments to the helper
-            'resource-dir' => 'abc',
-            'solr-connection-url' => 'http://localhost:8080',
-            'solr-core' => 'test',
             'paths' => ['a.php', 'b.php']
         ]);
 
@@ -103,8 +92,8 @@ EOF,
     public function testExecuteIndexWithErrors(): void
     {
 
-        $indexBuilder = $this->createStub(
-            InternalResourceIndexerBuilder::class
+        $indexer = $this->createStub(
+            InternalResourceIndexer::class
         );
 
         $progressBar = $this->createStub(
@@ -114,32 +103,17 @@ EOF,
             ->method('getErrors')
             ->willReturn([new \Exception('errortest')]);
 
-        $progressBarFactory = $this->createStub(
-            IndexerProgressBarFactory::class
-        );
-        $progressBarFactory
-            ->method('create')
-            ->willReturn($progressBar);
-
-        $indexer = new Indexer(
-            [],
-            $indexBuilder,
-            $progressBarFactory
+        $command = new Indexer(
+            $progressBar,
+            $indexer,
         );
 
-        $application = new Application([
-            $indexer
-        ]);
+        $application = new Application([$command]);
 
         $command = $application->find('atoolo:indexer');
         $commandTester = new CommandTester($command);
 
-        $commandTester->execute([
-            // pass arguments to the helper
-            'resource-dir' => 'abc',
-            'solr-connection-url' => 'http://localhost:8080',
-            'solr-core' => 'test'
-        ]);
+        $commandTester->execute([]);
 
         $commandTester->assertCommandIsSuccessful();
 
@@ -159,8 +133,8 @@ EOF,
     public function testExecuteIndexWithErrorsAndStackTrace(): void
     {
 
-        $indexBuilder = $this->createStub(
-            InternalResourceIndexerBuilder::class
+        $indexer = $this->createStub(
+            InternalResourceIndexer::class
         );
 
         $progressBar = $this->createStub(
@@ -170,32 +144,17 @@ EOF,
             ->method('getErrors')
             ->willReturn([new \Exception('errortest')]);
 
-        $progressBarFactory = $this->createStub(
-            IndexerProgressBarFactory::class
-        );
-        $progressBarFactory
-            ->method('create')
-            ->willReturn($progressBar);
-
-        $indexer = new Indexer(
-            [],
-            $indexBuilder,
-            $progressBarFactory
+        $command = new Indexer(
+            $progressBar,
+            $indexer,
         );
 
-        $application = new Application([
-            $indexer
-        ]);
+        $application = new Application([$command]);
 
         $command = $application->find('atoolo:indexer');
         $commandTester = new CommandTester($command);
 
-        $commandTester->execute([
-            // pass arguments to the helper
-            'resource-dir' => 'abc',
-            'solr-connection-url' => 'http://localhost:8080',
-            'solr-core' => 'test'
-        ], [
+        $commandTester->execute([], [
             'verbosity' => OutputInterface::VERBOSITY_VERBOSE
         ]);
 

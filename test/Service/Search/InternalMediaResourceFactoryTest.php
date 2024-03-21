@@ -74,7 +74,7 @@ class InternalMediaResourceFactoryTest extends TestCase
 
         $this->assertEquals(
             $resource,
-            $this->factory->create($document),
+            $this->factory->create($document, 'de'),
             'unexpected resource'
         );
     }
@@ -83,7 +83,7 @@ class InternalMediaResourceFactoryTest extends TestCase
     {
         $document = $this->createStub(Document::class);
         $this->expectException(LogicException::class);
-        $this->factory->create($document);
+        $this->factory->create($document, 'de');
     }
 
     private function createDocument(string $url): Document

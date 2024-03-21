@@ -7,7 +7,6 @@ namespace Atoolo\Search\Test\Console\Command;
 use Atoolo\Resource\Resource;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\MoreLikeThis;
-use Atoolo\Search\Console\Command\SolrMoreLikeThisBuilder;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\Service\Search\SolrMoreLikeThis;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -39,19 +38,10 @@ class MoreLikeThisTest extends TestCase
         $solrMoreLikeThis = $this->createStub(SolrMoreLikeThis::class);
         $solrMoreLikeThis->method('moreLikeThis')
             ->willReturn($result);
-        $moreLikeThisBuilder = $this->createStub(
-            SolrMoreLikeThisBuilder::class
-        );
-        $moreLikeThisBuilder->method('build')
-            ->willReturn($solrMoreLikeThis);
 
-        $moreLinkeThis = new MoreLikeThis(
-            $moreLikeThisBuilder
-        );
+        $command = new MoreLikeThis($solrMoreLikeThis);
 
-        $application = new Application([
-            $moreLinkeThis
-        ]);
+        $application = new Application([$command]);
 
         $command = $application->find('atoolo:mlt');
         $this->commandTester = new CommandTester($command);
@@ -60,10 +50,6 @@ class MoreLikeThisTest extends TestCase
     public function testExecute(): void
     {
         $this->commandTester->execute([
-            // pass arguments to the helper
-            'resource-dir' => 'abc',
-            'solr-connection-url' => 'http://localhost:8080',
-            'solr-core' => 'test',
             'location' => '/test.php'
         ]);
 
