@@ -53,7 +53,7 @@ class Search extends Command
             )
             ->addArgument(
                 'text',
-                InputArgument::IS_ARRAY,
+                InputArgument::REQUIRED,
                 'Text with which to search.'
             )
         ;
@@ -94,10 +94,8 @@ class Search extends Command
         $builder = new SelectQueryBuilder();
         $builder->index($this->index);
 
-        $text = $input->getArgument('text');
-        if (is_array($text)) {
-            $builder->text(implode(' ', $text));
-        }
+        $text = $this->input->getStringArgument('text');
+        $builder->text($text);
 
         // TODO: filter
 
