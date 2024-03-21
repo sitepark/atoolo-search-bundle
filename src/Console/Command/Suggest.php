@@ -36,7 +36,7 @@ class Suggest extends Command
     protected function configure(): void
     {
         $this
-            ->setHelp('Command to performs a suggest search')
+            ->setHelp('Command that performs a suggest search')
             ->addArgument(
                 'solr-connection-url',
                 InputArgument::REQUIRED,
@@ -49,7 +49,7 @@ class Suggest extends Command
             )
             ->addArgument(
                 'terms',
-                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+                InputArgument::REQUIRED,
                 'Suggest terms.'
             )
         ;
@@ -62,7 +62,7 @@ class Suggest extends Command
         $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
         $this->solrCore = $this->input->getStringArgument('solr-core');
-        $terms = $this->input->getArrayArgument('terms');
+        $terms = $this->input->getStringArgument('terms');
 
         $search = $this->createSearcher();
         $query = $this->buildQuery($terms);
@@ -82,16 +82,13 @@ class Suggest extends Command
         return $this->solrSuggestBuilder->build();
     }
 
-    /**
-     * @param string[] $terms
-     */
-    protected function buildQuery(array $terms): SuggestQuery
+    protected function buildQuery(string $terms): SuggestQuery
     {
         $excludeMedia = new ObjectTypeFilter(['media'], 'media');
         $excludeMedia = $excludeMedia->exclude();
         return new SuggestQuery(
             $this->solrCore,
-            implode(' ', $terms),
+            $terms,
             [
                 new ArchiveFilter(),
                 $excludeMedia
