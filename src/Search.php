@@ -10,7 +10,7 @@ use Atoolo\Search\Dto\Search\Result\SearchResult;
 /**
  * The service interface for a search with full-text, filter and facet support.
  */
-interface Searcher
+interface Search
 {
     public function search(SearchQuery $query): SearchResult;
 }

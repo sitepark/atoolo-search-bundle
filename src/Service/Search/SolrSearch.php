@@ -19,7 +19,7 @@ use Atoolo\Search\Dto\Search\Query\Sort\Score;
 use Atoolo\Search\Dto\Search\Result\Facet;
 use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
-use Atoolo\Search\Searcher;
+use Atoolo\Search\Search;
 use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use InvalidArgumentException;
@@ -31,7 +31,7 @@ use Solarium\QueryType\Select\Result\Result as SelectResult;
 /**
  * Implementation of the searcher on the basis of a Solr index.
  */
-class SolrSearch implements Searcher
+class SolrSearch implements Search
 {
     /**
      * @param iterable<SolrQueryModifier> $solrQueryModifierList
