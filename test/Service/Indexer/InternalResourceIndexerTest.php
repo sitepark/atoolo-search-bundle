@@ -7,6 +7,7 @@ use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
+use Atoolo\Search\Service\Indexer\IndexerFilter;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
@@ -30,6 +31,8 @@ class InternalResourceIndexerTest extends TestCase
     * @var string[]
      */
     private array $availableIndexes = ['test', 'test-en_US'];
+
+    public IndexerFilter&MockObject $indexerFilter;
 
     private ResourceLoader&Stub $resourceLoader;
 
@@ -56,6 +59,12 @@ class InternalResourceIndexerTest extends TestCase
      */
     public function setUp(): void
     {
+        $this->indexerFilter = $this->createMock(
+            IndexerFilter::class
+        );
+        $this->indexerFilter->method('accept')
+            ->willReturn(true);
+
         $this->indexerProgressHandler = $this->createMock(
             IndexerProgressHandler::class
         );
@@ -99,6 +108,7 @@ class InternalResourceIndexerTest extends TestCase
 
         $this->indexer = new InternalResourceIndexer(
             [ $this->documentEnricher ],
+            $this->indexerFilter,
             $this->indexerProgressHandler,
             $this->finder,
             $this->resourceLoader,

@@ -13,6 +13,7 @@ class InternalResourceIndexerFactory
      */
     public function __construct(
         private readonly iterable $documentEnricherList,
+        private readonly IndexerFilter $indexerFilter,
         private readonly LocationFinder $finder,
         private readonly ResourceLoader $resourceLoader,
         private readonly TranslationSplitter $translationSplitter,
@@ -27,6 +28,7 @@ class InternalResourceIndexerFactory
     ): InternalResourceIndexer {
         return new InternalResourceIndexer(
             $this->documentEnricherList,
+            $this->indexerFilter,
             $progressHandler,
             $this->finder,
             $this->resourceLoader,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Resource\ResourceLoader;
+use Atoolo\Search\Service\Indexer\IndexerFilter;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
 use Atoolo\Search\Service\Indexer\InternalResourceIndexerFactory;
@@ -19,6 +20,7 @@ class InternalResourceIndexerFactoryTest extends TestCase
     {
         $factory = new InternalResourceIndexerFactory(
             [],
+            $this->createStub(IndexerFilter::class),
             $this->createStub(LocationFinder::class),
             $this->createStub(ResourceLoader::class),
             $this->createStub(TranslationSplitter::class),

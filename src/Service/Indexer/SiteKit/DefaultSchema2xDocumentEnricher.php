@@ -50,12 +50,6 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
     ) {
     }
 
-    public function isIndexable(Resource $resource): bool
-    {
-        $noIndex = $resource->getData()->getBool('init.noIndex');
-        return $noIndex !== true;
-    }
-
     /**
      * @throws DocumentEnrichingException
      */

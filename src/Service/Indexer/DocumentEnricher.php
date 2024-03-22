@@ -15,8 +15,6 @@ use Atoolo\Search\Exception\DocumentEnrichingException;
  */
 interface DocumentEnricher
 {
-    public function isIndexable(Resource $resource): bool;
-
     /**
      * @template E of T
      * @param E $doc
