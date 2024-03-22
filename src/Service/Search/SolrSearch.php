@@ -9,7 +9,7 @@ use Atoolo\Search\Dto\Search\Query\Facet\FacetMultiQuery;
 use Atoolo\Search\Dto\Search\Query\Facet\FacetQuery;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
-use Atoolo\Search\Dto\Search\Query\SelectQuery;
+use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
 use Atoolo\Search\Dto\Search\Query\Sort\Headline;
@@ -19,7 +19,7 @@ use Atoolo\Search\Dto\Search\Query\Sort\Score;
 use Atoolo\Search\Dto\Search\Result\Facet;
 use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
-use Atoolo\Search\SelectSearcher;
+use Atoolo\Search\Searcher;
 use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use InvalidArgumentException;
@@ -31,7 +31,7 @@ use Solarium\QueryType\Select\Result\Result as SelectResult;
 /**
  * Implementation of the searcher on the basis of a Solr index.
  */
-class SolrSelect implements SelectSearcher
+class SolrSearch implements Searcher
 {
     /**
      * @param iterable<SolrQueryModifier> $solrQueryModifierList
@@ -44,7 +44,7 @@ class SolrSelect implements SelectSearcher
     ) {
     }
 
-    public function select(SelectQuery $query): SearchResult
+    public function search(SearchQuery $query): SearchResult
     {
         $index = $this->index->name($query->lang);
         $client = $this->clientFactory->create($index);
@@ -57,7 +57,7 @@ class SolrSelect implements SelectSearcher
 
     private function buildSolrQuery(
         Client $client,
-        SelectQuery $query
+        SearchQuery $query
     ): SolrSelectQuery {
 
         $solrQuery = $client->createSelect();
@@ -245,7 +245,7 @@ class SolrSelect implements SelectSearcher
     }
 
     private function buildResult(
-        SelectQuery $query,
+        SearchQuery $query,
         SelectResult $result,
         string $lang
     ): SearchResult {
@@ -268,7 +268,7 @@ class SolrSelect implements SelectSearcher
      * @return FacetGroup[]
      */
     private function buildFacetGroupList(
-        SelectQuery $query,
+        SearchQuery $query,
         SelectResult $result
     ): array {
 

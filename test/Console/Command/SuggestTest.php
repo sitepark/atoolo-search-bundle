@@ -33,7 +33,7 @@ class SuggestTest extends TestCase
             10
         );
         $solrSuggest = $this->createStub(SolrSuggest::class);
-        $solrSuggest->method('suggest')
+        $solrSuggest->method('search')
             ->willReturn($result);
 
         $command = new Suggest($solrSuggest);

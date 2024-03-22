@@ -8,7 +8,7 @@ use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 
-class SelectQueryBuilder
+class SearchQueryBuilder
 {
     private string $text = '';
     private string $lang = '';
@@ -132,9 +132,9 @@ class SelectQueryBuilder
         return $this;
     }
 
-    public function build(): SelectQuery
+    public function build(): SearchQuery
     {
-        return new SelectQuery(
+        return new SearchQuery(
             $this->text,
             $this->lang,
             $this->offset,

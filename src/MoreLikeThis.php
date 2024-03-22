@@ -18,7 +18,7 @@ use Atoolo\Search\Dto\Search\Result\SearchResult;
  *
  * The reference point is specified via the location of a resource.
  */
-interface MoreLikeThisSearcher
+interface MoreLikeThis
 {
     public function moreLikeThis(
         MoreLikeThisQuery $query

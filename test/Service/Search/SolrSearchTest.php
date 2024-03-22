@@ -11,7 +11,7 @@ use Atoolo\Search\Dto\Search\Query\Facet\FacetQuery;
 use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
-use Atoolo\Search\Dto\Search\Query\SelectQuery;
+use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
 use Atoolo\Search\Dto\Search\Query\Sort\Headline;
@@ -21,7 +21,7 @@ use Atoolo\Search\Dto\Search\Query\Sort\Score;
 use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\Search\SolrQueryModifier;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
-use Atoolo\Search\Service\Search\SolrSelect;
+use Atoolo\Search\Service\Search\SolrSearch;
 use Atoolo\Search\Service\SolrClientFactory;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -34,14 +34,14 @@ use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 use Solarium\QueryType\Select\Result\Result as SelectResult;
 
-#[CoversClass(SolrSelect::class)]
-class SolrSelectTest extends TestCase
+#[CoversClass(SolrSearch::class)]
+class SolrSearchTest extends TestCase
 {
     private Resource|Stub $resource;
 
     private SelectResult|Stub $result;
 
-    private SolrSelect $searcher;
+    private SolrSearch $searcher;
 
     protected function setUp(): void
     {
@@ -77,7 +77,7 @@ class SolrSelectTest extends TestCase
             ->method('loadResourceList')
             ->willReturn([$this->resource]);
 
-        $this->searcher = new SolrSelect(
+        $this->searcher = new SolrSearch(
             $indexName,
             $clientFactory,
             $resultToResourceResolver,
@@ -87,7 +87,7 @@ class SolrSelectTest extends TestCase
 
     public function testSelectEmpty(): void
     {
-        $query = new SelectQuery(
+        $query = new SearchQuery(
             '',
             '',
             0,
@@ -99,7 +99,7 @@ class SolrSelectTest extends TestCase
             QueryOperator::OR
         );
 
-        $searchResult = $this->searcher->select($query);
+        $searchResult = $this->searcher->search($query);
 
         $this->assertEquals(
             [$this->resource],
@@ -110,7 +110,7 @@ class SolrSelectTest extends TestCase
 
     public function testSelectWithText(): void
     {
-        $query = new SelectQuery(
+        $query = new SearchQuery(
             'cat dog',
             '',
             0,
@@ -122,7 +122,7 @@ class SolrSelectTest extends TestCase
             QueryOperator::OR
         );
 
-        $searchResult = $this->searcher->select($query);
+        $searchResult = $this->searcher->search($query);
 
         $this->assertEquals(
             [$this->resource],
@@ -133,7 +133,7 @@ class SolrSelectTest extends TestCase
 
     public function testSelectWithSort(): void
     {
-        $query = new SelectQuery(
+        $query = new SearchQuery(
             '',
             '',
             0,
@@ -150,7 +150,7 @@ class SolrSelectTest extends TestCase
             QueryOperator::OR
         );
 
-        $searchResult = $this->searcher->select($query);
+        $searchResult = $this->searcher->search($query);
 
         $this->assertEquals(
             [$this->resource],
@@ -163,7 +163,7 @@ class SolrSelectTest extends TestCase
     {
         $sort = $this->createStub(Criteria::class);
 
-        $query = new SelectQuery(
+        $query = new SearchQuery(
             '',
             '',
             0,
@@ -175,12 +175,12 @@ class SolrSelectTest extends TestCase
         );
 
         $this->expectException(InvalidArgumentException::class);
-        $this->searcher->select($query);
+        $this->searcher->search($query);
     }
 
     public function testSelectWithAndDefaultOperator(): void
     {
-        $query = new SelectQuery(
+        $query = new SearchQuery(
             '',
             '',
             0,
@@ -191,7 +191,7 @@ class SolrSelectTest extends TestCase
             QueryOperator::AND
         );
 
-        $searchResult = $this->searcher->select($query);
+        $searchResult = $this->searcher->search($query);
 
         $this->assertEquals(
             [$this->resource],
@@ -206,7 +206,7 @@ class SolrSelectTest extends TestCase
             ->setConstructorArgs(['test', []])
             ->getMock();
 
-        $query = new SelectQuery(
+        $query = new SearchQuery(
             '',
             '',
             0,
@@ -217,7 +217,7 @@ class SolrSelectTest extends TestCase
             QueryOperator::OR
         );
 
-        $searchResult = $this->searcher->select($query);
+        $searchResult = $this->searcher->search($query);
 
         $this->assertEquals(
             [$this->resource],
@@ -239,7 +239,7 @@ class SolrSelectTest extends TestCase
             )
         ];
 
-        $query = new SelectQuery(
+        $query = new SearchQuery(
             '',
             '',
             0,
@@ -250,7 +250,7 @@ class SolrSelectTest extends TestCase
             QueryOperator::OR
         );
 
-        $searchResult = $this->searcher->select($query);
+        $searchResult = $this->searcher->search($query);
 
         $this->assertEquals(
             [$this->resource],
@@ -266,7 +266,7 @@ class SolrSelectTest extends TestCase
             $this->createStub(Facet::class)
         ];
 
-        $query = new SelectQuery(
+        $query = new SearchQuery(
             '',
             '',
             0,
@@ -278,7 +278,7 @@ class SolrSelectTest extends TestCase
         );
 
         $this->expectException(InvalidArgumentException::class);
-        $this->searcher->select($query);
+        $this->searcher->search($query);
     }
 
     public function testResultFacets(): void
@@ -305,7 +305,7 @@ class SolrSelectTest extends TestCase
             )
         ];
 
-        $query = new SelectQuery(
+        $query = new SearchQuery(
             '',
             '',
             0,
@@ -316,7 +316,7 @@ class SolrSelectTest extends TestCase
             QueryOperator::OR
         );
 
-        $searchResult = $this->searcher->select($query);
+        $searchResult = $this->searcher->search($query);
 
         $this->assertEquals(
             'objectType',
@@ -348,7 +348,7 @@ class SolrSelectTest extends TestCase
             )
         ];
 
-        $query = new SelectQuery(
+        $query = new SearchQuery(
             '',
             '',
             0,
@@ -360,6 +360,6 @@ class SolrSelectTest extends TestCase
         );
 
         $this->expectException(InvalidArgumentException::class);
-        $this->searcher->select($query);
+        $this->searcher->search($query);
     }
 }

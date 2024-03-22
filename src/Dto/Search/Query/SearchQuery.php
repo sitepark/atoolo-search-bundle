@@ -11,14 +11,14 @@ use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 /**
  * @codeCoverageIgnore
  */
-class SelectQuery
+class SearchQuery
 {
     /**
      * @param Criteria[] $sort
      * @param Filter[] $filter
      * @param Facet[] $facets
      * @internal Do not use the constructor directly,
-     *  but the SelectQueryBuilder
+     *  but the SearchQueryBuilder
      */
     public function __construct(
         public readonly string $text,

@@ -6,7 +6,7 @@ namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
-use Atoolo\Search\MoreLikeThisSearcher;
+use Atoolo\Search\MoreLikeThis;
 use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use Solarium\Core\Client\Client;
@@ -16,7 +16,7 @@ use Solarium\QueryType\MoreLikeThis\Result as SolrMoreLikeThisResult;
 /**
  * Implementation of the "More-Like-This" on the basis of a Solr index.
  */
-class SolrMoreLikeThis implements MoreLikeThisSearcher
+class SolrMoreLikeThis implements MoreLikeThis
 {
     public function __construct(
         private readonly IndexName $index,

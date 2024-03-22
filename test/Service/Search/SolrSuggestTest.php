@@ -78,7 +78,7 @@ END);
 
         $this->result->method('getResponse')->willReturn($response);
 
-        $suggestResult = $this->searcher->suggest($query);
+        $suggestResult = $this->searcher->search($query);
 
         $expected = [
             new Suggestion('category', 10),
@@ -108,7 +108,7 @@ END);
 
         $this->result->method('getResponse')->willReturn($response);
 
-        $suggestResult = $this->searcher->suggest($query);
+        $suggestResult = $this->searcher->search($query);
 
         $this->assertEmpty(
             $suggestResult->suggestions,
@@ -128,6 +128,6 @@ END);
         $this->result->method('getResponse')->willReturn($response);
 
         $this->expectException(UnexpectedResultException::class);
-        $this->searcher->suggest($query);
+        $this->searcher->search($query);
     }
 }

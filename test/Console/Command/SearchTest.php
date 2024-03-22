@@ -10,7 +10,7 @@ use Atoolo\Search\Console\Command\Search;
 use Atoolo\Search\Dto\Search\Result\Facet;
 use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
-use Atoolo\Search\Service\Search\SolrSelect;
+use Atoolo\Search\Service\Search\SolrSearch;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
@@ -43,8 +43,8 @@ class SearchTest extends TestCase
             )],
             10
         );
-        $solrSelect = $this->createStub(SolrSelect::class);
-        $solrSelect->method('select')
+        $solrSelect = $this->createStub(SolrSearch::class);
+        $solrSelect->method('search')
             ->willReturn($result);
 
         $command = new Search($solrSelect);

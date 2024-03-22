@@ -13,7 +13,7 @@ use Atoolo\Search\Dto\Search\Result\SuggestResult;
  * A "suggest search" is a search function that automatically displays
  * suggestions or auto-completions to users as they enter search queries.
  */
-interface SuggestSearcher
+interface Suggest
 {
-    public function suggest(SuggestQuery $query): SuggestResult;
+    public function search(SuggestQuery $query): SuggestResult;
 }

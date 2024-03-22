@@ -7,21 +7,21 @@ namespace Atoolo\Search\Test\Dto\Search\Query;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
-use Atoolo\Search\Dto\Search\Query\SelectQueryBuilder;
+use Atoolo\Search\Dto\Search\Query\SearchQueryBuilder;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(SelectQueryBuilder::class)]
-class SelectQueryBuilderTest extends TestCase
+#[CoversClass(SearchQueryBuilder::class)]
+class SearchQueryBuilderTest extends TestCase
 {
-    private SelectQueryBuilder $builder;
+    private SearchQueryBuilder $builder;
 
     protected function setUp(): void
     {
-        $this->builder = new SelectQueryBuilder();
+        $this->builder = new SearchQueryBuilder();
     }
 
     public function testSetText(): void

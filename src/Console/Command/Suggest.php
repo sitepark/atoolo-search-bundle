@@ -62,7 +62,7 @@ class Suggest extends Command
 
         $query = $this->buildQuery($terms, $lang);
 
-        $result = $this->search->suggest($query);
+        $result = $this->search->search($query);
 
         $this->outputResult($result);
 

@@ -10,7 +10,7 @@ use Atoolo\Search\Dto\Search\Result\SuggestResult;
 use Atoolo\Search\Exception\UnexpectedResultException;
 use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
-use Atoolo\Search\SuggestSearcher;
+use Atoolo\Search\Suggest;
 use JsonException;
 use Solarium\Core\Client\Client;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
@@ -25,7 +25,7 @@ use Solarium\QueryType\Select\Result\Result as SolrSelectResult;
  *      }
  *  }
  */
-class SolrSuggest implements SuggestSearcher
+class SolrSuggest implements Suggest
 {
     private const INDEX_SUGGEST_FIELD = 'raw_content';
 
@@ -38,7 +38,7 @@ class SolrSuggest implements SuggestSearcher
     /**
      * @throws UnexpectedResultException
      */
-    public function suggest(SuggestQuery $query): SuggestResult
+    public function search(SuggestQuery $query): SuggestResult
     {
         $index = $this->index->name($query->lang);
         $client = $this->clientFactory->create($index);

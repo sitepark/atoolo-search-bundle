@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
-use Atoolo\Search\Dto\Search\Query\SelectQuery;
-use Atoolo\Search\Dto\Search\Query\SelectQueryBuilder;
+use Atoolo\Search\Dto\Search\Query\SearchQuery;
+use Atoolo\Search\Dto\Search\Query\SearchQueryBuilder;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
-use Atoolo\Search\Service\Search\SolrSelect;
+use Atoolo\Search\Service\Search\SolrSearch;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -26,7 +26,7 @@ class Search extends Command
     private TypifiedInput $input;
 
     public function __construct(
-        private readonly SolrSelect $searcher
+        private readonly SolrSearch $searcher
     ) {
         parent::__construct();
     }
@@ -60,16 +60,16 @@ class Search extends Command
 
         $query = $this->buildQuery($input);
 
-        $result = $this->searcher->select($query);
+        $result = $this->searcher->search($query);
 
         $this->outputResult($result);
 
         return Command::SUCCESS;
     }
 
-    protected function buildQuery(InputInterface $input): SelectQuery
+    protected function buildQuery(InputInterface $input): SearchQuery
     {
-        $builder = new SelectQueryBuilder();
+        $builder = new SearchQueryBuilder();
 
         $text = $this->input->getStringArgument('text');
         $builder->text($text);
