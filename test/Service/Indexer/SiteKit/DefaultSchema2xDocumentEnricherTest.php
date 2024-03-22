@@ -46,33 +46,6 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         );
     }
 
-    public function testIndexable(): void
-    {
-        $resource = $this->createResource([
-            'init' => [
-            ]
-        ]);
-
-        $this->assertTrue(
-            $this->enricher->isIndexable($resource),
-            'should be indexalbe'
-        );
-    }
-
-    public function testNotIndexable(): void
-    {
-        $resource = $this->createResource([
-            'init' => [
-                'noIndex' => true
-            ]
-        ]);
-
-        $this->assertFalse(
-            $this->enricher->isIndexable($resource),
-            'should be indexalbe'
-        );
-    }
-
     public function testEnrichSpId(): void
     {
         $resource = $this->createStub(Resource::class);

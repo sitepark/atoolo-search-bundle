@@ -62,8 +62,6 @@ class InternalResourceIndexerTest extends TestCase
         $this->indexerFilter = $this->createMock(
             IndexerFilter::class
         );
-        $this->indexerFilter->method('accept')
-            ->willReturn(true);
 
         $this->indexerProgressHandler = $this->createMock(
             IndexerProgressHandler::class
@@ -166,8 +164,7 @@ class InternalResourceIndexerTest extends TestCase
 
         $this->updateResult->method('getStatus')
             ->willReturn(0);
-
-        $this->documentEnricher->method('isIndexable')
+        $this->indexerFilter->method('accept')
             ->willReturn(true);
 
         $this->documentEnricher
@@ -207,7 +204,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->updateResult->method('getStatus')
             ->willReturn(0);
 
-        $this->documentEnricher->method('isIndexable')
+        $this->indexerFilter->method('accept')
             ->willReturnCallback(function (Resource $resource) {
                 $location = $resource->getLocation();
                 return ($location !== '/a/b.php');
@@ -262,9 +259,6 @@ class InternalResourceIndexerTest extends TestCase
 
         $this->updateResult->method('getStatus')
             ->willReturn(500);
-
-        $this->documentEnricher->method('isIndexable')
-            ->willReturn(true);
 
         $this->indexerProgressHandler->expects($this->once())
             ->method('error');
@@ -323,7 +317,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->updateResult->method('getStatus')
             ->willReturn(0);
 
-        $this->documentEnricher->method('isIndexable')
+        $this->indexerFilter->method('accept')
             ->willReturn(true);
 
         $this->updater->expects($this->exactly(2))
