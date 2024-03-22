@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
+use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
@@ -25,6 +26,7 @@ class MoreLikeThis extends Command
     private TypifiedInput $input;
 
     public function __construct(
+        private readonly ResourceChannelFactory $channelFactory,
         private readonly SolrMoreLikeThis $searcher
     ) {
         parent::__construct();
@@ -60,6 +62,9 @@ class MoreLikeThis extends Command
 
         $location = $this->input->getStringArgument('location');
         $lang = $this->input->getStringOption('lang');
+
+        $resourceChannel = $this->channelFactory->create();
+        $this->io->title('Channel: ' . $resourceChannel->name);
 
         $query = $this->buildQuery($location, $lang);
         $result = $this->searcher->moreLikeThis($query);

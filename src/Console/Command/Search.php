@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
+use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Query\SearchQueryBuilder;
@@ -26,6 +27,7 @@ class Search extends Command
     private TypifiedInput $input;
 
     public function __construct(
+        private readonly ResourceChannelFactory $channelFactory,
         private readonly SolrSearch $searcher
     ) {
         parent::__construct();
@@ -57,6 +59,9 @@ class Search extends Command
 
         $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
+
+        $resourceChannel = $this->channelFactory->create();
+        $this->io->title('Channel: ' . $resourceChannel->name);
 
         $query = $this->buildQuery($input);
 
@@ -90,13 +95,13 @@ class Search extends Command
             return;
         }
 
-        $this->io->title('Results (' . $result->total . ')');
+        $this->io->section('Results (' . $result->total . ')');
         foreach ($result as $resource) {
             $this->io->text($resource->getLocation());
         }
 
         if (count($result->facetGroups) > 0) {
-            $this->io->title('Facets');
+            $this->io->section('Facets');
             foreach ($result->facetGroups as $facetGroup) {
                 $this->io->section($facetGroup->key);
                 $listing = [];

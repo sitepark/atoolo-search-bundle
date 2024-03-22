@@ -60,19 +60,23 @@ services:
 
     Atoolo\Search\Console\Command\Indexer:
       arguments:
+        - '@atoolo.resource.resourceChannelFactory'
         - '@atoolo.search.indexer.progressBar'
         - '@atoolo.search.indexer.internalResourceIndexer'
 
     Atoolo\Search\Console\Command\Search:
       arguments:
+        - '@atoolo.resource.resourceChannelFactory'
         - '@atoolo.search.search'
 
     Atoolo\Search\Console\Command\Suggest:
       arguments:
+        - '@atoolo.resource.resourceChannelFactory'
         - '@atoolo.search.suggest'
 
     Atoolo\Search\Console\Command\MoreLikeThis:
       arguments:
+        - '@atoolo.resource.resourceChannelFactory'
         - '@atoolo.search.moreLikeThis'
 
 

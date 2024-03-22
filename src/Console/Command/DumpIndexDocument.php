@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
+use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Service\Indexer\IndexDocumentDumper;
 use JsonException;
@@ -12,6 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'atoolo:dump-index-document',
@@ -20,6 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DumpIndexDocument extends Command
 {
     public function __construct(
+        private readonly ResourceChannelFactory $channelFactory,
         private readonly IndexDocumentDumper $dumper
     ) {
         parent::__construct();
@@ -48,6 +51,10 @@ class DumpIndexDocument extends Command
         $typedInput = new TypifiedInput($input);
 
         $paths = $typedInput->getArrayArgument('paths');
+
+        $resourceChannel = $this->channelFactory->create();
+        $io = new SymfonyStyle($input, $output);
+        $io->title('Channel: ' . $resourceChannel->name);
 
         $dump = $this->dumper->dump($paths);
 
