@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console\Command;
 
+use Atoolo\Resource\ResourceChannel;
+use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\SolrSuggestBuilder;
 use Atoolo\Search\Console\Command\Suggest;
@@ -25,6 +27,24 @@ class SuggestTest extends TestCase
      */
     public function setUp(): void
     {
+        $resourceChannel = new ResourceChannel(
+            '',
+            'WWW',
+            '',
+            '',
+            false,
+            '',
+            '',
+            '',
+            'test',
+            []
+        );
+
+        $resourceChannelFactory = $this->createStub(
+            ResourceChannelFactory::class
+        );
+        $resourceChannelFactory->method('create')
+            ->willReturn($resourceChannel);
         $result = new SuggestResult(
             [
                 new Suggestion('security', 10),
@@ -36,7 +56,7 @@ class SuggestTest extends TestCase
         $solrSuggest->method('suggest')
             ->willReturn($result);
 
-        $command = new Suggest($solrSuggest);
+        $command = new Suggest($resourceChannelFactory, $solrSuggest);
 
         $application = new Application([$command]);
 
@@ -56,6 +76,10 @@ class SuggestTest extends TestCase
         $output = $this->commandTester->getDisplay();
         $this->assertEquals(
             <<<EOF
+
+Channel: WWW
+============
+
  security (10)
  section (5)
  Query-Time: 10ms

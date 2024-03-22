@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console;
 
+use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Indexer;
 use Atoolo\Search\Console\Command\InternalResourceIndexerBuilder;
@@ -22,12 +23,15 @@ class ApplicationTest extends TestCase
      */
     public function testConstruct(): void
     {
+        $resourceChannelFactory = $this->createStub(
+            ResourceChannelFactory::class
+        );
         $indexer = $this->createStub(
             InternalResourceIndexer::class
         );
         $progressBar = $this->createStub(IndexerProgressBar::class);
         $application = new Application([
-            new Indexer($progressBar, $indexer)
+            new Indexer($resourceChannelFactory, $progressBar, $indexer)
         ]);
         $command = $application->get('atoolo:indexer');
         $this->assertInstanceOf(

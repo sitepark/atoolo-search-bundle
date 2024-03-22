@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Console\Command;
 
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceChannel;
+use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Search;
 use Atoolo\Search\Dto\Search\Result\Facet;
@@ -26,6 +28,24 @@ class SearchTest extends TestCase
      */
     public function setUp(): void
     {
+        $resourceChannel = new ResourceChannel(
+            '',
+            'WWW',
+            '',
+            '',
+            false,
+            '',
+            '',
+            '',
+            'test',
+            []
+        );
+
+        $resourceChannelFactory = $this->createStub(
+            ResourceChannelFactory::class
+        );
+        $resourceChannelFactory->method('create')
+            ->willReturn($resourceChannel);
         $resultResource = $this->createStub(Resource::class);
         $resultResource->method('getLocation')
             ->willReturn('/test.php');
@@ -47,7 +67,7 @@ class SearchTest extends TestCase
         $solrSelect->method('search')
             ->willReturn($result);
 
-        $command = new Search($solrSelect);
+        $command = new Search($resourceChannelFactory, $solrSelect);
 
         $application = new Application([$command]);
 
@@ -67,13 +87,16 @@ class SearchTest extends TestCase
         $this->assertEquals(
             <<<EOF
 
+Channel: WWW
+============
+
 Results (1)
-===========
+-----------
 
  /test.php
 
 Facets
-======
+------
 
 objectType
 ----------

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console\Command;
 
+use Atoolo\Resource\ResourceChannel;
+use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\DumpIndexDocument;
 use Atoolo\Search\Console\Command\IndexDocumentDumperBuilder;
@@ -23,6 +25,25 @@ class DumpIndexDocumentTest extends TestCase
      */
     public function setUp(): void
     {
+        $resourceChannel = new ResourceChannel(
+            '',
+            'WWW',
+            '',
+            '',
+            false,
+            '',
+            '',
+            '',
+            'test',
+            []
+        );
+
+        $resourceChannelFactory = $this->createStub(
+            ResourceChannelFactory::class
+        );
+        $resourceChannelFactory->method('create')
+            ->willReturn($resourceChannel);
+
         $dumper = $this->createStub(IndexDocumentDumper::class);
         $dumper->method('dump')
             ->willReturn([
@@ -30,6 +51,7 @@ class DumpIndexDocumentTest extends TestCase
             ]);
 
         $dumperCommand = new DumpIndexDocument(
+            $resourceChannelFactory,
             $dumper
         );
 
@@ -52,6 +74,10 @@ class DumpIndexDocumentTest extends TestCase
         $output = $this->commandTester->getDisplay();
         $this->assertEquals(
             <<<EOF
+
+Channel: WWW
+============
+
 {
     "sp_id": "123"
 }

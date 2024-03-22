@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console\Command;
 
+use Atoolo\Resource\ResourceChannel;
+use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Indexer;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
@@ -17,6 +19,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(Indexer::class)]
 class IndexerTest extends TestCase
 {
+    private ResourceChannelFactory $resourceChannelFactory;
     private CommandTester $commandTester;
 
     /**
@@ -24,12 +27,31 @@ class IndexerTest extends TestCase
      */
     public function setUp(): void
     {
+        $resourceChannel = new ResourceChannel(
+            '',
+            'WWW',
+            '',
+            '',
+            false,
+            '',
+            '',
+            '',
+            'test',
+            []
+        );
+
+        $this->resourceChannelFactory = $this->createStub(
+            ResourceChannelFactory::class
+        );
+        $this->resourceChannelFactory->method('create')
+            ->willReturn($resourceChannel);
         $indexer = $this->createStub(
             InternalResourceIndexer::class
         );
         $progressBar = $this->createStub(IndexerProgressBar::class);
 
         $command = new Indexer(
+            $this->resourceChannelFactory,
             $progressBar,
             $indexer,
         );
@@ -51,8 +73,11 @@ class IndexerTest extends TestCase
         $this->assertEquals(
             <<<EOF
 
+Channel: WWW
+============
+
 Index all resources
-===================
+-------------------
 
 
 EOF,
@@ -74,8 +99,11 @@ EOF,
         $this->assertEquals(
             <<<EOF
 
+Channel: WWW
+============
+
 Index resource paths
-====================
+--------------------
 
  * a.php
  * b.php
@@ -95,7 +123,6 @@ EOF,
         $indexer = $this->createStub(
             InternalResourceIndexer::class
         );
-
         $progressBar = $this->createStub(
             IndexerProgressBar::class
         );
@@ -104,6 +131,7 @@ EOF,
             ->willReturn([new \Exception('errortest')]);
 
         $command = new Indexer(
+            $this->resourceChannelFactory,
             $progressBar,
             $indexer,
         );
@@ -136,7 +164,6 @@ EOF,
         $indexer = $this->createStub(
             InternalResourceIndexer::class
         );
-
         $progressBar = $this->createStub(
             IndexerProgressBar::class
         );
@@ -145,6 +172,7 @@ EOF,
             ->willReturn([new \Exception('errortest')]);
 
         $command = new Indexer(
+            $this->resourceChannelFactory,
             $progressBar,
             $indexer,
         );

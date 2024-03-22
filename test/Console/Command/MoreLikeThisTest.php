@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Console\Command;
 
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceChannel;
+use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\MoreLikeThis;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
@@ -24,6 +26,24 @@ class MoreLikeThisTest extends TestCase
      */
     public function setUp(): void
     {
+        $resourceChannel = new ResourceChannel(
+            '',
+            'WWW',
+            '',
+            '',
+            false,
+            '',
+            '',
+            '',
+            'test',
+            []
+        );
+
+        $resourceChannelFactory = $this->createStub(
+            ResourceChannelFactory::class
+        );
+        $resourceChannelFactory->method('create')
+            ->willReturn($resourceChannel);
         $resultResource = $this->createStub(Resource::class);
         $resultResource->method('getLocation')
             ->willReturn('/test2.php');
@@ -39,7 +59,7 @@ class MoreLikeThisTest extends TestCase
         $solrMoreLikeThis->method('moreLikeThis')
             ->willReturn($result);
 
-        $command = new MoreLikeThis($solrMoreLikeThis);
+        $command = new MoreLikeThis($resourceChannelFactory, $solrMoreLikeThis);
 
         $application = new Application([$command]);
 
@@ -59,6 +79,10 @@ class MoreLikeThisTest extends TestCase
         $output = $this->commandTester->getDisplay();
         $this->assertEquals(
             <<<EOF
+
+Channel: WWW
+============
+
  1 Results:
  /test2.php
  Query-Time: 10ms

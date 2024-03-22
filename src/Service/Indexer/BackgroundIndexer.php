@@ -64,7 +64,7 @@ class BackgroundIndexer implements Indexer
     private function getIndexer(): InternalResourceIndexer
     {
         $progressHandler = new BackgroundIndexerProgressState(
-            $this->index->name(''),
+            $this->index,
             $this->statusStore,
             $this->logger
         );
