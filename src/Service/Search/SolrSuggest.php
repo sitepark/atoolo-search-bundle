@@ -38,7 +38,7 @@ class SolrSuggest implements Suggest
     /**
      * @throws UnexpectedResultException
      */
-    public function search(SuggestQuery $query): SuggestResult
+    public function suggest(SuggestQuery $query): SuggestResult
     {
         $index = $this->index->name($query->lang);
         $client = $this->clientFactory->create($index);

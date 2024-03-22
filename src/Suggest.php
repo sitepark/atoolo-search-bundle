@@ -15,5 +15,5 @@ use Atoolo\Search\Dto\Search\Result\SuggestResult;
  */
 interface Suggest
 {
-    public function search(SuggestQuery $query): SuggestResult;
+    public function suggest(SuggestQuery $query): SuggestResult;
 }
