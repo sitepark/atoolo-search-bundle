@@ -85,6 +85,11 @@ class Suggest extends Command
 
     protected function outputResult(SuggestResult $result): void
     {
+        if (empty($result->suggestions)) {
+            $this->io->text('No suggestions found');
+            return;
+        }
+
         foreach ($result as $suggest) {
             $this->io->text(
                 $suggest->term .

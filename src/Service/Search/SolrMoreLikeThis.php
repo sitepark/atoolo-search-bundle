@@ -69,7 +69,7 @@ class SolrMoreLikeThis implements MoreLikeThis
             ->loadResourceList($result, $lang);
 
         return new SearchResult(
-            $result->getNumFound() ?? -1,
+            $result->getNumFound() ?? 0,
             0,
             0,
             $resourceList,

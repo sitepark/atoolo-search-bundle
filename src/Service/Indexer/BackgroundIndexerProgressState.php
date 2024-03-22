@@ -6,6 +6,7 @@ namespace Atoolo\Search\Service\Indexer;
 
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Dto\Indexer\IndexerStatusState;
+use Atoolo\Search\Service\IndexName;
 use DateTime;
 use JsonException;
 use Psr\Log\LoggerInterface;
@@ -20,7 +21,7 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
     private bool $isUpdate = false;
 
     public function __construct(
-        private string $index,
+        private readonly IndexName $index,
         private readonly IndexerStatusStore $statusStore,
         private readonly LoggerInterface $logger = new NullLogger()
     ) {
@@ -47,7 +48,7 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
     public function startUpdate(int $total): void
     {
         $this->isUpdate = true;
-        $storedStatus = $this->statusStore->load($this->index);
+        $storedStatus = $this->statusStore->load($this->getIndex());
         $this->status = new IndexerStatus(
             IndexerStatusState::RUNNING,
             $storedStatus->startTime,
@@ -71,7 +72,7 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
         if ($this->isUpdate) {
             $this->status->updated += $step;
         }
-        $this->statusStore->store($this->index, $this->status);
+        $this->statusStore->store($this->getIndex(), $this->status);
     }
 
 
@@ -102,7 +103,7 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
         if ($this->status->state === IndexerStatusState::RUNNING) {
             $this->status->state = IndexerStatusState::FINISHED;
         }
-        $this->statusStore->store($this->index, $this->status);
+        $this->statusStore->store($this->getIndex(), $this->status);
     }
 
     public function abort(): void
@@ -113,5 +114,10 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
     public function getStatus(): IndexerStatus
     {
         return $this->status;
+    }
+
+    private function getIndex(): string
+    {
+        return $this->index->name('');
     }
 }

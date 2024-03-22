@@ -21,10 +21,14 @@ services:
     atoolo.search.indexer.progressBar:
         class:  'Atoolo\Search\Console\Command\Io\IndexerProgressBar'
 
+    atoolo.search.indexer.resourceFilter:
+      class: Atoolo\Search\Service\Indexer\SiteKit\NoIndexFilter
+
     atoolo.search.indexer.internalResourceIndexer:
       class: Atoolo\Search\Service\Indexer\InternalResourceIndexer
       arguments:
         - !tagged_iterator atoolo.search.indexer.documentEnricher.schema2x
+        - '@atoolo.search.indexer.resourceFilter'
         - '@atoolo.search.indexer.progressBar'
         - '@atoolo.search.indexer.locationFinder'
         - '@atoolo.resource.resourceLoader'
@@ -33,21 +37,21 @@ services:
         - '@atoolo.search.indexer.aborter'
         - 'internal'
 
-    atoolo.search.selectSearcher:
-      class: Atoolo\Search\Service\Search\SolrSelect
+    atoolo.search.search:
+      class: Atoolo\Search\Service\Search\SolrSearch
       arguments:
         - '@atoolo.search.indexName'
         - '@atoolo.search.solariumClientFactory'
-        - !tagged_iterator atoolo.search.queryModifier
         - '@atoolo.search.resultToResourceResolver'
+        - !tagged_iterator atoolo.search.queryModifier
 
-    atoolo.search.suggestSearcher:
+    atoolo.search.suggest:
       class: Atoolo\Search\Service\Search\SolrSuggest
       arguments:
         - '@atoolo.search.indexName'
         - '@atoolo.search.solariumClientFactory'
 
-    atoolo.search.moreLikeThisSearcher:
+    atoolo.search.moreLikeThis:
       class: Atoolo\Search\Service\Search\SolrMoreLikeThis
       arguments:
         - '@atoolo.search.indexName'
@@ -61,15 +65,15 @@ services:
 
     Atoolo\Search\Console\Command\Search:
       arguments:
-        - '@atoolo.search.selectSearcher'
+        - '@atoolo.search.search'
 
     Atoolo\Search\Console\Command\Suggest:
       arguments:
-        - '@atoolo.search.suggestSearcher'
+        - '@atoolo.search.suggest'
 
     Atoolo\Search\Console\Command\MoreLikeThis:
       arguments:
-        - '@atoolo.search.moreLikeThisSearcher'
+        - '@atoolo.search.moreLikeThis'
 
 
     Atoolo\Search\Console\Application:

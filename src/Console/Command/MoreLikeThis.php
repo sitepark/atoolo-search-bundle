@@ -84,6 +84,10 @@ class MoreLikeThis extends Command
 
     protected function outputResult(SearchResult $result): void
     {
+        if ($result->total === 0) {
+            $this->io->text('No results found.');
+            return;
+        }
         $this->io->text($result->total . " Results:");
         foreach ($result as $resource) {
             $this->io->text($resource->getLocation());
