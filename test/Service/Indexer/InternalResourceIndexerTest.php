@@ -7,12 +7,12 @@ use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
-use Atoolo\Search\Service\Indexer\IndexerFilter;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
 use Atoolo\Search\Service\Indexer\LocationFinder;
+use Atoolo\Search\Service\Indexer\ResourceFilter;
 use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
 use Atoolo\Search\Service\Indexer\SolrIndexService;
 use Atoolo\Search\Service\Indexer\SolrIndexUpdater;
@@ -32,7 +32,7 @@ class InternalResourceIndexerTest extends TestCase
      */
     private array $availableIndexes = ['test', 'test-en_US'];
 
-    public IndexerFilter&MockObject $indexerFilter;
+    public ResourceFilter&MockObject $indexerFilter;
 
     private ResourceLoader&Stub $resourceLoader;
 
@@ -60,7 +60,7 @@ class InternalResourceIndexerTest extends TestCase
     public function setUp(): void
     {
         $this->indexerFilter = $this->createMock(
-            IndexerFilter::class
+            ResourceFilter::class
         );
 
         $this->indexerProgressHandler = $this->createMock(

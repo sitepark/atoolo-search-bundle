@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Resource\ResourceLoader;
-use Atoolo\Search\Service\Indexer\IndexerFilter;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
 use Atoolo\Search\Service\Indexer\InternalResourceIndexerFactory;
 use Atoolo\Search\Service\Indexer\LocationFinder;
+use Atoolo\Search\Service\Indexer\ResourceFilter;
 use Atoolo\Search\Service\Indexer\SolrIndexService;
 use Atoolo\Search\Service\Indexer\TranslationSplitter;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ class InternalResourceIndexerFactoryTest extends TestCase
     {
         $factory = new InternalResourceIndexerFactory(
             [],
-            $this->createStub(IndexerFilter::class),
+            $this->createStub(ResourceFilter::class),
             $this->createStub(LocationFinder::class),
             $this->createStub(ResourceLoader::class),
             $this->createStub(TranslationSplitter::class),

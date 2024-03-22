@@ -6,7 +6,7 @@ namespace Atoolo\Search\Service\Indexer;
 
 use Atoolo\Resource\Resource;
 
-interface IndexerFilter
+interface ResourceFilter
 {
     public function accept(Resource $resource): bool;
 }

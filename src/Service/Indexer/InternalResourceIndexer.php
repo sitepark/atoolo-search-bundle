@@ -41,7 +41,7 @@ class InternalResourceIndexer implements Indexer
      */
     public function __construct(
         private readonly iterable $documentEnricherList,
-        private readonly IndexerFilter $indexerFilter,
+        private readonly ResourceFilter $resourceFilter,
         private readonly IndexerProgressHandler $indexerProgressHandler,
         private readonly LocationFinder $finder,
         private readonly ResourceLoader $resourceLoader,
@@ -349,7 +349,7 @@ class InternalResourceIndexer implements Indexer
         $updater = $this->indexService->updater($lang);
 
         foreach ($resources as $resource) {
-            if ($this->indexerFilter->accept($resource) === false) {
+            if ($this->resourceFilter->accept($resource) === false) {
                 $this->indexerProgressHandler->skip(1);
                 continue;
             }
