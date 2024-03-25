@@ -33,15 +33,15 @@ class IndexerProgressBar implements IndexerProgressHandler
         $this->progressBar = new ProgressBar($this->output, $total);
         $this->formatProgressBar('green');
         $this->status = new IndexerStatus(
-            IndexerStatusState::RUNNING,
-            new DateTime(),
-            null,
-            $total,
-            0,
-            0,
-            new DateTime(),
-            0,
-            0
+            state: IndexerStatusState::RUNNING,
+            startTime: new DateTime(),
+            endTime: null,
+            total: $total,
+            processed: 0,
+            skipped: 0,
+            lastUpdate: new DateTime(),
+            updated: 0,
+            errors: 0
         );
     }
 

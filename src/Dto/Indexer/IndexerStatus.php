@@ -39,15 +39,15 @@ class IndexerStatus
     {
         $now = new DateTime();
         return new IndexerStatus(
-            IndexerStatusState::UNKNOWN,
-            $now,
-            $now,
-            0,
-            0,
-            0,
-            $now,
-            0,
-            0
+            state: IndexerStatusState::UNKNOWN,
+            startTime: $now,
+            endTime: $now,
+            total:0,
+            processed: 0,
+            skipped: 0,
+            lastUpdate: $now,
+            updated: 0,
+            errors: 0
         );
     }
 
