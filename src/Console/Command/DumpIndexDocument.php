@@ -34,7 +34,7 @@ class DumpIndexDocument extends Command
             ->setHelp('Command to dump a index-document')
             ->addArgument(
                 'paths',
-                InputArgument::OPTIONAL | InputArgument::IS_ARRAY,
+                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
                 'Resources paths or directories of resources to be indexed.'
             )
         ;

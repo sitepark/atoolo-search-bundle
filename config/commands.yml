@@ -14,10 +14,6 @@ services:
         - '@atoolo.resource.resourceLoader'
         - !tagged_iterator { tag: 'atoolo.search.indexer.documentEnricher.schema2x' }
 
-    Atoolo\Search\Console\Command\DumpIndexDocument:
-      arguments:
-        - '@Atoolo\Search\Service\Indexer\IndexDocumentDumper'
-
     atoolo.search.indexer.progressBar:
         class:  'Atoolo\Search\Console\Command\Io\IndexerProgressBar'
 
@@ -79,6 +75,10 @@ services:
         - '@atoolo.resource.resourceChannelFactory'
         - '@atoolo.search.moreLikeThis'
 
+    Atoolo\Search\Console\Command\DumpIndexDocument:
+      arguments:
+        - '@atoolo.resource.resourceChannelFactory'
+        - '@Atoolo\Search\Service\Indexer\IndexDocumentDumper'
 
     Atoolo\Search\Console\Application:
         public: true
