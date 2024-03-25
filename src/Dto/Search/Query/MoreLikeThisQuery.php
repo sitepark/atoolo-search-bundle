@@ -20,7 +20,9 @@ class MoreLikeThisQuery
     /**
      * @param string $index name of the index to use
      * @param Filter[] $filter
-     * @param string[] $fields
+     * @param string[] $fields The fields specified here must be part of the
+     * index schema and determine which fields are relevant for determining
+     * which entries are similar.
      */
     public function __construct(
         public readonly string $index,
