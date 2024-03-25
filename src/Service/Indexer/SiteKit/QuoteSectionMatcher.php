@@ -37,14 +37,8 @@ class QuoteSectionMatcher implements ContentMatcher
         /** @var Model $model */
 
         $content = [];
-        $quote = $model['quote'] ?? '';
-        if (is_string($quote)) {
-            $content[] = $quote;
-        }
-        $citation = $model['citation'] ?? '';
-        if (is_string($citation)) {
-            $content[] = $citation;
-        }
+        $content[] = $model['quote'] ?? '';
+        $content[] = $model['citation'] ?? '';
 
         return implode(' ', $content);
     }
