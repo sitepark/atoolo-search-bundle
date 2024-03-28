@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search;
 
-use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
+use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 
 /**
  * The service interface for indexing a search index.
@@ -18,9 +18,21 @@ use Atoolo\Search\Dto\Indexer\IndexerStatus;
  */
 interface Indexer
 {
-    public function index(IndexerParameter $parameter): IndexerStatus;
+    public function getName(): string;
+
+    public function getSource(): string;
+
+    public function getProgressHandler(): IndexerProgressHandler;
+
+    public function setProgressHandler(
+        IndexerProgressHandler $progressHandler
+    ): void;
+
+    public function index(): IndexerStatus;
 
     public function abort(): void;
+
+    public function enabled(): bool;
 
     /**
      * @param string[] $idList

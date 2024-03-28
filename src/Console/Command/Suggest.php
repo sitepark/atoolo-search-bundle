@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'atoolo:suggest',
+    name: 'search:suggest',
     description: 'Performs a suggest search'
 )]
 class Suggest extends Command

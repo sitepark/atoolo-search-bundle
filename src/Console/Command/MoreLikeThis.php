@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'atoolo:mlt',
+    name: 'search:mlt',
     description: 'Performs a more-like-this search'
 )]
 class MoreLikeThis extends Command

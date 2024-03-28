@@ -10,13 +10,14 @@ class IndexerParameter
      * @param string[] $paths
      */
     public function __construct(
+        public readonly string $name,
         public readonly int $cleanupThreshold = 0,
         public readonly int $chunkSize = 500,
         public readonly array $paths = []
     ) {
         if ($this->chunkSize < 10) {
             throw new \InvalidArgumentException(
-                'chunk Size must be greater than 9'
+                'chunk size must be greater than 9'
             );
         }
     }

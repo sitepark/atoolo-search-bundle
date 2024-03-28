@@ -9,56 +9,14 @@ services:
     Atoolo\Search\Console\:
         resource: '../src/Console'
 
-    Atoolo\Search\Service\Indexer\IndexDocumentDumper:
-      arguments:
-        - '@atoolo.resource.resourceLoader'
-        - !tagged_iterator { tag: 'atoolo.search.indexer.documentEnricher.schema2x' }
-
-    atoolo.search.indexer.progressBar:
-        class:  'Atoolo\Search\Console\Command\Io\IndexerProgressBar'
-
-    atoolo.search.indexer.resourceFilter:
-      class: Atoolo\Search\Service\Indexer\SiteKit\NoIndexFilter
-
-    atoolo.search.indexer.internalResourceIndexer:
-      class: Atoolo\Search\Service\Indexer\InternalResourceIndexer
-      arguments:
-        - !tagged_iterator atoolo.search.indexer.documentEnricher.schema2x
-        - '@atoolo.search.indexer.resourceFilter'
-        - '@atoolo.search.indexer.progressBar'
-        - '@atoolo.search.indexer.locationFinder'
-        - '@atoolo.resource.resourceLoader'
-        - '@atoolo.search.indexer.translationSplitter'
-        - '@atoolo.search.indexer.solrIndexService'
-        - '@atoolo.search.indexer.aborter'
-        - 'internal'
-
-    atoolo.search.search:
-      class: Atoolo\Search\Service\Search\SolrSearch
-      arguments:
-        - '@atoolo.search.indexName'
-        - '@atoolo.search.solariumClientFactory'
-        - '@atoolo.search.resultToResourceResolver'
-        - !tagged_iterator atoolo.search.queryModifier
-
-    atoolo.search.suggest:
-      class: Atoolo\Search\Service\Search\SolrSuggest
-      arguments:
-        - '@atoolo.search.indexName'
-        - '@atoolo.search.solariumClientFactory'
-
-    atoolo.search.moreLikeThis:
-      class: Atoolo\Search\Service\Search\SolrMoreLikeThis
-      arguments:
-        - '@atoolo.search.indexName'
-        - '@atoolo.search.solariumClientFactory'
-        - '@atoolo.search.resultToResourceResolver'
+    atoolo.search.indexer.console.progressBar:
+      class:  'Atoolo\Search\Console\Command\Io\IndexerProgressBar'
 
     Atoolo\Search\Console\Command\Indexer:
       arguments:
         - '@atoolo.resource.resourceChannelFactory'
-        - '@atoolo.search.indexer.progressBar'
-        - '@atoolo.search.indexer.internalResourceIndexer'
+        - '@atoolo.search.indexer.console.progressBar'
+        - '@atoolo.search.indexer.indexerCollection'
 
     Atoolo\Search\Console\Command\Search:
       arguments:
@@ -78,7 +36,7 @@ services:
     Atoolo\Search\Console\Command\DumpIndexDocument:
       arguments:
         - '@atoolo.resource.resourceChannelFactory'
-        - '@Atoolo\Search\Service\Indexer\IndexDocumentDumper'
+        - '@atoolo.search.indexer.indexDocumentDumper'
 
     Atoolo\Search\Console\Application:
         public: true

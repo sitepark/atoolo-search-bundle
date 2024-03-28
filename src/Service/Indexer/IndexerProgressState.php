@@ -8,22 +8,19 @@ use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Dto\Indexer\IndexerStatusState;
 use Atoolo\Search\Service\IndexName;
 use DateTime;
-use JsonException;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Throwable;
 
-class BackgroundIndexerProgressState implements IndexerProgressHandler
+class IndexerProgressState implements IndexerProgressHandler
 {
-    private IndexerStatus $status;
+    private ?IndexerStatus $status = null;
 
     private bool $isUpdate = false;
 
     public function __construct(
         private readonly IndexName $index,
         private readonly IndexerStatusStore $statusStore,
-        private readonly LoggerInterface $logger = new NullLogger()
+        private readonly string $source,
     ) {
     }
 
@@ -48,7 +45,7 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
     public function startUpdate(int $total): void
     {
         $this->isUpdate = true;
-        $storedStatus = $this->statusStore->load($this->getIndex());
+        $storedStatus = $this->statusStore->load($this->getStatusStoreKey());
         $this->status = new IndexerStatus(
             IndexerStatusState::RUNNING,
             $storedStatus->startTime,
@@ -62,9 +59,6 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
         );
     }
 
-    /**
-     * @throws JsonException
-     */
     public function advance(int $step): void
     {
         $this->status->processed += $step;
@@ -72,9 +66,11 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
         if ($this->isUpdate) {
             $this->status->updated += $step;
         }
-        $this->statusStore->store($this->getIndex(), $this->status);
+        $this->statusStore->store(
+            $this->getStatusStoreKey(),
+            $this->status
+        );
     }
-
 
     public function skip(int $step): void
     {
@@ -84,17 +80,8 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
     public function error(Throwable $throwable): void
     {
         $this->status->errors++;
-        $this->logger->error(
-            $throwable->getMessage(),
-            [
-                'exception' => $throwable,
-            ]
-        );
     }
 
-    /**
-     * @throws JsonException
-     */
     public function finish(): void
     {
         if (!$this->isUpdate) {
@@ -103,7 +90,7 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
         if ($this->status->state === IndexerStatusState::RUNNING) {
             $this->status->state = IndexerStatusState::FINISHED;
         }
-        $this->statusStore->store($this->getIndex(), $this->status);
+        $this->statusStore->store($this->getStatusStoreKey(), $this->status);
     }
 
     public function abort(): void
@@ -113,11 +100,14 @@ class BackgroundIndexerProgressState implements IndexerProgressHandler
 
     public function getStatus(): IndexerStatus
     {
-        return $this->status;
+        if ($this->status !== null) {
+            return $this->status;
+        }
+        return $this->statusStore->load($this->getStatusStoreKey());
     }
 
-    private function getIndex(): string
+    private function getStatusStoreKey(): string
     {
-        return $this->index->name('');
+        return $this->index->name('') . '-' . $this->source;
     }
 }

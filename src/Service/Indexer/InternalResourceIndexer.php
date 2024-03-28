@@ -10,7 +10,11 @@ use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
 use Exception;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Solarium\QueryType\Update\Result as UpdateResult;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\Store\SemaphoreStore;
 use Throwable;
 
 /**
@@ -36,20 +40,53 @@ use Throwable;
  */
 class InternalResourceIndexer implements Indexer
 {
+    private IndexerParameter $parameter;
+
     /**
      * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
      */
     public function __construct(
         private readonly iterable $documentEnricherList,
         private readonly ResourceFilter $resourceFilter,
-        private readonly IndexerProgressHandler $indexerProgressHandler,
+        private IndexerProgressHandler $progressHandler,
         private readonly LocationFinder $finder,
         private readonly ResourceLoader $resourceLoader,
         private readonly TranslationSplitter $translationSplitter,
         private readonly SolrIndexService $indexService,
         private readonly IndexingAborter $aborter,
-        private readonly string $source
+        private readonly IndexerConfigurationLoader $configLoader,
+        private readonly string $source,
+        private readonly LockFactory $lockFactory = new LockFactory(
+            new SemaphoreStore()
+        ),
+        private readonly LoggerInterface $logger = new NullLogger()
     ) {
+    }
+
+    public function enabled(): bool
+    {
+        return true;
+    }
+
+    public function getName(): string
+    {
+        return $this->getIndexerParameter()->name;
+    }
+
+    public function getProgressHandler(): IndexerProgressHandler
+    {
+        return $this->progressHandler;
+    }
+
+    public function setProgressHandler(
+        IndexerProgressHandler $progressHandler
+    ): void {
+        $this->progressHandler = $progressHandler;
+    }
+
+    public function getSource(): string
+    {
+        return $this->source;
     }
 
     /**
@@ -77,51 +114,56 @@ class InternalResourceIndexer implements Indexer
      * Indexes an entire directory structure or only selected files
      * if `paths` was specified in `$parameter`.
      */
-    public function index(IndexerParameter $parameter): IndexerStatus
+    public function index(): IndexerStatus
     {
-        if (empty($parameter->paths)) {
-            $pathList = $this->finder->findAll();
-        } else {
-            $mappedPaths = $this->normalizePaths($parameter->paths);
-            $pathList = $this->finder->findPaths($mappedPaths);
+        $lock = $this->lockFactory->createLock('indexer.' . $this->source);
+        if (!$lock->acquire()) {
+            return $this->progressHandler->getStatus();
         }
+        try {
+            $param = $this->getIndexerParameter();
+            return $this->indexResources($param, $this->finder->findAll());
+        } finally {
+            $lock->release();
+            gc_collect_cycles();
+        }
+    }
 
-        return $this->indexResources($parameter, $pathList);
+    /**
+     * @param string[] $paths
+     */
+    public function update(array $paths): IndexerStatus
+    {
+        $param = $this->loadIndexerParameter();
+        return $this->indexResources(
+            $param,
+            $this->finder->findPaths($paths)
+        );
+    }
+
+    private function getIndexerParameter(): IndexerParameter
+    {
+        return $this->parameter ??= ($this->loadIndexerParameter());
+    }
+
+    private function loadIndexerParameter(): IndexerParameter
+    {
+        $config = $this->configLoader->load($this->source);
+        return new IndexerParameter(
+            $config->name,
+            $config->data->getInt(
+                'cleanupThreshold'
+            ),
+            $config->data->getInt(
+                'chunkSize',
+                500
+            )
+        );
     }
 
     private function getBaseIndex(): string
     {
         return $this->indexService->getIndex('');
-    }
-
-    /**
-     * A path can signal to be translated into another language via
-     * the URL parameter loc. For example,
-     * `/dir/file.php?loc=it_IT` defines that the path
-     * `/dir/file.php.translations/it_IT.php` is to be used.
-     * This method translates the URL parameter into the correct path.
-     *
-     * @param string[] $pathList
-     * @return string[]
-     */
-    private function normalizePaths(array $pathList): array
-    {
-        return array_map(static function ($path) {
-            $queryString = parse_url($path, PHP_URL_QUERY);
-            if (!is_string($queryString)) {
-                return $path;
-            }
-            $urlPath = parse_url($path, PHP_URL_PATH);
-            if (!is_string($urlPath)) {
-                return $path;
-            }
-            parse_str($queryString, $params);
-            if (!isset($params['loc']) || !is_string($params['loc'])) {
-                return $urlPath;
-            }
-            $loc = $params['loc'];
-            return $urlPath . '.translations/' . $loc . ".php";
-        }, $pathList);
     }
 
     /**
@@ -140,9 +182,9 @@ class InternalResourceIndexer implements Indexer
         $total = count($pathList);
         if (empty($parameter->paths)) {
             $this->deleteErrorProtocol($this->getBaseIndex());
-            $this->indexerProgressHandler->start($total);
+            $this->progressHandler->start($total);
         } else {
-            $this->indexerProgressHandler->startUpdate($total);
+            $this->progressHandler->startUpdate($total);
         }
 
         $splitterResult = $this->translationSplitter->split($pathList);
@@ -152,9 +194,9 @@ class InternalResourceIndexer implements Indexer
             $splitterResult
         );
 
-        $this->indexerProgressHandler->finish();
+        $this->progressHandler->finish();
 
-        return $this->indexerProgressHandler->getStatus();
+        return $this->progressHandler->getStatus();
     }
 
     /**
@@ -186,10 +228,10 @@ class InternalResourceIndexer implements Indexer
             $langIndex = $this->indexService->getIndex($lang);
 
             if ($index === $langIndex) {
-                $this->indexerProgressHandler->error(new Exception(
+                $this->handleError(
                     'No Index for language "' . $lang . '" ' .
                     'found (base index: "' . $index . '")'
-                ));
+                );
                 continue;
             }
 
@@ -225,9 +267,7 @@ class InternalResourceIndexer implements Indexer
 
         $managedIndices = $this->indexService->getManagedIndices();
         if (!in_array($index, $managedIndices)) {
-            $this->indexerProgressHandler->error(new Exception(
-                'Index "' . $index . '" not found'
-            ));
+            $this->handleError('Index "' . $index . '" not found');
             return;
         }
 
@@ -288,19 +328,17 @@ class InternalResourceIndexer implements Indexer
         }
         if ($this->aborter->isAbortionRequested($index)) {
             $this->aborter->resetAbortionRequest($index);
-            $this->indexerProgressHandler->abort();
+            $this->progressHandler->abort();
             return false;
         }
         if (empty($resourceList)) {
             return 0;
         }
-        $this->indexerProgressHandler->advance(count($resourceList));
+        $this->progressHandler->advance(count($resourceList));
         $result = $this->add($lang, $processId, $resourceList);
 
         if ($result->getStatus() !== 0) {
-            $this->indexerProgressHandler->error(new Exception(
-                $result->getResponse()->getStatusMessage()
-            ));
+            $this->handleError($result->getResponse()->getStatusMessage());
             return 0;
         }
 
@@ -331,7 +369,7 @@ class InternalResourceIndexer implements Indexer
                 $resource = $this->resourceLoader->load($path);
                 $resourceList[] = $resource;
             } catch (Throwable $e) {
-                $this->indexerProgressHandler->error($e);
+                $this->handleError($e);
             }
         }
         return $resourceList;
@@ -350,7 +388,7 @@ class InternalResourceIndexer implements Indexer
 
         foreach ($resources as $resource) {
             if ($this->resourceFilter->accept($resource) === false) {
-                $this->indexerProgressHandler->skip(1);
+                $this->progressHandler->skip(1);
                 continue;
             }
             try {
@@ -366,12 +404,26 @@ class InternalResourceIndexer implements Indexer
                 }
                 $updater->addDocument($doc);
             } catch (Throwable $e) {
-                $this->indexerProgressHandler->error($e);
+                $this->handleError($e);
             }
         }
 
         // this executes the query and returns the result
         return $updater->update();
+    }
+
+    private function handleError(Throwable|string $error): void
+    {
+        if (is_string($error)) {
+            $error = new Exception($error);
+        }
+        $this->progressHandler->error($error);
+        $this->logger->error(
+            $error->getMessage(),
+            [
+                'exception' => $error,
+            ]
+        );
     }
 
     private function deleteErrorProtocol(string $core): void

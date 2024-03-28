@@ -33,9 +33,9 @@ class IndexerStatusStore
     /**
      * @throws ExceptionInterface
      */
-    public function load(string $index): IndexerStatus
+    public function load(string $key): IndexerStatus
     {
-        $file = $this->getStatusFile($index);
+        $file = $this->getStatusFile($key);
 
         if (!file_exists($file)) {
             return IndexerStatus::empty();
@@ -65,11 +65,11 @@ class IndexerStatusStore
         return $status;
     }
 
-    public function store(string $index, IndexerStatus $status): void
+    public function store(string $key, IndexerStatus $status): void
     {
         $this->createBaseDirectory();
 
-        $file = $this->getStatusFile($index);
+        $file = $this->getStatusFile($key);
         if (file_exists($file) && !is_writable($file)) {
             throw new RuntimeException(
                 'File ' . $file . ' is not writable'
@@ -117,9 +117,9 @@ class IndexerStatusStore
         }
     }
 
-    private function getStatusFile(string $index): string
+    private function getStatusFile(string $key): string
     {
         return $this->basedir .
-            '/atoolo.search.index.' . $index . ".status.json";
+            '/atoolo.search.index.' . $key . ".status.json";
     }
 }

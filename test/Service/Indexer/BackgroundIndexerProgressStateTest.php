@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
-use Atoolo\Search\Service\Indexer\BackgroundIndexerProgressState;
+use Atoolo\Search\Service\Indexer\IndexerProgressState;
 use Atoolo\Search\Service\Indexer\IndexerStatusStore;
 use Atoolo\Search\Service\IndexName;
 use Exception;
@@ -13,18 +13,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(BackgroundIndexerProgressState::class)]
+#[CoversClass(IndexerProgressState::class)]
 class BackgroundIndexerProgressStateTest extends TestCase
 {
     private IndexerStatusStore&MockObject $statusStore;
-    private BackgroundIndexerProgressState $state;
+    private IndexerProgressState $state;
 
     public function setUp(): void
     {
         $indexName = $this->createMock(IndexName::class);
         $indexName->method('name')->willReturn('test');
         $this->statusStore = $this->createMock(IndexerStatusStore::class);
-        $this->state = new BackgroundIndexerProgressState(
+        $this->state = new IndexerProgressState(
             $indexName,
             $this->statusStore
         );

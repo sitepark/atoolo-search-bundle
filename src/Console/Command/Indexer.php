@@ -7,8 +7,7 @@ namespace Atoolo\Search\Console\Command;
 use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
-use Atoolo\Search\Dto\Indexer\IndexerParameter;
-use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
+use Atoolo\Search\Service\Indexer\IndexerCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'atoolo:indexer',
+    name: 'search:indexer',
     description: 'Fill a search index'
 )]
 class Indexer extends Command
@@ -28,7 +27,7 @@ class Indexer extends Command
     public function __construct(
         private readonly ResourceChannelFactory $channelFactory,
         private readonly IndexerProgressBar $progressBar,
-        private readonly InternalResourceIndexer $indexer,
+        private readonly IndexerCollection $indexers,
     ) {
         parent::__construct();
     }
@@ -41,26 +40,6 @@ class Indexer extends Command
                 'paths',
                 InputArgument::OPTIONAL | InputArgument::IS_ARRAY,
                 'Resources paths or directories of resources to be indexed.'
-            )
-            ->addOption(
-                'cleanup-threshold',
-                null,
-                InputArgument::OPTIONAL,
-                'Specifies the number of documents required to be indexed ' .
-                'successfully for the entire process to be considered ' .
-                'successfull. Old entries will only ever be removed if this ' .
-                'threshold is reached. Only relevant for full-indexing.',
-                0
-            )
-            ->addOption(
-                'chunk-size',
-                null,
-                InputArgument::OPTIONAL,
-                'The chunk size determines how many documents are ' .
-                'indexed in an update request. The default value is 500. ' .
-                'Higher values no longer have a positive effect. Smaller ' .
-                'values can be selected if the memory limit is reached.',
-                500
             )
         ;
     }
@@ -76,35 +55,51 @@ class Indexer extends Command
 
         $paths = $typedInput->getArrayArgument('paths');
 
-        $cleanupThreshold = empty($paths)
-            ? $typedInput->getIntOption('cleanup-threshold')
-            : 0;
-
         $resourceChannel = $this->channelFactory->create();
         $this->io->title('Channel: ' . $resourceChannel->name);
 
+        /*
         if (empty($paths)) {
             $this->io->section('Index all resources');
         } else {
             $this->io->section('Index resource paths');
             $this->io->listing($paths);
         }
+        */
 
-        $parameter = new IndexerParameter(
-            $cleanupThreshold,
-            $typedInput->getIntOption('chunk-size'),
-            $paths
-        );
+        foreach ($this->indexers->getIndexers() as $indexer) {
+            if ($indexer->enabled()) {
+                $this->io->newLine();
+                $this->io->section(
+                    'Index with Indexer "' . $indexer->getName() . '"'
+                );
+                $progressHandler = $indexer->getProgressHandler();
+                $this->progressBar->init($progressHandler);
+                $indexer->setProgressHandler($this->progressBar);
+                try {
+                    $status = $indexer->index();
+                } finally {
+                    $indexer->setProgressHandler($progressHandler);
+                }
+                $this->io->newLine(2);
+                $this->io->section("Status");
+                $this->io->text($status->getStatusLine());
+                $this->io->newLine();
+                $this->errorReport();
+            }
+        }
 
-        $this->indexer->index($parameter);
-
-        $this->errorReport();
 
         return Command::SUCCESS;
     }
 
     protected function errorReport(): void
     {
+        if (empty($this->progressBar->getErrors())) {
+            return;
+        }
+        $this->io->section("Error Report");
+
         foreach ($this->progressBar->getErrors() as $error) {
             if ($this->io->isVerbose() && $this->getApplication() !== null) {
                 $this->getApplication()->renderThrowable($error, $this->output);

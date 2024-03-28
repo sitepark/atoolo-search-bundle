@@ -38,13 +38,39 @@ class SubDirTranslationSplitter implements TranslationSplitter
 
     private function extractLocaleFromPath(string $path): string
     {
-        $filename = basename($path);
-        $parentDirName = basename(dirname($path));
+        $normalizedPath = $this->normalizePath($path);
+        $filename = basename($normalizedPath);
+        $parentDirName = basename(dirname($normalizedPath));
 
         if (!str_ends_with($parentDirName, '.php.translations')) {
             return 'default';
         }
 
         return basename($filename, '.php');
+    }
+
+    /**
+     * A path can signal to be translated into another language via
+     * the URL parameter loc. For example,
+     * `/dir/file.php?loc=it_IT` defines that the path
+     * `/dir/file.php.translations/it_IT.php` is to be used.
+     * This method translates the URL parameter into the correct path.
+     */
+    private function normalizePath(string $path): string
+    {
+        $queryString = parse_url($path, PHP_URL_QUERY);
+        if (!is_string($queryString)) {
+            return $path;
+        }
+        $urlPath = parse_url($path, PHP_URL_PATH);
+        if (!is_string($urlPath)) {
+            return $path;
+        }
+        parse_str($queryString, $params);
+        if (!isset($params['loc']) || !is_string($params['loc'])) {
+            return $urlPath;
+        }
+        $loc = $params['loc'];
+        return $urlPath . '.translations/' . $loc . ".php";
     }
 }

@@ -5,61 +5,67 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command\Io;
 
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
-use Atoolo\Search\Dto\Indexer\IndexerStatusState;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
-use DateTime;
+use JsonException;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Throwable;
 
 class IndexerProgressBar implements IndexerProgressHandler
 {
-    private OutputInterface $output;
-    private ProgressBar $progressBar;
-    private IndexerStatus $status;
+    private ?ProgressBar $progressBar;
+
+    private IndexerProgressHandler $currentProgressHandler;
 
     /**
      * @var array<Throwable>
      */
     private array $errors = [];
 
-    public function __construct(OutputInterface $output = new ConsoleOutput())
-    {
-        $this->output = $output;
+    public function __construct(
+        private readonly OutputInterface $output = new ConsoleOutput()
+    ) {
+    }
+
+    public function init(
+        IndexerProgressHandler $progressHandler
+    ): void {
+        $this->currentProgressHandler = $progressHandler;
+        $this->errors = [];
+        $this->progressBar = null;
     }
 
     public function start(int $total): void
     {
+        $this->currentProgressHandler->start($total);
         $this->progressBar = new ProgressBar($this->output, $total);
         $this->formatProgressBar('green');
-        $this->status = new IndexerStatus(
-            IndexerStatusState::RUNNING,
-            new DateTime(),
-            null,
-            $total,
-            0,
-            0,
-            new DateTime(),
-            0,
-            0
-        );
     }
 
+    /**
+     * @throws ExceptionInterface
+     */
     public function startUpdate(int $total): void
     {
-        $this->start($total);
+        $this->currentProgressHandler->startUpdate($total);
+        $this->progressBar = new ProgressBar($this->output, $total);
+        $this->formatProgressBar('green');
     }
 
+    /**
+     * @throws JsonException
+     */
     public function advance(int $step): void
     {
+        $this->currentProgressHandler->advance($step);
         $this->progressBar->advance($step);
-        $this->status->processed += $step;
     }
 
     public function skip(int $step): void
     {
-        $this->status->skipped++;
+        $this->currentProgressHandler->skip($step);
     }
 
     private function formatProgressBar(string $color): void
@@ -75,16 +81,18 @@ class IndexerProgressBar implements IndexerProgressHandler
 
     public function error(Throwable $throwable): void
     {
+        $this->currentProgressHandler->error($throwable);
         $this->formatProgressBar('red');
         $this->errors[] = $throwable;
-        $this->status->errors++;
     }
 
+    /**
+     * @throws JsonException
+     */
     public function finish(): void
     {
+        $this->currentProgressHandler->finish();
         $this->progressBar->finish();
-        $this->status->state = IndexerStatusState::FINISHED;
-        $this->status->endTime = new DateTime();
     }
 
     /**
@@ -97,13 +105,12 @@ class IndexerProgressBar implements IndexerProgressHandler
 
     public function getStatus(): IndexerStatus
     {
-        return $this->status;
+        return $this->currentProgressHandler->getStatus();
     }
 
     public function abort(): void
     {
+        $this->currentProgressHandler->abort();
         $this->progressBar->finish();
-        $this->status->state = IndexerStatusState::ABORTED;
-        $this->status->endTime = new DateTime();
     }
 }
