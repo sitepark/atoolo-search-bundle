@@ -62,4 +62,52 @@ class SubDirTranslationSplitterTest extends TestCase
             'unexpected translations'
         );
     }
+
+    public function testSplitWithLocParameter(): void
+    {
+        $splitter = new SubDirTranslationSplitter();
+        $result = $splitter->split([
+            '/a/b.php?loc=en_US',
+        ]);
+
+        $translations = $result->getTranslations('en_US');
+
+        $expected = [
+            '/a/b.php.translations/en_US.php',
+        ];
+
+        $this->assertEquals(
+            $expected,
+            $translations,
+            'unexpected translations'
+        );
+    }
+
+    public function testSplitWithOutPath(): void
+    {
+        $splitter = new SubDirTranslationSplitter();
+        $result = $splitter->split([
+            '?a=b',
+        ]);
+
+        $this->assertEquals(
+            [],
+            $result->getBases(),
+            'bases should be empty'
+        );
+    }
+
+    public function testSplitWithUnsupportedParameter(): void
+    {
+        $splitter = new SubDirTranslationSplitter();
+        $result = $splitter->split([
+            '/test.php?a=b',
+        ]);
+
+        $this->assertEquals(
+            ['/test.php'],
+            $result->getBases(),
+            'unexpected bases'
+        );
+    }
 }

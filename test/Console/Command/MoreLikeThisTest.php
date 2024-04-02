@@ -13,6 +13,7 @@ use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\Service\Search\SolrMoreLikeThis;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -20,6 +21,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 class MoreLikeThisTest extends TestCase
 {
     private CommandTester $commandTester;
+
+    private SolrMoreLikeThis&Stub $solrMoreLikeThis;
 
     /**
      * @throws Exception
@@ -55,11 +58,9 @@ class MoreLikeThisTest extends TestCase
             [],
             10
         );
-        $solrMoreLikeThis = $this->createStub(SolrMoreLikeThis::class);
-        $solrMoreLikeThis->method('moreLikeThis')
-            ->willReturn($result);
+        $this->solrMoreLikeThis = $this->createStub(SolrMoreLikeThis::class);
 
-        $command = new MoreLikeThis($resourceChannelFactory, $solrMoreLikeThis);
+        $command = new MoreLikeThis($resourceChannelFactory, $this->solrMoreLikeThis);
 
         $application = new Application([$command]);
 
@@ -69,6 +70,21 @@ class MoreLikeThisTest extends TestCase
 
     public function testExecute(): void
     {
+
+        $resultResource = $this->createStub(Resource::class);
+        $resultResource->method('getLocation')
+            ->willReturn('/test2.php');
+        $result = new SearchResult(
+            1,
+            1,
+            0,
+            [$resultResource],
+            [],
+            10
+        );
+        $this->solrMoreLikeThis->method('moreLikeThis')
+            ->willReturn($result);
+
         $this->commandTester->execute([
             'location' => '/test.php'
         ]);
@@ -91,4 +107,40 @@ EOF,
             $output
         );
     }
+
+    public function testExecuteNoResult(): void
+    {
+
+        $result = new SearchResult(
+            0,
+            1,
+            0,
+            [],
+            [],
+            10
+        );
+        $this->solrMoreLikeThis->method('moreLikeThis')
+            ->willReturn($result);
+
+        $this->commandTester->execute([
+            'location' => '/test.php'
+        ]);
+
+        $this->commandTester->assertCommandIsSuccessful();
+
+        // the output of the command in the console
+        $output = $this->commandTester->getDisplay();
+        $this->assertEquals(
+            <<<EOF
+
+Channel: WWW
+============
+
+ No results found.
+
+EOF,
+            $output
+        );
+    }
+
 }

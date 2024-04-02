@@ -45,12 +45,28 @@ class IndexerTest extends TestCase
         );
         $this->resourceChannelFactory->method('create')
             ->willReturn($resourceChannel);
-        $indexer = $this->createStub(
+        $indexerA = $this->createStub(
             \Atoolo\Search\Indexer::class
         );
-        $indexer->method('enabled')
+        $indexerA->method('enabled')
             ->willReturn(true);
-        $indexers = new IndexerCollection([$indexer]);
+        $indexerA->method('getSource')
+            ->willReturn('indexer_a');
+        $indexerA->method('getName')
+            ->willReturn('Indexer A');
+        $indexerB = $this->createStub(
+            \Atoolo\Search\Indexer::class
+        );
+        $indexerB->method('enabled')
+            ->willReturn(false);
+        $indexerB->method('getSource')
+            ->willReturn('indexer_b');
+        $indexerB->method('getName')
+            ->willReturn('Indexer B');
+        $indexers = new IndexerCollection([
+            $indexerA,
+            $indexerB
+        ]);
         $progressBar = $this->createStub(IndexerProgressBar::class);
 
         $command = new Indexer(
@@ -65,7 +81,7 @@ class IndexerTest extends TestCase
         $this->commandTester = new CommandTester($command);
     }
 
-    public function testExecuteIndexAll(): void
+    public function testExecuteAllEnabledIndexer(): void
     {
         $this->commandTester->execute([]);
 
@@ -80,8 +96,8 @@ Channel: WWW
 ============
 
 
-Index with Indexer ""
----------------------
+Index with Indexer "Indexer A"
+------------------------------
 
 
 
@@ -96,6 +112,40 @@ EOF,
         );
     }
 
+    public function testExecuteIndexerA(): void
+    {
+        $this->commandTester->execute(
+            [
+                '--source' => 'indexer_a'
+            ]
+        );
+
+        $this->commandTester->assertCommandIsSuccessful();
+
+        // the output of the command in the console
+        $output = $this->commandTester->getDisplay();
+        $this->assertEquals(
+            <<<EOF
+
+Channel: WWW
+============
+
+
+Index with Indexer "Indexer A"
+------------------------------
+
+
+
+Status
+------
+
+ 
+
+
+EOF,
+            $output
+        );
+    }
     /**
      * @throws Exception
      */

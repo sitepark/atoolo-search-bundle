@@ -6,6 +6,9 @@ namespace Atoolo\Search\Dto\Indexer;
 
 use Atoolo\Resource\DataBag;
 
+/**
+ * @codeCoverageIgnore
+ */
 class IndexerConfiguration
 {
     public function __construct(

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer;
 
-use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\BackgroundIndexer;
+use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use Atoolo\Search\Service\Indexer\IndexerStatusStore;
 use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
 use Atoolo\Search\Service\IndexName;
@@ -19,18 +19,26 @@ use Symfony\Component\Lock\SharedLockInterface;
 class BackgroundIndexerTest extends TestCase
 {
     private IndexName $indexName;
-    private InternalResourceIndexer&MockObject $solrIndexer;
+    private InternalResourceIndexer&MockObject $internalResourceIndexer;
     private IndexerStatusStore&MockObject $statusStore;
+    private IndexerProgressHandler $progressHandler;
     private BackgroundIndexer $indexer;
 
     public function setUp(): void
     {
 
+        $this->progressHandler = $this->createStub(IndexerProgressHandler::class);
         $this->indexName = $this->createMock(IndexName::class);
-        $this->solrIndexer = $this->createMock(InternalResourceIndexer::class);
+        $this->internalResourceIndexer = $this->createMock(
+            InternalResourceIndexer::class
+        );
+        $this->internalResourceIndexer->method('getSource')
+            ->willReturn('internal');
+        $this->internalResourceIndexer->method('getProgressHandler')
+            ->willReturn($this->progressHandler);
         $this->statusStore = $this->createMock(IndexerStatusStore::class);
         $this->indexer = new BackgroundIndexer(
-            $this->solrIndexer,
+            $this->internalResourceIndexer,
             $this->indexName,
             $this->statusStore
         );
@@ -38,24 +46,23 @@ class BackgroundIndexerTest extends TestCase
 
     public function testRemove(): void
     {
-        $this->solrIndexer->expects($this->once())
+        $this->internalResourceIndexer->expects($this->once())
             ->method('remove');
         $this->indexer->remove(['123']);
     }
 
     public function testAbort(): void
     {
-        $this->solrIndexer->expects($this->once())
+        $this->internalResourceIndexer->expects($this->once())
             ->method('abort');
         $this->indexer->abort();
     }
 
     public function testIndex(): void
     {
-        $params = new IndexerParameter('');
-        $this->solrIndexer->expects($this->once())
+        $this->internalResourceIndexer->expects($this->once())
             ->method('index');
-        $this->indexer->index($params);
+        $this->indexer->index();
     }
 
     public function testIndexIfLocked(): void
@@ -73,11 +80,10 @@ class BackgroundIndexerTest extends TestCase
         $lockFactory->method('createLock')
             ->willReturn($lock);
 
-        $this->solrIndexer->expects($this->exactly(0))
+        $this->internalResourceIndexer->expects($this->exactly(0))
             ->method('index');
 
-        $params = new IndexerParameter('');
-        $indexer->index($params);
+        $indexer->index();
     }
 
     public function testGetStatus(): void
@@ -86,4 +92,46 @@ class BackgroundIndexerTest extends TestCase
             ->method('load');
         $this->indexer->getStatus();
     }
+
+    public function testEnable(): void
+    {
+        $this->assertTrue(
+            $this->indexer->enabled(),
+            'indexer should always be enabled'
+        );
+    }
+
+    public function testGetSource(): void
+    {
+        $this->assertEquals(
+            'internal',
+            $this->indexer->getSource(),
+            'Unexpected source'
+        );
+    }
+
+    public function testGetProgressHandler(): void
+    {
+        $this->internalResourceIndexer->expects($this->once())
+            ->method('getProgressHandler');
+        $this->indexer->getProgressHandler();
+    }
+
+    public function testSetProgressHandler(): void
+    {
+        $progressHandler = $this->createStub(IndexerProgressHandler::class);
+        $this->internalResourceIndexer->expects($this->once())
+            ->method('setProgressHandler');
+        $this->indexer->setProgressHandler($progressHandler);
+    }
+
+    public function testGetName(): void
+    {
+        $this->assertEquals(
+            'Background Indexer',
+            $this->indexer->getName(),
+            'Unexpected name'
+        );
+    }
+
 }

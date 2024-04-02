@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Console\Command\Io;
 
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
+use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use Exception;
+use JsonException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 /**
  * @phpcs:disable Generic.Files.LineLength
@@ -22,13 +25,14 @@ class IndexerProgressBarTest extends TestCase
 
     private IndexerProgressHandler&MockObject $progressHandler;
 
-    private OutputInterface&MockObject $output;
-
+    /**
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     */
     public function setUp(): void
     {
-        $this->output = $this->createMock(OutputInterface::class);
+        $output = $this->createMock(OutputInterface::class);
         $this->progressHandler = $this->createMock(IndexerProgressHandler::class);
-        $this->progressBar = new IndexerProgressBar($this->output);
+        $this->progressBar = new IndexerProgressBar($output);
         $this->progressBar->init($this->progressHandler);
     }
 
@@ -41,6 +45,9 @@ class IndexerProgressBarTest extends TestCase
         $this->progressBar->start(10);
     }
 
+    /**
+     * @throws ExceptionInterface
+     */
     public function testStartUpdate(): void
     {
         $this->progressHandler
@@ -52,6 +59,7 @@ class IndexerProgressBarTest extends TestCase
 
     /**
      * @phpcs:disable Generic.Files.LineLength
+     * @throws JsonException
      */
     public function testAdvance(): void
     {
@@ -63,7 +71,7 @@ class IndexerProgressBarTest extends TestCase
             ->method('advance')
             ->with(1);
 
-        $this->progressHandler->advance(1);
+        $this->progressBar->advance(1);
     }
 
     public function testSkip(): void
@@ -107,6 +115,9 @@ class IndexerProgressBarTest extends TestCase
         );
     }
 
+    /**
+     * @throws JsonException
+     */
     public function testFinish(): void
     {
 
@@ -126,5 +137,19 @@ class IndexerProgressBarTest extends TestCase
             ->expects($this->once())
             ->method('abort');
         $this->progressBar->abort();
-   }
+    }
+
+    /**
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     */
+    public function testGetStatus(): void
+    {
+        $status = $this->createStub(IndexerStatus::class);
+        $this->progressHandler->method('getStatus')->willReturn($status);
+        $this->progressHandler
+            ->expects($this->once())
+            ->method('getStatus')
+            ->willReturn($status);
+        $this->progressBar->getStatus();
+    }
 }

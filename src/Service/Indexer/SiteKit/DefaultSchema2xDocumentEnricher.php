@@ -327,11 +327,10 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         }
 
         if (isset($contactPoint['addressData'])) {
-            $addressData = $contactPoint['addressData'];
-            $content[] = $addressData['street'] ?? '';
-            $content[] = $addressData['buildingName'] ?? '';
-            $content[] = $addressData['postOfficeBoxData']['buildingName']
-                    ?? '';
+            $data = $contactPoint['addressData'];
+            $content[] = $data['street'] ?? '';
+            $content[] = $data['buildingName'] ?? '';
+            $content[] = $data['postOfficeBoxData']['buildingName'] ?? '';
         }
 
         return implode(' ', $content);

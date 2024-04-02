@@ -7,7 +7,6 @@ use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Dto\Indexer\IndexerConfiguration;
-use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexerConfigurationLoader;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
@@ -25,7 +24,10 @@ use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Solarium\QueryType\Update\Result as UpdateResult;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\Store\SemaphoreStore;
 
 #[CoversClass(InternalResourceIndexer::class)]
 class InternalResourceIndexerTest extends TestCase
@@ -43,7 +45,7 @@ class InternalResourceIndexerTest extends TestCase
 
     private InternalResourceIndexer $indexer;
 
-    private SolrIndexService $solrIndexService;
+    private SolrIndexService&MockObject $solrIndexService;
 
     private LocationFinder&MockObject $finder;
 
@@ -60,6 +62,10 @@ class InternalResourceIndexerTest extends TestCase
     private IndexerConfigurationLoader&MockObject $indexerConfigurationLoader;
 
     private IndexerConfiguration $indexerConfiguration;
+
+    private LockFactory $lockFactory;
+
+    private LoggerInterface&MockObject $logger;
 
     /**
      * @throws Exception
@@ -111,8 +117,8 @@ class InternalResourceIndexerTest extends TestCase
             ->willReturn($this->updater);
         $this->aborter =  $this->createMock(IndexingAborter::class);
         $this->indexerConfiguration = new IndexerConfiguration(
-            '',
-            '',
+            'test-source',
+            'Indexer-Name',
             new DataBag([
                 'cleanupThreshold' =>  10,
                 'chunkSize' => 10
@@ -124,6 +130,9 @@ class InternalResourceIndexerTest extends TestCase
         $this->indexerConfigurationLoader->method('load')
             ->willReturn($this->indexerConfiguration);
 
+        $this->lockFactory = new LockFactory(new SemaphoreStore());
+        $this->logger = $this->createMock(LoggerInterface::class);
+
         $this->indexer = new InternalResourceIndexer(
             [ $this->documentEnricher ],
             $this->indexerFilter,
@@ -134,7 +143,9 @@ class InternalResourceIndexerTest extends TestCase
             $this->solrIndexService,
             $this->aborter,
             $this->indexerConfigurationLoader,
-            'test-source'
+            'test-source',
+            $this->lockFactory,
+            $this->logger
         );
     }
 
@@ -285,22 +296,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->indexerProgressHandler->expects($this->once())
             ->method('error');
 
-        $parameter = new IndexerParameter(
-            '',
-            10,
-            10
-        );
-
-        $this->indexer->index($parameter);
-    }
-
-    public function testEmptyStatus(): void
-    {
-        $this->finder->method('findAll')
-            ->willReturn([]);
-
-        $status = $this->indexer->index();
-        $this->assertEquals(0, $status->total, 'total should be 0');
+        $this->indexer->index();
     }
 
     public function testUpdate(): void
@@ -326,6 +322,30 @@ class InternalResourceIndexerTest extends TestCase
         $this->indexer->update([
             '/a/b.php',
             '/a/c.php'
+        ]);
+    }
+
+    public function testUpdateOtherLang(): void
+    {
+        $this->finder->method('findPaths')
+            ->willReturn([
+                '/a/b.php.translations/en_US.php',
+            ]);
+
+        $this->updateResult->method('getStatus')
+            ->willReturn(0);
+
+        $this->indexerFilter->method('accept')
+            ->willReturn(true);
+
+        $this->updater->expects($this->exactly(1))
+            ->method('addDocument');
+
+        $this->updater->expects($this->exactly(1))
+            ->method('update');
+
+        $this->indexer->update([
+            '/a/b.php.translations/en_US.php',
         ]);
     }
 
@@ -359,15 +379,69 @@ class InternalResourceIndexerTest extends TestCase
                 '/a/l.php'
             ]);
 
-        $parameter = new IndexerParameter(
-            '',
-            10,
-            10
-        );
-
         $this->indexerProgressHandler->expects($this->once())
             ->method('error');
 
-        $this->indexer->index($parameter);
+        $this->indexer->index();
+    }
+
+    public function testEnabled(): void
+    {
+        $this->assertTrue(
+            $this->indexer->enabled(),
+            'indexer should be always enabled'
+        );
+    }
+
+    public function testGetName(): void
+    {
+        $this->assertEquals(
+            'Indexer-Name',
+            $this->indexer->getName(),
+            'unexpected Indexer Name'
+        );
+    }
+
+    public function testGetProgressHandler(): void
+    {
+        $this->assertEquals(
+            $this->indexerProgressHandler,
+            $this->indexer->getProgressHandler(),
+            'unexpected progress handler'
+        );
+    }
+
+    public function testSetProgressHandler(): void
+    {
+        $progressHandler = $this->createStub(IndexerProgressHandler::class);
+        $this->indexer->setProgressHandler($progressHandler);
+        $this->assertEquals(
+            $progressHandler,
+            $this->indexer->getProgressHandler(),
+            'unexpected progress handler'
+        );
+    }
+
+    public function testGetSource(): void
+    {
+        $this->assertEquals(
+            'test-source',
+            $this->indexer->getSource(),
+            'unexpected source'
+        );
+    }
+
+    public function testLock(): void
+    {
+        $this->logger->expects($this->once())
+            ->method('notice')
+            ->with('Indexer with source "test-source" is already running');
+        $lock = $this->lockFactory->createLock('indexer.test-source');
+        try {
+            $lock->acquire();
+            $this->indexer->index();
+        } finally {
+            $lock->release();
+        }
     }
 }

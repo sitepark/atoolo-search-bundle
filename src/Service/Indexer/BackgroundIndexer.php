@@ -35,6 +35,7 @@ class BackgroundIndexer implements Indexer
     public function setProgressHandler(
         IndexerProgressHandler $progressHandler
     ): void {
+        $this->indexer->setProgressHandler($progressHandler);
     }
 
     public function getName(): string

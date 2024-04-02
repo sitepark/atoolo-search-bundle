@@ -22,15 +22,19 @@ class SubDirTranslationSplitter implements TranslationSplitter
         $bases = [];
         $translations = [];
         foreach ($pathList as $path) {
-            $locale = $this->extractLocaleFromPath($path);
+            $normalizedPath = $this->normalizePath($path);
+            if (empty($normalizedPath)) {
+                continue;
+            }
+            $locale = $this->extractLocaleFromPath($normalizedPath);
             if ($locale === 'default') {
-                $bases[] = $path;
+                $bases[] = $normalizedPath;
                 continue;
             }
             if (!isset($translations[$locale])) {
                 $translations[$locale] = [];
             }
-            $translations[$locale][] = $path;
+            $translations[$locale][] = $normalizedPath;
         }
 
         return new TranslationSplitterResult($bases, $translations);
@@ -38,9 +42,8 @@ class SubDirTranslationSplitter implements TranslationSplitter
 
     private function extractLocaleFromPath(string $path): string
     {
-        $normalizedPath = $this->normalizePath($path);
-        $filename = basename($normalizedPath);
-        $parentDirName = basename(dirname($normalizedPath));
+        $filename = basename($path);
+        $parentDirName = basename(dirname($path));
 
         if (!str_ends_with($parentDirName, '.php.translations')) {
             return 'default';
@@ -64,7 +67,7 @@ class SubDirTranslationSplitter implements TranslationSplitter
         }
         $urlPath = parse_url($path, PHP_URL_PATH);
         if (!is_string($urlPath)) {
-            return $path;
+            return '';
         }
         parse_str($queryString, $params);
         if (!isset($params['loc']) || !is_string($params['loc'])) {

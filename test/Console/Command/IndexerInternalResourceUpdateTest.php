@@ -7,7 +7,6 @@ namespace Atoolo\Search\Test\Console\Command;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Application;
-use Atoolo\Search\Console\Command\Indexer;
 use Atoolo\Search\Console\Command\IndexerInternalResourceUpdate;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
 use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
@@ -17,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
-#[CoversClass(Indexer::class)]
+#[CoversClass(IndexerInternalResourceUpdate::class)]
 class IndexerInternalResourceUpdateTest extends TestCase
 {
     private ResourceChannelFactory $resourceChannelFactory;

@@ -26,14 +26,12 @@ class IndexerConfigurationLoader
             return [];
         }
 
-        $files = glob($dir . '/*.php');
-        if ($files === false) {
-            return [];
-        }
+        $files = glob($dir . '/*.php') ?: [];
 
         $configurations = [];
         foreach ($files as $file) {
-            $configurations[] = $this->load($file);
+            $source = pathinfo($file, PATHINFO_FILENAME);
+            $configurations[] = $this->load($source);
         }
         return $configurations;
     }
@@ -75,22 +73,9 @@ class IndexerConfigurationLoader
                 );
             }
 
-            if (isset($data['source']) === false) {
-                throw new RuntimeException(
-                    'The indexer configuration ' .
-                    $file . ' should have a source key'
-                );
-            }
-
-            if ($data['source'] !== $source) {
-                throw new RuntimeException(
-                    'source key in ' . $file . ' should match the filename'
-                );
-            }
-
             return new IndexerConfiguration(
-                $data['source'],
-                $data['name'] ?? $data['source'],
+                $source,
+                $data['name'] ?? $source,
                 new DataBag($data['data'] ?? []),
             );
         } finally {

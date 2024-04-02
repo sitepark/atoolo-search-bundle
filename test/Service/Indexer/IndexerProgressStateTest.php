@@ -9,12 +9,13 @@ use Atoolo\Search\Service\Indexer\IndexerProgressState;
 use Atoolo\Search\Service\Indexer\IndexerStatusStore;
 use Atoolo\Search\Service\IndexName;
 use Exception;
+use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(IndexerProgressState::class)]
-class BackgroundIndexerProgressStateTest extends TestCase
+class IndexerProgressStateTest extends TestCase
 {
     private IndexerStatusStore&MockObject $statusStore;
     private IndexerProgressState $state;
@@ -58,21 +59,10 @@ class BackgroundIndexerProgressStateTest extends TestCase
         );
     }
 
-    public function testAdvance(): void
+    public function testAdvanceWithoutStart(): void
     {
-
-        $this->state->start(10);
-
-        $this->statusStore->expects($this->once())
-            ->method('store');
-
+        $this->expectException(LogicException::class);
         $this->state->advance(1);
-
-        $this->assertMatchesRegularExpression(
-            '/\[RUNNING].*processed: 1\/10,/',
-            $this->state->getStatus()->getStatusLine(),
-            "unexpected status line"
-        );
     }
 
     public function testAdvanceForUpdate(): void
@@ -110,6 +100,12 @@ class BackgroundIndexerProgressStateTest extends TestCase
         );
     }
 
+    public function testSkipWithoutStart(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->state->skip(1);
+    }
+
     public function testError(): void
     {
         $this->state->start(10);
@@ -121,6 +117,12 @@ class BackgroundIndexerProgressStateTest extends TestCase
             $this->state->getStatus()->getStatusLine(),
             "unexpected status line"
         );
+    }
+
+    public function testErrorWithoutStart(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->state->error(new Exception('test'));
     }
 
     public function testFinish(): void
@@ -139,6 +141,12 @@ class BackgroundIndexerProgressStateTest extends TestCase
         );
     }
 
+    public function testFinishWithoutStart(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->state->finish();
+    }
+
     public function testAbort(): void
     {
         $this->state->start(10);
@@ -149,6 +157,34 @@ class BackgroundIndexerProgressStateTest extends TestCase
             '/\[ABORTED]/',
             $this->state->getStatus()->getStatusLine(),
             "unexpected status line"
+        );
+    }
+
+    public function testAbortWithoutStart(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->state->abort();
+    }
+
+    public function testGetStatus(): void
+    {
+        $indexName = $this->createMock(IndexName::class);
+        $indexName->method('name')->willReturn('test');
+        $status = $this->createMock(IndexerStatus::class);
+        $statusStore = $this->createMock(IndexerStatusStore::class);
+        $statusStore->method('load')
+            ->willReturn($status);
+
+        $state = new IndexerProgressState(
+            $indexName,
+            $statusStore,
+            'source'
+        );
+
+        $this->assertEquals(
+            $status,
+            $state->getStatus(),
+            'unexpected status'
         );
     }
 }

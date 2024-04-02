@@ -118,15 +118,26 @@ class InternalResourceIndexer implements Indexer
     {
         $lock = $this->lockFactory->createLock('indexer.' . $this->source);
         if (!$lock->acquire()) {
+            $this->logger->notice(
+                'Indexer with source "' . $this->source . '" is already running'
+            );
             return $this->progressHandler->getStatus();
         }
         try {
+            $paths = $this->finder->findAll();
+            $this->deleteErrorProtocol($this->getBaseIndex());
+            $total = count($paths);
+            $this->progressHandler->start($total);
+
             $param = $this->getIndexerParameter();
-            return $this->indexResources($param, $this->finder->findAll());
+            $this->indexResources($param, $this->finder->findAll());
         } finally {
             $lock->release();
+            $this->progressHandler->finish();
             gc_collect_cycles();
         }
+
+        return $this->progressHandler->getStatus();
     }
 
     /**
@@ -134,11 +145,19 @@ class InternalResourceIndexer implements Indexer
      */
     public function update(array $paths): IndexerStatus
     {
-        $param = $this->loadIndexerParameter();
-        return $this->indexResources(
-            $param,
-            $this->finder->findPaths($paths)
-        );
+        $collectedPaths = $this->finder->findPaths($paths);
+        $total = count($collectedPaths);
+        $this->progressHandler->startUpdate($total);
+
+        try {
+            $param = $this->loadIndexerParameter();
+            $this->indexResources($param, $collectedPaths);
+        } finally {
+            $this->progressHandler->finish();
+            gc_collect_cycles();
+        }
+
+        return $this->progressHandler->getStatus();
     }
 
     private function getIndexerParameter(): IndexerParameter
@@ -174,29 +193,16 @@ class InternalResourceIndexer implements Indexer
     private function indexResources(
         IndexerParameter $parameter,
         array $pathList
-    ): IndexerStatus {
+    ): void {
         if (count($pathList) === 0) {
-            return IndexerStatus::empty();
-        }
-
-        $total = count($pathList);
-        if (empty($parameter->paths)) {
-            $this->deleteErrorProtocol($this->getBaseIndex());
-            $this->progressHandler->start($total);
-        } else {
-            $this->progressHandler->startUpdate($total);
+            return;
         }
 
         $splitterResult = $this->translationSplitter->split($pathList);
-
         $this->indexTranslationSplittedResources(
             $parameter,
             $splitterResult
         );
-
-        $this->progressHandler->finish();
-
-        return $this->progressHandler->getStatus();
     }
 
     /**

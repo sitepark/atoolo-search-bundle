@@ -6,14 +6,10 @@ namespace Atoolo\Search\Dto\Indexer;
 
 class IndexerParameter
 {
-    /**
-     * @param string[] $paths
-     */
     public function __construct(
         public readonly string $name,
         public readonly int $cleanupThreshold = 0,
-        public readonly int $chunkSize = 500,
-        public readonly array $paths = []
+        public readonly int $chunkSize = 500
     ) {
         if ($this->chunkSize < 10) {
             throw new \InvalidArgumentException(

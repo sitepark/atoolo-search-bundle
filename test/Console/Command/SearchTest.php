@@ -23,6 +23,8 @@ class SearchTest extends TestCase
 {
     private CommandTester $commandTester;
 
+    private SolrSearch $solrSearch;
+
     /**
      * @throws Exception
      */
@@ -46,6 +48,19 @@ class SearchTest extends TestCase
         );
         $resourceChannelFactory->method('create')
             ->willReturn($resourceChannel);
+
+        $this->solrSearch = $this->createStub(SolrSearch::class);
+        $command = new Search($resourceChannelFactory, $this->solrSearch);
+
+        $application = new Application([$command]);
+
+        $command = $application->find('search:search');
+        $this->commandTester = new CommandTester($command);
+    }
+
+    public function testExecute(): void
+    {
+
         $resultResource = $this->createStub(Resource::class);
         $resultResource->method('getLocation')
             ->willReturn('/test.php');
@@ -63,20 +78,10 @@ class SearchTest extends TestCase
             )],
             10
         );
-        $solrSelect = $this->createStub(SolrSearch::class);
-        $solrSelect->method('search')
+
+        $this->solrSearch->method('search')
             ->willReturn($result);
 
-        $command = new Search($resourceChannelFactory, $solrSelect);
-
-        $application = new Application([$command]);
-
-        $command = $application->find('search:search');
-        $this->commandTester = new CommandTester($command);
-    }
-
-    public function testExecute(): void
-    {
         $this->commandTester->execute([
             'text' => 'test abc'
         ]);
@@ -104,6 +109,41 @@ objectType
  * content (1)
 
  Query-Time: 10ms
+
+EOF,
+            $output
+        );
+    }
+
+    public function testExecuteWithEmtpyResult(): void
+    {
+
+        $result = new SearchResult(
+            0,
+            1,
+            0,
+            [],
+            [],
+            10
+        );
+
+        $this->solrSearch->method('search')
+            ->willReturn($result);
+
+        $this->commandTester->execute([
+            'text' => 'test abc'
+        ]);
+
+        $this->commandTester->assertCommandIsSuccessful();
+
+        $output = $this->commandTester->getDisplay();
+        $this->assertEquals(
+            <<<EOF
+
+Channel: WWW
+============
+
+ No results found
 
 EOF,
             $output
