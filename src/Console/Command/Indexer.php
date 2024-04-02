@@ -41,6 +41,13 @@ class Indexer extends Command
                 InputArgument::OPTIONAL | InputArgument::IS_ARRAY,
                 'Resources paths or directories of resources to be indexed.'
             )
+            ->addOption(
+                'source',
+                null,
+                InputArgument::OPTIONAL,
+                'Uses only the indexer of a specific source',
+                ''
+            )
         ;
     }
 
@@ -53,12 +60,15 @@ class Indexer extends Command
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
 
-        $paths = $typedInput->getArrayArgument('paths');
+        $source = $typedInput->getStringOption('source');
 
         $resourceChannel = $this->channelFactory->create();
         $this->io->title('Channel: ' . $resourceChannel->name);
 
         foreach ($this->indexers->getIndexers() as $indexer) {
+            if (!empty($source) && $indexer->getSource() !== $source) {
+                continue;
+            }
             if ($indexer->enabled()) {
                 $this->io->newLine();
                 $this->io->section(
