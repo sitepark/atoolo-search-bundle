@@ -255,12 +255,12 @@ class SolrSearch implements Search
         $facetGroupList = $this->buildFacetGroupList($query, $result);
 
         return new SearchResult(
-            $result->getNumFound() ?? 0,
-            $query->limit,
-            $query->offset,
-            $resourceList,
-            $facetGroupList,
-            $result->getQueryTime() ?? 0
+            total:$result->getNumFound() ?? 0,
+            limit: $query->limit,
+            offset: $query->offset,
+            results: $resourceList,
+            facetGroups: $facetGroupList,
+            queryTime: $result->getQueryTime() ?? 0
         );
     }
 

@@ -135,14 +135,14 @@ class SearchQueryBuilder
     public function build(): SearchQuery
     {
         return new SearchQuery(
-            $this->text,
-            $this->lang,
-            $this->offset,
-            $this->limit,
-            $this->sort,
-            array_values($this->filter),
-            array_values($this->facets),
-            $this->defaultQueryOperator
+            text: $this->text,
+            lang: $this->lang,
+            offset: $this->offset,
+            limit: $this->limit,
+            sort: $this->sort,
+            filter: array_values($this->filter),
+            facets: array_values($this->facets),
+            defaultQueryOperator: $this->defaultQueryOperator
         );
     }
 }

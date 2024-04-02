@@ -69,12 +69,12 @@ class SolrMoreLikeThis implements MoreLikeThis
             ->loadResourceList($result, $lang);
 
         return new SearchResult(
-            $result->getNumFound() ?? 0,
-            0,
-            0,
-            $resourceList,
-            [],
-            $result->getQueryTime() ?? -1
+            total: $result->getNumFound() ?? 0,
+            limit: 0,
+            offset: 0,
+            results: $resourceList,
+            facetGroups: [],
+            queryTime: $result->getQueryTime() ?? -1
         );
     }
 }

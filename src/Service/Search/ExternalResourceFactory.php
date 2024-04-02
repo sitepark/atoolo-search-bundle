@@ -37,12 +37,12 @@ class ExternalResourceFactory implements ResourceFactory
         }
 
         return new Resource(
-            $location,
-            $this->getField($document, 'sp_id') ?? '',
-            $this->getField($document, 'title') ?? '',
-            'external',
-            $this->getField($document, 'meta_content_language') ?? '',
-            [],
+            location: $location,
+            id: $this->getField($document, 'sp_id') ?? '',
+            name: $this->getField($document, 'title') ?? '',
+            objectType: 'external',
+            lang: $this->getField($document, 'meta_content_language') ?? '',
+            data: [],
         );
     }
 

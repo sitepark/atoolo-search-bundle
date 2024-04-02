@@ -60,7 +60,7 @@ class IndexerProgressBar implements IndexerProgressHandler
     public function advance(int $step): void
     {
         $this->currentProgressHandler->advance($step);
-        $this->progressBar->advance($step);
+        $this->progressBar?->advance($step);
     }
 
     public function skip(int $step): void
@@ -70,10 +70,10 @@ class IndexerProgressBar implements IndexerProgressHandler
 
     private function formatProgressBar(string $color): void
     {
-        $this->progressBar->setBarCharacter('<fg=' . $color . '>•</>');
-        $this->progressBar->setEmptyBarCharacter('<fg=' . $color . '>⚬</>');
-        $this->progressBar->setProgressCharacter('<fg=' . $color . '>➤</>');
-        $this->progressBar->setFormat(
+        $this->progressBar?->setBarCharacter('<fg=' . $color . '>•</>');
+        $this->progressBar?->setEmptyBarCharacter('<fg=' . $color . '>⚬</>');
+        $this->progressBar?->setProgressCharacter('<fg=' . $color . '>➤</>');
+        $this->progressBar?->setFormat(
             "%current%/%max% [%bar%] %percent:3s%%\n" .
             "  %estimated:-20s%  %memory:20s%"
         );
@@ -92,7 +92,7 @@ class IndexerProgressBar implements IndexerProgressHandler
     public function finish(): void
     {
         $this->currentProgressHandler->finish();
-        $this->progressBar->finish();
+        $this->progressBar?->finish();
     }
 
     /**
@@ -111,6 +111,6 @@ class IndexerProgressBar implements IndexerProgressHandler
     public function abort(): void
     {
         $this->currentProgressHandler->abort();
-        $this->progressBar->finish();
+        $this->progressBar?->finish();
     }
 }

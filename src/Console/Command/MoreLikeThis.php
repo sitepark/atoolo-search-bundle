@@ -79,11 +79,11 @@ class MoreLikeThis extends Command
     ): MoreLikeThisQuery {
         $filterList = [];
         return new MoreLikeThisQuery(
-            $location,
-            $lang,
-            $filterList,
-            5,
-            ['content']
+            location: $location,
+            lang: $lang,
+            filter: $filterList,
+            limit: 5,
+            fields: ['content']
         );
     }
 
