@@ -8,6 +8,7 @@ use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Dto\Indexer\IndexerStatusState;
 use Atoolo\Search\Service\IndexName;
 use DateTime;
+use LogicException;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Throwable;
 
@@ -61,6 +62,11 @@ class IndexerProgressState implements IndexerProgressHandler
 
     public function advance(int $step): void
     {
+        if ($this->status === null) {
+            throw new LogicException(
+                'Cannot advance without starting the progress'
+            );
+        }
         $this->status->processed += $step;
         $this->status->lastUpdate = new DateTime();
         if ($this->isUpdate) {
@@ -74,16 +80,31 @@ class IndexerProgressState implements IndexerProgressHandler
 
     public function skip(int $step): void
     {
+        if ($this->status === null) {
+            throw new LogicException(
+                'Cannot advance without starting the progress'
+            );
+        }
         $this->status->skipped += $step;
     }
 
     public function error(Throwable $throwable): void
     {
+        if ($this->status === null) {
+            throw new LogicException(
+                'Cannot advance without starting the progress'
+            );
+        }
         $this->status->errors++;
     }
 
     public function finish(): void
     {
+        if ($this->status === null) {
+            throw new LogicException(
+                'Cannot advance without starting the progress'
+            );
+        }
         if (!$this->isUpdate) {
             $this->status->endTime = new DateTime();
         }
@@ -95,6 +116,11 @@ class IndexerProgressState implements IndexerProgressHandler
 
     public function abort(): void
     {
+        if ($this->status === null) {
+            throw new LogicException(
+                'Cannot advance without starting the progress'
+            );
+        }
         $this->status->state = IndexerStatusState::ABORTED;
     }
 
