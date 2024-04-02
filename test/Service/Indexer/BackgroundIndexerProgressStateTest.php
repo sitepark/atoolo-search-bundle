@@ -26,7 +26,8 @@ class BackgroundIndexerProgressStateTest extends TestCase
         $this->statusStore = $this->createMock(IndexerStatusStore::class);
         $this->state = new IndexerProgressState(
             $indexName,
-            $this->statusStore
+            $this->statusStore,
+            'source'
         );
     }
 

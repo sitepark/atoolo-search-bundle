@@ -7,7 +7,7 @@ namespace Atoolo\Search\Console\Command;
 use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
-use Atoolo\Search\Service\Indexer\IndexerCollection;
+use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,10 +16,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'search:indexer',
-    description: 'Fill a search index'
+    name: 'search:indexer:update-internal-resources',
+    description: 'Update internal resources in search index'
 )]
-class Indexer extends Command
+class IndexerInternalResourceUpdate extends Command
 {
     private SymfonyStyle $io;
     private OutputInterface $output;
@@ -27,7 +27,7 @@ class Indexer extends Command
     public function __construct(
         private readonly ResourceChannelFactory $channelFactory,
         private readonly IndexerProgressBar $progressBar,
-        private readonly IndexerCollection $indexers,
+        private readonly InternalResourceIndexer $indexer,
     ) {
         parent::__construct();
     }
@@ -35,11 +35,11 @@ class Indexer extends Command
     protected function configure(): void
     {
         $this
-            ->setHelp('Command to fill a search index')
+            ->setHelp('Command to update internal resources in search index')
             ->addArgument(
                 'paths',
-                InputArgument::OPTIONAL | InputArgument::IS_ARRAY,
-                'Resources paths or directories of resources to be indexed.'
+                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+                'Resources paths or directories of resources to be updated.'
             )
         ;
     }
@@ -58,27 +58,25 @@ class Indexer extends Command
         $resourceChannel = $this->channelFactory->create();
         $this->io->title('Channel: ' . $resourceChannel->name);
 
-        foreach ($this->indexers->getIndexers() as $indexer) {
-            if ($indexer->enabled()) {
-                $this->io->newLine();
-                $this->io->section(
-                    'Index with Indexer "' . $indexer->getName() . '"'
-                );
-                $progressHandler = $indexer->getProgressHandler();
-                $this->progressBar->init($progressHandler);
-                $indexer->setProgressHandler($this->progressBar);
-                try {
-                    $status = $indexer->index();
-                } finally {
-                    $indexer->setProgressHandler($progressHandler);
-                }
-                $this->io->newLine(2);
-                $this->io->section("Status");
-                $this->io->text($status->getStatusLine());
-                $this->io->newLine();
-                $this->errorReport();
-            }
+        $this->io->section(
+            'Index resource paths with Indexer "' .
+            $this->indexer->getName() . '"'
+        );
+        $this->io->listing($paths);
+        $progressHandler = $this->indexer->getProgressHandler();
+        $this->progressBar->init($progressHandler);
+        $this->indexer->setProgressHandler($this->progressBar);
+        try {
+            $status = $this->indexer->update($paths);
+        } finally {
+            $this->indexer->setProgressHandler($progressHandler);
         }
+        $this->io->newLine(2);
+        $this->io->section("Status");
+        $this->io->text($status->getStatusLine());
+        $this->io->newLine();
+        $this->errorReport();
+
 
         return Command::SUCCESS;
     }

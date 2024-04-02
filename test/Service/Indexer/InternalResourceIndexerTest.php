@@ -2,11 +2,14 @@
 
 namespace Atoolo\Search\Test\Service\Indexer;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
+use Atoolo\Search\Dto\Indexer\IndexerConfiguration;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
+use Atoolo\Search\Service\Indexer\IndexerConfigurationLoader;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use Atoolo\Search\Service\Indexer\IndexingAborter;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
@@ -53,6 +56,10 @@ class InternalResourceIndexerTest extends TestCase
     private DocumentEnricher&MockObject $documentEnricher;
 
     private TranslationSplitter $translationSplitter;
+
+    private IndexerConfigurationLoader&MockObject $indexerConfigurationLoader;
+
+    private IndexerConfiguration $indexerConfiguration;
 
     /**
      * @throws Exception
@@ -103,6 +110,19 @@ class InternalResourceIndexerTest extends TestCase
         $this->solrIndexService->method('updater')
             ->willReturn($this->updater);
         $this->aborter =  $this->createMock(IndexingAborter::class);
+        $this->indexerConfiguration = new IndexerConfiguration(
+            '',
+            '',
+            new DataBag([
+                'cleanupThreshold' =>  10,
+                'chunkSize' => 10
+            ])
+        );
+        $this->indexerConfigurationLoader = $this->createMock(
+            IndexerConfigurationLoader::class
+        );
+        $this->indexerConfigurationLoader->method('load')
+            ->willReturn($this->indexerConfiguration);
 
         $this->indexer = new InternalResourceIndexer(
             [ $this->documentEnricher ],
@@ -113,6 +133,7 @@ class InternalResourceIndexerTest extends TestCase
             $this->translationSplitter,
             $this->solrIndexService,
             $this->aborter,
+            $this->indexerConfigurationLoader,
             'test-source'
         );
     }
@@ -182,15 +203,10 @@ class InternalResourceIndexerTest extends TestCase
         $this->updater->expects($this->exactly(3))
             ->method('update');
 
-        $parameter = new IndexerParameter(
-            10,
-            10
-        );
-
         $this->indexerProgressHandler->expects($this->exactly(2))
             ->method('error');
 
-        $this->indexer->index($parameter);
+        $this->indexer->index();
     }
 
     public function testIndexSkipResource(): void
@@ -216,12 +232,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->updater->expects($this->exactly(1))
             ->method('update');
 
-        $parameter = new IndexerParameter(
-            10,
-            10
-        );
-
-        $this->indexer->index($parameter);
+        $this->indexer->index();
     }
 
     public function testAborted(): void
@@ -241,12 +252,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->indexerProgressHandler->expects($this->once())
             ->method('abort');
 
-        $parameter = new IndexerParameter(
-            10,
-            10
-        );
-
-        $this->indexer->index($parameter);
+        $this->indexer->index();
     }
 
     public function testWithUnsuccessfulStatus(): void
@@ -263,12 +269,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->indexerProgressHandler->expects($this->once())
             ->method('error');
 
-        $parameter = new IndexerParameter(
-            10,
-            10
-        );
-
-        $this->indexer->index($parameter);
+        $this->indexer->index();
     }
 
     public function testWithInvalidResource(): void
@@ -285,6 +286,7 @@ class InternalResourceIndexerTest extends TestCase
             ->method('error');
 
         $parameter = new IndexerParameter(
+            '',
             10,
             10
         );
@@ -297,16 +299,11 @@ class InternalResourceIndexerTest extends TestCase
         $this->finder->method('findAll')
             ->willReturn([]);
 
-        $parameter = new IndexerParameter(
-            10,
-            10
-        );
-
-        $status = $this->indexer->index($parameter);
+        $status = $this->indexer->index();
         $this->assertEquals(0, $status->total, 'total should be 0');
     }
 
-    public function testIndexPaths(): void
+    public function testUpdate(): void
     {
         $this->finder->method('findPaths')
             ->willReturn([
@@ -326,67 +323,21 @@ class InternalResourceIndexerTest extends TestCase
         $this->updater->expects($this->exactly(1))
             ->method('update');
 
-        $parameter = new IndexerParameter(
-            10,
-            10,
-            [
-                '/a/b.php',
-                '/a/c.php'
-            ]
-        );
-
-        $this->indexer->index($parameter);
+        $this->indexer->update([
+            '/a/b.php',
+            '/a/c.php'
+        ]);
     }
 
-    public function testIndexPathWithParameter(): void
+    public function testUpdateWithParameter(): void
     {
         $this->finder->expects($this->once())
             ->method('findPaths')
             ->with($this->equalTo(['?a=b']));
 
-        $parameter = new IndexerParameter(
-            10,
-            10,
-            [
-                '?a=b'
-            ]
-        );
-
-        $this->indexer->index($parameter);
-    }
-
-    public function testIndexPathWithParameterAndPath(): void
-    {
-        $this->finder->expects($this->once())
-            ->method('findPaths')
-            ->with($this->equalTo(['/test.php']));
-
-        $parameter = new IndexerParameter(
-            10,
-            10,
-            [
-                '/test.php?a=b'
-            ]
-        );
-
-        $this->indexer->index($parameter);
-    }
-
-    public function testIndexPathWithLocParameterAndPath(): void
-    {
-        $this->finder->expects($this->once())
-            ->method('findPaths')
-            ->with($this->equalTo(['/test.php.translations/en.php']));
-
-        $parameter = new IndexerParameter(
-            10,
-            10,
-            [
-                '/test.php?loc=en'
-            ]
-        );
-
-        $this->indexer->index($parameter);
+        $this->indexer->update([
+            '?a=b'
+        ]);
     }
 
     public function testWithoutAvailableIndexes(): void
@@ -409,6 +360,7 @@ class InternalResourceIndexerTest extends TestCase
             ]);
 
         $parameter = new IndexerParameter(
+            '',
             10,
             10
         );

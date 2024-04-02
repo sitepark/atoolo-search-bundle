@@ -8,7 +8,6 @@ use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\DumpIndexDocument;
-use Atoolo\Search\Console\Command\IndexDocumentDumperBuilder;
 use Atoolo\Search\Service\Indexer\IndexDocumentDumper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
@@ -59,7 +58,7 @@ class DumpIndexDocumentTest extends TestCase
             $dumperCommand
         ]);
 
-        $command = $application->find('atoolo:dump-index-document');
+        $command = $application->find('search:dump-index-document');
         $this->commandTester = new CommandTester($command);
     }
 

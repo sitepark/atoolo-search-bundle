@@ -16,6 +16,7 @@ class IndexerParameterTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         new IndexerParameter(
+            '',
             0,
             9
         );

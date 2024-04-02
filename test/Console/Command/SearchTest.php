@@ -71,7 +71,7 @@ class SearchTest extends TestCase
 
         $application = new Application([$command]);
 
-        $command = $application->find('atoolo:search');
+        $command = $application->find('search:search');
         $this->commandTester = new CommandTester($command);
     }
 

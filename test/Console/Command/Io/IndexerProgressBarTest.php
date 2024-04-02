@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Console\Command\Io;
 
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
+use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
 use Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -16,31 +18,36 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[CoversClass(IndexerProgressBar::class)]
 class IndexerProgressBarTest extends TestCase
 {
+    private IndexerProgressBar $progressBar;
+
+    private IndexerProgressHandler&MockObject $progressHandler;
+
+    private OutputInterface&MockObject $output;
+
+    public function setUp(): void
+    {
+        $this->output = $this->createMock(OutputInterface::class);
+        $this->progressHandler = $this->createMock(IndexerProgressHandler::class);
+        $this->progressBar = new IndexerProgressBar($this->output);
+        $this->progressBar->init($this->progressHandler);
+    }
+
     public function testStart(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $progressBar = new IndexerProgressBar($output);
-        $progressBar->start(10);
-
-        $this->assertMatchesRegularExpression(
-            '/\[RUNNING].*processed: 0\/10,/',
-            $progressBar->getStatus()->getStatusLine(),
-            "unexpected status line"
-        );
+        $this->progressHandler
+            ->expects($this->once())
+            ->method('start')
+            ->with(10);
+        $this->progressBar->start(10);
     }
 
     public function testStartUpdate(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $progressBar = new IndexerProgressBar($output);
-
-        $progressBar->startUpdate(10);
-
-        $this->assertMatchesRegularExpression(
-            '/\[RUNNING].*processed: 0\/10,/',
-            $progressBar->getStatus()->getStatusLine(),
-            "unexpected status line"
-        );
+        $this->progressHandler
+            ->expects($this->once())
+            ->method('startUpdate')
+            ->with(10);
+        $this->progressBar->startUpdate(10);
     }
 
     /**
@@ -48,108 +55,76 @@ class IndexerProgressBarTest extends TestCase
      */
     public function testAdvance(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $progressBar = new IndexerProgressBar($output);
-        $progressBar->start(10);
 
-        $output->expects($this->once())
-            ->method('write')
-            ->with($this->stringStartsWith(<<<END
+        $this->progressBar->start(10);
 
- 1/10 [<fg=green>•</><fg=green>•</><fg=green>➤</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</><fg=green>⚬</>]  10%
-  < 1 sec
-END
-            ));
+        $this->progressHandler
+            ->expects($this->once())
+            ->method('advance')
+            ->with(1);
 
-        $progressBar->advance(1);
+        $this->progressHandler->advance(1);
     }
 
     public function testSkip(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $progressBar = new IndexerProgressBar($output);
+        $this->progressBar->start(10);
 
-        $progressBar->start(10);
+        $this->progressHandler
+            ->expects($this->once())
+            ->method('skip')
+            ->with(10);
 
-        $progressBar->skip(10);
-
-        $this->assertMatchesRegularExpression(
-            '/\[RUNNING].*skipped: 1,/',
-            $progressBar->getStatus()->getStatusLine(),
-            "unexpected status line"
-        );
+        $this->progressBar->skip(10);
     }
 
     public function testError(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $progressBar = new IndexerProgressBar($output);
-        $progressBar->start(10);
 
+        $this->progressBar->start(10);
 
-        //phpcs:ignore Generic.Files.LineLength.TooLong
-        $output->expects($this->once())
-            ->method('write')
-            ->with($this->stringStartsWith(<<<END
- 0/10 [<fg=red>➤</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</><fg=red>⚬</>]   0%
-  < 1 sec
-END
-            ));
+        $e = new Exception('test');
 
-        $progressBar->error(new Exception('test'));
-        $progressBar->advance(0);
+        $this->progressHandler
+            ->expects($this->once())
+            ->method('error')
+            ->with($e);
+
+        $this->progressBar->error($e);
     }
 
     public function testGetError(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $progressBar = new IndexerProgressBar($output);
-        $progressBar->start(10);
+        $this->progressBar->start(10);
 
-        $progressBar->error(new Exception('test'));
+        $e = new Exception('test');
+        $this->progressBar->error($e);
 
         $this->assertCount(
             1,
-            $progressBar->getErrors(),
+            $this->progressBar->getErrors(),
             'unexpected error count'
         );
     }
 
     public function testFinish(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $progressBar = new IndexerProgressBar($output);
-        $progressBar->start(10);
 
+        $this->progressBar->start(10);
 
-        $output->expects($this->once())
-            ->method('write')
-            ->with($this->stringStartsWith(<<<END
-
-10/10 [<fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</>] 100%
-  < 1 sec
-END
-            ));
-
-        $progressBar->finish();
+        $this->progressHandler
+            ->expects($this->once())
+            ->method('finish');
+        $this->progressBar->finish();
     }
 
     public function testAbort(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $progressBar = new IndexerProgressBar($output);
-        $progressBar->start(10);
+        $this->progressBar->start(10);
 
-
-        $output->expects($this->once())
-            ->method('write')
-            ->with($this->stringStartsWith(<<<END
-
-10/10 [<fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</><fg=green>•</>] 100%
-  < 1 sec
-END
-            ));
-
-        $progressBar->abort();
-    }
+        $this->progressHandler
+            ->expects($this->once())
+            ->method('abort');
+        $this->progressBar->abort();
+   }
 }

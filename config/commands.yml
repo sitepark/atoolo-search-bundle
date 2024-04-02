@@ -18,6 +18,12 @@ services:
         - '@atoolo.search.indexer.console.progressBar'
         - '@atoolo.search.indexer.indexerCollection'
 
+    Atoolo\Search\Console\Command\IndexerInternalResourceUpdate:
+      arguments:
+        - '@atoolo.resource.resourceChannelFactory'
+        - '@atoolo.search.indexer.console.progressBar'
+        - '@atoolo.search.indexer.internalResourceIndexer'
+
     Atoolo\Search\Console\Command\Search:
       arguments:
         - '@atoolo.resource.resourceChannelFactory'

@@ -60,7 +60,7 @@ class SuggestTest extends TestCase
 
         $application = new Application([$command]);
 
-        $command = $application->find('atoolo:suggest');
+        $command = $application->find('search:suggest');
         $this->commandTester = new CommandTester($command);
     }
 

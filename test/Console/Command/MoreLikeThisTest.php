@@ -63,7 +63,7 @@ class MoreLikeThisTest extends TestCase
 
         $application = new Application([$command]);
 
-        $command = $application->find('atoolo:mlt');
+        $command = $application->find('search:mlt');
         $this->commandTester = new CommandTester($command);
     }
 
