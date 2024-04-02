@@ -45,6 +45,4 @@ class NoIndexFilterTest extends TestCase
             "resource should not be accepted"
         );
     }
-
 }
-

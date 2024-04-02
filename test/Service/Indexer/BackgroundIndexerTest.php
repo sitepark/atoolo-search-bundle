@@ -27,7 +27,9 @@ class BackgroundIndexerTest extends TestCase
     public function setUp(): void
     {
 
-        $this->progressHandler = $this->createStub(IndexerProgressHandler::class);
+        $this->progressHandler = $this->createStub(
+            IndexerProgressHandler::class
+        );
         $this->indexName = $this->createMock(IndexName::class);
         $this->internalResourceIndexer = $this->createMock(
             InternalResourceIndexer::class
@@ -133,5 +135,4 @@ class BackgroundIndexerTest extends TestCase
             'Unexpected name'
         );
     }
-
 }

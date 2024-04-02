@@ -32,14 +32,18 @@ class AbstractIndexerTest extends TestCase
         $indexName = $this->createMock(IndexName::class);
         $indexName->method('name')
             ->willReturn('www');
-        $this->progressHandler = $this->createMock(IndexerProgressHandler::class);
+        $this->progressHandler = $this->createMock(
+            IndexerProgressHandler::class
+        );
         $this->aborter = $this->createMock(IndexingAborter::class);
         $config = new IndexerConfiguration(
             'test',
             'Test',
             new DataBag([])
         );
-        $this->configLoader = $this->createMock(IndexerConfigurationLoader::class);
+        $this->configLoader = $this->createMock(
+            IndexerConfigurationLoader::class
+        );
         $this->configLoader->method('load')
             ->willReturn($config);
         $this->indexer = new TextIndexer(

@@ -60,7 +60,10 @@ class MoreLikeThisTest extends TestCase
         );
         $this->solrMoreLikeThis = $this->createStub(SolrMoreLikeThis::class);
 
-        $command = new MoreLikeThis($resourceChannelFactory, $this->solrMoreLikeThis);
+        $command = new MoreLikeThis(
+            $resourceChannelFactory,
+            $this->solrMoreLikeThis
+        );
 
         $application = new Application([$command]);
 
@@ -142,5 +145,4 @@ EOF,
             $output
         );
     }
-
 }

@@ -94,7 +94,7 @@ EOF,
 
     public function testExecuteNoResult(): void
     {
-        $result = new SuggestResult([],10);
+        $result = new SuggestResult([], 10);
         $this->solrSuggest->method('suggest')
             ->willReturn($result);
 
