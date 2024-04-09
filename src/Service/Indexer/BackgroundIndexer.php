@@ -66,15 +66,11 @@ class BackgroundIndexer implements Indexer
      */
     public function getStatus(): IndexerStatus
     {
-        return $this->statusStore->load($this->getIndex());
+        return $this->statusStore->load($this->getStatusStoreKey());
     }
 
-    private function getIndex(): string
+    private function getStatusStoreKey(): string
     {
-        /*
-         * The indexer always requires the default index, as the language is
-         * determined via the resources to be indexed.
-         */
-        return $this->index->name('');
+        return $this->index->name('') . '-' . $this->indexer->getSource();
     }
 }
