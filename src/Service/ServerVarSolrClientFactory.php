@@ -14,11 +14,14 @@ class ServerVarSolrClientFactory implements SolrClientFactory
 {
     private const IES_WEBNODE_SOLR_PORT = '8382';
 
+    private int $timeoutInSeconds = 30;
+
+
     public function create(string $core): Client
     {
         $adapter = new Curl();
+        $adapter->setTimeout($this->timeoutInSeconds);
         /*
-        $adapter->setTimeout($this->timeout);
         $adapter->setProxy($this->proxy);
         */
         $eventDispatcher = new EventDispatcher();
