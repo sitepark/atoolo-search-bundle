@@ -19,7 +19,7 @@ class SearchQueryBuilder
      */
     private array $sort = [];
     /**
-     * @var array<string,Filter>
+     * @var array<Filter>
      */
     private array $filter = [];
 
@@ -94,13 +94,17 @@ class SearchQueryBuilder
     public function filter(Filter ...$filterList): static
     {
         foreach ($filterList as $filter) {
-            if (isset($this->filter[$filter->key])) {
-                throw new \InvalidArgumentException(
-                    'filter key "' . $filter->key .
+            if ($filter->key !== null) {
+                foreach ($this->filter as $existingFilter) {
+                    if ($existingFilter->key === $filter->key) {
+                        throw new \InvalidArgumentException(
+                            'filter key "' . $filter->key .
                             '" already exists'
-                );
+                        );
+                    }
+                }
             }
-            $this->filter[$filter->key] = $filter;
+            $this->filter[] = $filter;
         }
         return $this;
     }
@@ -140,7 +144,7 @@ class SearchQueryBuilder
             offset: $this->offset,
             limit: $this->limit,
             sort: $this->sort,
-            filter: array_values($this->filter),
+            filter: $this->filter,
             facets: array_values($this->facets),
             defaultQueryOperator: $this->defaultQueryOperator
         );
