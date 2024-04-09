@@ -29,7 +29,7 @@ class SearchQueryBuilder
     private array $facets = [];
 
     private QueryOperator $defaultQueryOperator =
-        QueryOperator::AND;
+        QueryOperator::OR;
 
     public function __construct()
     {
