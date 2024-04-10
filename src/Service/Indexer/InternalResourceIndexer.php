@@ -56,10 +56,10 @@ class InternalResourceIndexer implements Indexer
         private readonly IndexingAborter $aborter,
         private readonly IndexerConfigurationLoader $configLoader,
         private readonly string $source,
+        private readonly LoggerInterface $logger = new NullLogger(),
         private readonly LockFactory $lockFactory = new LockFactory(
             new SemaphoreStore()
         ),
-        private readonly LoggerInterface $logger = new NullLogger()
     ) {
     }
 
@@ -116,20 +116,28 @@ class InternalResourceIndexer implements Indexer
      */
     public function index(): IndexerStatus
     {
-        $lock = $this->lockFactory->createLock('indexer.' . $this->source);
+        $lock = $this->lockFactory->createLock(
+            'indexer.' . $this->getBaseIndex()
+        );
         if (!$lock->acquire()) {
-            $this->logger->notice(
-                'Indexer with source "' . $this->source . '" is already running'
-            );
+            $this->logger->notice('Indexer is already running', [
+                'index' => $this->getBaseIndex()
+            ]);
             return $this->progressHandler->getStatus();
         }
+        $param = $this->getIndexerParameter();
+
+        $this->logger->info('Start indexing', [
+            'index' => $this->getBaseIndex(),
+            'chunkSize' => $param->chunkSize,
+            'cleanupThreshold' => $param->cleanupThreshold,
+        ]);
         try {
             $paths = $this->finder->findAll();
             $this->deleteErrorProtocol($this->getBaseIndex());
             $total = count($paths);
             $this->progressHandler->start($total);
 
-            $param = $this->getIndexerParameter();
             $this->indexResources($param, $this->finder->findAll());
         } finally {
             $lock->release();

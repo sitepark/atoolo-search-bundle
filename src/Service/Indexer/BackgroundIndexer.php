@@ -62,6 +62,14 @@ class BackgroundIndexer implements Indexer
     }
 
     /**
+     * @param array<string> $paths
+     */
+    public function update(array $paths): IndexerStatus
+    {
+        return $this->indexer->update($paths);
+    }
+
+    /**
      * @throws ExceptionInterface
      */
     public function getStatus(): IndexerStatus
