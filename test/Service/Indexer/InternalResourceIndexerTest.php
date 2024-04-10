@@ -144,8 +144,8 @@ class InternalResourceIndexerTest extends TestCase
             $this->aborter,
             $this->indexerConfigurationLoader,
             'test-source',
+            $this->logger,
             $this->lockFactory,
-            $this->logger
         );
     }
 
@@ -435,8 +435,10 @@ class InternalResourceIndexerTest extends TestCase
     {
         $this->logger->expects($this->once())
             ->method('notice')
-            ->with('Indexer with source "test-source" is already running');
-        $lock = $this->lockFactory->createLock('indexer.test-source');
+            ->with('Indexer is already running', [
+                'index' => 'test'
+            ]);
+        $lock = $this->lockFactory->createLock('indexer.test');
         try {
             $lock->acquire();
             $this->indexer->index();
