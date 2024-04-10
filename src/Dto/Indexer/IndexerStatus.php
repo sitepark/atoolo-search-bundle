@@ -31,7 +31,8 @@ class IndexerStatus
         public int $skipped,
         public DateTime $lastUpdate,
         public int $updated,
-        public int $errors
+        public int $errors,
+        public string $prepareMessage = ''
     ) {
     }
 
@@ -53,6 +54,7 @@ class IndexerStatus
 
     public function getStatusLine(): string
     {
+
         $endTime = $this->endTime;
         if ($endTime === null || $endTime->getTimestamp() === 0) {
             $endTime = new DateTime();
@@ -63,6 +65,15 @@ class IndexerStatus
         if ($lastUpdate->getTimestamp() === 0) {
             $lastUpdate = $endTime;
         }
+
+        if ($this->state === IndexerStatusState::PREPARING) {
+            return
+                '[' . $this->state->name . '] ' .
+                'start: ' . $this->startTime->format('d.m.Y H:i') . ', ' .
+                'time: ' . $duration->format('%Hh %Im %Ss') . ', ' .
+                'message: ' . $this->prepareMessage;
+        }
+
         return
             '[' . $this->state->name . '] ' .
             'start: ' . $this->startTime->format('d.m.Y H:i') . ', ' .

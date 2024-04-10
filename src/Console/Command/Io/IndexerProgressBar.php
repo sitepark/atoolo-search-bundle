@@ -19,6 +19,8 @@ class IndexerProgressBar implements IndexerProgressHandler
 
     private IndexerProgressHandler $currentProgressHandler;
 
+    private int $prepareLines = 0;
+
     /**
      * @var array<Throwable>
      */
@@ -37,8 +39,18 @@ class IndexerProgressBar implements IndexerProgressHandler
         $this->progressBar = null;
     }
 
+    public function prepare(string $message): void
+    {
+        $this->currentProgressHandler->prepare($message);
+        $this->output->writeln($message);
+        $this->prepareLines++;
+    }
+
     public function start(int $total): void
     {
+        if ($this->prepareLines > 0) {
+            $this->output->write("\x1b[" . $this->prepareLines . "A");
+        }
         $this->currentProgressHandler->start($total);
         $this->progressBar = new ProgressBar($this->output, $total);
         $this->formatProgressBar('green');

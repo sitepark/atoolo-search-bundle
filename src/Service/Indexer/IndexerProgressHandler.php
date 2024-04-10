@@ -9,6 +9,7 @@ use Throwable;
 
 interface IndexerProgressHandler
 {
+    public function prepare(string $message): void;
     public function start(int $total): void;
     public function startUpdate(int $total): void;
     public function advance(int $step): void;

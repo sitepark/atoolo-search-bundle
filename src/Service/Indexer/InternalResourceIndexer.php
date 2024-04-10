@@ -132,6 +132,9 @@ class InternalResourceIndexer implements Indexer
             'chunkSize' => $param->chunkSize,
             'cleanupThreshold' => $param->cleanupThreshold,
         ]);
+
+        $this->progressHandler->prepare('Collect resource locations');
+
         try {
             $paths = $this->finder->findAll();
             $this->deleteErrorProtocol($this->getBaseIndex());

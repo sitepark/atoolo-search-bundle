@@ -25,11 +25,38 @@ class IndexerProgressState implements IndexerProgressHandler
     ) {
     }
 
-    public function start(int $total): void
+    public function prepare(string $message): void
     {
         $this->status = new IndexerStatus(
-            IndexerStatusState::RUNNING,
+            IndexerStatusState::PREPARING,
             new DateTime(),
+            null,
+            0,
+            0,
+            0,
+            new DateTime(),
+            0,
+            0,
+            $message
+        );
+        $this->statusStore->store(
+            $this->getStatusStoreKey(),
+            $this->status
+        );
+    }
+
+    public function start(int $total): void
+    {
+        $storedStatus = $this->statusStore->load($this->getStatusStoreKey());
+
+        $startTime = new DateTime();
+        if ($storedStatus->state === IndexerStatusState::PREPARING) {
+            $startTime = $storedStatus->startTime;
+        }
+
+        $this->status = new IndexerStatus(
+            IndexerStatusState::RUNNING,
+            $startTime,
             null,
             $total,
             0,
@@ -37,6 +64,10 @@ class IndexerProgressState implements IndexerProgressHandler
             new DateTime(),
             0,
             0
+        );
+        $this->statusStore->store(
+            $this->getStatusStoreKey(),
+            $this->status
         );
     }
 
@@ -57,6 +88,10 @@ class IndexerProgressState implements IndexerProgressHandler
             new DateTime(),
             $storedStatus->updated,
             $storedStatus->errors,
+        );
+        $this->statusStore->store(
+            $this->getStatusStoreKey(),
+            $this->status
         );
     }
 

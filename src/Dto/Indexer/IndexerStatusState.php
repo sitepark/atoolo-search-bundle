@@ -10,6 +10,7 @@ namespace Atoolo\Search\Dto\Indexer;
 enum IndexerStatusState: string
 {
     case UNKNOWN = 'UNKNOWN';
+    case PREPARING = 'PREPARING';
     case RUNNING = 'RUNNING';
     case FINISHED = 'FINISHED';
     case ABORTED = 'ABORTED';
