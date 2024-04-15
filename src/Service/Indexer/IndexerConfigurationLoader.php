@@ -23,6 +23,10 @@ class IndexerConfigurationLoader
     {
         $dir = $this->resourceBaseLocator->locate() . '/indexer';
         if (!is_dir($dir)) {
+            $dir = $this->resourceBaseLocator->locate() . '/../configs/indexer';
+        }
+        if (!is_dir($dir)) {
+            echo $dir . " not found \n";
             return [];
         }
 
@@ -38,8 +42,13 @@ class IndexerConfigurationLoader
 
     private function getFile(string $source): string
     {
-        return $this->resourceBaseLocator->locate() .
+        $file = $this->resourceBaseLocator->locate() .
             '/indexer/' . $source . '.php';
+        if (file_exists($file)) {
+            return $file;
+        }
+        return $this->resourceBaseLocator->locate() .
+            '/../configs/indexer/' . $source . '.php';
     }
 
     public function exists(string $source): bool
