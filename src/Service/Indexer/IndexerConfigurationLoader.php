@@ -26,7 +26,6 @@ class IndexerConfigurationLoader
             $dir = $this->resourceBaseLocator->locate() . '/../configs/indexer';
         }
         if (!is_dir($dir)) {
-            echo $dir . " not found \n";
             return [];
         }
 
