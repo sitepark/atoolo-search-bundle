@@ -42,7 +42,7 @@ class IndexerStatusTest extends TestCase
         );
     }
 
-    public function testGetStatus(): void
+    public function testGetStatusLine(): void
     {
         $this->assertEquals(
             '[FINISHED] ' .
@@ -57,6 +57,41 @@ class IndexerStatusTest extends TestCase
             "unexpected status line"
         );
     }
+
+    public function testGetStatusLineForPreparing(): void
+    {
+
+        $startTime = new DateTime();
+        $startTime->setDate(2024, 1, 31);
+        $startTime->setTime(11, 15, 10);
+
+        $endTime = new DateTime();
+        $endTime->setDate(2024, 1, 31);
+        $endTime->setTime(12, 16, 11);
+
+        $status = new IndexerStatus(
+            IndexerStatusState::PREPARING,
+            $startTime,
+            $endTime,
+            10,
+            5,
+            4,
+            $startTime,
+            6,
+            2,
+            'prepare message'
+        );
+
+        $this->assertEquals(
+            '[PREPARING] ' .
+            'start: 31.01.2024 11:15, ' .
+            'time: 01h 01m 01s, ' .
+            'message: prepare message',
+            $status->getStatusLine(),
+            "unexpected status line"
+        );
+    }
+
     public function testEmpty(): void
     {
         $status = IndexerStatus::empty();

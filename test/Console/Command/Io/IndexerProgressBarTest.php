@@ -36,8 +36,28 @@ class IndexerProgressBarTest extends TestCase
         $this->progressBar->init($this->progressHandler);
     }
 
+    public function testPrepare(): void
+    {
+        $this->progressHandler
+            ->expects($this->once())
+            ->method('prepare')
+            ->with('test');
+        $this->progressBar->prepare('test');
+    }
+
     public function testStart(): void
     {
+        $this->progressHandler
+            ->expects($this->once())
+            ->method('start')
+            ->with(10);
+        $this->progressBar->start(10);
+    }
+
+    public function testStartAfterPrepare(): void
+    {
+        $this->progressBar->prepare('test');
+
         $this->progressHandler
             ->expects($this->once())
             ->method('start')

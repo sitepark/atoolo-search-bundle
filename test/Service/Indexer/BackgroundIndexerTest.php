@@ -67,6 +67,13 @@ class BackgroundIndexerTest extends TestCase
         $this->indexer->index();
     }
 
+    public function testUpdate(): void
+    {
+        $this->internalResourceIndexer->expects($this->once())
+            ->method('update');
+        $this->indexer->update(['/index.php']);
+    }
+
     public function testIndexIfLocked(): void
     {
         $lockFactory = $this->createStub(LockFactory::class);

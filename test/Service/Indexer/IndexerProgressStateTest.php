@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
+use Atoolo\Search\Dto\Indexer\IndexerStatusState;
 use Atoolo\Search\Service\Indexer\IndexerProgressState;
 use Atoolo\Search\Service\Indexer\IndexerStatusStore;
 use Atoolo\Search\Service\IndexName;
@@ -20,15 +21,36 @@ class IndexerProgressStateTest extends TestCase
     private IndexerStatusStore&MockObject $statusStore;
     private IndexerProgressState $state;
 
+    private ?IndexerStatus $status = null;
+
     public function setUp(): void
     {
         $indexName = $this->createMock(IndexName::class);
         $indexName->method('name')->willReturn('test');
+
+        $this->status = IndexerStatus::empty();
+
         $this->statusStore = $this->createMock(IndexerStatusStore::class);
+        $that = $this;
+        $this->statusStore->method('load')
+            ->willReturnCallback(function () use ($that) {
+                return $that->status;
+            });
         $this->state = new IndexerProgressState(
             $indexName,
             $this->statusStore,
             'source'
+        );
+    }
+
+    public function testPrepare(): void
+    {
+        $this->state->prepare('prepare message');
+
+        $this->assertMatchesRegularExpression(
+            '/\[PREPARING].*prepare message.*/',
+            $this->state->getStatus()->getStatusLine(),
+            "unexpected status line"
         );
     }
 
@@ -38,6 +60,39 @@ class IndexerProgressStateTest extends TestCase
 
         $this->assertMatchesRegularExpression(
             '/\[RUNNING].*processed: 0\/10,/',
+            $this->state->getStatus()->getStatusLine(),
+            "unexpected status line"
+        );
+    }
+
+    public function testStartAfterPrepare(): void
+    {
+
+        $startTime = new \DateTime();
+        $startTime->setDate(2024, 1, 31);
+        $startTime->setTime(11, 15, 10);
+
+        $endTime = new \DateTime();
+        $endTime->setDate(2024, 1, 31);
+        $endTime->setTime(12, 16, 11);
+
+        $this->status = new IndexerStatus(
+            IndexerStatusState::PREPARING,
+            $startTime,
+            $endTime,
+            0,
+            0,
+            0,
+            $endTime,
+            0,
+            0,
+            'prepare message'
+        );
+
+        $this->state->start(10);
+
+        $this->assertMatchesRegularExpression(
+            '/\[RUNNING].*start: 31\.01\.2024 11:15,.*processed: 0\/10,/',
             $this->state->getStatus()->getStatusLine(),
             "unexpected status line"
         );
