@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Resource\ResourceLocation;
+
 class TranslationSplitterResult
 {
     /**
-     * @param string[] $bases
-     * @param array<string,array<string>> $translations
+     * @param ResourceLocation[] $bases
+     * @param array<string,array<ResourceLocation>> $translations
      */
     public function __construct(
         private readonly array $bases,
@@ -17,28 +20,32 @@ class TranslationSplitterResult
     }
 
     /**
-     * @return string[]
+     * @return ResourceLanguage[]
      */
-    public function getLocales(): array
+    public function getLanguages(): array
     {
-        $locales = array_keys($this->translations);
-        sort($locales);
-        return $locales;
+        $languages = array_keys($this->translations);
+        sort($languages);
+        return array_map(
+            static fn($lang)
+                => ResourceLanguage::of($lang),
+            $languages
+        );
     }
 
     /**
-     * @return string[]
+     * @return ResourceLocation[]
      */
     public function getBases(): array
     {
         return $this->bases;
     }
 
-    /**
-     * @return string[]
+     /**
+     * @return ResourceLocation[]
      */
-    public function getTranslations(string $locale): array
+    public function getTranslations(ResourceLanguage $lang): array
     {
-        return $this->translations[$locale] ?? [];
+        return $this->translations[$lang->code] ?? [];
     }
 }

@@ -3,6 +3,7 @@
 namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Resource\Loader\StaticResourceBaseLocator;
+use Atoolo\Resource\ResourceChannel;
 use Atoolo\Search\Service\Indexer\LocationFinder;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -14,15 +15,26 @@ class LocationFinderTest extends TestCase
     private LocationFinder $locationFinder;
     protected function setUp(): void
     {
-        $base = realpath(
+        $resourceDir = realpath(
             __DIR__ . '/../../resources/Service/Indexer/LocationFinder'
         );
-        if ($base === false) {
+        if ($resourceDir === false) {
             throw new InvalidArgumentException('basepath not found');
         }
-        $this->locationFinder = new LocationFinder(
-            new StaticResourceBaseLocator($base)
+        $resourceChannel = new ResourceChannel(
+            '',
+            '',
+            '',
+            '',
+            false,
+            '',
+            '',
+            '',
+            $resourceDir,
+            '',
+            []
         );
+        $this->locationFinder = new LocationFinder($resourceChannel);
     }
 
     public function testFindAll(): void

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console\Command;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceChannelFactory;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Search;
 use Atoolo\Search\Dto\Search\Result\Facet;
@@ -39,6 +41,7 @@ class SearchTest extends TestCase
             '',
             '',
             '',
+            '',
             'test',
             []
         );
@@ -61,9 +64,14 @@ class SearchTest extends TestCase
     public function testExecute(): void
     {
 
-        $resultResource = $this->createStub(Resource::class);
-        $resultResource->method('getLocation')
-            ->willReturn('/test.php');
+        $resultResource = new Resource(
+            '/test.php',
+            '',
+            '',
+            '',
+            ResourceLanguage::default(),
+            new DataBag([])
+        );
         $result = new SearchResult(
             1,
             1,

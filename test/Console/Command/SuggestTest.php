@@ -38,6 +38,7 @@ class SuggestTest extends TestCase
             '',
             '',
             '',
+            '',
             'test',
             []
         );

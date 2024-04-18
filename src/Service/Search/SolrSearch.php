@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Search;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Facet\FacetField;
 use Atoolo\Search\Dto\Search\Query\Facet\FacetMultiQuery;
 use Atoolo\Search\Dto\Search\Query\Facet\FacetQuery;
@@ -46,13 +47,14 @@ class SolrSearch implements Search
 
     public function search(SearchQuery $query): SearchResult
     {
-        $index = $this->index->name($query->lang);
+        $lang = ResourceLanguage::of($query->lang);
+        $index = $this->index->name($lang);
         $client = $this->clientFactory->create($index);
 
         $solrQuery = $this->buildSolrQuery($client, $query);
         /** @var SelectResult $result */
         $result = $client->execute($solrQuery);
-        return $this->buildResult($query, $result, $query->lang);
+        return $this->buildResult($query, $result, $lang);
     }
 
     private function buildSolrQuery(
@@ -247,7 +249,7 @@ class SolrSearch implements Search
     private function buildResult(
         SearchQuery $query,
         SelectResult $result,
-        string $lang
+        ResourceLanguage $lang
     ): SearchResult {
 
         $resourceList = $this->resultToResourceResolver

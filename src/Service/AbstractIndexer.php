@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Indexer\IndexerConfiguration;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
@@ -26,7 +27,8 @@ abstract class AbstractIndexer implements Indexer
 
     protected function getKey(): string
     {
-        return $this->indexName->name('') . '-' . $this->source;
+        return $this->indexName->name(ResourceLanguage::default()) .
+            '-' . $this->source;
     }
 
     protected function getConfig(): IndexerConfiguration
@@ -70,9 +72,6 @@ abstract class AbstractIndexer implements Indexer
         return $this->configLoader->exists($this->source);
     }
 
-    /**
-     * @inheritDoc
-     */
     abstract public function index(): IndexerStatus;
 
     /**

@@ -33,6 +33,7 @@ class DumpIndexDocumentTest extends TestCase
             '',
             '',
             '',
+            '',
             'test',
             []
         );

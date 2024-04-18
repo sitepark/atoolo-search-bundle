@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Resource\ResourceLoader;
+use Atoolo\Resource\ResourceLocation;
 use LogicException;
 use Solarium\QueryType\Select\Result\Document;
 
@@ -21,26 +23,27 @@ class InternalResourceFactory implements ResourceFactory
     ) {
     }
 
-    public function accept(Document $document): bool
+    public function accept(Document $document, ResourceLanguage $lang): bool
     {
-        $location = $this->getField($document, 'url');
+        $location = $this->getUrl($document);
         if ($location === null) {
             return false;
         }
         return str_ends_with($location, '.php');
     }
 
-    public function create(Document $document, string $lang): Resource
+    public function create(Document $document, ResourceLanguage $lang): Resource
     {
-        $location = $this->getField($document, 'url');
-        if ($location === null) {
+        $url = $this->getUrl($document);
+        if ($url === null) {
             throw new LogicException('document should contain an url');
         }
-        return $this->resourceLoader->load($location, $lang);
+        $location = ResourceLocation::of($url, $lang);
+        return $this->resourceLoader->load($location);
     }
 
-    private function getField(Document $document, string $name): ?string
+    private function getUrl(Document $document): ?string
     {
-        return $document->getFields()[$name] ?? null;
+        return $document->getFields()['url'] ?? null;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Service\Indexer\SolrIndexService;
 use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
@@ -49,12 +50,12 @@ class SolrIndexServiceTest extends TestCase
     public function testUpdater(): void
     {
         $this->client->expects($this->once())->method('createUpdate');
-        $this->indexService->updater('');
+        $this->indexService->updater(ResourceLanguage::default());
     }
 
     public function testGetIndex(): void
     {
-        $index = $this->indexService->getIndex('');
+        $index = $this->indexService->getIndex(ResourceLanguage::default());
         $this->assertEquals(
             'test',
             $index,
@@ -65,7 +66,11 @@ class SolrIndexServiceTest extends TestCase
     public function testDeleteExcludingProcessId(): void
     {
         $this->client->expects($this->once())->method('createUpdate');
-        $this->indexService->deleteExcludingProcessId('', 'test', 'test');
+        $this->indexService->deleteExcludingProcessId(
+            ResourceLanguage::default(),
+            'test',
+            'test'
+        );
     }
 
     public function testDeleteByIdListForAllLanguages(): void
@@ -77,13 +82,16 @@ class SolrIndexServiceTest extends TestCase
     public function testByQuery(): void
     {
         $this->client->expects($this->once())->method('createUpdate');
-        $this->indexService->deleteByQuery('', 'test');
+        $this->indexService->deleteByQuery(
+            ResourceLanguage::default(),
+            'test'
+        );
     }
 
     public function testCommit(): void
     {
         $this->client->expects($this->once())->method('update');
-        $this->indexService->commit('');
+        $this->indexService->commit(ResourceLanguage::default());
     }
 
     public function testCommitForAllLanguages(): void

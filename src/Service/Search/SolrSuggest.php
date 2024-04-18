@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Search;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\SuggestQuery;
 use Atoolo\Search\Dto\Search\Result\Suggestion;
 use Atoolo\Search\Dto\Search\Result\SuggestResult;
@@ -40,7 +41,8 @@ class SolrSuggest implements Suggest
      */
     public function suggest(SuggestQuery $query): SuggestResult
     {
-        $index = $this->index->name($query->lang);
+        $lang = ResourceLanguage::of($query->lang);
+        $index = $this->index->name($lang);
         $client = $this->clientFactory->create($index);
 
         $solrQuery = $this->buildSolrQuery($client, $query);

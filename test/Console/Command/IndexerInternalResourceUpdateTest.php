@@ -36,6 +36,7 @@ class IndexerInternalResourceUpdateTest extends TestCase
             '',
             '',
             '',
+            '',
             'test',
             []
         );

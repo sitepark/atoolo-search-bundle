@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Indexer;
 
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Resource\ResourceLoader;
+use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
@@ -137,7 +139,7 @@ class InternalResourceIndexer implements Indexer
 
         try {
             $paths = $this->finder->findAll();
-            $this->deleteErrorProtocol($this->getBaseIndex());
+            $this->deleteErrorProtocol();
             $total = count($paths);
             $this->progressHandler->start($total);
 
@@ -193,7 +195,7 @@ class InternalResourceIndexer implements Indexer
 
     private function getBaseIndex(): string
     {
-        return $this->indexService->getIndex('');
+        return $this->indexService->getIndex(ResourceLanguage::default());
     }
 
     /**
@@ -230,23 +232,22 @@ class InternalResourceIndexer implements Indexer
 
         $processId = uniqid('', true);
 
-        $index = $this->indexService->getIndex('');
+        $index = $this->indexService->getIndex(ResourceLanguage::default());
 
         $this->indexResourcesPerLanguageIndex(
             $processId,
             $parameter,
-            '',
+            ResourceLanguage::default(),
             $index,
             $splitterResult->getBases()
         );
 
-        foreach ($splitterResult->getLocales() as $locale) {
-            $lang = substr($locale, 0, 2);
+        foreach ($splitterResult->getLanguages() as $lang) {
             $langIndex = $this->indexService->getIndex($lang);
 
             if ($index === $langIndex) {
                 $this->handleError(
-                    'No Index for language "' . $lang . '" ' .
+                    'No Index for language "' . $lang->code . '" ' .
                     'found (base index: "' . $index . '")'
                 );
                 continue;
@@ -257,7 +258,7 @@ class InternalResourceIndexer implements Indexer
                 $parameter,
                 $lang,
                 $langIndex,
-                $splitterResult->getTranslations($locale)
+                $splitterResult->getTranslations($lang)
             );
         }
     }
@@ -265,17 +266,17 @@ class InternalResourceIndexer implements Indexer
     /**
      * The resources for a language are indexed here.
      *
-     * @param string[] $pathList
+     * @param ResourceLocation[] $locations
      */
     private function indexResourcesPerLanguageIndex(
         string $processId,
         IndexerParameter $parameter,
-        string $lang,
+        ResourceLanguage $lang,
         string $index,
-        array $pathList
+        array $locations
     ): void {
 
-        if (empty($pathList)) {
+        if (empty($locations)) {
             return;
         }
 
@@ -293,7 +294,7 @@ class InternalResourceIndexer implements Indexer
                 $processId,
                 $lang,
                 $index,
-                $pathList,
+                $locations,
                 $offset,
                 $parameter->chunkSize
             );
@@ -325,18 +326,18 @@ class InternalResourceIndexer implements Indexer
      * methods accept a chunk with all paths that are to be indexed via a
      * request.
      *
-     * @param string[] $pathList
+     * @param ResourceLocation[] $locations
      */
     private function indexChunks(
         string $processId,
-        string $lang,
+        ResourceLanguage $lang,
         string $index,
-        array $pathList,
+        array $locations,
         int $offset,
         int $length
     ): int|false {
         $resourceList = $this->loadResources(
-            $pathList,
+            $locations,
             $offset,
             $length
         );
@@ -363,16 +364,16 @@ class InternalResourceIndexer implements Indexer
     }
 
     /**
-     * @param string[] $pathList
+     * @param ResourceLocation[] $locations
      * @return Resource[]|false
      */
     private function loadResources(
-        array $pathList,
+        array $locations,
         int $offset,
         int $length
     ): array|false {
 
-        $maxLength = count($pathList) - $offset;
+        $maxLength = count($locations) - $offset;
         if ($maxLength <= 0) {
             return false;
         }
@@ -381,9 +382,9 @@ class InternalResourceIndexer implements Indexer
 
         $resourceList = [];
         for ($i = $offset; $i < $end; $i++) {
-            $path = $pathList[$i];
+            $location = $locations[$i];
             try {
-                $resource = $this->resourceLoader->load($path);
+                $resource = $this->resourceLoader->load($location);
                 $resourceList[] = $resource;
             } catch (Throwable $e) {
                 $this->handleError($e);
@@ -396,7 +397,7 @@ class InternalResourceIndexer implements Indexer
      * @param array<Resource> $resources
      */
     private function add(
-        string $lang,
+        ResourceLanguage $lang,
         string $processId,
         array $resources
     ): UpdateResult {
@@ -443,10 +444,10 @@ class InternalResourceIndexer implements Indexer
         );
     }
 
-    private function deleteErrorProtocol(string $core): void
+    private function deleteErrorProtocol(): void
     {
         $this->indexService->deleteByQuery(
-            $core,
+            ResourceLanguage::default(),
             'crawl_status:error OR crawl_status:warning'
         );
     }

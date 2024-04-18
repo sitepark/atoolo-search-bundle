@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console\Command;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceChannelFactory;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\MoreLikeThis;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
@@ -38,6 +40,7 @@ class MoreLikeThisTest extends TestCase
             '',
             '',
             '',
+            '',
             'test',
             []
         );
@@ -47,9 +50,14 @@ class MoreLikeThisTest extends TestCase
         );
         $resourceChannelFactory->method('create')
             ->willReturn($resourceChannel);
-        $resultResource = $this->createStub(Resource::class);
-        $resultResource->method('getLocation')
-            ->willReturn('/test2.php');
+        $resultResource = new Resource(
+            '/test2.php',
+            '',
+            '',
+            '',
+            ResourceLanguage::default(),
+            new DataBag([])
+        );
         $result = new SearchResult(
             1,
             1,
@@ -74,9 +82,14 @@ class MoreLikeThisTest extends TestCase
     public function testExecute(): void
     {
 
-        $resultResource = $this->createStub(Resource::class);
-        $resultResource->method('getLocation')
-            ->willReturn('/test2.php');
+        $resultResource = new Resource(
+            '/test2.php',
+            '',
+            '',
+            '',
+            ResourceLanguage::default(),
+            new DataBag([])
+        );
         $result = new SearchResult(
             1,
             1,

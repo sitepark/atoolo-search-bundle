@@ -11,7 +11,7 @@ class NoIndexFilter implements ResourceFilter
 {
     public function accept(Resource $resource): bool
     {
-        $noIndex = $resource->getData()->getBool('init.noIndex');
+        $noIndex = $resource->data->getBool('noIndex');
         return $noIndex !== true;
     }
 }

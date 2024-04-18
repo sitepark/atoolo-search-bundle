@@ -6,6 +6,7 @@ use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
+use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Dto\Indexer\IndexerConfiguration;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexerConfigurationLoader;
@@ -19,12 +20,13 @@ use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
 use Atoolo\Search\Service\Indexer\SolrIndexService;
 use Atoolo\Search\Service\Indexer\SolrIndexUpdater;
 use Atoolo\Search\Service\Indexer\TranslationSplitter;
+use Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Solarium\QueryType\Update\Result as UpdateResult;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\Store\SemaphoreStore;
@@ -89,11 +91,15 @@ class InternalResourceIndexerTest extends TestCase
         $this->translationSplitter = new SubDirTranslationSplitter();
         $this->resourceLoader = $this->createStub(ResourceLoader::class);
         $this->resourceLoader->method('load')
-            ->willReturnCallback(function ($path) {
-                $resource = $this->createStub(Resource::class);
-                $resource->method('getLocation')
-                    ->willReturn($path);
-                return $resource;
+            ->willReturnCallback(function ($location) {
+                return new Resource(
+                    $location->location,
+                    '',
+                    '',
+                    '',
+                    $location->lang,
+                    new DataBag([])
+                );
             });
         $this->solrIndexService = $this->createMock(SolrIndexService::class);
         $this->updateResult = $this->createStub(UpdateResult::class);
@@ -108,7 +114,7 @@ class InternalResourceIndexerTest extends TestCase
             });
         $this->solrIndexService->method('getIndex')
             ->willReturnCallback(function ($lang) {
-                if ($lang === 'en') {
+                if ($lang->code === 'en') {
                     return 'test-en_US';
                 }
                 return 'test';
@@ -202,8 +208,8 @@ class InternalResourceIndexerTest extends TestCase
         $this->documentEnricher
             ->method('enrichDocument')
             ->willReturnCallback(function ($resource, $doc) {
-                if ($resource->getLocation() === '/a/error.php') {
-                    throw new \Exception('test');
+                if ($resource->location === '/a/error.php') {
+                    throw new RuntimeException('test');
                 }
                 return $doc;
             });
@@ -233,8 +239,7 @@ class InternalResourceIndexerTest extends TestCase
 
         $this->indexerFilter->method('accept')
             ->willReturnCallback(function (Resource $resource) {
-                $location = $resource->getLocation();
-                return ($location !== '/a/b.php');
+                return ($resource->location !== '/a/b.php');
             });
 
         $this->updater->expects($this->exactly(1))
@@ -291,7 +296,11 @@ class InternalResourceIndexerTest extends TestCase
             ]);
 
         $this->resourceLoader->method('load')
-            ->willThrowException(new InvalidResourceException('/a/b.php'));
+            ->willThrowException(
+                new InvalidResourceException(
+                    ResourceLocation::of('/a/b.php')
+                )
+            );
 
         $this->indexerProgressHandler->expects($this->once())
             ->method('error');

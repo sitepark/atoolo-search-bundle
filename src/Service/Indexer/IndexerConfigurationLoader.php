@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Indexer;
 
 use Atoolo\Resource\DataBag;
-use Atoolo\Resource\ResourceBaseLocator;
+use Atoolo\Resource\ResourceChannel;
 use Atoolo\Search\Dto\Indexer\IndexerConfiguration;
 use RuntimeException;
 
 class IndexerConfigurationLoader
 {
     public function __construct(
-        private readonly ResourceBaseLocator $resourceBaseLocator
+        private readonly ResourceChannel $resourceChannel
     ) {
     }
 
@@ -21,10 +21,7 @@ class IndexerConfigurationLoader
      */
     public function loadAll(): array
     {
-        $dir = $this->resourceBaseLocator->locate() . '/indexer';
-        if (!is_dir($dir)) {
-            $dir = $this->resourceBaseLocator->locate() . '/../configs/indexer';
-        }
+        $dir = $this->resourceChannel->resourceDir . '/indexer';
         if (!is_dir($dir)) {
             return [];
         }
@@ -41,13 +38,8 @@ class IndexerConfigurationLoader
 
     private function getFile(string $source): string
     {
-        $file = $this->resourceBaseLocator->locate() .
+        return $this->resourceChannel->resourceDir .
             '/indexer/' . $source . '.php';
-        if (file_exists($file)) {
-            return $file;
-        }
-        return $this->resourceBaseLocator->locate() .
-            '/../configs/indexer/' . $source . '.php';
     }
 
     public function exists(string $source): bool

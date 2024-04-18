@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service;
 
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Resource\ResourceChannelFactory;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Service\ResourceChannelBasedIndexName;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -17,9 +17,6 @@ class ResourceChannelBasedIndexNameTest extends TestCase
 
     public function setUp(): void
     {
-        $resourceChannelFactory = $this->createStub(
-            ResourceChannelFactory::class
-        );
         $resourceChannel = new ResourceChannel(
             '',
             '',
@@ -29,15 +26,13 @@ class ResourceChannelBasedIndexNameTest extends TestCase
             '',
             '',
             '',
+            '',
             'test',
             ['en_US']
         );
 
-        $resourceChannelFactory->method('create')
-            ->willReturn($resourceChannel);
-
         $this->indexName = new ResourceChannelBasedIndexName(
-            $resourceChannelFactory
+            $resourceChannel
         );
     }
 
@@ -45,7 +40,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
     {
         $this->assertEquals(
             'test',
-            $this->indexName->name(''),
+            $this->indexName->name(ResourceLanguage::default()),
             'The default index name should be returned ' .
             'if no language is given'
         );
@@ -55,7 +50,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
     {
         $this->assertEquals(
             'test-en_US',
-            $this->indexName->name('en'),
+            $this->indexName->name(ResourceLanguage::of('en')),
             'The language-specific index name should be returned ' .
             'if a language is given'
         );
@@ -65,7 +60,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
     {
         $this->assertEquals(
             'test',
-            $this->indexName->name('it'),
+            $this->indexName->name(ResourceLanguage::of('it')),
             'The default index name should be returned ' .
             'if the language is not supported'
         );

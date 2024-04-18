@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use Solarium\QueryType\Select\Result\Document;
 
 /**
@@ -22,6 +23,9 @@ use Solarium\QueryType\Select\Result\Document;
  */
 interface ResourceFactory
 {
-    public function accept(Document $document): bool;
-    public function create(Document $document, string $lang): Resource;
+    public function accept(Document $document, ResourceLanguage $lang): bool;
+    public function create(
+        Document $document,
+        ResourceLanguage $lang
+    ): Resource;
 }

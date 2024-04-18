@@ -59,37 +59,36 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         string $processId
     ): IndexDocument {
 
-        $data = $resource->getData();
-        $init = new DataBag($data->getAssociativeArray('init'));
+        $data = $resource->data;
         $base = new DataBag($data->getAssociativeArray('base'));
         $metadata = new DataBag($data->getAssociativeArray('metadata'));
 
-        $doc->sp_id = $resource->getId();
-        $doc->sp_name = $resource->getName();
-        $doc->sp_anchor = $init->getString('anchor');
+        $doc->sp_id = $resource->id;
+        $doc->sp_name = $resource->name;
+        $doc->sp_anchor = $data->getString('anchor');
         $doc->title = $base->getString('title');
         $doc->description = $metadata->getString('description');
 
         if (empty($doc->description)) {
-            $doc->description = $resource->getData()->getString(
+            $doc->description = $resource->data->getString(
                 'metadata.intro'
             );
         }
-        $doc->sp_objecttype = $resource->getObjectType();
+        $doc->sp_objecttype = $resource->objectType;
         $doc->sp_canonical = true;
         $doc->crawl_process_id = $processId;
 
-        $url = $init->getString('mediaUrl')
-            ?: $init->getString('url');
+        $url = $data->getString('mediaUrl')
+            ?: $data->getString('url');
         $doc->id = $url;
         $doc->url = $url;
 
         /** @var string[] $spContentType */
-        $spContentType = [$resource->getObjectType()];
-        if ($init->getBool('media') !== true) {
+        $spContentType = [$resource->objectType];
+        if ($data->getBool('media') !== true) {
             $spContentType[] = 'article';
         }
-        $contentSectionTypes = $init->getArray('contentSectionTypes');
+        $contentSectionTypes = $data->getArray('contentSectionTypes');
         $spContentType = array_merge($spContentType, $contentSectionTypes);
 
         if ($base->has('teaser.image')) {
@@ -112,10 +111,10 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $doc->meta_content_language = $lang;
 
         $doc->sp_changed = $this->toDateTime(
-            $init->getInt('changed')
+            $data->getInt('changed')
         );
         $doc->sp_generated = $this->toDateTime(
-            $init->getInt('generated')
+            $data->getInt('generated')
         );
         $doc->sp_date = $this->toDateTime(
             $base->getInt('date')
@@ -146,11 +145,11 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $sites = $this->getParentSiteGroupIdList($resource);
 
             $navigationRoot = $this->navigationLoader->loadRoot(
-                $resource->getLocation()
+                $resource->toLocation()
             );
 
-            $siteGroupId = $navigationRoot->getData()->getInt(
-                'init.siteGroup.id'
+            $siteGroupId = $navigationRoot->data->getInt(
+                'siteGroup.id'
             );
             if ($siteGroupId !== 0) {
                 $sites[] = (string)$siteGroupId;
@@ -158,7 +157,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $doc->sp_site = array_unique($sites);
         } catch (Exception $e) {
             throw new DocumentEnrichingException(
-                $resource->getLocation(),
+                $resource->location,
                 'Unable to set sp_site: ' . $e->getMessage(),
                 0,
                 $e
@@ -192,7 +191,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         }
 
         /** @var array<array{id: int}> $groupPath */
-        $groupPath = $init->getArray('groupPath');
+        $groupPath = $data->getArray('groupPath');
         $groupPathAsIdList = [];
         foreach ($groupPath as $group) {
             $groupPathAsIdList[] = $group['id'];
@@ -231,10 +230,10 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         );
         $doc->meta_content_type = $contentType;
 
-        $accessType = $init->getString('access.type');
+        $accessType = $data->getString('access.type');
 
         /** @var string[] $groups */
-        $groups = $init->getArray('access.groups');
+        $groups = $data->getArray('access.groups');
 
         if ($accessType === 'allow' && !empty($groups)) {
             $doc->include_groups = array_map(
@@ -267,20 +266,20 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
     ): IndexDocument {
 
         $content = [];
-        $content[] = $resource->getData()->getString(
+        $content[] = $resource->data->getString(
             'searchindexdata.content'
         );
 
         $content[] = $this->contentCollector->collect(
-            $resource->getData()->getArray('content')
+            $resource->data->getArray('content')
         );
 
         /** @var ContactPoint $contactPoint */
-        $contactPoint = $resource->getData()->getArray('metadata.contactPoint');
+        $contactPoint = $resource->data->getArray('metadata.contactPoint');
         $content[] = $this->contactPointToContent($contactPoint);
 
         /** @var array<array{name?:string}> $categories */
-        $categories = $resource->getData()->getArray('metadata.categories');
+        $categories = $resource->data->getArray('metadata.categories');
         foreach ($categories as $category) {
             $content[] = $category['name'] ?? '';
         }
@@ -345,13 +344,13 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
     private function getLocaleFromResource(Resource $resource): string
     {
 
-        $locale = $resource->getData()->getString('init.locale');
+        $locale = $resource->data->getString('locale');
         if ($locale !== '') {
             return $locale;
         }
 
         /** @var array<array{locale: ?string}> $groupPath */
-        $groupPath = $resource->getData()->getArray('init.groupPath');
+        $groupPath = $resource->data->getArray('groupPath');
         if (!empty($groupPath)) {
             $len = count($groupPath);
             for ($i = $len - 1; $i >= 0; $i--) {
@@ -412,7 +411,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
      */
     private function getNavigationParents(Resource $resource): array
     {
-        return $resource->getData()->getAssociativeArray(
+        return $resource->data->getAssociativeArray(
             'base.trees.navigation.parents'
         );
     }

@@ -5,24 +5,22 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service;
 
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Resource\ResourceChannelFactory;
+use Atoolo\Resource\ResourceLanguage;
 
 class ResourceChannelBasedIndexName implements IndexName
 {
     public function __construct(
-        private readonly ResourceChannelFactory $resourceChannelFactory
+        private readonly ResourceChannel $resourceChannel
     ) {
     }
 
-    public function name(string $lang): string
+    public function name(ResourceLanguage $lang): string
     {
-        $resourceChannel = $this->resourceChannelFactory->create();
-
-        $locale = $this->langToAvailableLocale($resourceChannel, $lang);
+        $locale = $this->langToAvailableLocale($this->resourceChannel, $lang);
         if (empty($locale)) {
-            return $resourceChannel->searchIndex;
+            return $this->resourceChannel->searchIndex;
         }
-        return $resourceChannel->searchIndex . '-' . $locale;
+        return $this->resourceChannel->searchIndex . '-' . $locale;
     }
 
     /**
@@ -33,29 +31,28 @@ class ResourceChannelBasedIndexName implements IndexName
      */
     public function names(): array
     {
-        $resourceChannel = $this->resourceChannelFactory->create();
-        $names = [$resourceChannel->searchIndex];
+        $names = [$this->resourceChannel->searchIndex];
         foreach (
-            $resourceChannel->translationLocales as $locale
+            $this->resourceChannel->translationLocales as $locale
         ) {
-            $names[] = $resourceChannel->searchIndex . '-' . $locale;
+            $names[] = $this->resourceChannel->searchIndex . '-' . $locale;
         }
         return $names;
     }
 
     private function langToAvailableLocale(
         ResourceChannel $resourceChannel,
-        string $lang
+        ResourceLanguage $lang
     ): string {
 
-        if (empty($lang)) {
-            return $lang;
+        if ($lang === ResourceLanguage::default()) {
+            return '';
         }
 
         foreach (
             $resourceChannel->translationLocales as $availableLocale
         ) {
-            if (str_starts_with($availableLocale, $lang)) {
+            if (str_starts_with($availableLocale, $lang->code)) {
                 return $availableLocale;
             }
         }

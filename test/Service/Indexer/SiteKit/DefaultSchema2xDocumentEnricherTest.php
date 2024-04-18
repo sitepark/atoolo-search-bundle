@@ -8,12 +8,12 @@ use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Exception\DocumentEnrichingException;
 use Atoolo\Search\Service\Indexer\ContentCollector;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema2xDocumentEnricher;
 use DateTime;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class DefaultSchema2xDocumentEnricherTest extends TestCase
@@ -28,12 +28,12 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $navigationLoader
             ->method('loadRoot')
             ->willReturnCallback(function ($location) {
-                if ($location === 'throwException') {
+                if ($location->location === 'throwException') {
                     throw new InvalidResourceException($location);
                 }
-                return $this->createResource(['init' => [
+                return $this->createResource([
                     'siteGroup' => ['id' => 999]
-                ]]);
+                ]);
             });
         $contentCollector = $this->createStub(ContentCollector::class);
         $contentCollector
@@ -48,24 +48,32 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichSpId(): void
     {
-        $resource = $this->createStub(Resource::class);
-        $resource->method('getId')->willReturn('123');
+        $resource = new Resource(
+            '',
+            '123',
+            '',
+            '',
+            ResourceLanguage::default(),
+            new DataBag([])
+        );
         $doc = $this->enrichWithResource($resource);
         $this->assertEquals('123', $doc->sp_id, 'unexpected id');
     }
 
     public function testEnrichName(): void
     {
-        $resource = $this->createStub(Resource::class);
-        $resource->method('getName')->willReturn('test');
+        $resource = $this->createResource([
+            'name' => 'test'
+        ]);
         $doc = $this->enrichWithResource($resource);
         $this->assertEquals('test', $doc->sp_name, 'unexpected name');
     }
 
     public function testEnrichObjectType(): void
     {
-        $resource = $this->createStub(Resource::class);
-        $resource->method('getObjectType')->willReturn('test');
+        $resource = $this->createResource([
+            'objectType' => 'test'
+        ]);
         $doc = $this->enrichWithResource($resource);
         $this->assertEquals(
             'test',
@@ -76,7 +84,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichAnchor(): void
     {
-        $doc = $this->enrichWithData(['init' => ['anchor' => 'abc']]);
+        $doc = $this->enrichWithData(['anchor' => 'abc']);
         $this->assertEquals('abc', $doc->sp_anchor, 'unexpected ancohr');
     }
 
@@ -107,7 +115,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichCrawlProcessId(): void
     {
-        $resource = $this->createStub(Resource::class);
+        $resource = $this->createResource([]);
         $doc = $this->enricher->enrichDocument(
             $resource,
             new IndexSchema2xDocument(),
@@ -122,7 +130,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichId(): void
     {
-        $doc = $this->enrichWithData(['init' => ['url' => '/test.php']]);
+        $doc = $this->enrichWithData(['url' => '/test.php']);
         $this->assertEquals(
             '/test.php',
             $doc->id,
@@ -132,7 +140,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichUrl(): void
     {
-        $doc = $this->enrichWithData(['init' => ['url' => '/test.php']]);
+        $doc = $this->enrichWithData(['url' => '/test.php']);
         $this->assertEquals(
             '/test.php',
             $doc->url,
@@ -142,7 +150,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichMediaId(): void
     {
-        $doc = $this->enrichWithData(['init' => ['mediaUrl' => '/test.php']]);
+        $doc = $this->enrichWithData(['mediaUrl' => '/test.php']);
         $this->assertEquals(
             '/test.php',
             $doc->id,
@@ -152,7 +160,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichMediaUrl(): void
     {
-        $doc = $this->enrichWithData(['init' => ['mediaUrl' => '/test.php']]);
+        $doc = $this->enrichWithData(['mediaUrl' => '/test.php']);
         $this->assertEquals(
             '/test.php',
             $doc->url,
@@ -163,10 +171,8 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     public function testEnrichSpContentType(): void
     {
         $doc = $this->enrichWithData([
-            'init' => [
-                'objectType' => 'content',
-                'contentSectionTypes' => ['text', 'linkList']
-            ],
+            'objectType' => 'content',
+            'contentSectionTypes' => ['text', 'linkList'],
             'base' => [
                 'teaser' => [
                     'headline' => 'test',
@@ -205,7 +211,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichLanguage(): void
     {
-        $doc = $this->enrichWithData(['init' => ['locale' => 'en_US']]);
+        $doc = $this->enrichWithData(['locale' => 'en_US']);
         $this->assertEquals(
             'en',
             $doc->sp_language,
@@ -215,7 +221,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichLanguageWithShortLocale(): void
     {
-        $doc = $this->enrichWithData(['init' => ['locale' => 'en']]);
+        $doc = $this->enrichWithData(['locale' => 'en']);
         $this->assertEquals(
             'en',
             $doc->sp_language,
@@ -225,12 +231,12 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichLanguageOverGroupPath(): void
     {
-        $doc = $this->enrichWithData(['init' => [
+        $doc = $this->enrichWithData([
             'groupPath' => [
                 ['id' => 1, 'locale' => 'fr_FR'],
                 ['id' => 2, 'locale' => 'it_IT']
             ]
-        ]]);
+        ]);
         $this->assertEquals(
             'it',
             $doc->sp_language,
@@ -250,7 +256,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichChanged(): void
     {
-        $doc = $this->enrichWithData(['init' => ['changed' => 1708932236]]);
+        $doc = $this->enrichWithData(['changed' => 1708932236]);
         $expected = new DateTime();
         $expected->setTimestamp(1708932236);
 
@@ -263,7 +269,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichGenerated(): void
     {
-        $doc = $this->enrichWithData(['init' => ['generated' => 1708932236]]);
+        $doc = $this->enrichWithData(['generated' => 1708932236]);
         $expected = new DateTime();
         $expected->setTimestamp(1708932236);
 
@@ -415,8 +421,9 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichSpSitesWithInvalidRootResource(): void
     {
-        $resource = $this->createResource([]);
-        $resource->method('getLocation')->willReturn('throwException');
+        $resource = $this->createResource([
+            'url' => 'throwException'
+        ]);
 
         $this->expectException(DocumentEnrichingException::class);
         $this->enrichWithResource($resource);
@@ -474,13 +481,13 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichSpGroup(): void
     {
-        $doc = $this->enrichWithData(['init' => [
+        $doc = $this->enrichWithData([
             'groupPath' => [
                 ['id' => 1],
                 ['id' => 2],
                 ['id' => 3],
             ]
-        ]]);
+        ]);
         $this->assertEquals(
             2,
             $doc->sp_group,
@@ -490,13 +497,13 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichSpGroupPath(): void
     {
-        $doc = $this->enrichWithData(['init' => [
+        $doc = $this->enrichWithData([
             'groupPath' => [
                 ['id' => 1],
                 ['id' => 2],
                 ['id' => 3],
             ]
-        ]]);
+        ]);
         $this->assertEquals(
             [1, 2, 3],
             $doc->sp_group_path,
@@ -529,7 +536,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     public function testEnrichContentTypeViaScheduling(): void
     {
         $doc = $this->enrichWithData([
-            'init' => ['objectType' => 'content'],
+            'objectType' => 'content',
             'base' => ['date' => 1707549836],
             'metadata' => [
                 'scheduling' => [
@@ -572,8 +579,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichDefaultMetaContentType(): void
     {
-        $doc = $this->enrichWithData([
-        ]);
+        $doc = $this->enrichWithData([]);
 
         $this->assertEquals(
             'text/html; charset=UTF-8',
@@ -584,12 +590,12 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichIncludeGroups(): void
     {
-        $doc = $this->enrichWithData(['init' => [
+        $doc = $this->enrichWithData([
             'access' => [
                 'type' => 'allow',
                 'groups' => ['100010100000001028']
             ]
-        ]]);
+        ]);
 
         $this->assertEquals(
             ['1028'],
@@ -611,12 +617,12 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichExcludeGroups(): void
     {
-        $doc = $this->enrichWithData(['init' => [
+        $doc = $this->enrichWithData([
             'access' => [
                 'type' => 'deny',
                 'groups' => ['100010100000001028']
             ]
-        ]]);
+        ]);
 
         $this->assertEquals(
             ['1028'],
@@ -651,8 +657,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichInternal(): void
     {
-        $doc = $this->enrichWithData([
-        ]);
+        $doc = $this->enrichWithData([]);
 
         $this->assertEquals(
             ['internal'],
@@ -754,14 +759,15 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     /**
      * @param array<string, array<string,mixed>> $data
      */
-    private function createResource(array $data): Resource&Stub
+    private function createResource(array $data): Resource
     {
-        $dataBag = new DataBag($data);
-        $resource = $this->createStub(Resource::class);
-        $resource->method('getData')->willReturn($dataBag);
-        $resource->method('getObjectType')->willReturn(
-            $data['init']['objectType'] ?? ''
+        return new Resource(
+            $data['url'] ?? '',
+            $data['id'] ?? '123',
+            $data['name'] ?? '',
+            $data['objectType'] ?? '',
+            ResourceLanguage::of($data['locale'] ?? ''),
+            new DataBag($data)
         );
-        return $resource;
     }
 }

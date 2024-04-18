@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Resource\DataBag;
-use Atoolo\Resource\ResourceBaseLocator;
+use Atoolo\Resource\ResourceChannel;
 use Atoolo\Search\Dto\Indexer\IndexerConfiguration;
 use Atoolo\Search\Service\Indexer\IndexerConfigurationLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -18,36 +17,26 @@ class IndexerConfigurationLoaderTest extends TestCase
 {
     private const RESOURCE_BASE = __DIR__ . '/../../resources/' .
         'Service/Indexer/IndexerConfigurationLoader';
-    private IndexerConfigurationLoader $loader;
 
-    private ResourceBaseLocator&Stub $resourceBaseLocator;
-
-    public function setUp(): void
-    {
-        $this->resourceBaseLocator = $this->createStub(
-            ResourceBaseLocator::class
-        );
-        $this->loader = new IndexerConfigurationLoader(
-            $this->resourceBaseLocator
-        );
-    }
 
     public function testExists(): void
     {
-        $this->resourceBaseLocator->method('locate')
-            ->willReturn(self::RESOURCE_BASE . '/with-internal');
+        $loader = $this->createLoader(
+            self::RESOURCE_BASE . '/with-internal'
+        );
         $this->assertTrue(
-            $this->loader->exists('internal'),
+            $loader->exists('internal'),
             'Internal config should exist'
         );
     }
 
     public function testLoad(): void
     {
-        $this->resourceBaseLocator->method('locate')
-            ->willReturn(self::RESOURCE_BASE . '/with-internal');
+        $loader = $this->createLoader(
+            self::RESOURCE_BASE . '/with-internal'
+        );
 
-        $config = $this->loader->load('internal');
+        $config = $loader->load('internal');
 
         $expected = new IndexerConfiguration(
             'internal',
@@ -67,10 +56,11 @@ class IndexerConfigurationLoaderTest extends TestCase
 
     public function testLoadNotExists(): void
     {
-        $this->resourceBaseLocator->method('locate')
-            ->willReturn(self::RESOURCE_BASE . '/with-internal');
+        $loader = $this->createLoader(
+            self::RESOURCE_BASE . '/with-internal'
+        );
 
-        $config = $this->loader->load('not-exists');
+        $config = $loader->load('not-exists');
 
         $expected = new IndexerConfiguration(
             'not-exists',
@@ -88,8 +78,9 @@ class IndexerConfigurationLoaderTest extends TestCase
 
     public function testLoadAll(): void
     {
-        $this->resourceBaseLocator->method('locate')
-            ->willReturn(self::RESOURCE_BASE . '/with-internal');
+        $loader = $this->createLoader(
+            self::RESOURCE_BASE . '/with-internal'
+        );
 
         $expected = new IndexerConfiguration(
             'internal',
@@ -102,29 +93,50 @@ class IndexerConfigurationLoaderTest extends TestCase
 
         $this->assertEquals(
             [$expected],
-            $this->loader->loadAll(),
+            $loader->loadAll(),
             'unexpected config'
         );
     }
 
     public function testLoadAllNotADirectory(): void
     {
-        $this->resourceBaseLocator->method('locate')
-            ->willReturn(self::RESOURCE_BASE . '/not-a-directory');
+        $loader = $this->createLoader(
+            self::RESOURCE_BASE . '/not-a-directory'
+        );
 
         $this->assertEquals(
             [],
-            $this->loader->loadAll(),
+            $loader->loadAll(),
             'should return empty array'
         );
     }
 
     public function testLoadAllWithConfigReturnString(): void
     {
-        $this->resourceBaseLocator->method('locate')
-            ->willReturn(self::RESOURCE_BASE . '/return-string');
+        $loader = $this->createLoader(
+            self::RESOURCE_BASE . '/return-string'
+        );
 
         $this->expectException(RuntimeException::class);
-        $this->loader->loadAll();
+        $loader->loadAll();
+    }
+
+    private function createLoader(
+        string $resourceDir
+    ): IndexerConfigurationLoader {
+        $resourceChannel = new ResourceChannel(
+            '',
+            '',
+            '',
+            '',
+            false,
+            '',
+            '',
+            '',
+            $resourceDir,
+            '',
+            []
+        );
+        return new IndexerConfigurationLoader($resourceChannel);
     }
 }

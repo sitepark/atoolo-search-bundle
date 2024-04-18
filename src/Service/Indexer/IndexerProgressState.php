@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Dto\Indexer\IndexerStatusState;
 use Atoolo\Search\Service\IndexName;
@@ -45,6 +46,9 @@ class IndexerProgressState implements IndexerProgressHandler
         );
     }
 
+    /**
+     * @throws ExceptionInterface
+     */
     public function start(int $total): void
     {
         $storedStatus = $this->statusStore->load($this->getStatusStoreKey());
@@ -159,16 +163,18 @@ class IndexerProgressState implements IndexerProgressHandler
         $this->status->state = IndexerStatusState::ABORTED;
     }
 
+    /**
+     * @throws ExceptionInterface
+     */
     public function getStatus(): IndexerStatus
     {
-        if ($this->status !== null) {
-            return $this->status;
-        }
-        return $this->statusStore->load($this->getStatusStoreKey());
+        return $this->status
+            ?? $this->statusStore->load($this->getStatusStoreKey());
     }
 
     private function getStatusStoreKey(): string
     {
-        return $this->index->name('') . '-' . $this->source;
+        return $this->index->name(ResourceLanguage::default()) .
+            '-' . $this->source;
     }
 }

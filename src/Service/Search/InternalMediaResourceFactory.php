@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Resource\ResourceLoader;
+use Atoolo\Resource\ResourceLocation;
 use LogicException;
 use Solarium\QueryType\Select\Result\Document;
 
@@ -23,31 +25,36 @@ class InternalMediaResourceFactory implements ResourceFactory
     ) {
     }
 
-    public function accept(Document $document): bool
+    public function accept(Document $document, ResourceLanguage $lang): bool
     {
-        $metaLocation = $this->getMetaLocation($document);
+        $metaLocation = $this->getMetaLocation($document, $lang);
         if ($metaLocation === null) {
             return false;
         }
         return $this->resourceLoader->exists($metaLocation);
     }
 
-    public function create(Document $document, string $lang): Resource
+    public function create(Document $document, ResourceLanguage $lang): Resource
     {
-        $metaLocation = $this->getMetaLocation($document);
+        $metaLocation = $this->getMetaLocation($document, $lang);
         if ($metaLocation === null) {
             throw new LogicException('document should contain an url');
         }
-        return $this->resourceLoader->load($metaLocation, $lang);
+        return $this->resourceLoader->load($metaLocation);
     }
 
-    private function getMetaLocation(Document $document): ?string
-    {
-        $location = $this->getField($document, 'url');
-        if ($location === null) {
+    private function getMetaLocation(
+        Document $document,
+        ResourceLanguage $lang
+    ): ?ResourceLocation {
+        $url = $this->getField($document, 'url');
+        if ($url === null) {
             return null;
         }
-        return $location . '.meta.php';
+        return ResourceLocation::of(
+            $url . '.meta.php',
+            $lang
+        );
     }
 
     private function getField(Document $document, string $name): ?string

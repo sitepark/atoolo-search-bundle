@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Indexer;
 
 use Atoolo\Resource\ResourceLoader;
+use Atoolo\Resource\ResourceLocation;
 
 class IndexDocumentDumper
 {
@@ -27,7 +28,8 @@ class IndexDocumentDumper
     {
         $documents = [];
         foreach ($paths as $path) {
-            $resource = $this->resourceLoader->load($path);
+            $location = ResourceLocation::of($path);
+            $resource = $this->resourceLoader->load($location);
             $doc = new IndexSchema2xDocument();
             $processId = 'process-id';
 

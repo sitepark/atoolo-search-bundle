@@ -6,6 +6,7 @@ namespace Atoolo\Search\Test\Service\Search;
 
 use ArrayIterator;
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Service\Search\ResourceFactory;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -32,7 +33,10 @@ class SolrResultToResourceResolverTest extends TestCase
 
         $resolver = new SolrResultToResourceResolver([$resourceFactory]);
 
-        $resourceList = $resolver->loadResourceList($result, '');
+        $resourceList = $resolver->loadResourceList(
+            $result,
+            ResourceLanguage::default()
+        );
 
         $this->assertEquals(
             [$resource],
@@ -55,7 +59,10 @@ class SolrResultToResourceResolverTest extends TestCase
 
         $resolver = new SolrResultToResourceResolver([$resourceFactory]);
 
-        $resourceList = $resolver->loadResourceList($result, '');
+        $resourceList = $resolver->loadResourceList(
+            $result,
+            ResourceLanguage::default()
+        );
 
         $this->assertEmpty(
             $resourceList,
@@ -76,7 +83,10 @@ class SolrResultToResourceResolverTest extends TestCase
 
         $resolver = new SolrResultToResourceResolver([$resourceFactory]);
 
-        $resourceList = $resolver->loadResourceList($result, '');
+        $resourceList = $resolver->loadResourceList(
+            $result,
+            ResourceLanguage::default()
+        );
 
         $this->assertEmpty(
             $resourceList,

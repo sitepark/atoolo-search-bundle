@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Search;
 
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Service\IndexName;
@@ -68,8 +69,7 @@ class SolrMoreLikeThisTest extends TestCase
             ->getMock();
 
         $query = new MoreLikeThisQuery(
-            '/test.php',
-            '',
+            ResourceLocation::of('/test.php'),
             [$filter]
         );
 

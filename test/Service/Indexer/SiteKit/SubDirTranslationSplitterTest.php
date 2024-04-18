@@ -2,6 +2,8 @@
 
 namespace Atoolo\Search\Test\Service\Indexer\SiteKit;
 
+use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +23,7 @@ class SubDirTranslationSplitterTest extends TestCase
         );
     }
 
-    public function testLocales(): void
+    public function testLanguages(): void
     {
         $splitter = new SubDirTranslationSplitter();
         $result = $splitter->split([
@@ -31,8 +33,11 @@ class SubDirTranslationSplitterTest extends TestCase
         ]);
 
         $this->assertEquals(
-            ['en_US', 'it_IT'],
-            $result->getLocales(),
+            [
+                ResourceLanguage::of('en_US'),
+                ResourceLanguage::of('it_IT'),
+            ],
+            $result->getLanguages(),
             'unexpected locales'
         );
     }
@@ -49,11 +54,12 @@ class SubDirTranslationSplitterTest extends TestCase
             '/c/d.php.translations/en_US.php'
         ]);
 
-        $translations = $result->getTranslations('it_IT');
+        $lang = ResourceLanguage::of('it_IT');
+        $translations = $result->getTranslations($lang);
 
         $expected = [
-            '/a/b.php.translations/it_IT.php',
-            '/c/d.php.translations/it_IT.php'
+            ResourceLocation::of('/a/b.php', $lang),
+            ResourceLocation::of('/c/d.php', $lang),
         ];
 
         $this->assertEquals(
@@ -70,10 +76,11 @@ class SubDirTranslationSplitterTest extends TestCase
             '/a/b.php?loc=en_US',
         ]);
 
-        $translations = $result->getTranslations('en_US');
+        $lang = ResourceLanguage::of('en_US');
+        $translations = $result->getTranslations($lang);
 
         $expected = [
-            '/a/b.php.translations/en_US.php',
+            ResourceLocation::of('/a/b.php', $lang)
         ];
 
         $this->assertEquals(

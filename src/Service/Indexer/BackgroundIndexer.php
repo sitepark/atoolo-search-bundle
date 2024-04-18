@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Indexer;
 use Atoolo\Search\Service\IndexName;
@@ -79,6 +80,7 @@ class BackgroundIndexer implements Indexer
 
     private function getStatusStoreKey(): string
     {
-        return $this->index->name('') . '-' . $this->indexer->getSource();
+        return $this->index->name(ResourceLanguage::default()) .
+            '-' . $this->indexer->getSource();
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Search;
 
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Search\Service\Search\InternalMediaResourceFactory;
 use LogicException;
@@ -37,7 +38,7 @@ class InternalMediaResourceFactoryTest extends TestCase
             ->willReturn(true);
 
         $this->assertTrue(
-            $this->factory->accept($document),
+            $this->factory->accept($document, ResourceLanguage::default()),
             'should be accepted'
         );
     }
@@ -46,7 +47,7 @@ class InternalMediaResourceFactoryTest extends TestCase
     {
         $document = $this->createStub(Document::class);
         $this->assertFalse(
-            $this->factory->accept($document),
+            $this->factory->accept($document, ResourceLanguage::default()),
             'should not be accepted'
         );
     }
@@ -59,7 +60,7 @@ class InternalMediaResourceFactoryTest extends TestCase
             ->willReturn(false);
 
         $this->assertFalse(
-            $this->factory->accept($document),
+            $this->factory->accept($document, ResourceLanguage::default()),
             'should not be accepted'
         );
     }
@@ -74,7 +75,7 @@ class InternalMediaResourceFactoryTest extends TestCase
 
         $this->assertEquals(
             $resource,
-            $this->factory->create($document, 'de'),
+            $this->factory->create($document, ResourceLanguage::of('en')),
             'unexpected resource'
         );
     }
@@ -83,7 +84,7 @@ class InternalMediaResourceFactoryTest extends TestCase
     {
         $document = $this->createStub(Document::class);
         $this->expectException(LogicException::class);
-        $this->factory->create($document, 'de');
+        $this->factory->create($document, ResourceLanguage::of('de'));
     }
 
     private function createDocument(string $url): Document

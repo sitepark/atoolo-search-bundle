@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Exception\MissMatchingResourceFactoryException;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Solarium\QueryType\Select\Result\Document;
@@ -30,25 +32,29 @@ class SolrResultToResourceResolver
     /**
      * @return array<Resource>
      */
-    public function loadResourceList(SelectResult $result, string $lang): array
-    {
+    public function loadResourceList(
+        SelectResult $result,
+        ResourceLanguage $lang
+    ): array {
         $resourceList = [];
         /** @var Document $document */
         foreach ($result as $document) {
             try {
                 $resourceList[] = $this->loadResource($document, $lang);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->error($e->getMessage(), ['exception' => $e]);
             }
         }
         return $resourceList;
     }
 
-    private function loadResource(Document $document, string $lang): Resource
-    {
+    private function loadResource(
+        Document $document,
+        ResourceLanguage $lang
+    ): Resource {
 
         foreach ($this->resourceFactoryList as $resourceFactory) {
-            if ($resourceFactory->accept($document)) {
+            if ($resourceFactory->accept($document, $lang)) {
                 return $resourceFactory->create($document, $lang);
             }
         }

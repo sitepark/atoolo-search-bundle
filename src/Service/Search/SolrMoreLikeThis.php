@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Search;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\MoreLikeThis;
@@ -27,12 +28,12 @@ class SolrMoreLikeThis implements MoreLikeThis
 
     public function moreLikeThis(MoreLikeThisQuery $query): SearchResult
     {
-        $index = $this->index->name($query->lang);
+        $index = $this->index->name($query->location->lang);
         $client = $this->clientFactory->create($index);
         $solrQuery = $this->buildSolrQuery($client, $query);
         /** @var SolrMoreLikeThisResult $result */
         $result = $client->execute($solrQuery);
-        return $this->buildResult($result, $query->lang);
+        return $this->buildResult($result, $query->location->lang);
     }
 
     private function buildSolrQuery(
@@ -62,7 +63,7 @@ class SolrMoreLikeThis implements MoreLikeThis
 
     private function buildResult(
         SolrMoreLikeThisResult $result,
-        string $lang
+        ResourceLanguage $lang
     ): SearchResult {
 
         $resourceList = $this->resultToResourceResolver

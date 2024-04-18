@@ -97,7 +97,7 @@ class Search extends Command
 
         $this->io->section('Results (' . $result->total . ')');
         foreach ($result as $resource) {
-            $this->io->text($resource->getLocation());
+            $this->io->text($resource->location);
         }
 
         if (count($result->facetGroups) > 0) {

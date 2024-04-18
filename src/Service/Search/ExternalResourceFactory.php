@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Search;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use LogicException;
 use Solarium\QueryType\Select\Result\Document;
 
@@ -17,7 +19,7 @@ use Solarium\QueryType\Select\Result\Document;
  */
 class ExternalResourceFactory implements ResourceFactory
 {
-    public function accept(Document $document): bool
+    public function accept(Document $document, ResourceLanguage $lang): bool
     {
         $location = $this->getField($document, 'url');
         if ($location === null) {
@@ -29,7 +31,7 @@ class ExternalResourceFactory implements ResourceFactory
         );
     }
 
-    public function create(Document $document, string $lang): Resource
+    public function create(Document $document, ResourceLanguage $lang): Resource
     {
         $location = $this->getField($document, 'url');
         if ($location === null) {
@@ -41,8 +43,10 @@ class ExternalResourceFactory implements ResourceFactory
             id: $this->getField($document, 'sp_id') ?? '',
             name: $this->getField($document, 'title') ?? '',
             objectType: 'external',
-            lang: $this->getField($document, 'meta_content_language') ?? '',
-            data: [],
+            lang: ResourceLanguage::of(
+                $this->getField($document, 'meta_content_language')
+            ),
+            data: new DataBag([]),
         );
     }
 

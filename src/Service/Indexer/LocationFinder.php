@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use Atoolo\Resource\ResourceBaseLocator;
+use Atoolo\Resource\ResourceChannel;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -20,7 +20,7 @@ use Symfony\Component\Finder\Finder;
 class LocationFinder
 {
     public function __construct(
-        private readonly ResourceBaseLocator $baseLocator
+        private readonly ResourceChannel $resourceChannel
     ) {
     }
 
@@ -93,7 +93,7 @@ class LocationFinder
 
     private function getBasePath(): string
     {
-        return rtrim($this->baseLocator->locate(), '/');
+        return rtrim($this->resourceChannel->resourceDir, '/');
     }
 
     private function toRelativePath(string $path): string

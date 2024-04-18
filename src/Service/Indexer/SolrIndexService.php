@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use Solarium\Client;
@@ -16,12 +17,12 @@ class SolrIndexService
     ) {
     }
 
-    public function getIndex(string $lang): string
+    public function getIndex(ResourceLanguage $lang): string
     {
         return $this->index->name($lang);
     }
 
-    public function updater(string $lang): SolrIndexUpdater
+    public function updater(ResourceLanguage $lang): SolrIndexUpdater
     {
         $client = $this->createClient($lang);
         $update = $client->createUpdate();
@@ -31,7 +32,7 @@ class SolrIndexService
     }
 
     public function deleteExcludingProcessId(
-        string $lang,
+        ResourceLanguage $lang,
         string $source,
         string $processId
     ): void {
@@ -65,7 +66,7 @@ class SolrIndexService
         }
     }
 
-    public function deleteByQuery(string $lang, string $query): void
+    public function deleteByQuery(ResourceLanguage $lang, string $query): void
     {
         $client = $this->createClient($lang);
         $update = $client->createUpdate();
@@ -73,7 +74,7 @@ class SolrIndexService
         $client->update($update);
     }
 
-    public function commit(string $lang): void
+    public function commit(ResourceLanguage $lang): void
     {
         $client = $this->createClient($lang);
         $update = $client->createUpdate();
@@ -98,7 +99,7 @@ class SolrIndexService
      */
     public function getManagedIndices(): array
     {
-        $client = $this->createClient('');
+        $client = $this->createClient(ResourceLanguage::default());
         $coreAdminQuery = $client->createCoreAdmin();
         $statusAction = $coreAdminQuery->createStatus();
         $coreAdminQuery->setAction($statusAction);
@@ -118,7 +119,7 @@ class SolrIndexService
         return $managedIndexes;
     }
 
-    private function createClient(string $lang): Client
+    private function createClient(ResourceLanguage $lang): Client
     {
         return $this->clientFactory->create($this->index->name($lang));
     }

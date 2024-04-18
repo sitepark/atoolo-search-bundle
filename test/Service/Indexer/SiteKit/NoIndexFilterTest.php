@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer\SiteKit;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Service\Indexer\SiteKit\NoIndexFilter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -19,8 +21,8 @@ class NoIndexFilterTest extends TestCase
             'test',
             'test',
             'test',
-            '',
-            []
+            ResourceLanguage::default(),
+            new DataBag([])
         );
         $filter = new NoIndexFilter();
         $this->assertTrue(
@@ -36,8 +38,8 @@ class NoIndexFilterTest extends TestCase
             'test',
             'test',
             'test',
-            '',
-            ['init' => ['noIndex' => true]]
+            ResourceLanguage::default(),
+            new DataBag(['noIndex' => true])
         );
         $filter = new NoIndexFilter();
         $this->assertFalse(

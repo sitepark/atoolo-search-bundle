@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Search;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Service\Search\ExternalResourceFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -23,7 +24,7 @@ class ExternalResourceFactoryTest extends TestCase
     {
         $document = $this->createDocument('https://www.sitepark.com');
         $this->assertTrue(
-            $this->factory->accept($document),
+            $this->factory->accept($document, ResourceLanguage::default()),
             'should be accepted'
         );
     }
@@ -32,7 +33,7 @@ class ExternalResourceFactoryTest extends TestCase
     {
         $document = $this->createDocument('http://www.sitepark.com');
         $this->assertTrue(
-            $this->factory->accept($document),
+            $this->factory->accept($document, ResourceLanguage::default()),
             'should be accepted'
         );
     }
@@ -41,7 +42,7 @@ class ExternalResourceFactoryTest extends TestCase
     {
         $document = $this->createStub(Document::class);
         $this->assertFalse(
-            $this->factory->accept($document),
+            $this->factory->accept($document, ResourceLanguage::default()),
             'should be accepted'
         );
     }
@@ -49,11 +50,14 @@ class ExternalResourceFactoryTest extends TestCase
     public function testCreate(): void
     {
         $document = $this->createDocument('https://www.sitepark.com');
-        $resource = $this->factory->create($document, 'de');
+        $resource = $this->factory->create(
+            $document,
+            ResourceLanguage::of('en')
+        );
 
         $this->assertEquals(
             'https://www.sitepark.com',
-            $resource->getLocation(),
+            $resource->location,
             'unexpected location'
         );
     }
@@ -61,11 +65,14 @@ class ExternalResourceFactoryTest extends TestCase
     public function testCreateWithName(): void
     {
         $document = $this->createDocument('https://www.sitepark.com', 'Test');
-        $resource = $this->factory->create($document, 'de');
+        $resource = $this->factory->create(
+            $document,
+            ResourceLanguage::of('en')
+        );
 
         $this->assertEquals(
             'Test',
-            $resource->getName(),
+            $resource->name,
             'unexpected name'
         );
     }
@@ -75,7 +82,7 @@ class ExternalResourceFactoryTest extends TestCase
         $document = $this->createStub(Document::class);
 
         $this->expectException(\LogicException::class);
-        $this->factory->create($document, 'de');
+        $this->factory->create($document, ResourceLanguage::of('en'));
     }
 
     private function createDocument(string $url, string $title = ''): Document

@@ -2,6 +2,8 @@
 
 namespace Atoolo\Search\Test\Service\Indexer;
 
+use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Service\Indexer\TranslationSplitterResult;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -11,52 +13,64 @@ class TranslationSplitterResultTest extends TestCase
 {
     public function testGetBases(): void
     {
-        $result = new TranslationSplitterResult(['/a/b.php'], []);
+        $result = new TranslationSplitterResult(
+            [
+                ResourceLocation::of('/a/b.php')
+            ],
+            []
+        );
         $this->assertEquals(
-            ['/a/b.php'],
+            [
+                ResourceLocation::of('/a/b.php')
+            ],
             $result->getBases(),
             'unexpected bases'
         );
     }
 
-    public function testLocales(): void
+    public function testLanguages(): void
     {
+        $it = ResourceLanguage::of('it_IT');
+        $en = ResourceLanguage::of('en_US');
+
         $result = new TranslationSplitterResult(
             [],
             [
-                'it_IT' => ['/a/b.php.translations/it_IT.php'],
-                'en_US' => ['/a/b.php.translations/en_US.php']
+                $it->code => [ResourceLocation::of('/a/b.php', $it)],
+                $en->code => [ResourceLocation::of('/a/b.php', $en)],
             ]
         );
 
         $this->assertEquals(
-            ['en_US', 'it_IT'],
-            $result->getLocales(),
-            'unexpected locales'
+            [$en, $it],
+            $result->getLanguages(),
+            'unexpected languages'
         );
     }
 
     public function testGetTranslations(): void
     {
+        $it = ResourceLanguage::of('it_IT');
+        $en = ResourceLanguage::of('en_US');
         $result = new TranslationSplitterResult(
             [],
             [
-                'it_IT' => [
-                    '/a/b.php.translations/it_IT.php',
-                    '/c/d.php.translations/it_IT.php',
+                $it->code => [
+                    ResourceLocation::of('/a/b.php', $it),
+                    ResourceLocation::of('/c/d.php', $it),
                 ],
-                'en_US' => [
-                    '/a/b.php.translations/en_US.php',
-                    '/a/b.php.translations/en_US.php',
+                $en->code => [
+                    ResourceLocation::of('/a/b.php', $en),
+                    ResourceLocation::of('/a/b.php', $en),
                 ]
             ]
         );
 
-        $translations = $result->getTranslations('it_IT');
+        $translations = $result->getTranslations($it);
 
         $expected = [
-            '/a/b.php.translations/it_IT.php',
-            '/c/d.php.translations/it_IT.php'
+            ResourceLocation::of('/a/b.php', $it),
+            ResourceLocation::of('/c/d.php', $it),
         ];
 
         $this->assertEquals(
@@ -68,10 +82,11 @@ class TranslationSplitterResultTest extends TestCase
     public function testGetMissingTranslations(): void
     {
         $result = new TranslationSplitterResult([], []);
+        $lang = ResourceLanguage::of('en_US');
 
         $this->assertEquals(
             [],
-            $result->getTranslations('en_US'),
+            $result->getTranslations($lang),
             'empty array expected'
         );
     }

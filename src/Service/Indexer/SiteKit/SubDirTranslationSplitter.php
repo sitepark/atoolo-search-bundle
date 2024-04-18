@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer\SiteKit;
 
+use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Service\Indexer\TranslationSplitter;
 use Atoolo\Search\Service\Indexer\TranslationSplitterResult;
 
@@ -22,34 +24,42 @@ class SubDirTranslationSplitter implements TranslationSplitter
         $bases = [];
         $translations = [];
         foreach ($pathList as $path) {
-            $normalizedPath = $this->normalizePath($path);
-            if (empty($normalizedPath)) {
+            $location = $this->toResourceLocation($path);
+            if ($location === null) {
                 continue;
             }
-            $locale = $this->extractLocaleFromPath($normalizedPath);
-            if ($locale === 'default') {
-                $bases[] = $normalizedPath;
+            if ($location->lang === ResourceLanguage::default()) {
+                $bases[] = $location;
                 continue;
             }
-            if (!isset($translations[$locale])) {
-                $translations[$locale] = [];
+            if (!isset($translations[$location->lang->code])) {
+                $translations[$location->lang->code] = [];
             }
-            $translations[$locale][] = $normalizedPath;
+            $translations[$location->lang->code][] = $location;
         }
 
         return new TranslationSplitterResult($bases, $translations);
     }
 
-    private function extractLocaleFromPath(string $path): string
+    private function toResourceLocation(string $path): ?ResourceLocation
     {
-        $filename = basename($path);
-        $parentDirName = basename(dirname($path));
-
-        if (!str_ends_with($parentDirName, '.php.translations')) {
-            return 'default';
+        $normalizedPath = $this->normalizePath($path);
+        if (empty($normalizedPath)) {
+            return null;
         }
 
-        return basename($filename, '.php');
+        $pos = strrpos($normalizedPath, '.php.translations');
+        if ($pos === false) {
+            return ResourceLocation::of($normalizedPath);
+        }
+
+        $localeFilename = basename($normalizedPath);
+        $locale = basename($localeFilename, '.php');
+
+        return ResourceLocation::of(
+            substr($normalizedPath, 0, $pos + 4),
+            ResourceLanguage::of($locale)
+        );
     }
 
     /**
