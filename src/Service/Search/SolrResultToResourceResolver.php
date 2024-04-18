@@ -6,6 +6,7 @@ namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Exception\MissMatchingResourceFactoryException;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -60,7 +61,10 @@ class SolrResultToResourceResolver
         }
 
         throw new MissMatchingResourceFactoryException(
-            $document->getFields()['url'] ?? ''
+            ResourceLocation::of(
+                $document->getFields()['url'] ?? '',
+                $lang
+            )
         );
     }
 }

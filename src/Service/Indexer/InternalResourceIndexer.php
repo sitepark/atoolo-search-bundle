@@ -158,7 +158,12 @@ class InternalResourceIndexer implements Indexer
      */
     public function update(array $paths): IndexerStatus
     {
-        $collectedPaths = $this->finder->findPaths($paths);
+        $collectedPaths = array_merge(
+            $this->finder->findPaths($paths), // resolve directories recursive
+            $paths
+        );
+        $collectedPaths = array_unique($collectedPaths);
+
         $total = count($collectedPaths);
         $this->progressHandler->startUpdate($total);
 

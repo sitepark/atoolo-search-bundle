@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Exception;
 
+use Atoolo\Resource\ResourceLocation;
 use RuntimeException;
 
 class DocumentEnrichingException extends RuntimeException
 {
     public function __construct(
-        private readonly string $location,
+        private readonly ResourceLocation $location,
         string $message = "",
         int $code = 0,
         ?\Throwable $previous = null
     ) {
         parent::__construct(
-            $location . ': ' . $message,
+            $location->__toString() . ': ' . $message,
             $code,
             $previous
         );
     }
 
-    public function getLocation(): string
+    public function getLocation(): ResourceLocation
     {
         return $this->location;
     }
