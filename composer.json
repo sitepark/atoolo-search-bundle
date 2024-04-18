@@ -12,7 +12,7 @@
     "require": {
         "php": ">=8.1 <8.4.0",
         "ext-intl": "*",
-        "atoolo/resource": "dev-feature/resource-channel",
+        "atoolo/resource": "dev-main",
         "solarium/solarium": "^6.3",
         "symfony/config": "^6.3 || ^7.0",
         "symfony/console": "^6.3 || ^7.0",
