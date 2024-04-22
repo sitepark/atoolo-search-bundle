@@ -116,9 +116,6 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $doc->sp_generated = $this->toDateTime(
             $data->getInt('generated')
         );
-        $doc->sp_date = $this->toDateTime(
-            $base->getInt('date')
-        );
 
         $doc->sp_archive = $base->getBool('archive');
 
@@ -201,6 +198,13 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $doc->sp_group = $groupPathAsIdList[count($groupPathAsIdList) - 2];
         }
         $doc->sp_group_path = $groupPathAsIdList;
+
+        $doc->sp_date = $this->toDateTime(
+            $base->getInt('date')
+        );
+        if ($doc->sp_date !== null) {
+            $doc->sp_date_list = [$doc->sp_date];
+        }
 
         /** @var array<array{from:int, contentType:string}> $schedulingList */
         $schedulingList = $metadata->getArray('scheduling');
