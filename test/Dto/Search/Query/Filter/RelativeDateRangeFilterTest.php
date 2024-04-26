@@ -19,7 +19,7 @@ class RelativeDateRangeFilterTest extends TestCase
     /**
      * @return array<array{string, string}>
      */
-    public static function additionProviderForFromIntervals(): array
+    public static function additionProviderForBeforeIntervals(): array
     {
         return [
             ['P1D', 'sp_date_list:[NOW-1DAYS/DAY TO NOW/DAY+1DAY-1SECOND]'],
@@ -32,7 +32,7 @@ class RelativeDateRangeFilterTest extends TestCase
     /**
      * @return array<array{string, string}>
      */
-    public static function additionProviderForToIntervals(): array
+    public static function additionProviderForAfterIntervals(): array
     {
         return [
             ['P1D', 'sp_date_list:[NOW/DAY TO NOW-1DAYS/DAY]'],
@@ -45,7 +45,7 @@ class RelativeDateRangeFilterTest extends TestCase
     /**
      * @return array<array{string, string, string}>
      */
-    public static function additionProviderForFromAndToIntervals(): array
+    public static function additionProviderForBeforeAndAfterIntervals(): array
     {
         return [
             ['P1D', 'P1D', 'sp_date_list:[NOW-1DAYS/DAY TO NOW-1DAYS/DAY]'],
@@ -98,14 +98,14 @@ class RelativeDateRangeFilterTest extends TestCase
     /**
      * @throws Exception
      */
-    #[DataProvider('additionProviderForFromIntervals')]
+    #[DataProvider('additionProviderForBeforeIntervals')]
     public function testGetQueryWithFrom(
-        string $from,
+        string $before,
         string $expected
     ): void {
         $filter = new RelativeDateRangeFilter(
             null,
-            new DateInterval($from),
+            new DateInterval($before),
             null,
         );
 
@@ -119,15 +119,15 @@ class RelativeDateRangeFilterTest extends TestCase
     /**
      * @throws Exception
      */
-    #[DataProvider('additionProviderForToIntervals')]
+    #[DataProvider('additionProviderForAfterIntervals')]
     public function testGetQueryWithTo(
-        string $to,
+        string $after,
         string $expected
     ): void {
         $filter = new RelativeDateRangeFilter(
             null,
             null,
-            new DateInterval($to),
+            new DateInterval($after),
         );
 
         $this->assertEquals(
@@ -140,16 +140,16 @@ class RelativeDateRangeFilterTest extends TestCase
     /**
      * @throws Exception
      */
-    #[DataProvider('additionProviderForFromAndToIntervals')]
+    #[DataProvider('additionProviderForBeforeAndAfterIntervals')]
     public function testGetQueryWithFromAndTo(
-        string $from,
-        string $to,
+        string $before,
+        string $after,
         string $expected
     ): void {
         $filter = new RelativeDateRangeFilter(
             null,
-            new DateInterval($from),
-            new DateInterval($to),
+            new DateInterval($before),
+            new DateInterval($after),
         );
 
         $this->assertEquals(
@@ -165,14 +165,14 @@ class RelativeDateRangeFilterTest extends TestCase
     #[DataProvider('additionProviderWithBase')]
     public function testGetQueryWithBase(
         DateTime $base,
-        ?string $from,
-        ?string $to,
+        ?string $before,
+        ?string $after,
         string $expected
     ): void {
         $filter = new RelativeDateRangeFilter(
             $base,
-            $from === null ? null : new DateInterval($from),
-            $to === null ? null : new DateInterval($to),
+            $before === null ? null : new DateInterval($before),
+            $after === null ? null : new DateInterval($after),
         );
 
         $this->assertEquals(

@@ -11,8 +11,8 @@ class RelativeDateRangeFilter extends Filter
 {
     public function __construct(
         private readonly ?\DateTime $base,
-        private readonly ?DateInterval $from,
-        private readonly ?DateInterval $to,
+        private readonly ?DateInterval $before,
+        private readonly ?DateInterval $after,
         ?string $key = null
     ) {
         parent::__construct(
@@ -28,16 +28,16 @@ class RelativeDateRangeFilter extends Filter
 
     private function toSolrDateRage(): string
     {
-        if ($this->from === null) {
+        if ($this->before === null) {
             $from = $this->getBaseInSolrSyntax() . "/DAY";
         } else {
-            $from = $this->toSolrIntervalSyntax($this->from);
+            $from = $this->toSolrIntervalSyntax($this->before);
         }
 
-        if ($this->to === null) {
+        if ($this->after === null) {
             $to = $this->getBaseInSolrSyntax() . "/DAY+1DAY-1SECOND";
         } else {
-            $to = $this->toSolrIntervalSyntax($this->to);
+            $to = $this->toSolrIntervalSyntax($this->after);
         }
 
         return '[' . $from . ' TO ' . $to . ']';
