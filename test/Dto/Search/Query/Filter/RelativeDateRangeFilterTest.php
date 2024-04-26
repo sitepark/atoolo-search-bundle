@@ -6,6 +6,7 @@ namespace Atoolo\Search\Test\Dto\Search\Query\Filter;
 
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use DateInterval;
+use DateTime;
 use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -53,6 +54,36 @@ class RelativeDateRangeFilterTest extends TestCase
     }
 
     /**
+     * @return array<array{DateTime, ?string, ?string, string}>
+     */
+    public static function additionProviderWithBase(): array
+    {
+        return [
+            [
+                new DateTime('2021-01-01 00:00:00'),
+                'P1D',
+                null,
+                'sp_date_list:[2021-01-01T00:00:00Z-1DAYS/DAY' .
+                    ' TO 2021-01-01T00:00:00Z/DAY+1DAY-1SECOND]'
+            ],
+            [
+                new DateTime('2021-01-01 00:00:00'),
+                null,
+                'P2M',
+                'sp_date_list:[2021-01-01T00:00:00Z/DAY' .
+                    ' TO 2021-01-01T00:00:00Z-2MONTHS/DAY]'
+            ],
+            [
+                new DateTime('2021-01-01 00:00:00'),
+                'P1W',
+                'P2M',
+                'sp_date_list:[2021-01-01T00:00:00Z-7DAYS/DAY' .
+                    ' TO 2021-01-01T00:00:00Z-2MONTHS/DAY]'
+            ],
+        ];
+    }
+
+    /**
      * @return array<array{string}>
      */
     public static function additionProviderForInvalidIntervals(): array
@@ -73,6 +104,7 @@ class RelativeDateRangeFilterTest extends TestCase
         string $expected
     ): void {
         $filter = new RelativeDateRangeFilter(
+            null,
             new DateInterval($from),
             null,
         );
@@ -94,6 +126,7 @@ class RelativeDateRangeFilterTest extends TestCase
     ): void {
         $filter = new RelativeDateRangeFilter(
             null,
+            null,
             new DateInterval($to),
         );
 
@@ -114,6 +147,7 @@ class RelativeDateRangeFilterTest extends TestCase
         string $expected
     ): void {
         $filter = new RelativeDateRangeFilter(
+            null,
             new DateInterval($from),
             new DateInterval($to),
         );
@@ -125,6 +159,28 @@ class RelativeDateRangeFilterTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     */
+    #[DataProvider('additionProviderWithBase')]
+    public function testGetQueryWithBase(
+        DateTime $base,
+        ?string $from,
+        ?string $to,
+        string $expected
+    ): void {
+        $filter = new RelativeDateRangeFilter(
+            $base,
+            $from === null ? null : new DateInterval($from),
+            $to === null ? null : new DateInterval($to),
+        );
+
+        $this->assertEquals(
+            $expected,
+            $filter->getQuery(),
+            'unexpected query'
+        );
+    }
 
     /**
      * @throws Exception
@@ -134,6 +190,7 @@ class RelativeDateRangeFilterTest extends TestCase
         string $interval
     ): void {
         $filter = new RelativeDateRangeFilter(
+            null,
             null,
             new DateInterval($interval),
         );

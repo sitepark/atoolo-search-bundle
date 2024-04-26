@@ -10,6 +10,7 @@ use InvalidArgumentException;
 class RelativeDateRangeFilter extends Filter
 {
     public function __construct(
+        private readonly ?\DateTime $base,
         private readonly ?DateInterval $from,
         private readonly ?DateInterval $to,
         ?string $key = null
@@ -28,13 +29,13 @@ class RelativeDateRangeFilter extends Filter
     private function toSolrDateRage(): string
     {
         if ($this->from === null) {
-            $from = "NOW/DAY";
+            $from = $this->getBaseInSolrSyntax() . "/DAY";
         } else {
             $from = $this->toSolrIntervalSyntax($this->from);
         }
 
         if ($this->to === null) {
-            $to = "NOW/DAY+1DAY-1SECOND";
+            $to = $this->getBaseInSolrSyntax() . "/DAY+1DAY-1SECOND";
         } else {
             $to = $this->toSolrIntervalSyntax($this->to);
         }
@@ -42,9 +43,20 @@ class RelativeDateRangeFilter extends Filter
         return '[' . $from . ' TO ' . $to . ']';
     }
 
+    private function getBaseInSolrSyntax(): string
+    {
+        if ($this->base === null) {
+            return 'NOW';
+        }
+
+        $formatter = clone $this->base;
+        $formatter->setTimezone(new \DateTimeZone('UTC'));
+        return $formatter->format('Y-m-d\TH:i:s\Z');
+    }
+
     private function toSolrIntervalSyntax(DateInterval $value): string
     {
-        $interval = 'NOW';
+        $interval = $this->getBaseInSolrSyntax();
         if ($value->y > 0) {
             $interval = $interval . '-' . $value->y . 'YEARS';
         }
