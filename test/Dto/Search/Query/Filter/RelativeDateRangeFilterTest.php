@@ -35,10 +35,10 @@ class RelativeDateRangeFilterTest extends TestCase
     public static function additionProviderForAfterIntervals(): array
     {
         return [
-            ['P1D', 'sp_date_list:[NOW/DAY TO NOW-1DAYS/DAY]'],
-            ['P1W', 'sp_date_list:[NOW/DAY TO NOW-7DAYS/DAY]'],
-            ['P2M', 'sp_date_list:[NOW/DAY TO NOW-2MONTHS/DAY]'],
-            ['P3Y', 'sp_date_list:[NOW/DAY TO NOW-3YEARS/DAY]'],
+            ['P1D', 'sp_date_list:[NOW/DAY TO NOW+1DAYS/DAY+1DAY-1SECOND]'],
+            ['P1W', 'sp_date_list:[NOW/DAY TO NOW+7DAYS/DAY+1DAY-1SECOND]'],
+            ['P2M', 'sp_date_list:[NOW/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]'],
+            ['P3Y', 'sp_date_list:[NOW/DAY TO NOW+3YEARS/DAY+1DAY-1SECOND]'],
         ];
     }
 
@@ -48,8 +48,16 @@ class RelativeDateRangeFilterTest extends TestCase
     public static function additionProviderForBeforeAndAfterIntervals(): array
     {
         return [
-            ['P1D', 'P1D', 'sp_date_list:[NOW-1DAYS/DAY TO NOW-1DAYS/DAY]'],
-            ['P1W', 'P2M', 'sp_date_list:[NOW-7DAYS/DAY TO NOW-2MONTHS/DAY]'],
+            [
+                'P1D',
+                'P1D',
+                'sp_date_list:[NOW-1DAYS/DAY TO NOW+1DAYS/DAY+1DAY-1SECOND]'
+            ],
+            [
+                'P1W',
+                'P2M',
+                'sp_date_list:[NOW-7DAYS/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]'
+            ],
         ];
     }
 
@@ -71,14 +79,14 @@ class RelativeDateRangeFilterTest extends TestCase
                 null,
                 'P2M',
                 'sp_date_list:[2021-01-01T00:00:00Z/DAY' .
-                    ' TO 2021-01-01T00:00:00Z-2MONTHS/DAY]'
+                    ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]'
             ],
             [
                 new DateTime('2021-01-01 00:00:00'),
                 'P1W',
                 'P2M',
                 'sp_date_list:[2021-01-01T00:00:00Z-7DAYS/DAY' .
-                    ' TO 2021-01-01T00:00:00Z-2MONTHS/DAY]'
+                    ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]'
             ],
         ];
     }

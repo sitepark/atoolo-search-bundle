@@ -31,13 +31,15 @@ class RelativeDateRangeFilter extends Filter
         if ($this->before === null) {
             $from = $this->getBaseInSolrSyntax() . "/DAY";
         } else {
-            $from = $this->toSolrIntervalSyntax($this->before);
+            $from = $this->toSolrIntervalSyntax($this->before, '-') .
+                '/DAY';
         }
 
         if ($this->after === null) {
             $to = $this->getBaseInSolrSyntax() . "/DAY+1DAY-1SECOND";
         } else {
-            $to = $this->toSolrIntervalSyntax($this->after);
+            $to = $this->toSolrIntervalSyntax($this->after, '+') .
+                "/DAY+1DAY-1SECOND";
         }
 
         return '[' . $from . ' TO ' . $to . ']';
@@ -54,17 +56,17 @@ class RelativeDateRangeFilter extends Filter
         return $formatter->format('Y-m-d\TH:i:s\Z');
     }
 
-    private function toSolrIntervalSyntax(DateInterval $value): string
+    private function toSolrIntervalSyntax(DateInterval $value, string $operator): string
     {
         $interval = $this->getBaseInSolrSyntax();
         if ($value->y > 0) {
-            $interval = $interval . '-' . $value->y . 'YEARS';
+            $interval = $interval . $operator . $value->y . 'YEARS';
         }
         if ($value->m > 0) {
-            $interval = $interval . '-' . $value->m . 'MONTHS';
+            $interval = $interval . $operator . $value->m . 'MONTHS';
         }
         if ($value->d > 0) {
-            $interval = $interval . '-' . $value->d . 'DAYS';
+            $interval = $interval . $operator . $value->d . 'DAYS';
         }
         if ($value->h > 0) {
             throw new InvalidArgumentException(
@@ -82,6 +84,6 @@ class RelativeDateRangeFilter extends Filter
             );
         }
 
-        return $interval . '/DAY';
+        return $interval;
     }
 }
