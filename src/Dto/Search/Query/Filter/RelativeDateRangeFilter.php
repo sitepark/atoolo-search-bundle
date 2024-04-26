@@ -56,8 +56,10 @@ class RelativeDateRangeFilter extends Filter
         return $formatter->format('Y-m-d\TH:i:s\Z');
     }
 
-    private function toSolrIntervalSyntax(DateInterval $value, string $operator): string
-    {
+    private function toSolrIntervalSyntax(
+        DateInterval $value,
+        string $operator
+    ): string {
         $interval = $this->getBaseInSolrSyntax();
         if ($value->y > 0) {
             $interval = $interval . $operator . $value->y . 'YEARS';
