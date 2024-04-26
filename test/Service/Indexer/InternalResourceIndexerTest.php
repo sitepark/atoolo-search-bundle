@@ -226,6 +226,20 @@ class InternalResourceIndexerTest extends TestCase
         $this->indexer->index();
     }
 
+    public function testIndexAllWithEmptyList(): void
+    {
+        $this->finder->method('findAll')
+            ->willReturn([
+            ]);
+        $this->indexerProgressHandler->expects($this->once())
+            ->method('start')
+            ->with(0);
+        $this->indexerProgressHandler->expects($this->once())
+            ->method('finish');
+
+        $this->indexer->index();
+    }
+
     public function testIndexSkipResource(): void
     {
         $this->finder->method('findAll')
