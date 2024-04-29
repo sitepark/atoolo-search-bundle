@@ -37,7 +37,7 @@ class MoreLikeThis extends Command
     protected function configure(): void
     {
         $this
-            ->setHelp('Command to performs a more-like-this search')
+            ->setHelp('Command to perform a more-like-this search')
             ->addArgument(
                 'location',
                 InputArgument::REQUIRED,
