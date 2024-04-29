@@ -10,6 +10,7 @@ use Atoolo\Resource\ResourceLoader;
 use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Dto\Indexer\IndexerParameter;
 use Atoolo\Search\Dto\Indexer\IndexerStatus;
+use Atoolo\Search\Exception\UnsupportedIndexLanguageException;
 use Atoolo\Search\Indexer;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -248,23 +249,19 @@ class InternalResourceIndexer implements Indexer
         );
 
         foreach ($splitterResult->getLanguages() as $lang) {
-            $langIndex = $this->indexService->getIndex($lang);
-
-            if ($index === $langIndex) {
-                $this->handleError(
-                    'No Index for language "' . $lang->code . '" ' .
-                    'found (base index: "' . $index . '")'
+            try {
+                $langIndex = $this->indexService->getIndex($lang);
+                $this->indexResourcesPerLanguageIndex(
+                    $processId,
+                    $parameter,
+                    $lang,
+                    $langIndex,
+                    $splitterResult->getTranslations($lang)
                 );
+            } catch (UnsupportedIndexLanguageException $e) {
+                $this->handleError($e->getMessage());
                 continue;
             }
-
-            $this->indexResourcesPerLanguageIndex(
-                $processId,
-                $parameter,
-                $lang,
-                $langIndex,
-                $splitterResult->getTranslations($lang)
-            );
         }
     }
 

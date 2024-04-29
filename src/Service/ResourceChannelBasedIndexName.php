@@ -6,6 +6,7 @@ namespace Atoolo\Search\Service;
 
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Search\Exception\UnsupportedIndexLanguageException;
 
 class ResourceChannelBasedIndexName implements IndexName
 {
@@ -14,12 +15,17 @@ class ResourceChannelBasedIndexName implements IndexName
     ) {
     }
 
+    /**
+     * @throws UnsupportedIndexLanguageException
+     */
     public function name(ResourceLanguage $lang): string
     {
         $locale = $this->langToAvailableLocale($this->resourceChannel, $lang);
+
         if (empty($locale)) {
             return $this->resourceChannel->searchIndex;
         }
+
         return $this->resourceChannel->searchIndex . '-' . $locale;
     }
 
@@ -40,6 +46,9 @@ class ResourceChannelBasedIndexName implements IndexName
         return $names;
     }
 
+    /**
+     * @throws UnsupportedIndexLanguageException
+     */
     private function langToAvailableLocale(
         ResourceChannel $resourceChannel,
         ResourceLanguage $lang
@@ -56,6 +65,11 @@ class ResourceChannelBasedIndexName implements IndexName
                 return $availableLocale;
             }
         }
-        return '';
+        throw new UnsupportedIndexLanguageException(
+            $resourceChannel->searchIndex,
+            $lang,
+            'No valid index can be determined for the language ' .
+            $lang->code
+        );
     }
 }

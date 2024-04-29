@@ -8,6 +8,7 @@ use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Dto\Indexer\IndexerConfiguration;
+use Atoolo\Search\Exception\UnsupportedIndexLanguageException;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
 use Atoolo\Search\Service\Indexer\IndexerConfigurationLoader;
 use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
@@ -116,6 +117,13 @@ class InternalResourceIndexerTest extends TestCase
             ->willReturnCallback(function ($lang) {
                 if ($lang->code === 'en') {
                     return 'test-en_US';
+                }
+                if ($lang->code === 'fr') {
+                    throw new UnsupportedIndexLanguageException(
+                        'test',
+                        $lang,
+                        'unsupported language'
+                    );
                 }
                 return 'test';
             });

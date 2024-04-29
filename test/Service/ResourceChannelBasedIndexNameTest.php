@@ -6,6 +6,7 @@ namespace Atoolo\Search\Test\Service;
 
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Search\Exception\UnsupportedIndexLanguageException;
 use Atoolo\Search\Service\ResourceChannelBasedIndexName;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -58,12 +59,8 @@ class ResourceChannelBasedIndexNameTest extends TestCase
 
     public function testNameWithUnsupportedLang(): void
     {
-        $this->assertEquals(
-            'test',
-            $this->indexName->name(ResourceLanguage::of('it')),
-            'The default index name should be returned ' .
-            'if the language is not supported'
-        );
+        $this->expectException(UnsupportedIndexLanguageException::class);
+        $this->indexName->name(ResourceLanguage::of('it'));
     }
 
     public function testNames(): void
