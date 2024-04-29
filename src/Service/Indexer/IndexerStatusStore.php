@@ -119,7 +119,9 @@ class IndexerStatusStore
 
     private function getStatusFile(string $key): string
     {
+        $sanitizedKey = str_replace('\\', '', $key);
+        $sanitizedKey = basename($sanitizedKey);
         return $this->basedir .
-            '/atoolo.search.index.' . $key . ".status.json";
+            '/atoolo.search.index.' . $sanitizedKey . ".status.json";
     }
 }
