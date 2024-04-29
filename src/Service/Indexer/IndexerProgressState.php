@@ -29,16 +29,16 @@ class IndexerProgressState implements IndexerProgressHandler
     public function prepare(string $message): void
     {
         $this->status = new IndexerStatus(
-            IndexerStatusState::PREPARING,
-            new DateTime(),
-            null,
-            0,
-            0,
-            0,
-            new DateTime(),
-            0,
-            0,
-            $message
+            state: IndexerStatusState::PREPARING,
+            startTime: new DateTime(),
+            endTime: null,
+            total: 0,
+            processed: 0,
+            skipped: 0,
+            lastUpdate: new DateTime(),
+            updated: 0,
+            errors: 0,
+            prepareMessage: $message,
         );
         $this->statusStore->store(
             $this->getStatusStoreKey(),
