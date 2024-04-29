@@ -59,15 +59,15 @@ class IndexerProgressState implements IndexerProgressHandler
         }
 
         $this->status = new IndexerStatus(
-            IndexerStatusState::RUNNING,
-            $startTime,
-            null,
-            $total,
-            0,
-            0,
-            new DateTime(),
-            0,
-            0
+            state: IndexerStatusState::RUNNING,
+            startTime: $startTime,
+            endTime: null,
+            total: $total,
+            processed: 0,
+            skipped: 0,
+            lastUpdate: new DateTime(),
+            updated: 0,
+            errors: 0,
         );
         $this->statusStore->store(
             $this->getStatusStoreKey(),
