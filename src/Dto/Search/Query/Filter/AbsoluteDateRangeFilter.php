@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Dto\Search\Query\Filter;
 
 use DateTime;
+use InvalidArgumentException;
 
 class AbsoluteDateRangeFilter extends Filter
 {
@@ -17,6 +18,11 @@ class AbsoluteDateRangeFilter extends Filter
             $key,
             $key !== null ? [$key] : []
         );
+        if ($this->from === null && $this->to === null) {
+            throw new InvalidArgumentException(
+                'At least `from` or `to` must be specified'
+            );
+        }
     }
 
     public function getQuery(): string

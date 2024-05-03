@@ -11,15 +11,15 @@ class CategoryFacet extends FacetField
 {
     /**
      * @param string[] $categories
+     * @param string[] $excludeFilter
      */
     public function __construct(
         string $key,
         array $categories,
-        ?string $excludeFilter = null
+        array $excludeFilter = []
     ) {
         parent::__construct(
             $key,
-            'sp_category_path',
             $categories,
             $excludeFilter
         );

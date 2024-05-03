@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Search\Query\Filter;
 
+use Atoolo\Search\Dto\Search\Query\DateRangeRound;
 use DateInterval;
+use DateTime;
 use InvalidArgumentException;
 
 class RelativeDateRangeFilter extends Filter
 {
     public function __construct(
-        private readonly ?\DateTime $base,
+        private readonly ?DateTime $base,
         private readonly ?DateInterval $before,
         private readonly ?DateInterval $after,
+        private readonly ?DateRangeRound $roundStart,
+        private readonly ?DateRangeRound $roundEnd,
         ?string $key = null
     ) {
         parent::__construct(
@@ -29,20 +33,36 @@ class RelativeDateRangeFilter extends Filter
     private function toSolrDateRage(): string
     {
         if ($this->before === null) {
-            $from = $this->getBaseInSolrSyntax() . "/DAY";
+            $from = $this->roundStart($this->getBaseInSolrSyntax());
         } else {
-            $from = $this->toSolrIntervalSyntax($this->before, '-') .
-                '/DAY';
+            $from = $this->roundStart(
+                $this->toSolrIntervalSyntax($this->before, '-')
+            );
         }
 
         if ($this->after === null) {
-            $to = $this->getBaseInSolrSyntax() . "/DAY+1DAY-1SECOND";
+            $to = $this->roundEnd($this->getBaseInSolrSyntax());
         } else {
-            $to = $this->toSolrIntervalSyntax($this->after, '+') .
-                "/DAY+1DAY-1SECOND";
+            $to = $this->roundEnd(
+                $this->toSolrIntervalSyntax($this->after, '+')
+            );
         }
 
         return '[' . $from . ' TO ' . $to . ']';
+    }
+
+    private function roundStart(string $start): string
+    {
+        return $start . $this->toSolrRound(
+            $this->roundStart ?? DateRangeRound::START_OF_DAY
+        );
+    }
+
+    private function roundEnd(string $start): string
+    {
+        return $start . $this->toSolrRound(
+            $this->roundEnd ?? DateRangeRound::END_OF_DAY
+        );
     }
 
     private function getBaseInSolrSyntax(): string
@@ -87,5 +107,45 @@ class RelativeDateRangeFilter extends Filter
         }
 
         return $interval;
+    }
+
+    private function toSolrRound(DateRangeRound $round): string
+    {
+        if ($round === DateRangeRound::START_OF_DAY) {
+            return '/DAY';
+        }
+        if ($round === DateRangeRound::START_OF_PREVIOUS_DAY) {
+            return '/DAY-1DAY';
+        }
+        if ($round === DateRangeRound::END_OF_DAY) {
+            return '/DAY+1DAY-1SECOND';
+        }
+        if ($round === DateRangeRound::END_OF_PREVIOUS_DAY) {
+            return '/DAY-1SECOND';
+        }
+        if ($round === DateRangeRound::START_OF_MONTH) {
+            return '/MONTH';
+        }
+        if ($round === DateRangeRound::START_OF_PREVIOUS_MONTH) {
+            return '/MONTH-1MONTH';
+        }
+        if ($round === DateRangeRound::END_OF_MONTH) {
+            return '/MONTH+1MONTH-1SECOND';
+        }
+        if ($round === DateRangeRound::END_OF_PREVIOUS_MONTH) {
+            return '/MONTH-1SECOND';
+        }
+        if ($round === DateRangeRound::START_OF_YEAR) {
+            return '/YEAR';
+        }
+        if ($round === DateRangeRound::START_OF_PREVIOUS_YEAR) {
+            return '/YEAR-1YEAR';
+        }
+        if ($round === DateRangeRound::END_OF_YEAR) {
+            return '/YEAR+1YEAR-1SECOND';
+        }
+        if ($round === DateRangeRound::END_OF_PREVIOUS_YEAR) {
+            return '/YEAR-1SECOND';
+        }
     }
 }

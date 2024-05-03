@@ -7,6 +7,7 @@ namespace Atoolo\Search\Dto\Search\Query;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
+use DateTimeZone;
 
 /**
  * @codeCoverageIgnore
@@ -28,7 +29,8 @@ class SearchQuery
         public readonly array $sort,
         public readonly array $filter,
         public readonly array $facets,
-        public readonly QueryOperator $defaultQueryOperator
+        public readonly QueryOperator $defaultQueryOperator,
+        public readonly ?DateTimeZone $timeZone
     ) {
     }
 }

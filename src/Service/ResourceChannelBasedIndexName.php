@@ -20,6 +20,10 @@ class ResourceChannelBasedIndexName implements IndexName
      */
     public function name(ResourceLanguage $lang): string
     {
+        if ($lang === ResourceLanguage::default()) {
+            return $this->resourceChannel->searchIndex;
+        }
+
         $locale = $this->langToAvailableLocale($this->resourceChannel, $lang);
 
         if (empty($locale)) {

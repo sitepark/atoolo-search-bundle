@@ -190,7 +190,8 @@ class InternalResourceIndexer implements Indexer
         return new IndexerParameter(
             $config->name,
             $config->data->getInt(
-                'cleanupThreshold'
+                'cleanupThreshold',
+                1000
             ),
             $config->data->getInt(
                 'chunkSize',

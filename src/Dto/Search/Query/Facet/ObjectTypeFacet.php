@@ -11,15 +11,15 @@ class ObjectTypeFacet extends FacetField
 {
     /**
      * @param string[] $objectTypes
+     * @param string[] $excludeFilter
      */
     public function __construct(
         string $key,
         public readonly array $objectTypes,
-        ?string $excludeFilter = null
+        array $excludeFilter = []
     ) {
         parent::__construct(
             $key,
-            'sp_objecttype',
             $objectTypes,
             $excludeFilter
         );

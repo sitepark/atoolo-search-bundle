@@ -11,15 +11,15 @@ class GroupFacet extends FacetField
 {
     /**
      * @param string[] $groups
+     * @param string[] $excludeFilter
      */
     public function __construct(
         string $key,
         public readonly array $groups,
-        ?string $excludeFilter = null
+        array $excludeFilter = []
     ) {
         parent::__construct(
             $key,
-            'sp_group_path',
             $groups,
             $excludeFilter
         );

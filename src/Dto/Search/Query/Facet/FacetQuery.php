@@ -9,10 +9,13 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
  */
 class FacetQuery extends Facet
 {
+    /**
+     * @param string[] $excludeFilter
+     */
     public function __construct(
         string $key,
         public readonly string $query,
-        ?string $excludeFilter = null
+        array $excludeFilter = []
     ) {
         parent::__construct($key, $excludeFilter);
     }

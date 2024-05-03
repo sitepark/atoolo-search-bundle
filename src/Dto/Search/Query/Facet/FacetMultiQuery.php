@@ -11,12 +11,12 @@ class FacetMultiQuery extends Facet
 {
     /**
      * @param FacetQuery[] $queries
-     * @param string|null $excludeFilter
+     * @param string[] $excludeFilter
      */
     public function __construct(
         string $key,
         public readonly array $queries,
-        ?string $excludeFilter = null
+        array $excludeFilter = []
     ) {
         parent::__construct($key, $excludeFilter);
     }
