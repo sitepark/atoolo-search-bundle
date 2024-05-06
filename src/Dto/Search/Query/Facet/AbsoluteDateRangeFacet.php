@@ -7,6 +7,9 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 use DateInterval;
 use DateTime;
 
+/**
+ * @codeCoverageIgnore
+ */
 class AbsoluteDateRangeFacet extends Facet
 {
     /**

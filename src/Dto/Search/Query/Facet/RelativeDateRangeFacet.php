@@ -7,6 +7,9 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 use Atoolo\Search\Dto\Search\Query\DateRangeRound;
 use DateInterval;
 
+/**
+ * @codeCoverageIgnore
+ */
 class RelativeDateRangeFacet extends Facet
 {
     /**

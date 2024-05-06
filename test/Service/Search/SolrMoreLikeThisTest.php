@@ -6,9 +6,10 @@ namespace Atoolo\Search\Test\Service\Search;
 
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLocation;
-use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Service\IndexName;
+use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrMoreLikeThis;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use Atoolo\Search\Service\SolrClientFactory;
@@ -54,19 +55,21 @@ class SolrMoreLikeThisTest extends TestCase
         $resultToResourceResolver
             ->method('loadResourceList')
             ->willReturn([$this->resource]);
+        $schemaFieldMapper = $this->createStub(
+            Schema2xFieldMapper::class
+        );
 
         $this->searcher = new SolrMoreLikeThis(
             $indexName,
             $clientFactory,
-            $resultToResourceResolver
+            $resultToResourceResolver,
+            $schemaFieldMapper
         );
     }
 
     public function testMoreLikeThis(): void
     {
-        $filter = $this->getMockBuilder(Filter::class)
-            ->setConstructorArgs(['test', []])
-            ->getMock();
+        $filter = new ObjectTypeFilter(['test']);
 
         $query = new MoreLikeThisQuery(
             ResourceLocation::of('/test.php'),

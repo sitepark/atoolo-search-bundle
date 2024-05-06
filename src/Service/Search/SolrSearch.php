@@ -9,11 +9,6 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
-use Atoolo\Search\Dto\Search\Query\Sort\Date;
-use Atoolo\Search\Dto\Search\Query\Sort\Headline;
-use Atoolo\Search\Dto\Search\Query\Sort\Name;
-use Atoolo\Search\Dto\Search\Query\Sort\Natural;
-use Atoolo\Search\Dto\Search\Query\Sort\Score;
 use Atoolo\Search\Dto\Search\Result\Facet;
 use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
@@ -21,6 +16,8 @@ use Atoolo\Search\Search;
 use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use InvalidArgumentException;
+use Solarium\Component\Result\Facet\Field as SolrFacetField;
+use Solarium\Component\Result\Facet\Query as SolrFacetQuery;
 use Solarium\Core\Client\Client;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 use Solarium\QueryType\Select\Result\Result as SelectResult;
@@ -37,6 +34,7 @@ class SolrSearch implements Search
         private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
         private readonly SolrResultToResourceResolver $resultToResourceResolver,
+        private readonly Schema2xFieldMapper $schemaFieldMapper,
         private readonly iterable $solrQueryModifierList = []
     ) {
     }
@@ -103,26 +101,11 @@ class SolrSearch implements Search
         SolrSelectQuery $solrQuery,
         array $criteriaList
     ): void {
+
         $sorts = [];
         foreach ($criteriaList as $criteria) {
-            if ($criteria instanceof Name) {
-                $field = 'sp_name';
-            } elseif ($criteria instanceof Headline) {
-                $field = 'sp_title';
-            } elseif ($criteria instanceof Date) {
-                $field = 'sp_date';
-            } elseif ($criteria instanceof Natural) {
-                $field = 'sp_sortvalue';
-            } elseif ($criteria instanceof Score) {
-                $field = 'score';
-            } else {
-                throw new InvalidArgumentException(
-                    'unsupported sort criteria: ' . get_class($criteria)
-                );
-            }
-
+            $field = $this->schemaFieldMapper->getSortField($criteria);
             $direction = strtolower($criteria->direction->name);
-
             $sorts[$field] = $direction;
         }
         $solrQuery->setSorts($sorts);
@@ -143,7 +126,8 @@ class SolrSearch implements Search
         }
         $terms = explode(' ', $text);
         $terms = array_map(
-            fn ($term) => $solrQuery->getHelper()->escapeTerm(trim($term)),
+            static fn ($term) =>
+                $solrQuery->getHelper()->escapeTerm(trim($term)),
             $terms
         );
         $text = implode(' ', $terms);
@@ -168,12 +152,12 @@ class SolrSearch implements Search
         SolrSelectQuery $solrQuery,
         array $filterList
     ): void {
-
+        $filterAppender = new SolrQueryFilterAppender(
+            $solrQuery,
+            $this->schemaFieldMapper
+        );
         foreach ($filterList as $filter) {
-            $key = $filter->key ?? uniqid('', true);
-            $filterQuery = $solrQuery->createFilterQuery($key);
-            $filterQuery->setQuery($filter->getQuery());
-            $filterQuery->setTags($filter->tags);
+            $filterAppender->append($filter);
         }
     }
 
@@ -184,7 +168,10 @@ class SolrSearch implements Search
         SolrSelectQuery $solrQuery,
         array $facetList
     ): void {
-        $facetAppender = new SolrQueryFacetAppender($solrQuery);
+        $facetAppender = new SolrQueryFacetAppender(
+            $solrQuery,
+            $this->schemaFieldMapper
+        );
         foreach ($facetList as $facet) {
             $facetAppender->append($facet);
         }
@@ -230,7 +217,7 @@ class SolrSearch implements Search
                 continue;
             }
             if (
-                $resultFacet instanceof \Solarium\Component\Result\Facet\Field
+                $resultFacet instanceof SolrFacetField
             ) {
                 $facetGroupList[] = $this->buildFacetGroupByField(
                     $facet->key,
@@ -239,7 +226,7 @@ class SolrSearch implements Search
             }
 
             if (
-                $resultFacet instanceof \Solarium\Component\Result\Facet\Query
+                $resultFacet instanceof SolrFacetQuery
             ) {
                 $facetGroupList[] = $this->buildFacetGroupByQuery(
                     $facet->key,
@@ -252,7 +239,7 @@ class SolrSearch implements Search
 
     private function buildFacetGroupByField(
         string $key,
-        \Solarium\Component\Result\Facet\Field $solrFacet
+        SolrFacetField $solrFacet
     ): FacetGroup {
         $facetList = [];
         foreach ($solrFacet as $value => $count) {
@@ -268,7 +255,7 @@ class SolrSearch implements Search
 
     private function buildFacetGroupByQuery(
         string $key,
-        \Solarium\Component\Result\Facet\Query $solrFacet
+        SolrFacetQuery $solrFacet
     ): FacetGroup {
         $facetList = [];
 

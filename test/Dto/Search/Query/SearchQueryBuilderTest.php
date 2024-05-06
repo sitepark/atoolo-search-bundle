@@ -9,6 +9,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
 use Atoolo\Search\Dto\Search\Query\SearchQueryBuilder;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
+use DateTimeZone;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
@@ -102,7 +103,7 @@ class SearchQueryBuilderTest extends TestCase
     public function testSetFacet(): void
     {
         $facet = $this->getMockBuilder(Facet::class)
-            ->setConstructorArgs(['test', null])
+            ->setConstructorArgs(['test'])
             ->getMock();
         $this->builder->facet($facet);
         $query = $this->builder->build();
@@ -112,10 +113,10 @@ class SearchQueryBuilderTest extends TestCase
     public function testSetTwoFacetSWithSameKey(): void
     {
         $facetA = $this->getMockBuilder(Facet::class)
-            ->setConstructorArgs(['test', null])
+            ->setConstructorArgs(['test'])
             ->getMock();
         $facetB = $this->getMockBuilder(Facet::class)
-            ->setConstructorArgs(['test', null])
+            ->setConstructorArgs(['test'])
             ->getMock();
 
         $this->expectException(InvalidArgumentException::class);
@@ -130,6 +131,18 @@ class SearchQueryBuilderTest extends TestCase
             QueryOperator::AND,
             $query->defaultQueryOperator,
             'unexpected queryDefaultOperator'
+        );
+    }
+
+    public function testSetTimeZone(): void
+    {
+        $timeZone = new DateTimeZone('UTC');
+        $this->builder->timeZone($timeZone);
+        $query = $this->builder->build();
+        $this->assertEquals(
+            $timeZone,
+            $query->timeZone,
+            'unexpected timeZone'
         );
     }
 }

@@ -12,8 +12,10 @@ use InvalidArgumentException;
 
 class SolrDateMapper
 {
-    public static function mapDateInterval(?DateInterval $value, string $operator): string
-    {
+    public static function mapDateInterval(
+        ?DateInterval $value,
+        string $operator
+    ): string {
         if ($value === null) {
             return $operator . '1DAY';
         }
@@ -46,8 +48,13 @@ class SolrDateMapper
         return $interval;
     }
 
-    public static function mapDateTime(DateTime $date): string
-    {
+    public static function mapDateTime(
+        ?DateTime $date,
+        string $default = 'NOW'
+    ): string {
+        if ($date === null) {
+            return $default;
+        }
         $formatter = clone $date;
         $formatter->setTimezone(new DateTimeZone('UTC'));
         return $formatter->format('Y-m-d\TH:i:s\Z');
@@ -91,5 +98,23 @@ class SolrDateMapper
         if ($round === DateRangeRound::END_OF_PREVIOUS_YEAR) {
             return '/YEAR-1SECOND';
         }
+    }
+
+    public static function roundStart(
+        string $start,
+        ?DateRangeRound $round
+    ): string {
+        return $start . self::mapDateRangeRound(
+            $round ?? DateRangeRound::START_OF_DAY
+        );
+    }
+
+    public static function roundEnd(
+        string $end,
+        ?DateRangeRound $round
+    ): string {
+        return $end . self::mapDateRangeRound(
+            $round ?? DateRangeRound::END_OF_DAY
+        );
     }
 }

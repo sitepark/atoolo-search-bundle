@@ -6,30 +6,34 @@ namespace Atoolo\Search\Test\Service\Search;
 
 use Atoolo\Resource\Resource;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
-use Atoolo\Search\Dto\Search\Query\Facet\FacetMultiQuery;
-use Atoolo\Search\Dto\Search\Query\Facet\FacetQuery;
+use Atoolo\Search\Dto\Search\Query\Facet\MultiQueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
-use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\Facet\QueryFacet;
+use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
-use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
 use Atoolo\Search\Dto\Search\Query\Sort\Headline;
 use Atoolo\Search\Dto\Search\Query\Sort\Name;
 use Atoolo\Search\Dto\Search\Query\Sort\Natural;
 use Atoolo\Search\Dto\Search\Query\Sort\Score;
+use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Service\IndexName;
+use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryModifier;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use Atoolo\Search\Service\Search\SolrSearch;
 use Atoolo\Search\Service\SolrClientFactory;
+use DateTimeZone;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub\Stub;
 use PHPUnit\Framework\TestCase;
 use Solarium\Client;
 use Solarium\Component\FacetSet;
-use Solarium\Component\Result\Facet\Field;
+use Solarium\Component\Result\Facet\Field as SolrFacetField;
+use Solarium\Component\Result\Facet\Query as SolrFacetQuery;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 use Solarium\QueryType\Select\Result\Result as SelectResult;
@@ -40,6 +44,8 @@ class SolrSearchTest extends TestCase
     private Resource|Stub $resource;
 
     private SelectResult|Stub $result;
+
+    private SolrSelectQuery&MockObject $solrQuery;
 
     private SolrSearch $searcher;
 
@@ -52,14 +58,14 @@ class SolrSearchTest extends TestCase
         $client = $this->createStub(Client::class);
         $clientFactory->method('create')->willReturn($client);
 
-        $query = $this->createStub(SolrSelectQuery::class);
+        $this->solrQuery = $this->createMock(SolrSelectQuery::class);
 
-        $query->method('createFilterQuery')
+        $this->solrQuery->method('createFilterQuery')
             ->willReturn(new FilterQuery());
-        $query->method('getFacetSet')
+        $this->solrQuery->method('getFacetSet')
             ->willReturn(new FacetSet());
 
-        $client->method('createSelect')->willReturn($query);
+        $client->method('createSelect')->willReturn($this->solrQuery);
 
         $this->result = $this->createStub(SelectResult::class);
         $client->method('execute')->willReturn($this->result);
@@ -71,16 +77,21 @@ class SolrSearchTest extends TestCase
         );
 
         $solrQueryModifier = $this->createStub(SolrQueryModifier::class);
-        $solrQueryModifier->method('modify')->willReturn($query);
+        $solrQueryModifier->method('modify')->willReturn($this->solrQuery);
 
         $resultToResourceResolver
             ->method('loadResourceList')
             ->willReturn([$this->resource]);
 
+        $schemaFieldMapper = $this->createStub(
+            Schema2xFieldMapper::class
+        );
+
         $this->searcher = new SolrSearch(
             $indexName,
             $clientFactory,
             $resultToResourceResolver,
+            $schemaFieldMapper,
             [$solrQueryModifier],
         );
     }
@@ -96,7 +107,8 @@ class SolrSearchTest extends TestCase
             ],
             [],
             [],
-            QueryOperator::OR
+            QueryOperator::OR,
+            null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -119,7 +131,8 @@ class SolrSearchTest extends TestCase
             ],
             [],
             [],
-            QueryOperator::OR
+            QueryOperator::OR,
+            null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -147,7 +160,8 @@ class SolrSearchTest extends TestCase
             ],
             [],
             [],
-            QueryOperator::OR
+            QueryOperator::OR,
+            null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -157,25 +171,6 @@ class SolrSearchTest extends TestCase
             $searchResult->results,
             'unexpected results'
         );
-    }
-
-    public function testSelectWithInvalidSort(): void
-    {
-        $sort = $this->createStub(Criteria::class);
-
-        $query = new SearchQuery(
-            '',
-            '',
-            0,
-            10,
-            [$sort],
-            [],
-            [],
-            QueryOperator::OR
-        );
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->searcher->search($query);
     }
 
     public function testSelectWithAndDefaultOperator(): void
@@ -188,7 +183,8 @@ class SolrSearchTest extends TestCase
             [],
             [],
             [],
-            QueryOperator::AND
+            QueryOperator::AND,
+            null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -202,9 +198,7 @@ class SolrSearchTest extends TestCase
 
     public function testSelectWithFilter(): void
     {
-        $filter = $this->getMockBuilder(Filter::class)
-            ->setConstructorArgs(['test', []])
-            ->getMock();
+        $filter = new ObjectTypeFilter(['test']);
 
         $query = new SearchQuery(
             '',
@@ -214,7 +208,8 @@ class SolrSearchTest extends TestCase
             [],
             [$filter],
             [],
-            QueryOperator::OR
+            QueryOperator::OR,
+            null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -230,12 +225,12 @@ class SolrSearchTest extends TestCase
     {
 
         $facets = [
-            new ObjectTypeFacet('objectType', ['content'], 'ob'),
-            new FacetQuery('query', 'sp_id:123', 'ob'),
-            new FacetMultiQuery(
+            new ObjectTypeFacet('objectType', ['content'], ['ob']),
+            new QueryFacet('query', 'sp_id:123', ['ob']),
+            new MultiQueryFacet(
                 'multiquery',
-                [new FacetQuery('query', 'sp_id:123', null)],
-                'ob'
+                [new QueryFacet('query', 'sp_id:123')],
+                ['ob']
             )
         ];
 
@@ -247,7 +242,8 @@ class SolrSearchTest extends TestCase
             [],
             [],
             $facets,
-            QueryOperator::OR
+            QueryOperator::OR,
+            null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -274,17 +270,18 @@ class SolrSearchTest extends TestCase
             [],
             [],
             $facets,
-            QueryOperator::OR
+            QueryOperator::OR,
+            null
         );
 
         $this->expectException(InvalidArgumentException::class);
         $this->searcher->search($query);
     }
 
-    public function testResultFacets(): void
+    public function testResulWithFacetField(): void
     {
 
-        $facet = new Field([
+        $facet = new SolrFacetField([
             'content' => 10,
             'media' => 5
         ]);
@@ -296,13 +293,7 @@ class SolrSearchTest extends TestCase
             ->willReturn($facetSet);
 
         $facets = [
-            new ObjectTypeFacet('objectType', ['content'], 'ob'),
-            new FacetQuery('query', 'sp_id:123', 'ob'),
-            new FacetMultiQuery(
-                'multiquery',
-                [new FacetQuery('query', 'sp_id:123', null)],
-                'ob'
-            )
+            new ObjectTypeFacet('objectType', ['content'], ['ob']),
         ];
 
         $query = new SearchQuery(
@@ -313,22 +304,73 @@ class SolrSearchTest extends TestCase
             [],
             [],
             $facets,
-            QueryOperator::OR
+            QueryOperator::OR,
+            null
         );
 
         $searchResult = $this->searcher->search($query);
 
-        $this->assertEquals(
+        $expected = new FacetGroup(
             'objectType',
-            $searchResult->facetGroups[0]->key,
-            'unexpected results'
+            [
+                new \Atoolo\Search\Dto\Search\Result\Facet('content', 10),
+                new \Atoolo\Search\Dto\Search\Result\Facet('media', 5)
+            ]
+        );
+
+        $this->assertEquals(
+            $expected,
+            $searchResult->facetGroups[0],
+            'unexpected facet results'
         );
     }
 
+    public function testResultWithFacetQuery(): void
+    {
+
+        $facet = new SolrFacetQuery(5);
+        $facetSet = new \Solarium\Component\Result\FacetSet([
+            'aquery' => $facet
+        ]);
+
+        $this->result->method('getFacetSet')
+            ->willReturn($facetSet);
+
+        $facets = [
+            new QueryFacet('aquery', 'sp_id:123'),
+        ];
+
+        $query = new SearchQuery(
+            '',
+            '',
+            0,
+            10,
+            [],
+            [],
+            $facets,
+            QueryOperator::OR,
+            null
+        );
+
+        $searchResult = $this->searcher->search($query);
+
+        $expected = new FacetGroup(
+            'aquery',
+            [
+               new \Atoolo\Search\Dto\Search\Result\Facet('aquery', 5)
+            ]
+        );
+
+        $this->assertEquals(
+            $expected,
+            $searchResult->facetGroups[0],
+            'unexpected facet results'
+        );
+    }
     public function testInvalidResultFacets(): void
     {
 
-        $facet = new Field([
+        $facet = new SolrFacetField([
             'content' => 'nonint',
         ]);
         $facetSet = new \Solarium\Component\Result\FacetSet([
@@ -339,12 +381,12 @@ class SolrSearchTest extends TestCase
             ->willReturn($facetSet);
 
         $facets = [
-            new ObjectTypeFacet('objectType', ['content'], 'ob'),
-            new FacetQuery('query', 'sp_id:123', 'ob'),
-            new FacetMultiQuery(
+            new ObjectTypeFacet('objectType', ['content'], ['ob']),
+            new QueryFacet('query', 'sp_id:123', ['ob']),
+            new MultiQueryFacet(
                 'multiquery',
-                [new FacetQuery('query', 'sp_id:123', null)],
-                'ob'
+                [new QueryFacet('query', 'sp_id:123')],
+                ['ob']
             )
         ];
 
@@ -356,10 +398,86 @@ class SolrSearchTest extends TestCase
             [],
             [],
             $facets,
-            QueryOperator::OR
+            QueryOperator::OR,
+            null
         );
 
         $this->expectException(InvalidArgumentException::class);
+        $this->searcher->search($query);
+    }
+
+    public function testResultWithoutFacets(): void
+    {
+
+        $facetSet = new \Solarium\Component\Result\FacetSet([
+        ]);
+
+        $this->result->method('getFacetSet')
+            ->willReturn($facetSet);
+
+        $facets = [
+            new ObjectTypeFacet('objectType', ['content'], ['ob']),
+        ];
+
+        $query = new SearchQuery(
+            '',
+            '',
+            0,
+            10,
+            [],
+            [],
+            $facets,
+            QueryOperator::OR,
+            null
+        );
+
+        $searchResult = $this->searcher->search($query);
+
+        $this->assertEmpty(
+            $searchResult->facetGroups,
+            'facets should be empty'
+        );
+    }
+
+    public function testSetTimeZone(): void
+    {
+        $query = new SearchQuery(
+            '',
+            '',
+            0,
+            10,
+            [],
+            [],
+            [],
+            QueryOperator::OR,
+            new DateTimeZone("UTC")
+        );
+
+        $this->solrQuery->expects($this->once())
+            ->method('setTimezone')
+            ->with(new DateTimeZone('UTC'));
+
+        $this->searcher->search($query);
+    }
+
+    public function testSetDefaultTimeZone(): void
+    {
+        $query = new SearchQuery(
+            '',
+            '',
+            0,
+            10,
+            [],
+            [],
+            [],
+            QueryOperator::OR,
+            null
+        );
+
+        $this->solrQuery->expects($this->once())
+            ->method('setTimezone')
+            ->with(date_default_timezone_get());
+
         $this->searcher->search($query);
     }
 }

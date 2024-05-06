@@ -7,6 +7,7 @@ namespace Atoolo\Search\Console\Command;
 use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Search\Query\Filter\ArchiveFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\NotFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\SuggestQuery;
 use Atoolo\Search\Dto\Search\Result\SuggestResult;
@@ -76,8 +77,7 @@ class Suggest extends Command
 
     protected function buildQuery(string $terms, string $lang): SuggestQuery
     {
-        $excludeMedia = new ObjectTypeFilter(['media'], 'media');
-        $excludeMedia = $excludeMedia->exclude();
+        $excludeMedia = new NotFilter(new ObjectTypeFilter(['media']));
         return new SuggestQuery(
             $terms,
             $lang,

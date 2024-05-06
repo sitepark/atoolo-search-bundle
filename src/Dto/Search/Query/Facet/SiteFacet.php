@@ -7,21 +7,6 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 /**
  * @codeCoverageIgnore
  */
-class SiteFacet extends FacetField
+class SiteFacet extends FieldFacet
 {
-    /**
-     * @param string[] $sites
-     * @param string[] $excludeFilter
-     */
-    public function __construct(
-        string $key,
-        public readonly array $sites,
-        array $excludeFilter = []
-    ) {
-        parent::__construct(
-            $key,
-            $sites,
-            $excludeFilter
-        );
-    }
 }

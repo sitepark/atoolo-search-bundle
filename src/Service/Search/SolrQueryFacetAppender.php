@@ -5,16 +5,11 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Search\Dto\Search\Query\Facet\AbsoluteDateRangeFacet;
-use Atoolo\Search\Dto\Search\Query\Facet\CategoryFacet;
-use Atoolo\Search\Dto\Search\Query\Facet\ContentSectionTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
-use Atoolo\Search\Dto\Search\Query\Facet\FacetField;
-use Atoolo\Search\Dto\Search\Query\Facet\FacetMultiQuery;
-use Atoolo\Search\Dto\Search\Query\Facet\FacetQuery;
-use Atoolo\Search\Dto\Search\Query\Facet\GroupFacet;
-use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\FieldFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\MultiQueryFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\QueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
-use Atoolo\Search\Dto\Search\Query\Facet\SiteFacet;
 use InvalidArgumentException;
 use Solarium\Component\Facet\Field;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
@@ -22,22 +17,23 @@ use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 class SolrQueryFacetAppender
 {
     public function __construct(
-        private readonly SolrSelectQuery $solrQuery
+        private readonly SolrSelectQuery $solrQuery,
+        private readonly Schema2xFieldMapper $fieldMapper
     ) {
     }
 
     public function append(Facet $facet): void
     {
-        $facet = $this->mapFacet($facet);
-
-        if ($facet instanceof FacetField) {
-            $this->addFacetFieldToSolrQuery($facet);
-        } elseif ($facet instanceof FacetQuery) {
-            $this->addFacetQueryToSolrQuery($facet);
-        } elseif ($facet instanceof FacetMultiQuery) {
-            $this->addFacetMultiQueryToSolrQuery($facet);
-        } elseif ($facet instanceof SolrRangeFacet) {
-            $this->addFacetRangeToSolrQuery($facet);
+        if ($facet instanceof FieldFacet) {
+            $this->appendFacetField($facet);
+        } elseif ($facet instanceof QueryFacet) {
+            $this->appendFacetQuery($facet);
+        } elseif ($facet instanceof MultiQueryFacet) {
+            $this->appendFacetMultiQuery($facet);
+        } elseif ($facet instanceof AbsoluteDateRangeFacet) {
+            $this->appendAbsoluteDateRangeFacet($facet);
+        } elseif ($facet instanceof RelativeDateRangeFacet) {
+            $this->appendRelativeDateRangeFacet($facet);
         } else {
             throw new InvalidArgumentException(
                 'Unsupported facet-class ' . get_class($facet)
@@ -45,38 +41,11 @@ class SolrQueryFacetAppender
         }
     }
 
-    private function mapFacet(Facet $facet): Facet
-    {
-        switch (true) {
-            case $facet instanceof AbsoluteDateRangeFacet:
-                return new SolrAbsoluteDateRangeFacet(
-                    $facet->key,
-                    $facet->from,
-                    $facet->to,
-                    $facet->gap,
-                    $facet->excludeFilter
-                );
-            case $facet instanceof RelativeDateRangeFacet:
-                return new SolrRelativeDateRangeFacet(
-                    $facet->key,
-                    $facet->base,
-                    $facet->before,
-                    $facet->after,
-                    $facet->gap,
-                    $facet->roundStart,
-                    $facet->roundEnd,
-                    $facet->excludeFilter
-                );
-            default:
-                return $facet;
-        }
-    }
-
     /**
      * https://solarium.readthedocs.io/en/stable/queries/select-query/building-a-select-query/components/facetset-component/facet-field/
      */
-    private function addFacetFieldToSolrQuery(
-        FacetField $facet
+    private function appendFacetField(
+        FieldFacet $facet
     ): void {
         $facetSet = $this->solrQuery->getFacetSet();
         /** @var Field $solrFacet */
@@ -89,33 +58,14 @@ class SolrQueryFacetAppender
 
     private function getFacetField(Facet $facet): string
     {
-        switch (true) {
-            case $facet instanceof CategoryFacet:
-                return 'sp_category_path';
-            case $facet instanceof ContentSectionTypeFacet:
-                return 'sp_contenttype';
-            case $facet instanceof GroupFacet:
-                return 'sp_group_path';
-            case $facet instanceof ObjectTypeFacet:
-                return 'sp_objecttype';
-            case $facet instanceof SiteFacet:
-                return 'sp_site';
-            case $facet instanceof SolrAbsoluteDateRangeFacet:
-                return 'sp_date_list';
-            case $facet instanceof SolrRelativeDateRangeFacet:
-                return 'sp_date_list';
-            default:
-                throw new InvalidArgumentException(
-                    'Unsupported facet-field-class ' . get_class($facet)
-                );
-        }
+        return $this->fieldMapper->getFacetField($facet);
     }
 
     /**
      * https://solarium.readthedocs.io/en/stable/queries/select-query/building-a-select-query/components/facetset-component/facet-query/
      */
-    private function addFacetQueryToSolrQuery(
-        FacetQuery $facet
+    private function appendFacetQuery(
+        QueryFacet $facet
     ): void {
         $facetSet = $this->solrQuery->getFacetSet();
         $facetSet->createFacetQuery($facet->key)
@@ -126,8 +76,8 @@ class SolrQueryFacetAppender
     /**
      * https://solarium.readthedocs.io/en/stable/queries/select-query/building-a-select-query/components/facetset-component/facet-multiquery/
      */
-    private function addFacetMultiQueryToSolrQuery(
-        FacetMultiQuery $facet
+    private function appendFacetMultiQuery(
+        MultiQueryFacet $facet
     ): void {
         $facetSet = $this->solrQuery->getFacetSet();
         $solrFacet = $facetSet->createFacetMultiQuery($facet->key);
@@ -140,23 +90,64 @@ class SolrQueryFacetAppender
         }
     }
 
-    private function addFacetRangeToSolrQuery(
-        SolrRangeFacet $facet
+    private function appendAbsoluteDateRangeFacet(
+        AbsoluteDateRangeFacet $facet
+    ): void {
+        $start = SolrDateMapper::mapDateTime($facet->from);
+        $end = SolrDateMapper::mapDateTime($facet->to);
+        $gap = $facet->gap !== null
+            ? SolrDateMapper::mapDateInterval($facet->gap, '+')
+            : null;
+        $this->appendFacetRange($facet, $start, $end, $gap);
+    }
+
+    private function appendRelativeDateRangeFacet(
+        RelativeDateRangeFacet $facet
     ): void {
 
-        if ($facet->getGap() === null) {
+        $start = $facet->before === null
+            ? SolrDateMapper::roundStart(
+                SolrDateMapper::mapDateTime($facet->base),
+                $facet->roundStart
+            )
+            : SolrDateMapper::roundStart(
+                SolrDateMapper::mapDateTime($facet->base) .
+                    SolrDateMapper::mapDateInterval($facet->before, '-'),
+                $facet->roundStart
+            );
+
+        $end = $facet->after === null
+            ? SolrDateMapper::roundEnd(
+                SolrDateMapper::mapDateTime($facet->base),
+                $facet->roundStart
+            )
+            : SolrDateMapper::roundEnd(
+                SolrDateMapper::mapDateTime($facet->base) .
+                SolrDateMapper::mapDateInterval($facet->after, '+'),
+                $facet->roundEnd
+            );
+
+        $gap = $facet->gap !== null
+            ? SolrDateMapper::mapDateInterval($facet->gap, '+')
+            : null;
+        $this->appendFacetRange($facet, $start, $end, $gap);
+    }
+
+    private function appendFacetRange(
+        Facet $facet,
+        string $start,
+        string $end,
+        ?string $gap
+    ): void {
+        if ($gap === null) {
             // without `gap` it is a simple facet query
-            $facetQuery = new FacetQuery(
+            $facetQuery = new QueryFacet(
                 $facet->key,
                 $this->getFacetField($facet) . ':' .
-                '[' .
-                $facet->getStart() .
-                ' TO ' .
-                $facet->getEnd() .
-                ']',
+                '[' . $start . ' TO ' . $end . ']',
                 $facet->excludeFilter
             );
-            $this->addFacetQueryToSolrQuery($facetQuery);
+            $this->appendFacetQuery($facetQuery);
             return;
         }
 
@@ -166,8 +157,8 @@ class SolrQueryFacetAppender
         $solrFacet->setExcludes($facet->excludeFilter);
         $solrFacet
             ->setField($this->getFacetField($facet))
-            ->setStart($facet->getStart())
-            ->setEnd($facet->getEnd())
-            ->setGap($facet->getGap());
+            ->setStart($start)
+            ->setEnd($end)
+            ->setGap($gap);
     }
 }

@@ -7,15 +7,14 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 /**
  * @codeCoverageIgnore
  */
-class FacetField extends Facet
+class QueryFacet extends Facet
 {
     /**
-     * @param string[] $terms
      * @param string[] $excludeFilter
      */
     public function __construct(
         string $key,
-        public readonly array $terms,
+        public readonly string $query,
         array $excludeFilter = []
     ) {
         parent::__construct($key, $excludeFilter);

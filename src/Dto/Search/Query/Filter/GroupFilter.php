@@ -9,17 +9,4 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
  */
 class GroupFilter extends FieldFilter
 {
-    /**
-     * @param string[] $group
-     */
-    public function __construct(
-        array $group,
-        ?string $key = null,
-    ) {
-        parent::__construct(
-            'sp_group_path',
-            $group,
-            $key
-        );
-    }
 }

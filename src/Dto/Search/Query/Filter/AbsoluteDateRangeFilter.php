@@ -10,8 +10,8 @@ use InvalidArgumentException;
 class AbsoluteDateRangeFilter extends Filter
 {
     public function __construct(
-        private readonly ?DateTime $from,
-        private readonly ?DateTime $to,
+        public readonly ?DateTime $from,
+        public readonly ?DateTime $to,
         ?string $key = null
     ) {
         parent::__construct(
@@ -23,26 +23,5 @@ class AbsoluteDateRangeFilter extends Filter
                 'At least `from` or `to` must be specified'
             );
         }
-    }
-
-    public function getQuery(): string
-    {
-        return 'sp_date_list:' .
-            '[' .
-            $this->formatDate($this->from) .
-            ' TO ' .
-            $this->formatDate($this->to) .
-            ']';
-    }
-
-    private function formatDate(?DateTime $date): string
-    {
-        if ($date === null) {
-            return '*';
-        }
-
-        $formatter = clone $date;
-        $formatter->setTimezone(new \DateTimeZone('UTC'));
-        return $formatter->format('Y-m-d\TH:i:s\Z');
     }
 }

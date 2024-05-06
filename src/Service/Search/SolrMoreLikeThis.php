@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\MoreLikeThis;
@@ -22,7 +23,8 @@ class SolrMoreLikeThis implements MoreLikeThis
     public function __construct(
         private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
-        private readonly SolrResultToResourceResolver $resultToResourceResolver
+        private readonly SolrResultToResourceResolver $resultToResourceResolver,
+        private readonly Schema2xFieldMapper $schemaFieldMapper
     ) {
     }
 
@@ -48,17 +50,27 @@ class SolrMoreLikeThis implements MoreLikeThis
         $solrQuery->setRows($query->limit);
         $solrQuery->setMinimumTermFrequency(2);
         $solrQuery->setMatchInclude(true);
-        $solrQuery->createFilterQuery('nomedia')
-            ->setQuery('-sp_objecttype:media');
 
         // Filter
-        foreach ($query->filter as $filter) {
-            $filterQuery = $solrQuery->createFilterQuery($filter->key);
-            $filterQuery->setQuery($filter->getQuery());
-            $filterQuery->setTags($filter->tags);
-        }
+        $this->addFilterQueriesToSolrQuery($solrQuery, $query->filter);
 
         return $solrQuery;
+    }
+
+    /**
+     * @param Filter[] $filterList
+     */
+    private function addFilterQueriesToSolrQuery(
+        SolrMoreLikeThisQuery $solrQuery,
+        array $filterList
+    ): void {
+        $filterAppender = new SolrQueryFilterAppender(
+            $solrQuery,
+            $this->schemaFieldMapper
+        );
+        foreach ($filterList as $filter) {
+            $filterAppender->append($filter);
+        }
     }
 
     private function buildResult(
