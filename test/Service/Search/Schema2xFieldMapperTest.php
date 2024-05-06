@@ -13,6 +13,7 @@ use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\SiteFacet;
 use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\ArchiveFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\CategoryFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ContentSectionTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
@@ -65,6 +66,7 @@ class Schema2xFieldMapperTest extends TestCase
     public static function getFilter(): array
     {
         return [
+            [ ArchiveFilter::class, 'sp_archive' ],
             [ CategoryFilter::class, 'sp_category_path' ],
             [ ContentSectionTypeFilter::class, 'sp_contenttype' ],
             [ GroupFilter::class, 'sp_group_path' ],
