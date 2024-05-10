@@ -22,6 +22,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SiteFilter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
+use Atoolo\Search\Dto\Search\Query\Sort\CustomField;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
 use Atoolo\Search\Dto\Search\Query\Sort\Headline;
 use Atoolo\Search\Dto\Search\Query\Sort\Name;
@@ -92,6 +93,8 @@ class Schema2xFieldMapper
                 return 'sp_sortvalue';
             case $criteria instanceof Score:
                 return 'score';
+            case $criteria instanceof CustomField:
+                return $criteria->field;
             default:
                 throw new InvalidArgumentException(
                     'Unsupported sort criteria: ' . get_class($criteria)
