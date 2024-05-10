@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\SuggestQuery;
 use Atoolo\Search\Dto\Search\Result\Suggestion;
 use Atoolo\Search\Dto\Search\Result\SuggestResult;
@@ -32,7 +33,8 @@ class SolrSuggest implements Suggest
 
     public function __construct(
         private readonly IndexName $index,
-        private readonly SolrClientFactory $clientFactory
+        private readonly SolrClientFactory $clientFactory,
+        private readonly Schema2xFieldMapper $schemaFieldMapper
     ) {
     }
 
@@ -79,13 +81,25 @@ class SolrSuggest implements Suggest
         $solrQuery->setRows(0);
 
         // Filter
-        foreach ($query->filter as $filter) {
-            $filterQuery = $solrQuery->createFilterQuery($filter->key);
-            $filterQuery->setQuery($filter->getQuery());
-            $filterQuery->setTags($filter->tags);
-        }
+        $this->addFilterQueriesToSolrQuery($solrQuery, $query->filter);
 
         return $solrQuery;
+    }
+
+    /**
+     * @param Filter[] $filterList
+     */
+    private function addFilterQueriesToSolrQuery(
+        SolrSelectQuery $solrQuery,
+        array $filterList
+    ): void {
+        $filterAppender = new SolrQueryFilterAppender(
+            $solrQuery,
+            $this->schemaFieldMapper
+        );
+        foreach ($filterList as $filter) {
+            $filterAppender->append($filter);
+        }
     }
 
     private function buildResult(

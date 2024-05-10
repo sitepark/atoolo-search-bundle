@@ -54,7 +54,7 @@ class ResourceChannelBasedIndexName implements IndexName
         ResourceLanguage $lang
     ): string {
 
-        if ($lang === ResourceLanguage::default()) {
+        if ($lang->code === ResourceLanguage::default()->code) {
             return '';
         }
 

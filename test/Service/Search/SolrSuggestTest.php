@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Search;
 
-use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\SuggestQuery;
 use Atoolo\Search\Dto\Search\Result\Suggestion;
 use Atoolo\Search\Exception\UnexpectedResultException;
 use Atoolo\Search\Service\IndexName;
+use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrSuggest;
 use Atoolo\Search\Service\SolrClientFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -46,14 +47,20 @@ class SolrSuggestTest extends TestCase
         $this->result = $this->createStub(SelectResult::class);
         $client->method('select')->willReturn($this->result);
 
-        $this->searcher = new SolrSuggest($indexName, $clientFactory);
+        $schemaFieldMapper = $this->createStub(
+            Schema2xFieldMapper::class
+        );
+
+        $this->searcher = new SolrSuggest(
+            $indexName,
+            $clientFactory,
+            $schemaFieldMapper
+        );
     }
 
     public function testSuggest(): void
     {
-        $filter = $this->getMockBuilder(Filter::class)
-            ->setConstructorArgs(['test', []])
-            ->getMock();
+        $filter = new ObjectTypeFilter(['test']);
 
         $query = new SuggestQuery(
             'myindex',

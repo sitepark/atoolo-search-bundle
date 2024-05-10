@@ -7,6 +7,7 @@ namespace Atoolo\Search\Dto\Search\Query;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
+use DateTimeZone;
 
 class SearchQueryBuilder
 {
@@ -30,6 +31,8 @@ class SearchQueryBuilder
 
     private QueryOperator $defaultQueryOperator =
         QueryOperator::OR;
+
+    private ?DateTimeZone $timeZone = null;
 
     public function __construct()
     {
@@ -136,6 +139,13 @@ class SearchQueryBuilder
         return $this;
     }
 
+    public function timeZone(
+        DateTimeZone $timeZone
+    ): static {
+        $this->timeZone = $timeZone;
+        return $this;
+    }
+
     public function build(): SearchQuery
     {
         return new SearchQuery(
@@ -146,7 +156,8 @@ class SearchQueryBuilder
             sort: $this->sort,
             filter: $this->filter,
             facets: array_values($this->facets),
-            defaultQueryOperator: $this->defaultQueryOperator
+            defaultQueryOperator: $this->defaultQueryOperator,
+            timeZone: $this->timeZone
         );
     }
 }

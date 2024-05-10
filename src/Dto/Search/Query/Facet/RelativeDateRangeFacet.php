@@ -2,28 +2,32 @@
 
 declare(strict_types=1);
 
-namespace Atoolo\Search\Dto\Search\Query\Filter;
+namespace Atoolo\Search\Dto\Search\Query\Facet;
 
 use Atoolo\Search\Dto\Search\Query\DateRangeRound;
 use DateInterval;
-use DateTime;
 
 /**
  * @codeCoverageIgnore
  */
-class RelativeDateRangeFilter extends Filter
+class RelativeDateRangeFacet extends Facet
 {
+    /**
+     * @param string[] $excludeFilter
+     */
     public function __construct(
-        public readonly ?DateTime $base,
+        string $key,
+        public readonly ?\DateTime $base,
         public readonly ?DateInterval $before,
         public readonly ?DateInterval $after,
+        public readonly ?DateInterval $gap,
         public readonly ?DateRangeRound $roundStart,
         public readonly ?DateRangeRound $roundEnd,
-        ?string $key = null
+        array $excludeFilter = []
     ) {
         parent::__construct(
             $key,
-            $key !== null ? [$key] : []
+            $excludeFilter
         );
     }
 }

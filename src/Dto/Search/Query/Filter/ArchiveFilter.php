@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Search\Query\Filter;
 
+/**
+ * @codeCoverageIgnore
+ */
 class ArchiveFilter extends Filter
 {
     public function __construct()
@@ -11,10 +14,5 @@ class ArchiveFilter extends Filter
         parent::__construct(
             'archive'
         );
-    }
-
-    public function getQuery(): string
-    {
-        return '-sp_archive:true';
     }
 }

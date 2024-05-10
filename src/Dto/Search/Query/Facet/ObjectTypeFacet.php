@@ -7,21 +7,6 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 /**
  * @codeCoverageIgnore
  */
-class ObjectTypeFacet extends FacetField
+class ObjectTypeFacet extends FieldFacet
 {
-    /**
-     * @param string[] $objectTypes
-     */
-    public function __construct(
-        string $key,
-        public readonly array $objectTypes,
-        ?string $excludeFilter = null
-    ) {
-        parent::__construct(
-            $key,
-            'sp_objecttype',
-            $objectTypes,
-            $excludeFilter
-        );
-    }
 }

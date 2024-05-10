@@ -57,6 +57,16 @@ class ResourceChannelBasedIndexNameTest extends TestCase
         );
     }
 
+    public function testNameWithEmptyLang(): void
+    {
+        $this->assertEquals(
+            'test',
+            $this->indexName->name(ResourceLanguage::of('')),
+            'The default index name should be returned ' .
+            'if the default language is given'
+        );
+    }
+
     public function testNameWithUnsupportedLang(): void
     {
         $this->expectException(UnsupportedIndexLanguageException::class);

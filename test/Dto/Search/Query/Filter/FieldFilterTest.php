@@ -12,40 +12,15 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(FieldFilter::class)]
 class FieldFilterTest extends TestCase
 {
-    public function testEmptyValues(): void
+    public function testConstructor(): void
+    {
+        $filter = new FieldFilter(['a']);
+        $this->assertEquals(['a'], $filter->values, 'Unexpected values');
+    }
+
+    public function testConstructorWithEmptyValues(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        new FieldFilter('test', []);
-    }
-
-    public function testGetQueryWithOneField(): void
-    {
-        $field = new FieldFilter('test', ['a']);
-        $this->assertEquals(
-            'test:a',
-            $field->getQuery(),
-            'unexpected query'
-        );
-    }
-
-    public function testGetQueryWithTwoFields(): void
-    {
-        $field = new FieldFilter('test', ['a', 'b']);
-        $this->assertEquals(
-            'test:(a b)',
-            $field->getQuery(),
-            'unexpected query'
-        );
-    }
-
-    public function testExclude(): void
-    {
-        $field = new FieldFilter('test', ['a']);
-        $exclude = $field->exclude();
-        $this->assertEquals(
-            '-test:a',
-            $exclude->getQuery(),
-            'unexpected exclude query'
-        );
+        new FieldFilter([]);
     }
 }

@@ -7,21 +7,6 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 /**
  * @codeCoverageIgnore
  */
-class GroupFacet extends FacetField
+class GroupFacet extends FieldFacet
 {
-    /**
-     * @param string[] $groups
-     */
-    public function __construct(
-        string $key,
-        public readonly array $groups,
-        ?string $excludeFilter = null
-    ) {
-        parent::__construct(
-            $key,
-            'sp_group_path',
-            $groups,
-            $excludeFilter
-        );
-    }
 }

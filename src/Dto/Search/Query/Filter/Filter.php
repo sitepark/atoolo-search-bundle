@@ -17,6 +17,4 @@ abstract class Filter
         public readonly array $tags = []
     ) {
     }
-
-    abstract public function getQuery(): string;
 }
