@@ -22,6 +22,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SiteFilter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
+use Atoolo\Search\Dto\Search\Query\Sort\CustomField;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
 use Atoolo\Search\Dto\Search\Query\Sort\Headline;
 use Atoolo\Search\Dto\Search\Query\Sort\Name;
@@ -154,6 +155,15 @@ class Schema2xFieldMapperTest extends TestCase
         $criteria = $this->createStub($sortCriteriaClass);
         $this->assertEquals(
             $expected,
+            $this->mapper->getSortField($criteria)
+        );
+    }
+
+    public function testGetSortCustomField(): void
+    {
+        $criteria = new CustomField('custom_field');
+        $this->assertEquals(
+            'custom_field',
             $this->mapper->getSortField($criteria)
         );
     }
