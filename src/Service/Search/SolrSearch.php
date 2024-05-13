@@ -41,14 +41,13 @@ class SolrSearch implements Search
 
     public function search(SearchQuery $query): SearchResult
     {
-        $lang = ResourceLanguage::of($query->lang);
-        $index = $this->index->name($lang);
+        $index = $this->index->name($query->lang);
         $client = $this->clientFactory->create($index);
 
         $solrQuery = $this->buildSolrQuery($client, $query);
         /** @var SelectResult $result */
         $result = $client->execute($solrQuery);
-        return $this->buildResult($query, $result, $lang);
+        return $this->buildResult($query, $result, $query->lang);
     }
 
     private function buildSolrQuery(

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Resource\ResourceChannelFactory;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Search\Query\Filter\ArchiveFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\NotFilter;
@@ -80,7 +81,7 @@ class Suggest extends Command
         $excludeMedia = new NotFilter(new ObjectTypeFilter(['media']));
         return new SuggestQuery(
             $terms,
-            $lang,
+            ResourceLanguage::of($lang),
             [
                 new ArchiveFilter(),
                 $excludeMedia

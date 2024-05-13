@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Search\Query;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 
 /**
@@ -20,7 +21,7 @@ class SuggestQuery
      */
     public function __construct(
         public readonly string $text,
-        public readonly string $lang = '',
+        public readonly ResourceLanguage $lang,
         public readonly array $filter = [],
         public readonly int $limit = 10
     ) {

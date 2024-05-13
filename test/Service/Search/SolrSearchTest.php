@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Search;
 
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Facet\MultiQueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
@@ -100,7 +101,7 @@ class SolrSearchTest extends TestCase
     {
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             1,
             [
@@ -124,7 +125,7 @@ class SolrSearchTest extends TestCase
     {
         $query = new SearchQuery(
             'cat dog',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [
@@ -148,7 +149,7 @@ class SolrSearchTest extends TestCase
     {
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [
@@ -177,7 +178,7 @@ class SolrSearchTest extends TestCase
     {
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [],
@@ -202,7 +203,7 @@ class SolrSearchTest extends TestCase
 
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [],
@@ -236,7 +237,7 @@ class SolrSearchTest extends TestCase
 
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [],
@@ -264,7 +265,7 @@ class SolrSearchTest extends TestCase
 
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [],
@@ -298,7 +299,7 @@ class SolrSearchTest extends TestCase
 
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [],
@@ -342,7 +343,7 @@ class SolrSearchTest extends TestCase
 
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [],
@@ -392,7 +393,7 @@ class SolrSearchTest extends TestCase
 
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [],
@@ -421,7 +422,7 @@ class SolrSearchTest extends TestCase
 
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [],
@@ -443,7 +444,7 @@ class SolrSearchTest extends TestCase
     {
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [],
@@ -464,7 +465,7 @@ class SolrSearchTest extends TestCase
     {
         $query = new SearchQuery(
             '',
-            '',
+            ResourceLanguage::default(),
             0,
             10,
             [],

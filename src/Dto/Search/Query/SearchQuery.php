@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Search\Query;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
@@ -23,7 +24,7 @@ class SearchQuery
      */
     public function __construct(
         public readonly string $text,
-        public readonly string $lang,
+        public readonly ResourceLanguage $lang,
         public readonly int $offset,
         public readonly int $limit,
         public readonly array $sort,

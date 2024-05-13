@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Search\Query;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
@@ -12,7 +13,7 @@ use DateTimeZone;
 class SearchQueryBuilder
 {
     private string $text = '';
-    private string $lang = '';
+    private ResourceLanguage $lang;
     private int $offset = 0;
     private int $limit = 10;
     /**
@@ -36,6 +37,7 @@ class SearchQueryBuilder
 
     public function __construct()
     {
+        $this->lang = ResourceLanguage::default();
     }
 
     /**
@@ -50,7 +52,7 @@ class SearchQueryBuilder
     /**
      * @return $this
      */
-    public function lang(string $lang): static
+    public function lang(ResourceLanguage $lang): static
     {
         $this->lang = $lang;
         return $this;

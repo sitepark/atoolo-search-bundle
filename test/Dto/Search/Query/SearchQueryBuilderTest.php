@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Dto\Search\Query;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
@@ -34,9 +35,13 @@ class SearchQueryBuilderTest extends TestCase
 
     public function testSetLang(): void
     {
-        $this->builder->lang('en');
+        $this->builder->lang(ResourceLanguage::of('en'));
         $query = $this->builder->build();
-        $this->assertEquals('en', $query->lang, 'unexpected lang');
+        $this->assertEquals(
+            ResourceLanguage::of('en'),
+            $query->lang,
+            'unexpected lang'
+        );
     }
 
     public function testSetOffset(): void

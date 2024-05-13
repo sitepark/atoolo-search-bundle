@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Search;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\SuggestQuery;
 use Atoolo\Search\Dto\Search\Result\Suggestion;
@@ -63,8 +64,8 @@ class SolrSuggestTest extends TestCase
         $filter = new ObjectTypeFilter(['test']);
 
         $query = new SuggestQuery(
-            'myindex',
             'cat',
+            ResourceLanguage::default(),
             [$filter]
         );
 
@@ -102,8 +103,8 @@ END);
     public function testEmptySuggest(): void
     {
         $query = new SuggestQuery(
-            'myindex',
             'cat',
+            ResourceLanguage::default(),
         );
 
         $response = new Response(<<<END
@@ -126,8 +127,8 @@ END);
     public function testInvalidSuggestResponse(): void
     {
         $query = new SuggestQuery(
-            'myindex',
             'cat',
+            ResourceLanguage::default(),
         );
 
         $response = new Response("none json");
