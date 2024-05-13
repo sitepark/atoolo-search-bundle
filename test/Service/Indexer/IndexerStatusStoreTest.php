@@ -187,14 +187,17 @@ class IndexerStatusStoreTest extends TestCase
     {
 
         $startTime = new \DateTime();
+        $startTime->setTimezone(new \DateTimeZone('UTC'));
         $startTime->setDate(2024, 1, 31);
         $startTime->setTime(11, 15, 10);
 
         $endTime = new \DateTime();
+        $endTime->setTimezone(new \DateTimeZone('UTC'));
         $endTime->setDate(2024, 1, 31);
         $endTime->setTime(12, 16, 11);
 
         $lastUpdate = new \DateTime();
+        $lastUpdate->setTimezone(new \DateTimeZone('UTC'));
         $lastUpdate->setDate(2024, 1, 31);
         $lastUpdate->setTime(13, 17, 12);
 

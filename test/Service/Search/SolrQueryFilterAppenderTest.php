@@ -132,8 +132,8 @@ class SolrQueryFilterAppenderTest extends TestCase
 
     public function testAbsoluteDateRangeFilterWithFromAndTo(): void
     {
-        $from = new \DateTime('2021-01-01 00:00:00');
-        $to = new \DateTime('2021-01-02 00:00:00');
+        $from = new \DateTime('2021-01-01 00:00:00Z');
+        $to = new \DateTime('2021-01-02 00:00:00Z');
         $filter = new AbsoluteDateRangeFilter($from, $to, 'sp_date_list');
 
         $this->filterQuery->expects($this->once())
@@ -145,7 +145,7 @@ class SolrQueryFilterAppenderTest extends TestCase
 
     public function testAbsoluteDateRangeFilterWithFrom(): void
     {
-        $from = new \DateTime('2021-01-01 00:00:00');
+        $from = new \DateTime('2021-01-01 00:00:00Z');
         $filter = new AbsoluteDateRangeFilter($from, null, 'sp_date_list');
 
         $this->filterQuery->expects($this->once())
@@ -157,7 +157,7 @@ class SolrQueryFilterAppenderTest extends TestCase
 
     public function testAbsoluteDateRangeFilterWithTo(): void
     {
-        $to = new \DateTime('2021-01-02 00:00:00');
+        $to = new \DateTime('2021-01-02 00:00:00Z');
         $filter = new AbsoluteDateRangeFilter(null, $to, 'sp_date_list');
 
         $this->filterQuery->expects($this->once())
@@ -219,21 +219,21 @@ class SolrQueryFilterAppenderTest extends TestCase
     {
         return [
             [
-                new DateTime('2021-01-01 00:00:00'),
+                new DateTime('2021-01-01 00:00:00Z'),
                 'P1D',
                 null,
                 'test:[2021-01-01T00:00:00Z-1DAYS/DAY' .
                 ' TO 2021-01-01T00:00:00Z/DAY+1DAY-1SECOND]'
             ],
             [
-                new DateTime('2021-01-01 00:00:00'),
+                new DateTime('2021-01-01 00:00:00Z'),
                 null,
                 'P2M',
                 'test:[2021-01-01T00:00:00Z/DAY' .
                 ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]'
             ],
             [
-                new DateTime('2021-01-01 00:00:00'),
+                new DateTime('2021-01-01 00:00:00Z'),
                 'P1W',
                 'P2M',
                 'test:[2021-01-01T00:00:00Z-7DAYS/DAY' .
