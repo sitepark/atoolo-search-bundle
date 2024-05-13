@@ -45,6 +45,8 @@ class InternalResourceIndexer implements Indexer
 {
     private IndexerParameter $parameter;
 
+    private bool $skipCleanup = false;
+
     /**
      * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
      */
@@ -159,6 +161,9 @@ class InternalResourceIndexer implements Indexer
      */
     public function update(array $paths): IndexerStatus
     {
+
+        $this->skipCleanup = true;
+
         $collectedPaths = array_merge(
             $this->finder->findPaths($paths), // resolve directories recursive
             $paths
@@ -310,6 +315,7 @@ class InternalResourceIndexer implements Indexer
         }
 
         if (
+            !$this->skipCleanup &&
             $parameter->cleanupThreshold > 0 &&
             $successCount >= $parameter->cleanupThreshold
         ) {
