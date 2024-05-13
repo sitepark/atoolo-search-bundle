@@ -17,8 +17,8 @@ class AbsoluteDateRangeFacet extends Facet
      */
     public function __construct(
         string $key,
-        public readonly DateTime $from,
-        public readonly DateTime $to,
+        public readonly ?DateTime $from,
+        public readonly ?DateTime $to,
         public readonly ?DateInterval $gap,
         array $excludeFilter = []
     ) {
