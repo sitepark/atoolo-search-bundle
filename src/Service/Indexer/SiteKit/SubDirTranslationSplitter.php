@@ -29,14 +29,15 @@ class SubDirTranslationSplitter implements TranslationSplitter
                 continue;
             }
             if ($location->lang === ResourceLanguage::default()) {
-                $bases[] = $location;
+                $bases[] = $location->location;
                 continue;
             }
             if (!isset($translations[$location->lang->code])) {
                 $translations[$location->lang->code] = [];
             }
-            $translations[$location->lang->code][] = $location;
+            $translations[$location->lang->code][] = $location->location;
         }
+        gc_collect_cycles();
 
         return new TranslationSplitterResult($bases, $translations);
     }

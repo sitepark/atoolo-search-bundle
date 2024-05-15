@@ -3,7 +3,6 @@
 namespace Atoolo\Search\Test\Service\Indexer\SiteKit;
 
 use Atoolo\Resource\ResourceLanguage;
-use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -58,8 +57,8 @@ class SubDirTranslationSplitterTest extends TestCase
         $translations = $result->getTranslations($lang);
 
         $expected = [
-            ResourceLocation::of('/a/b.php', $lang),
-            ResourceLocation::of('/c/d.php', $lang),
+            '/a/b.php',
+            '/c/d.php',
         ];
 
         $this->assertEquals(
@@ -80,7 +79,7 @@ class SubDirTranslationSplitterTest extends TestCase
         $translations = $result->getTranslations($lang);
 
         $expected = [
-            ResourceLocation::of('/a/b.php', $lang)
+            '/a/b.php',
         ];
 
         $this->assertEquals(

@@ -274,7 +274,7 @@ class InternalResourceIndexer implements Indexer
     /**
      * The resources for a language are indexed here.
      *
-     * @param ResourceLocation[] $locations
+     * @param string[] $locations
      */
     private function indexResourcesPerLanguageIndex(
         string $processId,
@@ -335,7 +335,7 @@ class InternalResourceIndexer implements Indexer
      * methods accept a chunk with all paths that are to be indexed via a
      * request.
      *
-     * @param ResourceLocation[] $locations
+     * @param string[] $locations
      */
     private function indexChunks(
         string $processId,
@@ -346,6 +346,7 @@ class InternalResourceIndexer implements Indexer
         int $length
     ): int|false {
         $resourceList = $this->loadResources(
+            $lang,
             $locations,
             $offset,
             $length
@@ -373,10 +374,11 @@ class InternalResourceIndexer implements Indexer
     }
 
     /**
-     * @param ResourceLocation[] $locations
+     * @param string[] $locations
      * @return Resource[]|false
      */
     private function loadResources(
+        ResourceLanguage $lang,
         array $locations,
         int $offset,
         int $length
@@ -391,7 +393,10 @@ class InternalResourceIndexer implements Indexer
 
         $resourceList = [];
         for ($i = $offset; $i < $end; $i++) {
-            $location = $locations[$i];
+            $location = ResourceLocation::of(
+                $locations[$i],
+                $lang
+            );
             try {
                 $resource = $this->resourceLoader->load($location);
                 $resourceList[] = $resource;
