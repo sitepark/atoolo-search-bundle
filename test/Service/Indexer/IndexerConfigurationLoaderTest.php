@@ -122,7 +122,7 @@ class IndexerConfigurationLoaderTest extends TestCase
     }
 
     private function createLoader(
-        string $resourceDir
+        string $baseDir
     ): IndexerConfigurationLoader {
         $resourceChannel = new ResourceChannel(
             '',
@@ -132,8 +132,8 @@ class IndexerConfigurationLoaderTest extends TestCase
             false,
             '',
             '',
+            $baseDir,
             '',
-            $resourceDir,
             '',
             []
         );

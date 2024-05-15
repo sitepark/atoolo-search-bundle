@@ -21,7 +21,7 @@ class IndexerConfigurationLoader
      */
     public function loadAll(): array
     {
-        $dir = $this->resourceChannel->resourceDir . '/indexer';
+        $dir = $this->resourceChannel->baseDir . '/indexer';
         if (!is_dir($dir)) {
             return [];
         }
@@ -38,7 +38,7 @@ class IndexerConfigurationLoader
 
     private function getFile(string $source): string
     {
-        return $this->resourceChannel->resourceDir .
+        return $this->resourceChannel->baseDir .
             '/indexer/' . $source . '.php';
     }
 
