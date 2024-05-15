@@ -146,7 +146,7 @@ class InternalResourceIndexer implements Indexer
             $total = count($paths);
             $this->progressHandler->start($total);
 
-            $this->indexResources($param, $this->finder->findAll());
+            $this->indexResources($param, $paths);
         } finally {
             $lock->release();
             $this->progressHandler->finish();
