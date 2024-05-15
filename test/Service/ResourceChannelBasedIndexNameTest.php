@@ -28,6 +28,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
             '',
             '',
             '',
+            '',
             'test',
             ['en_US']
         );

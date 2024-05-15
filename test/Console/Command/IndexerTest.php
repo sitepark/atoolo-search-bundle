@@ -37,6 +37,7 @@ class IndexerTest extends TestCase
             '',
             '',
             '',
+            '',
             'test',
             []
         );

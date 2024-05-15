@@ -41,6 +41,7 @@ class MoreLikeThisTest extends TestCase
             '',
             '',
             '',
+            '',
             'test',
             []
         );

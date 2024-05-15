@@ -42,6 +42,7 @@ class SearchTest extends TestCase
             '',
             '',
             '',
+            '',
             'test',
             []
         );

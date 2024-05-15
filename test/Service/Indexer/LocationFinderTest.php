@@ -32,6 +32,7 @@ class LocationFinderTest extends TestCase
             '',
             $resourceDir,
             '',
+            '',
             []
         );
         $this->locationFinder = new LocationFinder($resourceChannel);
