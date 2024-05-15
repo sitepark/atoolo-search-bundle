@@ -113,7 +113,7 @@ class SolrSearch implements Search
     private function addRequiredFieldListToSolrQuery(
         SolrSelectQuery $solrQuery
     ): void {
-        $solrQuery->setFields(['url', 'title', 'sp_id']);
+        $solrQuery->setFields(['url', 'title', 'description', 'sp_id', 'sp_objecttype']);
     }
 
     private function addTextFilterToSolrQuery(

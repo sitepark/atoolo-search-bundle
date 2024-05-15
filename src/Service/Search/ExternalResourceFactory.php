@@ -22,7 +22,7 @@ class ExternalResourceFactory implements ResourceFactory
     public function accept(Document $document, ResourceLanguage $lang): bool
     {
         $location = $this->getField($document, 'url');
-        if ($location === null) {
+        if ($location === '') {
             return false;
         }
         return (
@@ -34,24 +34,46 @@ class ExternalResourceFactory implements ResourceFactory
     public function create(Document $document, ResourceLanguage $lang): Resource
     {
         $location = $this->getField($document, 'url');
-        if ($location === null) {
+        if ($location === '') {
             throw new LogicException('document should contain an url');
         }
 
         return new Resource(
             location: $location,
-            id: $this->getField($document, 'sp_id') ?? '',
-            name: $this->getField($document, 'title') ?? '',
-            objectType: 'external',
+            id: $this->getField($document, 'sp_id'),
+            name: $this->getField($document, 'title'),
+            objectType: $this->getField(
+                $document,
+                'sp_objecttype',
+                'external'
+            ),
             lang: ResourceLanguage::of(
                 $this->getField($document, 'meta_content_language')
             ),
-            data: new DataBag([]),
+            data: new DataBag([
+                'base' => [
+                    'teaser' => [
+                        'text' => $this->getField($document, 'description')
+                    ]
+                ]
+            ]),
         );
     }
 
-    private function getField(Document $document, string $name): ?string
-    {
-        return $document->getFields()[$name] ?? null;
+    private function getField(
+        Document $document,
+        string $name,
+        string $default = ''
+    ): string {
+        $value = $document->getFields()[$name];
+        if ($value === null) {
+            return $default;
+        }
+
+        if (is_array($value)) {
+            return implode(' ', $value);
+        }
+
+        return (string)$value;
     }
 }
