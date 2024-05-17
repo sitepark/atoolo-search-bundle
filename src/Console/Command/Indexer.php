@@ -10,9 +10,11 @@ use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Service\Indexer\IndexerCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
@@ -22,6 +24,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class Indexer extends Command
 {
     private SymfonyStyle $io;
+    private InputInterface $input;
     private OutputInterface $output;
 
     public function __construct(
@@ -57,6 +60,7 @@ class Indexer extends Command
     ): int {
 
         $typedInput = new TypifiedInput($input);
+        $this->input = $input;
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
 
@@ -65,32 +69,90 @@ class Indexer extends Command
         $resourceChannel = $this->channelFactory->create();
         $this->io->title('Channel: ' . $resourceChannel->name);
 
+        $selectableIndexer = $this->getSelectableIndexer($source);
+
+        if (empty($selectableIndexer)) {
+            $this->io->error('No indexer available');
+            return Command::FAILURE;
+        }
+
+        $indexer = $this->selectIndexer($selectableIndexer);
+        $this->index($indexer);
+        return Command::SUCCESS;
+    }
+
+    /**
+     * @return \Atoolo\Search\Indexer[]
+     */
+    private function getSelectableIndexer(?string $source): array
+    {
+        $selectableIndexer = [];
+
         foreach ($this->indexers->getIndexers() as $indexer) {
             if (!empty($source) && $indexer->getSource() !== $source) {
                 continue;
             }
             if ($indexer->enabled()) {
-                $this->io->newLine();
-                $this->io->section(
-                    'Index with Indexer "' . $indexer->getName() . '"'
-                );
-                $progressHandler = $indexer->getProgressHandler();
-                $this->progressBar->init($progressHandler);
-                $indexer->setProgressHandler($this->progressBar);
-                try {
-                    $status = $indexer->index();
-                } finally {
-                    $indexer->setProgressHandler($progressHandler);
-                }
-                $this->io->newLine(2);
-                $this->io->section("Status");
-                $this->io->text($status->getStatusLine());
-                $this->io->newLine();
-                $this->errorReport();
+                $selectableIndexer[] = $indexer;
             }
         }
 
-        return Command::SUCCESS;
+        return $selectableIndexer;
+    }
+
+    /**
+     * @param \Atoolo\Search\Indexer[] $selectable
+     */
+    private function selectIndexer(array $selectable): \Atoolo\Search\Indexer
+    {
+        if (count($selectable) === 1) {
+            return $selectable[0];
+        }
+
+        $names = [];
+        foreach ($selectable as $indexer) {
+            $names[] = $indexer->getName() .
+                ' (source: ' . $indexer->getSource() . ')';
+        }
+        $this->io->newLine();
+        $this->io->section('Several indexers are available.');
+
+        /** @var QuestionHelper $helper */
+        $helper = $this->getHelper('question');
+
+        $question = new ChoiceQuestion(
+            'Please select the indexer you want to use [0]',
+            $names
+        );
+        $question->setErrorMessage('Indexer %s is invalid.');
+
+        $selectedName = $helper->ask($this->input, $this->output, $question);
+        $this->io->text('You have just selected: ' . $selectedName);
+
+        $pos = array_search($selectedName, $names, true);
+        return $selectable[$pos];
+    }
+
+    private function index(\Atoolo\Search\Indexer $indexer): void
+    {
+        $this->io->newLine();
+        $this->io->section(
+            'Index with Indexer "' . $indexer->getName() . '" ' .
+            '(source: ' . $indexer->getSource() . ')'
+        );
+        $progressHandler = $indexer->getProgressHandler();
+        $this->progressBar->init($progressHandler);
+        $indexer->setProgressHandler($this->progressBar);
+        try {
+            $status = $indexer->index();
+        } finally {
+            $indexer->setProgressHandler($progressHandler);
+        }
+        $this->io->newLine(2);
+        $this->io->section("Status");
+        $this->io->text($status->getStatusLine());
+        $this->io->newLine();
+        $this->errorReport();
     }
 
     protected function errorReport(): void
