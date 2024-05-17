@@ -176,7 +176,7 @@ Several indexers are available.
 Please select the indexer you want to use [0]
   [0] Indexer A (source: indexer_a)
   [1] Indexer C (source: indexer_c)
- > 0[K
+ > 0
  You have just selected: Indexer A (source: indexer_a)
 
 Index with Indexer "Indexer A" (source: indexer_a)
@@ -191,7 +191,7 @@ Status
 
 
 EOF,
-            $output
+            preg_replace('/[]\\[K/', '', $output)
         );
     }
 
