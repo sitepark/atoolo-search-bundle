@@ -92,7 +92,8 @@ class ExternalResourceFactoryTest extends TestCase
             ->method('getFields')
             ->willReturn([
                 'url' => $url,
-                'title' => $title
+                'title' => $title,
+                'description' => ['test']
             ]);
         return $document;
     }

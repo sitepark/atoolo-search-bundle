@@ -13,6 +13,7 @@ use Atoolo\Search\Service\Indexer\IndexerCollection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -47,6 +48,7 @@ class IndexerTest extends TestCase
         );
         $this->resourceChannelFactory->method('create')
             ->willReturn($resourceChannel);
+
         $indexerA = $this->createStub(
             \Atoolo\Search\Indexer::class
         );
@@ -56,6 +58,7 @@ class IndexerTest extends TestCase
             ->willReturn('indexer_a');
         $indexerA->method('getName')
             ->willReturn('Indexer A');
+
         $indexerB = $this->createStub(
             \Atoolo\Search\Indexer::class
         );
@@ -65,10 +68,23 @@ class IndexerTest extends TestCase
             ->willReturn('indexer_b');
         $indexerB->method('getName')
             ->willReturn('Indexer B');
+
+        $indexerC = $this->createStub(
+            \Atoolo\Search\Indexer::class
+        );
+        $indexerC->method('enabled')
+            ->willReturn(true);
+        $indexerC->method('getSource')
+            ->willReturn('indexer_c');
+        $indexerC->method('getName')
+            ->willReturn('Indexer C');
+
         $indexers = new IndexerCollection([
             $indexerA,
-            $indexerB
+            $indexerB,
+            $indexerC
         ]);
+
         $progressBar = $this->createStub(IndexerProgressBar::class);
 
         $command = new Indexer(
@@ -83,8 +99,69 @@ class IndexerTest extends TestCase
         $this->commandTester = new CommandTester($command);
     }
 
-    public function testExecuteAllEnabledIndexer(): void
+    public function testExecuteWithoutIndexer(): void
     {
+        $resourceChannel = new ResourceChannel(
+            '',
+            'WWW',
+            '',
+            '',
+            false,
+            '',
+            '',
+            '',
+            '',
+            '',
+            'test',
+            []
+        );
+        $resourceChannelFactory = $this->createStub(
+            ResourceChannelFactory::class
+        );
+        $resourceChannelFactory->method('create')
+            ->willReturn($resourceChannel);
+
+        $progressBar = $this->createStub(IndexerProgressBar::class);
+        $indexers = new IndexerCollection([]);
+        $command = new Indexer(
+            $resourceChannelFactory,
+            $progressBar,
+            $indexers,
+        );
+        $application = new Application([$command]);
+
+        $command = $application->find('search:indexer');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([]);
+
+        $this->assertEquals(
+            Command::FAILURE,
+            $commandTester->getStatusCode(),
+            'command should failed'
+        );
+
+        // the output of the command in the console
+        $output = $commandTester->getDisplay();
+        // phpcs:disable
+        $this->assertEquals(
+            <<<EOF
+
+Channel: WWW
+============
+
+ [ERROR] No indexer available                                                                                           
+
+
+EOF,
+            $output
+        );
+        // phpcs:enable
+    }
+    public function testExecuteSelectIndexer(): void
+    {
+
+        $this->commandTester->setInputs(['0']);
+
         $this->commandTester->execute([]);
 
         $this->commandTester->assertCommandIsSuccessful();
@@ -98,8 +175,17 @@ Channel: WWW
 ============
 
 
-Index with Indexer "Indexer A"
-------------------------------
+Several indexers are available.
+-------------------------------
+
+Please select the indexer you want to use [0]
+  [0] Indexer A (source: indexer_a)
+  [1] Indexer C (source: indexer_c)
+ > 0[K
+ You have just selected: Indexer A (source: indexer_a)
+
+Index with Indexer "Indexer A" (source: indexer_a)
+--------------------------------------------------
 
 
 
@@ -133,8 +219,8 @@ Channel: WWW
 ============
 
 
-Index with Indexer "Indexer A"
-------------------------------
+Index with Indexer "Indexer A" (source: indexer_a)
+--------------------------------------------------
 
 
 
