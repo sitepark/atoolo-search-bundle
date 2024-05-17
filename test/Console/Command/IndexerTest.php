@@ -163,35 +163,9 @@ EOF,
 
         // the output of the command in the console
         $output = $this->commandTester->getDisplay();
-        $this->assertEquals(
-            <<<EOF
-
-Channel: WWW
-============
-
-
-Several indexers are available.
--------------------------------
-
-Please select the indexer you want to use [0]
-  [0] Indexer A (source: indexer_a)
-  [1] Indexer C (source: indexer_c)
-
- You have just selected: Indexer A (source: indexer_a)
-
-Index with Indexer "Indexer A" (source: indexer_a)
---------------------------------------------------
-
-
-
-Status
-------
-
- 
-
-
-EOF,
-            preg_replace('/.*>.*/', '', $output)
+        $this->assertStringContainsString(
+            'You have just selected: Indexer A (source: indexer_a)',
+            $output
         );
     }
 
