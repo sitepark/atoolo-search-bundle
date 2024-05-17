@@ -65,7 +65,7 @@ class ExternalResourceFactory implements ResourceFactory
         string $name,
         string $default = ''
     ): string {
-        $value = $document->getFields()[$name];
+        $value = $document->getFields()[$name] ?? null;
         if ($value === null) {
             return $default;
         }

@@ -142,20 +142,15 @@ class IndexerTest extends TestCase
 
         // the output of the command in the console
         $output = $commandTester->getDisplay();
-        // phpcs:disable
         $this->assertEquals(
             <<<EOF
-
 Channel: WWW
 ============
 
- [ERROR] No indexer available                                                                                           
-
-
+ [ERROR] No indexer available
 EOF,
-            $output
+            trim($output)
         );
-        // phpcs:enable
     }
     public function testExecuteSelectIndexer(): void
     {
