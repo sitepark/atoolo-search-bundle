@@ -89,7 +89,7 @@ services:
     tags:
       - { name: 'atoolo_search.indexer', priority: 20 }
 
-  atoolo_search.indexer.indexerCollection:
+  atoolo_search.indexer.indexer_collection:
     class: Atoolo\Search\Service\Indexer\IndexerCollection
     arguments:
       - !tagged_iterator { tag: 'atoolo_search.indexer' }
