@@ -55,11 +55,14 @@ class Schema2xFieldMapper
         }
     }
 
+    public function getArchiveField(): string
+    {
+        return 'sp_archive';
+    }
+
     public function getFilterField(Filter $facet): string
     {
         switch (true) {
-            case $facet instanceof ArchiveFilter:
-                return 'sp_archive';
             case $facet instanceof CategoryFilter:
                 return 'sp_category_path';
             case $facet instanceof ContentSectionTypeFilter:

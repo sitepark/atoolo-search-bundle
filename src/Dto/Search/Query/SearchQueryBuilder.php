@@ -30,6 +30,8 @@ class SearchQueryBuilder
      */
     private array $facets = [];
 
+    private bool $archive = false;
+
     private QueryOperator $defaultQueryOperator =
         QueryOperator::OR;
 
@@ -134,6 +136,15 @@ class SearchQueryBuilder
     /**
      * @return $this
      */
+    public function archive(bool $archive): static
+    {
+        $this->archive = $archive;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
     public function defaultQueryOperator(
         QueryOperator $defaultQueryOperator
     ): static {
@@ -158,6 +169,7 @@ class SearchQueryBuilder
             sort: $this->sort,
             filter: $this->filter,
             facets: array_values($this->facets),
+            archive: $this->archive,
             defaultQueryOperator: $this->defaultQueryOperator,
             timeZone: $this->timeZone
         );

@@ -77,7 +77,8 @@ class SolrSearch implements Search
         );
         $this->addFilterQueriesToSolrQuery(
             $solrQuery,
-            $query->filter
+            $query->filter,
+            $query->archive
         );
         $this->addFacetListToSolrQuery(
             $solrQuery,
@@ -155,7 +156,8 @@ class SolrSearch implements Search
      */
     private function addFilterQueriesToSolrQuery(
         SolrSelectQuery $solrQuery,
-        array $filterList
+        array $filterList,
+        bool $archive
     ): void {
         $filterAppender = new SolrQueryFilterAppender(
             $solrQuery,
@@ -163,6 +165,9 @@ class SolrSearch implements Search
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);
+        }
+        if (!$archive) {
+            $filterAppender->excludeArchived();
         }
     }
 

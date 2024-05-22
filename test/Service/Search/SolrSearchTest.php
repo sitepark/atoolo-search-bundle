@@ -108,6 +108,7 @@ class SolrSearchTest extends TestCase
             ],
             [],
             [],
+            false,
             QueryOperator::OR,
             null
         );
@@ -132,6 +133,7 @@ class SolrSearchTest extends TestCase
             ],
             [],
             [],
+            false,
             QueryOperator::OR,
             null
         );
@@ -161,6 +163,7 @@ class SolrSearchTest extends TestCase
             ],
             [],
             [],
+            false,
             QueryOperator::OR,
             null
         );
@@ -184,6 +187,7 @@ class SolrSearchTest extends TestCase
             [],
             [],
             [],
+            false,
             QueryOperator::AND,
             null
         );
@@ -209,6 +213,7 @@ class SolrSearchTest extends TestCase
             [],
             [$filter],
             [],
+            false,
             QueryOperator::OR,
             null
         );
@@ -243,6 +248,7 @@ class SolrSearchTest extends TestCase
             [],
             [],
             $facets,
+            false,
             QueryOperator::OR,
             null
         );
@@ -271,6 +277,7 @@ class SolrSearchTest extends TestCase
             [],
             [],
             $facets,
+            false,
             QueryOperator::OR,
             null
         );
@@ -305,6 +312,7 @@ class SolrSearchTest extends TestCase
             [],
             [],
             $facets,
+            false,
             QueryOperator::OR,
             null
         );
@@ -349,6 +357,7 @@ class SolrSearchTest extends TestCase
             [],
             [],
             $facets,
+            false,
             QueryOperator::OR,
             null
         );
@@ -399,6 +408,7 @@ class SolrSearchTest extends TestCase
             [],
             [],
             $facets,
+            false,
             QueryOperator::OR,
             null
         );
@@ -428,6 +438,7 @@ class SolrSearchTest extends TestCase
             [],
             [],
             $facets,
+            false,
             QueryOperator::OR,
             null
         );
@@ -450,6 +461,7 @@ class SolrSearchTest extends TestCase
             [],
             [],
             [],
+            false,
             QueryOperator::OR,
             new DateTimeZone("UTC")
         );
@@ -471,6 +483,7 @@ class SolrSearchTest extends TestCase
             [],
             [],
             [],
+            false,
             QueryOperator::OR,
             null
         );

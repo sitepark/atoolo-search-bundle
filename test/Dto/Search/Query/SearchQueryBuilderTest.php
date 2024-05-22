@@ -70,6 +70,13 @@ class SearchQueryBuilderTest extends TestCase
         $this->builder->limit(-1);
     }
 
+    public function testSetArchive(): void
+    {
+        $this->builder->archive(true);
+        $query = $this->builder->build();
+        $this->assertTrue($query->archive, 'archive should be true');
+    }
+
     /**
      * @throws Exception
      */

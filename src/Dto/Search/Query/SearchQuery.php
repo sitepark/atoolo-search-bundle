@@ -30,6 +30,7 @@ class SearchQuery
         public readonly array $sort,
         public readonly array $filter,
         public readonly array $facets,
+        public readonly bool $archive,
         public readonly QueryOperator $defaultQueryOperator,
         public readonly ?DateTimeZone $timeZone
     ) {

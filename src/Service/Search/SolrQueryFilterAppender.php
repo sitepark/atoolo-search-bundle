@@ -24,6 +24,12 @@ class SolrQueryFilterAppender
     ) {
     }
 
+    public function excludeArchived(): void
+    {
+        $filterQuery = $this->solrQuery->createFilterQuery();
+        $field = $this->fieldMapper->getArchiveField();
+        $filterQuery->setQuery('-' . $field . ':true');
+    }
     public function append(Filter $filter): void
     {
         $key = $filter->key ?? uniqid('', true);
@@ -35,8 +41,6 @@ class SolrQueryFilterAppender
     private function getQuery(Filter $filter): string
     {
         switch (true) {
-            case $filter instanceof ArchiveFilter:
-                return '-' . $this->getFilterField($filter) . ':true';
             case $filter instanceof FieldFilter:
                 return $this->getFieldQuery($filter);
             case $filter instanceof AndFilter:

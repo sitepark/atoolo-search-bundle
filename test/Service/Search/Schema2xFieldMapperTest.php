@@ -67,7 +67,6 @@ class Schema2xFieldMapperTest extends TestCase
     public static function getFilter(): array
     {
         return [
-            [ ArchiveFilter::class, 'sp_archive' ],
             [ CategoryFilter::class, 'sp_category_path' ],
             [ ContentSectionTypeFilter::class, 'sp_contenttype' ],
             [ GroupFilter::class, 'sp_group_path' ],
@@ -173,6 +172,13 @@ class Schema2xFieldMapperTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->mapper->getSortField(
             $this->createStub(Criteria::class)
+        );
+    }
+
+    public function testGetArchiveField(): void {
+        $this->assertEquals(
+            'sp_archive',
+            $this->mapper->getArchiveField()
         );
     }
 }

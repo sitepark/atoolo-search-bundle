@@ -6,7 +6,6 @@ namespace Atoolo\Search\Test\Service\Search;
 
 use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\AndFilter;
-use Atoolo\Search\Dto\Search\Query\Filter\ArchiveFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\FieldFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Filter\NotFilter;
@@ -42,7 +41,18 @@ class SolrQueryFilterAppenderTest extends TestCase
         $fieldMapper = $this->createMock(Schema2xFieldMapper::class);
         $fieldMapper->method('getFilterField')
             ->willReturn('test');
+        $fieldMapper->method('getArchiveField')
+            ->willReturn('archive');
         $this->appender = new SolrQueryFilterAppender($solrQuery, $fieldMapper);
+    }
+
+    public function testExcludeArchived(): void
+    {
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('-archive:true');
+
+        $this->appender->excludeArchived();
     }
 
     public function testFieldFilterWithOneField(): void
@@ -104,17 +114,6 @@ class SolrQueryFilterAppenderTest extends TestCase
         $this->filterQuery->expects($this->once())
             ->method('setQuery')
             ->with('NOT test:a');
-
-        $this->appender->append($filter);
-    }
-
-    public function testArchiveFilter(): void
-    {
-        $filter = new ArchiveFilter();
-
-        $this->filterQuery->expects($this->once())
-            ->method('setQuery')
-            ->with('-test:true');
 
         $this->appender->append($filter);
     }
