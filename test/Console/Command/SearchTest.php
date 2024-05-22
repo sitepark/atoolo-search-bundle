@@ -7,7 +7,6 @@ namespace Atoolo\Search\Test\Console\Command;
 use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Search;
@@ -47,14 +46,8 @@ class SearchTest extends TestCase
             []
         );
 
-        $resourceChannelFactory = $this->createStub(
-            ResourceChannelFactory::class
-        );
-        $resourceChannelFactory->method('create')
-            ->willReturn($resourceChannel);
-
         $this->solrSearch = $this->createStub(SolrSearch::class);
-        $command = new Search($resourceChannelFactory, $this->solrSearch);
+        $command = new Search($resourceChannel, $this->solrSearch);
 
         $application = new Application([$command]);
 

@@ -7,7 +7,6 @@ namespace Atoolo\Search\Test\Console\Command;
 use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\MoreLikeThis;
@@ -46,11 +45,6 @@ class MoreLikeThisTest extends TestCase
             []
         );
 
-        $resourceChannelFactory = $this->createStub(
-            ResourceChannelFactory::class
-        );
-        $resourceChannelFactory->method('create')
-            ->willReturn($resourceChannel);
         $resultResource = new Resource(
             '/test2.php',
             '',
@@ -70,7 +64,7 @@ class MoreLikeThisTest extends TestCase
         $this->solrMoreLikeThis = $this->createStub(SolrMoreLikeThis::class);
 
         $command = new MoreLikeThis(
-            $resourceChannelFactory,
+            $resourceChannel,
             $this->solrMoreLikeThis
         );
 

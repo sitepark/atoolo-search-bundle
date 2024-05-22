@@ -4,8 +4,8 @@
 ![php](https://img.shields.io/badge/PHP-8.2-blue)
 ![php](https://img.shields.io/badge/PHP-8.3-blue)
 
-# Atoolo search
+# Atoolo search bundle
 
-Provides services with which a Solr index can be filled and searched for [resources](https://github.com/sitepark/atoolo-resource) via a index.
+Provides services with which a Solr index can be filled and searched for [resources-bundle](https://github.com/sitepark/atoolo-resource-bundle) via a index.
 
-[Documentation](https://sitepark.github.io/atoolo-docs/develop/components/search/)
+[Documentation](https://sitepark.github.io/atoolo-docs/develop/bundles/search/)

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
-use Atoolo\Resource\ResourceChannelFactory;
+use Atoolo\Resource\ResourceChannel;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Query\SearchQueryBuilder;
@@ -27,7 +27,7 @@ class Search extends Command
     private TypifiedInput $input;
 
     public function __construct(
-        private readonly ResourceChannelFactory $channelFactory,
+        private readonly ResourceChannel $channel,
         private readonly SolrSearch $searcher
     ) {
         parent::__construct();
@@ -60,8 +60,7 @@ class Search extends Command
         $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
 
-        $resourceChannel = $this->channelFactory->create();
-        $this->io->title('Channel: ' . $resourceChannel->name);
+        $this->io->title('Channel: ' . $this->channel->name);
 
         $query = $this->buildQuery($input);
 

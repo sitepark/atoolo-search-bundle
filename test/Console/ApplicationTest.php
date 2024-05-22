@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console;
 
-use Atoolo\Resource\ResourceChannelFactory;
+use Atoolo\Resource\ResourceChannel;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Indexer;
-use Atoolo\Search\Console\Command\InternalResourceIndexerBuilder;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
-use Atoolo\Search\Console\Command\Io\IndexerProgressBarFactory;
 use Atoolo\Search\Service\Indexer\IndexerCollection;
 use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -24,8 +22,8 @@ class ApplicationTest extends TestCase
      */
     public function testConstruct(): void
     {
-        $resourceChannelFactory = $this->createStub(
-            ResourceChannelFactory::class
+        $resourceChannel = $this->createStub(
+            ResourceChannel::class
         );
         $indexer = $this->createStub(
             InternalResourceIndexer::class
@@ -33,7 +31,7 @@ class ApplicationTest extends TestCase
         $indexers = new IndexerCollection([$indexer]);
         $progressBar = $this->createStub(IndexerProgressBar::class);
         $application = new Application([
-            new Indexer($resourceChannelFactory, $progressBar, $indexers)
+            new Indexer($resourceChannel, $progressBar, $indexers)
         ]);
         $command = $application->get('search:indexer');
         $this->assertInstanceOf(

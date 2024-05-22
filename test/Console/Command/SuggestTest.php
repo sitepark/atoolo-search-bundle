@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Console\Command;
 
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\SolrSuggestBuilder;
 use Atoolo\Search\Console\Command\Suggest;
@@ -44,14 +43,9 @@ class SuggestTest extends TestCase
             []
         );
 
-        $resourceChannelFactory = $this->createStub(
-            ResourceChannelFactory::class
-        );
-        $resourceChannelFactory->method('create')
-            ->willReturn($resourceChannel);
         $this->solrSuggest = $this->createStub(SolrSuggest::class);
 
-        $command = new Suggest($resourceChannelFactory, $this->solrSuggest);
+        $command = new Suggest($resourceChannel, $this->solrSuggest);
 
         $application = new Application([$command]);
 

@@ -9,40 +9,40 @@ services:
     Atoolo\Search\Console\:
         resource: '../src/Console'
 
-    atoolo.search.indexer.console.progressBar:
+    atoolo_search.indexer.console.progress_bar:
       class:  'Atoolo\Search\Console\Command\Io\IndexerProgressBar'
 
     Atoolo\Search\Console\Command\Indexer:
       arguments:
-        - '@atoolo.resource.resourceChannelFactory'
-        - '@atoolo.search.indexer.console.progressBar'
-        - '@atoolo.search.indexer.indexerCollection'
+        - '@atoolo_resource.resource_channel'
+        - '@atoolo_search.indexer.console.progress_bar'
+        - '@atoolo_search.indexer.indexer_collection'
 
     Atoolo\Search\Console\Command\IndexerInternalResourceUpdate:
       arguments:
-        - '@atoolo.resource.resourceChannelFactory'
-        - '@atoolo.search.indexer.console.progressBar'
-        - '@atoolo.search.indexer.internalResourceIndexer'
+        - '@atoolo_resource.resource_channel'
+        - '@atoolo_search.indexer.console.progress_bar'
+        - '@atoolo_search.indexer.internal_resource_indexer'
 
     Atoolo\Search\Console\Command\Search:
       arguments:
-        - '@atoolo.resource.resourceChannelFactory'
-        - '@atoolo.search.search'
+        - '@atoolo_resource.resource_channel'
+        - '@atoolo_search.search'
 
     Atoolo\Search\Console\Command\Suggest:
       arguments:
-        - '@atoolo.resource.resourceChannelFactory'
-        - '@atoolo.search.suggest'
+        - '@atoolo_resource.resource_channel'
+        - '@atoolo_search.suggest'
 
     Atoolo\Search\Console\Command\MoreLikeThis:
       arguments:
-        - '@atoolo.resource.resourceChannelFactory'
-        - '@atoolo.search.moreLikeThis'
+        - '@atoolo_resource.resource_channel'
+        - '@atoolo_search.more_like_this'
 
     Atoolo\Search\Console\Command\DumpIndexDocument:
       arguments:
-        - '@atoolo.resource.resourceChannelFactory'
-        - '@atoolo.search.indexer.indexDocumentDumper'
+        - '@atoolo_resource.resource_channel_factory'
+        - '@atoolo_search.indexer.index_document_dumper'
 
     Atoolo\Search\Console\Application:
         public: true

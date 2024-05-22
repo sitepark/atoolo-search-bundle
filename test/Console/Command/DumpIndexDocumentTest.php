@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Console\Command;
 
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\DumpIndexDocument;
 use Atoolo\Search\Service\Indexer\IndexDocumentDumper;
@@ -39,12 +38,6 @@ class DumpIndexDocumentTest extends TestCase
             []
         );
 
-        $resourceChannelFactory = $this->createStub(
-            ResourceChannelFactory::class
-        );
-        $resourceChannelFactory->method('create')
-            ->willReturn($resourceChannel);
-
         $dumper = $this->createStub(IndexDocumentDumper::class);
         $dumper->method('dump')
             ->willReturn([
@@ -52,7 +45,7 @@ class DumpIndexDocumentTest extends TestCase
             ]);
 
         $dumperCommand = new DumpIndexDocument(
-            $resourceChannelFactory,
+            $resourceChannel,
             $dumper
         );
 

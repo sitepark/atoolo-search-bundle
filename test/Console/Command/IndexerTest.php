@@ -20,7 +20,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(Indexer::class)]
 class IndexerTest extends TestCase
 {
-    private ResourceChannelFactory $resourceChannelFactory;
+    private ResourceChannel $resourceChannel;
     private CommandTester $commandTester;
 
     /**
@@ -28,7 +28,7 @@ class IndexerTest extends TestCase
      */
     public function setUp(): void
     {
-        $resourceChannel = new ResourceChannel(
+        $this->resourceChannel = new ResourceChannel(
             '',
             'WWW',
             '',
@@ -42,12 +42,6 @@ class IndexerTest extends TestCase
             'test',
             []
         );
-
-        $this->resourceChannelFactory = $this->createStub(
-            ResourceChannelFactory::class
-        );
-        $this->resourceChannelFactory->method('create')
-            ->willReturn($resourceChannel);
 
         $indexerA = $this->createStub(
             \Atoolo\Search\Indexer::class
@@ -88,7 +82,7 @@ class IndexerTest extends TestCase
         $progressBar = $this->createStub(IndexerProgressBar::class);
 
         $command = new Indexer(
-            $this->resourceChannelFactory,
+            $this->resourceChannel,
             $progressBar,
             $indexers,
         );
@@ -124,7 +118,7 @@ class IndexerTest extends TestCase
         $progressBar = $this->createStub(IndexerProgressBar::class);
         $indexers = new IndexerCollection([]);
         $command = new Indexer(
-            $resourceChannelFactory,
+            $resourceChannel,
             $progressBar,
             $indexers,
         );
@@ -223,7 +217,7 @@ EOF,
             ->willReturn([new \Exception('errortest')]);
 
         $command = new Indexer(
-            $this->resourceChannelFactory,
+            $this->resourceChannel,
             $progressBar,
             $indexers,
         );
@@ -267,7 +261,7 @@ EOF,
             ->willReturn([new \Exception('errortest')]);
 
         $command = new Indexer(
-            $this->resourceChannelFactory,
+            $this->resourceChannel,
             $progressBar,
             $indexers,
         );

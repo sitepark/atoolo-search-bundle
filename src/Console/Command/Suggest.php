@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
-use Atoolo\Resource\ResourceChannelFactory;
+use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Search\Query\Filter\ArchiveFilter;
@@ -30,7 +30,7 @@ class Suggest extends Command
     private SymfonyStyle $io;
 
     public function __construct(
-        private readonly ResourceChannelFactory $channelFactory,
+        private readonly ResourceChannel $channel,
         private readonly SolrSuggest $search
     ) {
         parent::__construct();
@@ -64,8 +64,7 @@ class Suggest extends Command
         $terms = $this->input->getStringArgument('terms');
         $lang = $this->input->getStringOption('lang');
 
-        $resourceChannel = $this->channelFactory->create();
-        $this->io->title('Channel: ' . $resourceChannel->name);
+        $this->io->title('Channel: ' . $this->channel->name);
 
         $query = $this->buildQuery($terms, $lang);
 

@@ -1,0 +1,92 @@
+parameters:
+  atoolo_search.solr.connection.scheme.default: 'http'
+  atoolo_search.solr.connection.host.default: 'localhost'
+  atoolo_search.solr.connection.port.default: 8382
+  atoolo_search.solr.connection.path.default: ''
+  atoolo_search.solr.connection.proxy.default: ''
+  atoolo_search.solr.connection.timeout.default: 0
+  atoolo_search.solr.connection.scheme: '%env(default:atoolo_search.solr.connection.scheme.default:SOLR_SCHEME)%'
+  atoolo_search.solr.connection.host: '%env(default:atoolo_search.solr.connection.host.default:SOLR_HOST)%'
+  atoolo_search.solr.connection.port: '%env(default:atoolo_search.solr.connection.port.default:SOLR_PORT)%'
+  atoolo_search.solr.connection.path: '%env(default:atoolo_search.solr.connection.path.default:SOLR_PATH)%'
+  atoolo_search.solr.connection.proxy: '%env(default:atoolo_search.solr.connection.proxy.default:SOLR_PROXY)%'
+  atoolo_search.solr.connection.timeout: '%env(default:atoolo_search.solr.connection.timeout.default:SOLR_TIMEOUT)%'
+  atoolo_search.indexer.time_limit: 7200
+  atoolo_search.indexer.memory_limit: '512M'
+
+services:
+  atoolo_search.index_name:
+    class: Atoolo\Search\Service\ResourceChannelBasedIndexName
+    arguments:
+      - '@atoolo_resource.resource_channel'
+
+  atoolo_search.solarium_client_factory:
+    class: Atoolo\Search\Service\ParameterSolrClientFactory
+    arguments:
+      - '%atoolo_search.solr.connection.scheme%'
+      - '%atoolo_search.solr.connection.host%'
+      - '%atoolo_search.solr.connection.port%'
+      - '%atoolo_search.solr.connection.path%'
+      - '%atoolo_search.solr.connection.proxy%'
+      - '%atoolo_search.solr.connection.timeout%'
+
+  atoolo_search.indexer.solr_index_service:
+    class: Atoolo\Search\Service\Indexer\SolrIndexService
+    arguments:
+      - '@atoolo_search.index_name'
+      - '@atoolo_search.solarium_client_factory'
+
+  ###
+  # Query Modifiers
+  ###
+  atoolo_search.solr_boost_strategy:
+    class: Atoolo\Search\Service\Search\SiteKit\DefaultBoostModifier
+    tags:
+      - { name: 'atoolo_search.query_modifier', priority: 10 }
+
+  Atoolo\Search\Service\Search\InternalResourceFactory:
+    arguments:
+      - '@atoolo_resource.resource_loader'
+    tags:
+      - { name: 'atoolo_search.resource_factory', priority: 10 }
+  Atoolo\Search\Service\Search\InternalMediaResourceFactory:
+    arguments:
+      - '@atoolo_resource.resource_loader'
+    tags:
+      - { name: 'atoolo_search.resource_factory', priority: 11 }
+  Atoolo\Search\Service\Search\ExternalResourceFactory:
+    tags:
+      - { name: 'atoolo_search.resource_factory', priority: 11 }
+
+  atoolo_search.result_to_resource_resolver:
+    class: Atoolo\Search\Service\Search\SolrResultToResourceResolver
+    arguments:
+      - !tagged_iterator atoolo_search.resource_factory
+      - '@logger'
+
+  atoolo_search.field_mapper:
+    class: Atoolo\Search\Service\Search\Schema2xFieldMapper
+
+  atoolo_search.search:
+    class: Atoolo\Search\Service\Search\SolrSearch
+    arguments:
+      - '@atoolo_search.index_name'
+      - '@atoolo_search.solarium_client_factory'
+      - '@atoolo_search.result_to_resource_resolver'
+      - '@atoolo_search.field_mapper'
+      - !tagged_iterator atoolo_search.query_modifier
+
+  atoolo_search.suggest:
+    class: Atoolo\Search\Service\Search\SolrSuggest
+    arguments:
+      - '@atoolo_search.index_name'
+      - '@atoolo_search.solarium_client_factory'
+      - '@atoolo_search.field_mapper'
+
+  atoolo_search.more_like_this:
+    class: Atoolo\Search\Service\Search\SolrMoreLikeThis
+    arguments:
+      - '@atoolo_search.index_name'
+      - '@atoolo_search.solarium_client_factory'
+      - '@atoolo_search.result_to_resource_resolver'
+      - '@atoolo_search.field_mapper'
