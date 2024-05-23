@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sitepark/atoolo-resource-bundle.git",
-                "reference": "9bb0a69f1c80007632edcc4fba6ab68e7d28e392"
+                "reference": "3f9dd9ee9d56e2fb232041e128e86f42bc343438"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sitepark/atoolo-resource-bundle/zipball/9bb0a69f1c80007632edcc4fba6ab68e7d28e392",
-                "reference": "9bb0a69f1c80007632edcc4fba6ab68e7d28e392",
+                "url": "https://api.github.com/repos/sitepark/atoolo-resource-bundle/zipball/3f9dd9ee9d56e2fb232041e128e86f42bc343438",
+                "reference": "3f9dd9ee9d56e2fb232041e128e86f42bc343438",
                 "shasum": ""
             },
             "require": {
@@ -37,6 +37,11 @@
             },
             "default-branch": true,
             "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Atoolo\\Resource\\": "src"
@@ -57,7 +62,7 @@
                 "issues": "https://github.com/sitepark/atoolo-resource-bundle/issues",
                 "source": "https://github.com/sitepark/atoolo-resource-bundle/tree/main"
             },
-            "time": "2024-05-22T10:55:49+00:00"
+            "time": "2024-05-23T07:15:02+00:00"
         },
         {
             "name": "halaxa/json-machine",
@@ -6016,16 +6021,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.10.0",
+            "version": "3.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "57e09801c2fbae2d257b8b75bebb3deeb7e9deb2"
+                "reference": "8f90f7a53ce271935282967f53d0894f8f1ff877"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/57e09801c2fbae2d257b8b75bebb3deeb7e9deb2",
-                "reference": "57e09801c2fbae2d257b8b75bebb3deeb7e9deb2",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/8f90f7a53ce271935282967f53d0894f8f1ff877",
+                "reference": "8f90f7a53ce271935282967f53d0894f8f1ff877",
                 "shasum": ""
             },
             "require": {
@@ -6092,7 +6097,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-05-20T08:11:32+00:00"
+            "time": "2024-05-22T21:24:41+00:00"
         },
         {
             "name": "thecodingmachine/safe",
