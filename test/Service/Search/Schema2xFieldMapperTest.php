@@ -175,7 +175,8 @@ class Schema2xFieldMapperTest extends TestCase
         );
     }
 
-    public function testGetArchiveField(): void {
+    public function testGetArchiveField(): void
+    {
         $this->assertEquals(
             'sp_archive',
             $this->mapper->getArchiveField()
