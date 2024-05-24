@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cedca863a0cb5b40aa4b92a1d18e13d1",
+    "content-hash": "22c904a165f5ca6b7bfb93d30ca705f6",
     "packages": [
         {
             "name": "atoolo/resource-bundle",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sitepark/atoolo-resource-bundle.git",
-                "reference": "3f9dd9ee9d56e2fb232041e128e86f42bc343438"
+                "reference": "012f4fcec5dab85b7d7ba917891d25898ec8cb7a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sitepark/atoolo-resource-bundle/zipball/3f9dd9ee9d56e2fb232041e128e86f42bc343438",
-                "reference": "3f9dd9ee9d56e2fb232041e128e86f42bc343438",
+                "url": "https://api.github.com/repos/sitepark/atoolo-resource-bundle/zipball/012f4fcec5dab85b7d7ba917891d25898ec8cb7a",
+                "reference": "012f4fcec5dab85b7d7ba917891d25898ec8cb7a",
                 "shasum": ""
             },
             "require": {
@@ -62,7 +62,7 @@
                 "issues": "https://github.com/sitepark/atoolo-resource-bundle/issues",
                 "source": "https://github.com/sitepark/atoolo-resource-bundle/tree/main"
             },
-            "time": "2024-05-23T07:15:02+00:00"
+            "time": "2024-05-24T07:42:59+00:00"
         },
         {
             "name": "halaxa/json-machine",
@@ -818,6 +818,80 @@
                 }
             ],
             "time": "2024-04-18T09:32:20+00:00"
+        },
+        {
+            "name": "symfony/dotenv",
+            "version": "v7.0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/dotenv.git",
+                "reference": "0fd573c141e1990848702d56329050efd5bf25cc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/dotenv/zipball/0fd573c141e1990848702d56329050efd5bf25cc",
+                "reference": "0fd573c141e1990848702d56329050efd5bf25cc",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2"
+            },
+            "conflict": {
+                "symfony/console": "<6.4",
+                "symfony/process": "<6.4"
+            },
+            "require-dev": {
+                "symfony/console": "^6.4|^7.0",
+                "symfony/process": "^6.4|^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Dotenv\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Registers environment variables from a .env file",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "dotenv",
+                "env",
+                "environment"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/dotenv/tree/v7.0.7"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-04-18T09:29:19+00:00"
         },
         {
             "name": "symfony/error-handler",
@@ -4183,12 +4257,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "7a1a6552ac2f0fd7131d2552be221f2dd6eb19fa"
+                "reference": "0ec6bad5f4523eda2514e89d5ea48cde6ebe7f99"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/7a1a6552ac2f0fd7131d2552be221f2dd6eb19fa",
-                "reference": "7a1a6552ac2f0fd7131d2552be221f2dd6eb19fa",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/0ec6bad5f4523eda2514e89d5ea48cde6ebe7f99",
+                "reference": "0ec6bad5f4523eda2514e89d5ea48cde6ebe7f99",
                 "shasum": ""
             },
             "conflict": {
@@ -4852,6 +4926,7 @@
                 "villagedefrance/opencart-overclocked": "<=1.11.1",
                 "vova07/yii2-fileapi-widget": "<0.1.9",
                 "vrana/adminer": "<4.8.1",
+                "vufind/vufind": ">=2,<9.1.1",
                 "waldhacker/hcaptcha": "<2.1.2",
                 "wallabag/tcpdf": "<6.2.22",
                 "wallabag/wallabag": "<2.6.7",
@@ -4972,7 +5047,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-05-20T21:04:23+00:00"
+            "time": "2024-05-23T15:04:32+00:00"
         },
         {
             "name": "sanmai/later",

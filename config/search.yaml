@@ -15,6 +15,10 @@ parameters:
   atoolo_search.indexer.memory_limit: '512M'
 
 services:
+  Atoolo\Search\Service\EnvVarLoader:
+    tags:
+      - { name: 'container.env_var_loader' }
+
   atoolo_search.index_name:
     class: Atoolo\Search\Service\ResourceChannelBasedIndexName
     arguments:
