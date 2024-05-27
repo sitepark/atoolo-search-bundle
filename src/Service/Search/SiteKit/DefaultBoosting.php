@@ -20,7 +20,7 @@ class DefaultBoosting extends Boosting
     public function __construct()
     {
         parent::__construct(
-            [
+            queryFields: [
                 'sp_title^1.4',
                 'keywords^1.2',
                 'description^1.0',
@@ -28,22 +28,22 @@ class DefaultBoosting extends Boosting
                 'url^0.9',
                 'content^0.8'
             ],
-            [
+            phraseFields: [
                 'sp_title^1.5',
                 'description^1',
                 'content^0.8'
             ],
-            [
+            boostQueries: [
                 'sp_objecttype:searchTip^100',
                 'contenttype:(text/html*)^10'
             ],
-            [
+            boostFunctions: [
                 "if(termfreq(sp_objecttype,'news')" .
                     ",scale(sp_date,0,12)" .
                     ",scale(sp_date,10,11)" .
                 ")"
             ],
-            0.1
+            tie: 0.1
         );
     }
 }
