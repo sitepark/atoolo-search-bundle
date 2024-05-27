@@ -208,8 +208,11 @@ class SolrSearch implements Search
                 implode(' ', $boosting->phraseFields)
             );
         }
-        if (!empty($boosting->boostQueries)) {
-            $edismax->setBoostQueries($boosting->boostQueries);
+        foreach ($boosting->boostQueries as $key => $query) {
+            $edismax->addBoostQuery([
+                'key' => $key,
+                'query' => $query
+            ]);
         }
         if (!empty($boosting->boostFunctions)) {
             $edismax->setBoostFunctions(

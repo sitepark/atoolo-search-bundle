@@ -39,7 +39,7 @@ class DefaultBoosting extends Boosting
             ],
             [
                 "if(termfreq(sp_objecttype,'news')" .
-                    ",scale(sp_date,0,12)," .
+                    ",scale(sp_date,0,12)" .
                     ",scale(sp_date,10,11)" .
                 ")"
             ],
