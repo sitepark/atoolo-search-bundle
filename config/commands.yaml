@@ -41,7 +41,7 @@ services:
 
     Atoolo\Search\Console\Command\DumpIndexDocument:
       arguments:
-        - '@atoolo_resource.resource_channel_factory'
+        - '@atoolo_resource.resource_channel'
         - '@atoolo_search.indexer.index_document_dumper'
 
     Atoolo\Search\Console\Application:
