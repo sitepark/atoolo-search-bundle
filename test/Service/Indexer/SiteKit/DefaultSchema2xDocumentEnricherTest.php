@@ -130,9 +130,9 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichId(): void
     {
-        $doc = $this->enrichWithData(['url' => '/test.php']);
+        $doc = $this->enrichWithData(['id' => '123']);
         $this->assertEquals(
-            '/test.php',
+            '123',
             $doc->id,
             'unexpected id'
         );
@@ -145,16 +145,6 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             '/test.php',
             $doc->url,
             'unexpected url'
-        );
-    }
-
-    public function testEnrichMediaId(): void
-    {
-        $doc = $this->enrichWithData(['mediaUrl' => '/test.php']);
-        $this->assertEquals(
-            '/test.php',
-            $doc->id,
-            'unexpected id'
         );
     }
 

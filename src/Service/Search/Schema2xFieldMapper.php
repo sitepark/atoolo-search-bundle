@@ -18,6 +18,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\CategoryFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ContentSectionTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Filter\GroupFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\IdFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SiteFilter;
@@ -63,6 +64,8 @@ class Schema2xFieldMapper
     public function getFilterField(Filter $facet): string
     {
         switch (true) {
+            case $facet instanceof IdFilter:
+                return 'id';
             case $facet instanceof CategoryFilter:
                 return 'sp_category_path';
             case $facet instanceof ContentSectionTypeFilter:

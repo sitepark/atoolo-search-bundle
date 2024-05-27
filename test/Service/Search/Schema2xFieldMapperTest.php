@@ -18,6 +18,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\CategoryFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ContentSectionTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Filter\GroupFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\IdFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SiteFilter;
@@ -67,6 +68,7 @@ class Schema2xFieldMapperTest extends TestCase
     public static function getFilter(): array
     {
         return [
+            [ IdFilter::class, 'id' ],
             [ CategoryFilter::class, 'sp_category_path' ],
             [ ContentSectionTypeFilter::class, 'sp_contenttype' ],
             [ GroupFilter::class, 'sp_group_path' ],

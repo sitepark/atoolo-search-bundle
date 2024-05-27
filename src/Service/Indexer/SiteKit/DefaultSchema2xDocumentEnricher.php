@@ -63,6 +63,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $base = new DataBag($data->getAssociativeArray('base'));
         $metadata = new DataBag($data->getAssociativeArray('metadata'));
 
+        $doc->id = $resource->id;
         $doc->sp_id = $resource->id;
         $doc->sp_name = $resource->name;
         $doc->sp_anchor = $data->getString('anchor');
@@ -80,7 +81,6 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 
         $url = $data->getString('mediaUrl')
             ?: $data->getString('url');
-        $doc->id = $url;
         $doc->url = $url;
 
         /** @var string[] $spContentType */

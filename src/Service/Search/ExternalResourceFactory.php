@@ -40,7 +40,7 @@ class ExternalResourceFactory implements ResourceFactory
 
         return new Resource(
             location: $location,
-            id: $this->getField($document, 'sp_id'),
+            id: $this->getField($document, 'id'),
             name: $this->getField($document, 'title'),
             objectType: $this->getField(
                 $document,
