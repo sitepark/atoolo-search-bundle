@@ -100,17 +100,17 @@ class SolrSearchTest extends TestCase
     public function testSelectEmpty(): void
     {
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            1,
-            [
-            ],
-            [],
-            [],
-            false,
-            QueryOperator::OR,
-            null
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 1,
+            sort: [],
+            filter: [],
+            facets: [],
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -125,17 +125,17 @@ class SolrSearchTest extends TestCase
     public function testSelectWithText(): void
     {
         $query = new SearchQuery(
-            'cat dog',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [
-            ],
-            [],
-            [],
-            false,
-            QueryOperator::OR,
-            null
+            text: 'cat dog',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -150,22 +150,23 @@ class SolrSearchTest extends TestCase
     public function testSelectWithSort(): void
     {
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [
                 new Name(),
                 new Headline(),
                 new Date(),
                 new Natural(),
                 new Score(),
             ],
-            [],
-            [],
-            false,
-            QueryOperator::OR,
-            null
+            filter: [],
+            facets: [],
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -180,16 +181,17 @@ class SolrSearchTest extends TestCase
     public function testSelectWithAndDefaultOperator(): void
     {
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [],
-            [],
-            [],
-            false,
-            QueryOperator::AND,
-            null
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            archive: false,
+            defaultQueryOperator: QueryOperator::AND,
+            timeZone: null,
+            boosting: null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -206,16 +208,17 @@ class SolrSearchTest extends TestCase
         $filter = new ObjectTypeFilter(['test']);
 
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [],
-            [$filter],
-            [],
-            false,
-            QueryOperator::OR,
-            null
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [$filter],
+            facets: [],
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -241,16 +244,17 @@ class SolrSearchTest extends TestCase
         ];
 
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [],
-            [],
-            $facets,
-            false,
-            QueryOperator::OR,
-            null
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: $facets,
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -270,16 +274,17 @@ class SolrSearchTest extends TestCase
         ];
 
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [],
-            [],
-            $facets,
-            false,
-            QueryOperator::OR,
-            null
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: $facets,
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -305,16 +310,17 @@ class SolrSearchTest extends TestCase
         ];
 
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [],
-            [],
-            $facets,
-            false,
-            QueryOperator::OR,
-            null
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: $facets,
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -350,16 +356,17 @@ class SolrSearchTest extends TestCase
         ];
 
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [],
-            [],
-            $facets,
-            false,
-            QueryOperator::OR,
-            null
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: $facets,
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -401,16 +408,17 @@ class SolrSearchTest extends TestCase
         ];
 
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [],
-            [],
-            $facets,
-            false,
-            QueryOperator::OR,
-            null
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: $facets,
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -431,16 +439,17 @@ class SolrSearchTest extends TestCase
         ];
 
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [],
-            [],
-            $facets,
-            false,
-            QueryOperator::OR,
-            null
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: $facets,
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null
         );
 
         $searchResult = $this->searcher->search($query);
@@ -454,16 +463,17 @@ class SolrSearchTest extends TestCase
     public function testSetTimeZone(): void
     {
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [],
-            [],
-            [],
-            false,
-            QueryOperator::OR,
-            new DateTimeZone("UTC")
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: new DateTimeZone("UTC"),
+            boosting: null
         );
 
         $this->solrQuery->expects($this->once())
@@ -476,16 +486,17 @@ class SolrSearchTest extends TestCase
     public function testSetDefaultTimeZone(): void
     {
         $query = new SearchQuery(
-            '',
-            ResourceLanguage::default(),
-            0,
-            10,
-            [],
-            [],
-            [],
-            false,
-            QueryOperator::OR,
-            null
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null
         );
 
         $this->solrQuery->expects($this->once())

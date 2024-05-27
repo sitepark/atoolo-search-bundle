@@ -37,6 +37,8 @@ class SearchQueryBuilder
 
     private ?DateTimeZone $timeZone = null;
 
+    private ?Boosting $boosting = null;
+
     public function __construct()
     {
         $this->lang = ResourceLanguage::default();
@@ -159,6 +161,13 @@ class SearchQueryBuilder
         return $this;
     }
 
+    public function boosting(
+        Boosting $boosting
+    ): static {
+        $this->boosting = $boosting;
+        return $this;
+    }
+
     public function build(): SearchQuery
     {
         return new SearchQuery(
@@ -171,7 +180,8 @@ class SearchQueryBuilder
             facets: array_values($this->facets),
             archive: $this->archive,
             defaultQueryOperator: $this->defaultQueryOperator,
-            timeZone: $this->timeZone
+            timeZone: $this->timeZone,
+            boosting: $this->boosting
         );
     }
 }

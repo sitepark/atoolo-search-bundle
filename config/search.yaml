@@ -40,14 +40,6 @@ services:
       - '@atoolo_search.index_name'
       - '@atoolo_search.solarium_client_factory'
 
-  ###
-  # Query Modifiers
-  ###
-  atoolo_search.solr_boost_strategy:
-    class: Atoolo\Search\Service\Search\SiteKit\DefaultBoostModifier
-    tags:
-      - { name: 'atoolo_search.query_modifier', priority: 10 }
-
   Atoolo\Search\Service\Search\InternalResourceFactory:
     arguments:
       - '@atoolo_resource.resource_loader'

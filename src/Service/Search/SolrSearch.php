@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Search\Dto\Search\Query\Boosting;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
@@ -14,6 +15,7 @@ use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\Search;
 use Atoolo\Search\Service\IndexName;
+use Atoolo\Search\Service\Search\SiteKit\DefaultBoosting;
 use Atoolo\Search\Service\SolrClientFactory;
 use InvalidArgumentException;
 use Solarium\Component\Result\Facet\Field as SolrFacetField;
@@ -90,6 +92,8 @@ class SolrSearch implements Search
         } elseif (date_default_timezone_get()) {
             $solrQuery->setTimezone(date_default_timezone_get());
         }
+
+        $this->addBoosting($solrQuery, $query->boosting);
 
         return $solrQuery;
     }
@@ -184,6 +188,36 @@ class SolrSearch implements Search
         );
         foreach ($facetList as $facet) {
             $facetAppender->append($facet);
+        }
+    }
+
+    private function addBoosting(
+        SolrSelectQuery $solrQuery,
+        ?Boosting $boosting
+    ): void {
+        $boosting = $boosting ?? new DefaultBoosting();
+
+        $edismax = $solrQuery->getEDisMax();
+        if (!empty($boosting->queryFields)) {
+            $edismax->setQueryFields(
+                implode(' ', $boosting->queryFields)
+            );
+        }
+        if (!empty($boosting->phraseFields)) {
+            $edismax->setPhraseFields(
+                implode(' ', $boosting->phraseFields)
+            );
+        }
+        if (!empty($boosting->boostQueries)) {
+            $edismax->setBoostQueries($boosting->boostQueries);
+        }
+        if (!empty($boosting->boostFunctions)) {
+            $edismax->setBoostFunctions(
+                implode(' ', $boosting->boostFunctions)
+            );
+        }
+        if ($boosting->tie > 0.0) {
+            $edismax->setTie($boosting->tie);
         }
     }
 

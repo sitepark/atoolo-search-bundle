@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Dto\Search\Query;
 
 use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Search\Dto\Search\Query\Boosting;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
@@ -155,6 +156,17 @@ class SearchQueryBuilderTest extends TestCase
             $timeZone,
             $query->timeZone,
             'unexpected timeZone'
+        );
+    }
+    public function testSetBoosting(): void
+    {
+        $boosting = new Boosting();
+        $this->builder->boosting($boosting);
+        $query = $this->builder->build();
+        $this->assertSame(
+            $boosting,
+            $query->boosting,
+            'unexpected boosting'
         );
     }
 }
