@@ -1,5 +1,11 @@
 services:
 
+  atoolo_search.indexer.solr_index_service:
+    class: Atoolo\Search\Service\Indexer\SolrIndexService
+    arguments:
+      - '@atoolo_search.index_name'
+      - '@atoolo_search.solarium_client_factory'
+
   atoolo_search.indexer.content_collector.sitekit:
     class: Atoolo\Search\Service\Indexer\ContentCollector
     arguments:
