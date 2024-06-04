@@ -141,7 +141,7 @@ class InternalResourceIndexer implements Indexer
         $this->progressHandler->prepare('Collect resource locations');
 
         try {
-            $paths = $this->finder->findAll();
+            $paths = $this->finder->findAll($param->excludes);
             $this->deleteErrorProtocol();
             $total = count($paths);
             $this->progressHandler->start($total);
@@ -164,8 +164,11 @@ class InternalResourceIndexer implements Indexer
 
         $this->skipCleanup = true;
 
+        $param = $this->loadIndexerParameter();
+
         $collectedPaths = array_merge(
-            $this->finder->findPaths($paths), // resolve directories recursive
+            // resolve directories recursive
+            $this->finder->findPaths($paths, $param->excludes),
             $paths
         );
         $collectedPaths = array_unique($collectedPaths);
@@ -174,7 +177,6 @@ class InternalResourceIndexer implements Indexer
         $this->progressHandler->startUpdate($total);
 
         try {
-            $param = $this->loadIndexerParameter();
             $this->indexResources($param, $collectedPaths);
         } finally {
             $this->progressHandler->finish();
@@ -192,6 +194,10 @@ class InternalResourceIndexer implements Indexer
     private function loadIndexerParameter(): IndexerParameter
     {
         $config = $this->configLoader->load($this->source);
+        /** @var string[] $excludes */
+        $excludes = $config->data->getArray(
+            'excludes'
+        );
         return new IndexerParameter(
             $config->name,
             $config->data->getInt(
@@ -201,7 +207,8 @@ class InternalResourceIndexer implements Indexer
             $config->data->getInt(
                 'chunkSize',
                 500
-            )
+            ),
+            $excludes
         );
     }
 

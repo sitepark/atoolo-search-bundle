@@ -52,6 +52,19 @@ class LocationFinderTest extends TestCase
         );
     }
 
+    public function testFindAllWithExcludes(): void
+    {
+        $locations = $this->locationFinder->findAll(['/b/.*']);
+        $this->assertEquals(
+            [
+                '/a.php',
+                '/f.pdf.media.php'
+            ],
+            $locations,
+            'unexpected locations'
+        );
+    }
+
     public function testFindPathsWithFile(): void
     {
         $locations = $this->locationFinder->findPaths(
@@ -68,6 +81,21 @@ class LocationFinderTest extends TestCase
         );
     }
 
+
+    public function testFindPathsWithFileWithExcludes(): void
+    {
+        $locations = $this->locationFinder->findPaths(
+            [
+                '/a.php'
+            ],
+            ['/a.*']
+        );
+        $this->assertEmpty(
+            $locations,
+            'locations should be empty'
+        );
+    }
+
     public function testFindPathsWithDirectory(): void
     {
         $locations = $this->locationFinder->findPaths(
@@ -81,6 +109,20 @@ class LocationFinderTest extends TestCase
             ],
             $locations,
             'unexpected locations'
+        );
+    }
+
+    public function testFindPathsWithDirectoryAndExcludes(): void
+    {
+        $locations = $this->locationFinder->findPaths(
+            [
+                '/b',
+            ],
+            ['c\..*']
+        );
+        $this->assertEmpty(
+            $locations,
+            'locations should be empty'
         );
     }
 }

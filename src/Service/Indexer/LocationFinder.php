@@ -25,9 +25,10 @@ class LocationFinder
     }
 
     /**
+     * @param string[] $excludes regular expressions to exclude paths
      * @return string[]
      */
-    public function findAll(): array
+    public function findAll(array $excludes = []): array
     {
 
         $finder = new Finder();
@@ -38,7 +39,11 @@ class LocationFinder
 
         $pathList = [];
         foreach ($finder as $file) {
-            $pathList[] = $this->toRelativePath($file->getPathname());
+            $path  = $this->toRelativePath($file->getPathname());
+            if ($this->excludePath($path, $excludes)) {
+                continue;
+            }
+            $pathList[] = $path;
         }
 
         sort($pathList);
@@ -48,9 +53,10 @@ class LocationFinder
 
     /**
      * @param string[] $paths
+     * @param string[] $excludes regular expressions to exclude paths
      * @return string[]
      */
-    public function findPaths(array $paths): array
+    public function findPaths(array $paths, array $excludes = []): array
     {
         $pathList = [];
 
@@ -60,6 +66,9 @@ class LocationFinder
         foreach ($paths as $path) {
             if (!str_starts_with($path, '/')) {
                 $path = '/' . $path;
+            }
+            if ($this->excludePath($path, $excludes)) {
+                continue;
             }
             $absolutePath = $this->getBasePath() . $path;
             if (is_file($absolutePath)) {
@@ -83,12 +92,35 @@ class LocationFinder
         $finder->files();
 
         foreach ($finder as $file) {
-            $pathList[] = $this->toRelativePath($file->getPathname());
+            $path  = $this->toRelativePath($file->getPathname());
+            if ($this->excludePath($path, $excludes)) {
+                continue;
+            }
+            $pathList[] = $path;
         }
 
         sort($pathList);
 
         return $pathList;
+    }
+
+    /**
+     * @param array<string> $excludes
+     */
+    private function excludePath(string $path, array $excludes): bool
+    {
+        foreach ($excludes as $exclude) {
+            if (
+                preg_match(
+                    '/' .
+                    str_replace('/', '\/', $exclude) . '/',
+                    $path
+                )
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private function getBasePath(): string
