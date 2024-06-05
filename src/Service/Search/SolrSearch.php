@@ -134,7 +134,12 @@ class SolrSearch implements Search
         if (empty($text)) {
             return;
         }
-        $terms = explode(' ', $text);
+        $terms = preg_split(
+            '/("[^"]*")|\h+/',
+            $text,
+            -1,
+            PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
+        ) ?: '';
         $that = $this;
         $terms = array_map(
             static function ($term) use ($solrQuery, $that) {
@@ -155,9 +160,17 @@ class SolrSearch implements Search
         if ($operator !== null) {
             $term = substr($term, 1);
         }
+        $quoted = $term[0] === '"' && $term[-1] === '"';
+        if ($quoted) {
+            $term = substr($term, 1, -1);
+        }
+
         $escapedTerm = $solrQuery->getHelper()->escapeTerm($term);
         if ($operator !== null) {
             $escapedTerm = $operator . $escapedTerm;
+        }
+        if ($quoted) {
+            $escapedTerm = '"' . $escapedTerm . '"';
         }
         return $escapedTerm;
     }

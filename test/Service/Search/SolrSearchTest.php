@@ -125,7 +125,7 @@ class SolrSearchTest extends TestCase
     public function testSelectWithText(): void
     {
         $query = new SearchQuery(
-            text: 'cat -dog +bird',
+            text: 'cat -dog +bird "mickey mouse"',
             lang: ResourceLanguage::default(),
             offset: 0,
             limit: 10,
