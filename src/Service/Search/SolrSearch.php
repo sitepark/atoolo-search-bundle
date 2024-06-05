@@ -145,7 +145,7 @@ class SolrSearch implements Search
             static function ($term) use ($solrQuery, $that) {
                 return $that->escapeTerm($term, $solrQuery);
             },
-            $terms
+            is_array($terms) ? $terms : [$terms]
         );
         $text = implode(' ', $terms);
         $solrQuery->setQuery($text);
