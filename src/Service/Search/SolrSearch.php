@@ -135,13 +135,31 @@ class SolrSearch implements Search
             return;
         }
         $terms = explode(' ', $text);
+        $that = $this;
         $terms = array_map(
-            static fn ($term) =>
-                $solrQuery->getHelper()->escapeTerm(trim($term)),
+            static function ($term) use ($solrQuery, $that) {
+                return $that->escapeTerm($term, $solrQuery);
+            },
             $terms
         );
         $text = implode(' ', $terms);
         $solrQuery->setQuery($text);
+    }
+
+    private function escapeTerm(
+        string $term,
+        SolrSelectQuery $solrQuery
+    ): string {
+        $term = trim($term);
+        $operator = ($term[0] === '+' || $term[0] === '-') ? $term[0] : null;
+        if ($operator !== null) {
+            $term = substr($term, 1);
+        }
+        $escapedTerm = $solrQuery->getHelper()->escapeTerm($term);
+        if ($operator !== null) {
+            $escapedTerm = $operator . $escapedTerm;
+        }
+        return $escapedTerm;
     }
 
     private function addQueryDefaultOperatorToSolrQuery(
