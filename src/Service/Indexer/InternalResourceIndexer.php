@@ -73,6 +73,11 @@ class InternalResourceIndexer implements Indexer
         return true;
     }
 
+    public function getIndex(ResourceLanguage $lang): string
+    {
+        return $this->indexService->getIndex($lang);
+    }
+
     public function getName(): string
     {
         return $this->getIndexerParameter()->name;

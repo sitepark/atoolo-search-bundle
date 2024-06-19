@@ -5,6 +5,7 @@ namespace Atoolo\Search\Test\Service\Indexer;
 use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Dto\Indexer\IndexerConfiguration;
@@ -160,6 +161,15 @@ class InternalResourceIndexerTest extends TestCase
             'test-source',
             $this->logger,
             $this->lockFactory,
+        );
+    }
+
+    public function testGetIndex(): void
+    {
+        $this->assertEquals(
+            'test',
+            $this->indexer->getIndex(ResourceLanguage::default()),
+            'unexpected index'
         );
     }
 

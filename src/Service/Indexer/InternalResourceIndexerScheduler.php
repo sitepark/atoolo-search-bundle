@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Indexer\InternalResourceIndexerEvent;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -33,6 +34,7 @@ class InternalResourceIndexerScheduler implements ScheduleProviderInterface
 
     public function getSchedule(): Schedule
     {
+        $name = $this->indexer->getIndex(ResourceLanguage::default());
         return $this->schedule ??= (new Schedule())
             ->add(
                 RecurringMessage::cron(
@@ -41,7 +43,7 @@ class InternalResourceIndexerScheduler implements ScheduleProviderInterface
                 ),
             )->lock($this->lockFactory->createLock(
                 'internal-resource-indexer-scheduler-'
-                        . $this->indexer->getName(),
+                        . $name,
             ));
     }
 
