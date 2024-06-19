@@ -40,7 +40,8 @@ class InternalResourceIndexerScheduler implements ScheduleProviderInterface
                     new InternalResourceIndexerEvent()
                 ),
             )->lock($this->lockFactory->createLock(
-                'internal-resource-indexer-scheduler',
+                'internal-resource-indexer-scheduler-'
+                        . $this->indexer->getName(),
             ));
     }
 
