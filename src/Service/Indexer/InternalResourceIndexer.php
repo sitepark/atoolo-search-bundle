@@ -167,7 +167,6 @@ class InternalResourceIndexer implements Indexer
             // should already be cleaned up by the gc
             unset($paths);
             gc_collect_cycles();
-
             $this->limitIncreaser?->reset();
             $lock->release();
             $this->progressHandler->finish();
@@ -188,12 +187,10 @@ class InternalResourceIndexer implements Indexer
 
         $this->limitIncreaser?->increase();
         try {
-            $collectedPaths = array_merge(
-                // resolve directories recursive
-                $this->finder->findPaths($paths, $param->excludes),
-                $paths
+            $collectedPaths = $this->finder->findPaths(
+                $paths,
+                $param->excludes
             );
-            $collectedPaths = array_unique($collectedPaths);
 
             $total = count($collectedPaths);
             $this->progressHandler->startUpdate($total);

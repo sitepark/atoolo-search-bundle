@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
-use Atoolo\Resource\ResourceChannelFactory;
+use Atoolo\Resource\ResourceChannel;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
@@ -25,7 +25,7 @@ class IndexerInternalResourceUpdate extends Command
     private OutputInterface $output;
 
     public function __construct(
-        private readonly ResourceChannelFactory $channelFactory,
+        private readonly ResourceChannel $channel,
         private readonly IndexerProgressBar $progressBar,
         private readonly InternalResourceIndexer $indexer,
     ) {
@@ -55,8 +55,7 @@ class IndexerInternalResourceUpdate extends Command
 
         $paths = $typedInput->getArrayArgument('paths');
 
-        $resourceChannel = $this->channelFactory->create();
-        $this->io->title('Channel: ' . $resourceChannel->name);
+        $this->io->title('Channel: ' . $this->channel->name);
 
         $this->io->section(
             'Index resource paths with Indexer "' .

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Console\Command;
 
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\IndexerInternalResourceUpdate;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
@@ -19,7 +18,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(IndexerInternalResourceUpdate::class)]
 class IndexerInternalResourceUpdateTest extends TestCase
 {
-    private ResourceChannelFactory $resourceChannelFactory;
+    private ResourceChannel $resourceChannel;
     private CommandTester $commandTester;
 
     /**
@@ -27,7 +26,7 @@ class IndexerInternalResourceUpdateTest extends TestCase
      */
     public function setUp(): void
     {
-        $resourceChannel = new ResourceChannel(
+        $this->resourceChannel = new ResourceChannel(
             '',
             'WWW',
             '',
@@ -42,18 +41,13 @@ class IndexerInternalResourceUpdateTest extends TestCase
             []
         );
 
-        $this->resourceChannelFactory = $this->createStub(
-            ResourceChannelFactory::class
-        );
-        $this->resourceChannelFactory->method('create')
-            ->willReturn($resourceChannel);
         $indexer = $this->createStub(
             InternalResourceIndexer::class
         );
         $progressBar = $this->createStub(IndexerProgressBar::class);
 
         $command = new IndexerInternalResourceUpdate(
-            $this->resourceChannelFactory,
+            $this->resourceChannel,
             $progressBar,
             $indexer,
         );
@@ -119,7 +113,7 @@ EOF,
             ->willReturn([new \Exception('errortest')]);
 
         $command = new IndexerInternalResourceUpdate(
-            $this->resourceChannelFactory,
+            $this->resourceChannel,
             $progressBar,
             $indexer,
         );
@@ -162,7 +156,7 @@ EOF,
             ->willReturn([new \Exception('errortest')]);
 
         $command = new IndexerInternalResourceUpdate(
-            $this->resourceChannelFactory,
+            $this->resourceChannel,
             $progressBar,
             $indexer,
         );
