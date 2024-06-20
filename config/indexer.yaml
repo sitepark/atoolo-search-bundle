@@ -65,14 +65,6 @@ services:
       - '@atoolo_resource.resource_loader'
       - !tagged_iterator { tag: 'atoolo_search.indexer.document_enricher.schema2x' }
 
-  atoolo_search.indexer:
-    class: Atoolo\Search\Service\Indexer\BackgroundIndexer
-    arguments:
-      - '@atoolo_search.indexer.internal_resource_indexer'
-      - '@atoolo_search.index_name'
-      - '@atoolo_search.indexer.status_store'
-      - '@logger'
-
   atoolo_search.indexer.configuration_loader:
     class: Atoolo\Search\Service\Indexer\IndexerConfigurationLoader
     arguments:

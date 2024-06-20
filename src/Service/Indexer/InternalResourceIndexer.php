@@ -18,6 +18,7 @@ use Psr\Log\NullLogger;
 use Solarium\QueryType\Update\Result as UpdateResult;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\Store\SemaphoreStore;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Throwable;
 
 /**
@@ -71,6 +72,14 @@ class InternalResourceIndexer implements Indexer
     public function enabled(): bool
     {
         return true;
+    }
+
+    /**
+     * @throws ExceptionInterface
+     */
+    public function getStatus(): IndexerStatus
+    {
+        return $this->progressHandler->getStatus();
     }
 
     public function getIndex(ResourceLanguage $lang): string
