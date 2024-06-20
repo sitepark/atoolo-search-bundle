@@ -159,6 +159,7 @@ class InternalResourceIndexerTest extends TestCase
             $this->aborter,
             $this->indexerConfigurationLoader,
             'test-source',
+            null,
             $this->logger,
             $this->lockFactory,
         );
