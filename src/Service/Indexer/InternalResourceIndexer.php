@@ -62,6 +62,7 @@ class InternalResourceIndexer implements Indexer
         private readonly IndexingAborter $aborter,
         private readonly IndexerConfigurationLoader $configLoader,
         private readonly string $source,
+        private readonly ?PhpLimitIncreaser $limitIncreaser,
         private readonly LoggerInterface $logger = new NullLogger(),
         private readonly LockFactory $lockFactory = new LockFactory(
             new SemaphoreStore()
@@ -155,6 +156,7 @@ class InternalResourceIndexer implements Indexer
         $this->progressHandler->prepare('Collect resource locations');
 
         try {
+            $this->limitIncreaser?->increase();
             $paths = $this->finder->findAll($param->excludes);
             $this->deleteErrorProtocol();
             $total = count($paths);
@@ -162,9 +164,13 @@ class InternalResourceIndexer implements Indexer
 
             $this->indexResources($param, $paths);
         } finally {
+            // should already be cleaned up by the gc
+            unset($paths);
+            gc_collect_cycles();
+
+            $this->limitIncreaser?->reset();
             $lock->release();
             $this->progressHandler->finish();
-            gc_collect_cycles();
         }
 
         return $this->progressHandler->getStatus();
@@ -180,21 +186,26 @@ class InternalResourceIndexer implements Indexer
 
         $param = $this->loadIndexerParameter();
 
-        $collectedPaths = array_merge(
-            // resolve directories recursive
-            $this->finder->findPaths($paths, $param->excludes),
-            $paths
-        );
-        $collectedPaths = array_unique($collectedPaths);
-
-        $total = count($collectedPaths);
-        $this->progressHandler->startUpdate($total);
-
+        $this->limitIncreaser?->increase();
         try {
+            $collectedPaths = array_merge(
+                // resolve directories recursive
+                $this->finder->findPaths($paths, $param->excludes),
+                $paths
+            );
+            $collectedPaths = array_unique($collectedPaths);
+
+            $total = count($collectedPaths);
+            $this->progressHandler->startUpdate($total);
+
             $this->indexResources($param, $collectedPaths);
         } finally {
-            $this->progressHandler->finish();
+            // should already be cleaned up by the gc
+            unset($collectedPaths);
             gc_collect_cycles();
+
+            $this->limitIncreaser?->reset();
+            $this->progressHandler->finish();
         }
 
         return $this->progressHandler->getStatus();
@@ -327,7 +338,9 @@ class InternalResourceIndexer implements Indexer
                 $offset,
                 $parameter->chunkSize
             );
+
             gc_collect_cycles();
+
             if ($indexedCount === false) {
                 break;
             }
@@ -454,6 +467,9 @@ class InternalResourceIndexer implements Indexer
                         $doc,
                         $processId
                     );
+                }
+                foreach ($this->documentEnricherList as $enricher) {
+                    $enricher->cleanup();
                 }
                 $updater->addDocument($doc);
             } catch (Throwable $e) {

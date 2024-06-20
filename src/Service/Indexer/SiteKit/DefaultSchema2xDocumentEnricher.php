@@ -50,6 +50,11 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
     ) {
     }
 
+    public function cleanup(): void
+    {
+        $this->navigationLoader->cleanup();
+    }
+
     /**
      * @throws DocumentEnrichingException
      */

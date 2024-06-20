@@ -1,11 +1,19 @@
 parameters:
   atoolo_search.indexer.internal_resource_indexer_scheduler.cron: '0 2 * * *' # cron expression, every day at 2:00
+  atoolo_search.indexer.time_limit: 7200
+  atoolo_search.indexer.memory_limit: '512M'
 
 services:
 
   _defaults:
     autowire: true      # Automatically injects dependencies in your services.
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+  atoolo_search.indexer.php_limit_increaser:
+    class: Atoolo\Search\Service\Indexer\PhpLimitIncreaser
+    arguments:
+      - '%atoolo_search.indexer.time_limit%'
+      - '%atoolo_search.indexer.memory_limit%'
 
   atoolo_search.indexer.solr_index_service:
     class: Atoolo\Search\Service\Indexer\SolrIndexService
@@ -90,6 +98,7 @@ services:
       - '@atoolo_search.indexer.aborter'
       - '@atoolo_search.indexer.configuration_loader'
       - 'internal'
+      - '@atoolo_search.indexer.php_limit_increaser'
       - '@logger'
     tags:
       - { name: 'atoolo_search.indexer', priority: 20 }

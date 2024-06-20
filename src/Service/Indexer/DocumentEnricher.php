@@ -26,4 +26,10 @@ interface DocumentEnricher
         IndexDocument $doc,
         string $processId
     ): IndexDocument;
+
+    /**
+     * Can be used, for example, to clear the loader's
+     * cache if the loader uses a cache.
+     */
+    public function cleanup(): void;
 }

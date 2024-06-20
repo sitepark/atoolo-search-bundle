@@ -11,8 +11,6 @@ parameters:
   atoolo_search.solr.connection.path: '%env(default:atoolo_search.solr.connection.path.default:SOLR_PATH)%'
   atoolo_search.solr.connection.proxy: '%env(default:atoolo_search.solr.connection.proxy.default:SOLR_PROXY)%'
   atoolo_search.solr.connection.timeout: '%env(default:atoolo_search.solr.connection.timeout.default:SOLR_TIMEOUT)%'
-  atoolo_search.indexer.time_limit: 7200
-  atoolo_search.indexer.memory_limit: '512M'
 
 services:
   Atoolo\Search\Service\EnvVarLoader:
