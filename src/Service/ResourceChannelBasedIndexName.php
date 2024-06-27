@@ -58,6 +58,15 @@ class ResourceChannelBasedIndexName implements IndexName
             return '';
         }
 
+        $defaultChannelLang = $resourceChannel->locale;
+        $sepPos = strpos($defaultChannelLang, '_');
+        if ($sepPos !== false) {
+            $defaultChannelLang = substr($defaultChannelLang, 0, $sepPos);
+        }
+        if ($lang->code === $defaultChannelLang) {
+            return '';
+        }
+
         foreach (
             $resourceChannel->translationLocales as $availableLocale
         ) {

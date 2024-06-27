@@ -25,7 +25,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
             '',
             false,
             '',
-            '',
+            'de_DE',
             '',
             '',
             '',
@@ -63,6 +63,16 @@ class ResourceChannelBasedIndexNameTest extends TestCase
         $this->assertEquals(
             'test',
             $this->indexName->name(ResourceLanguage::of('')),
+            'The default index name should be returned ' .
+            'if the default language is given'
+        );
+    }
+
+    public function testNameWithResourceChannelDefaultLang(): void
+    {
+        $this->assertEquals(
+            'test',
+            $this->indexName->name(ResourceLanguage::of('de')),
             'The default index name should be returned ' .
             'if the default language is given'
         );

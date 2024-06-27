@@ -14,18 +14,21 @@ use Atoolo\Search\Service\Indexer\ContentCollector;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema2xDocumentEnricher;
 use DateTime;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class DefaultSchema2xDocumentEnricherTest extends TestCase
 {
     private DefaultSchema2xDocumentEnricher $enricher;
 
+    private SiteKitNavigationHierarchyLoader&MockObject $navigationLoader;
+
     public function setUp(): void
     {
-        $navigationLoader = $this->createStub(
+        $this->navigationLoader = $this->createMock(
             SiteKitNavigationHierarchyLoader::class
         );
-        $navigationLoader
+        $this->navigationLoader
             ->method('loadRoot')
             ->willReturnCallback(function ($location) {
                 if ($location->location === 'throwException') {
@@ -41,9 +44,16 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             ->willReturn('collected content');
 
         $this->enricher = new DefaultSchema2xDocumentEnricher(
-            $navigationLoader,
+            $this->navigationLoader,
             $contentCollector
         );
+    }
+
+    public function testCleanup(): void
+    {
+        $this->navigationLoader->expects($this->once())
+            ->method('cleanup');
+        $this->enricher->cleanup();
     }
 
     public function testEnrichSpId(): void

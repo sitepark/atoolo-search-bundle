@@ -174,6 +174,13 @@ class InternalResourceIndexerTest extends TestCase
         );
     }
 
+    public function testGetStatus(): void
+    {
+        $this->indexerProgressHandler->expects($this->once())
+            ->method('getStatus');
+        $this->indexer->getStatus();
+    }
+
     public function testAbort(): void
     {
         $this->aborter->expects($this->once())
