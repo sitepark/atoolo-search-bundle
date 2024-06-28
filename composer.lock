@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7cd7215452e9be60807973a3696c3775",
+    "content-hash": "5e53c48aee591a522149ebac7c85a3aa",
     "packages": [
         {
             "name": "atoolo/resource-bundle",
-            "version": "dev-main",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sitepark/atoolo-resource-bundle.git",
-                "reference": "07e78030a6edaec844a981957514d7fb2b70a7bc"
+                "reference": "2813d7407445d86c87db1d97c12d04a138cb6676"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sitepark/atoolo-resource-bundle/zipball/07e78030a6edaec844a981957514d7fb2b70a7bc",
-                "reference": "07e78030a6edaec844a981957514d7fb2b70a7bc",
+                "url": "https://api.github.com/repos/sitepark/atoolo-resource-bundle/zipball/2813d7407445d86c87db1d97c12d04a138cb6676",
+                "reference": "2813d7407445d86c87db1d97c12d04a138cb6676",
                 "shasum": ""
             },
             "require": {
@@ -38,7 +38,6 @@
                 "roave/security-advisories": "dev-latest",
                 "squizlabs/php_codesniffer": "^3.7"
             },
-            "default-branch": true,
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
@@ -63,9 +62,9 @@
             "description": "Handle pre-produced data",
             "support": {
                 "issues": "https://github.com/sitepark/atoolo-resource-bundle/issues",
-                "source": "https://github.com/sitepark/atoolo-resource-bundle/tree/main"
+                "source": "https://github.com/sitepark/atoolo-resource-bundle/tree/1.0.0"
             },
-            "time": "2024-06-27T15:31:49+00:00"
+            "time": "2024-06-28T06:40:20+00:00"
         },
         {
             "name": "dragonmantank/cron-expression",
@@ -6793,7 +6792,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "atoolo/resource-bundle": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,

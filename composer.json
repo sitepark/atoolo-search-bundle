@@ -12,7 +12,7 @@
     "require": {
         "php": ">=8.1 <8.4.0",
         "ext-intl": "*",
-        "atoolo/resource-bundle": "dev-main",
+        "atoolo/resource-bundle": "^1.0",
         "dragonmantank/cron-expression": "^3.3",
         "solarium/solarium": "^6.3",
         "symfony/config": "^6.3 || ^7.0",
@@ -23,7 +23,7 @@
         "symfony/finder": "^6.3 || ^7.0",
         "symfony/http-kernel": "^6.3 || ^7.0",
         "symfony/lock": "^6.3 || ^7.0",
-        "symfony/messenger": "^6.3 || ^7.1",
+        "symfony/messenger": "^6.3 || ^7.0",
         "symfony/property-access": "^6.3 || ^7.0",
         "symfony/scheduler": "^6.3 || ^7.1",
         "symfony/serializer": "^6.3 || ^7.0",
