@@ -14,12 +14,12 @@ class UnsupportedIndexLanguageExceptionTest extends TestCase
     {
         $e = new UnsupportedIndexLanguageException(
             'test',
-            ResourceLanguage::of('de')
+            ResourceLanguage::of('de'),
         );
         $this->assertEquals(
             'test',
             $e->getIndex(),
-            'unexpected index'
+            'unexpected index',
         );
     }
 
@@ -27,12 +27,12 @@ class UnsupportedIndexLanguageExceptionTest extends TestCase
     {
         $e = new UnsupportedIndexLanguageException(
             'test',
-            ResourceLanguage::of('de')
+            ResourceLanguage::of('de'),
         );
         $this->assertEquals(
             ResourceLanguage::of('de'),
             $e->getLang(),
-            'unexpected index'
+            'unexpected index',
         );
     }
 }

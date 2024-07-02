@@ -25,7 +25,7 @@ class ExternalResourceFactoryTest extends TestCase
         $document = $this->createDocument('https://www.sitepark.com');
         $this->assertTrue(
             $this->factory->accept($document, ResourceLanguage::default()),
-            'should be accepted'
+            'should be accepted',
         );
     }
 
@@ -34,7 +34,7 @@ class ExternalResourceFactoryTest extends TestCase
         $document = $this->createDocument('http://www.sitepark.com');
         $this->assertTrue(
             $this->factory->accept($document, ResourceLanguage::default()),
-            'should be accepted'
+            'should be accepted',
         );
     }
 
@@ -43,7 +43,7 @@ class ExternalResourceFactoryTest extends TestCase
         $document = $this->createStub(Document::class);
         $this->assertFalse(
             $this->factory->accept($document, ResourceLanguage::default()),
-            'should be accepted'
+            'should be accepted',
         );
     }
 
@@ -52,13 +52,13 @@ class ExternalResourceFactoryTest extends TestCase
         $document = $this->createDocument('https://www.sitepark.com');
         $resource = $this->factory->create(
             $document,
-            ResourceLanguage::of('en')
+            ResourceLanguage::of('en'),
         );
 
         $this->assertEquals(
             'https://www.sitepark.com',
             $resource->location,
-            'unexpected location'
+            'unexpected location',
         );
     }
 
@@ -67,13 +67,13 @@ class ExternalResourceFactoryTest extends TestCase
         $document = $this->createDocument('https://www.sitepark.com', 'Test');
         $resource = $this->factory->create(
             $document,
-            ResourceLanguage::of('en')
+            ResourceLanguage::of('en'),
         );
 
         $this->assertEquals(
             'Test',
             $resource->name,
-            'unexpected name'
+            'unexpected name',
         );
     }
 
@@ -93,7 +93,7 @@ class ExternalResourceFactoryTest extends TestCase
             ->willReturn([
                 'url' => $url,
                 'title' => $title,
-                'description' => ['test']
+                'description' => ['test'],
             ]);
         return $document;
     }

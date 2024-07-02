@@ -24,7 +24,7 @@ class IndexDocumentDumperTest extends TestCase
             });
         $dumper = new IndexDocumentDumper(
             $resourceLoader,
-            [$documentEnricher]
+            [$documentEnricher],
         );
 
         $dump = $dumper->dump(['/test.php']);
@@ -32,7 +32,7 @@ class IndexDocumentDumperTest extends TestCase
         $this->assertEquals(
             [['sp_id' => '123']],
             $dump,
-            'unexpected dump'
+            'unexpected dump',
         );
     }
 }

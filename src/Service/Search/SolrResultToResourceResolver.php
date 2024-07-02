@@ -26,16 +26,15 @@ class SolrResultToResourceResolver
      */
     public function __construct(
         private readonly iterable $resourceFactoryList,
-        private readonly LoggerInterface $logger = new NullLogger()
-    ) {
-    }
+        private readonly LoggerInterface $logger = new NullLogger(),
+    ) {}
 
     /**
      * @return array<Resource>
      */
     public function loadResourceList(
         SelectResult $result,
-        ResourceLanguage $lang
+        ResourceLanguage $lang,
     ): array {
         $resourceList = [];
         /** @var Document $document */
@@ -51,7 +50,7 @@ class SolrResultToResourceResolver
 
     private function loadResource(
         Document $document,
-        ResourceLanguage $lang
+        ResourceLanguage $lang,
     ): Resource {
 
         foreach ($this->resourceFactoryList as $resourceFactory) {
@@ -63,8 +62,8 @@ class SolrResultToResourceResolver
         throw new MissMatchingResourceFactoryException(
             ResourceLocation::of(
                 $document->getFields()['url'] ?? '',
-                $lang
-            )
+                $lang,
+            ),
         );
     }
 }

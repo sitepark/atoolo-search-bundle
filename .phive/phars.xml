@@ -4,4 +4,5 @@
   <phar name="composer-normalize" version="^2.32.0" location="./tools/composer-normalize" copy="false" installed="2.32.0"/>
   <phar name="phpunit" version="^10.4.0" location="./tools/phpunit.phar" copy="true" installed="10.4.1"/>
   <phar name="overtrue/phplint" version="^9.0.4" location="./tools/phplint" copy="false" installed="9.0.4"/>
+  <phar name="php-cs-fixer" version="^3.58.1" installed="3.58.1" copy="false" location="./tools/php-cs-fixer"/>
 </phive>

@@ -24,7 +24,7 @@ interface DocumentEnricher
     public function enrichDocument(
         Resource $resource,
         IndexDocument $doc,
-        string $processId
+        string $processId,
     ): IndexDocument;
 
     /**

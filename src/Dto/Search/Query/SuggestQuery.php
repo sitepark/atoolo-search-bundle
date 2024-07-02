@@ -24,7 +24,6 @@ class SuggestQuery
         public readonly ResourceLanguage $lang,
         public readonly array $filter = [],
         public readonly int $limit = 10,
-        public readonly bool $archive = false
-    ) {
-    }
+        public readonly bool $archive = false,
+    ) {}
 }

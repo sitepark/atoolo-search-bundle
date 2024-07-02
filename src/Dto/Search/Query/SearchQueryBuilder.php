@@ -108,7 +108,7 @@ class SearchQueryBuilder
                     if ($existingFilter->key === $filter->key) {
                         throw new \InvalidArgumentException(
                             'filter key "' . $filter->key .
-                            '" already exists'
+                            '" already exists',
                         );
                     }
                 }
@@ -127,7 +127,7 @@ class SearchQueryBuilder
             if (isset($this->facets[$facet->key])) {
                 throw new \InvalidArgumentException(
                     'facet key "' . $facet->key .
-                    '" already exists'
+                    '" already exists',
                 );
             }
             $this->facets[$facet->key] = $facet;
@@ -148,21 +148,21 @@ class SearchQueryBuilder
      * @return $this
      */
     public function defaultQueryOperator(
-        QueryOperator $defaultQueryOperator
+        QueryOperator $defaultQueryOperator,
     ): static {
         $this->defaultQueryOperator = $defaultQueryOperator;
         return $this;
     }
 
     public function timeZone(
-        DateTimeZone $timeZone
+        DateTimeZone $timeZone,
     ): static {
         $this->timeZone = $timeZone;
         return $this;
     }
 
     public function boosting(
-        Boosting $boosting
+        Boosting $boosting,
     ): static {
         $this->boosting = $boosting;
         return $this;
@@ -181,7 +181,7 @@ class SearchQueryBuilder
             archive: $this->archive,
             defaultQueryOperator: $this->defaultQueryOperator,
             timeZone: $this->timeZone,
-            boosting: $this->boosting
+            boosting: $this->boosting,
         );
     }
 }

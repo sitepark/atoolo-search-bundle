@@ -18,7 +18,7 @@ class RichtTextMatcherTest extends TestCase
         $value = [
             "normalized" => true,
             "modelType" => "html.richText",
-            "text" => "<p>Ein Text</p>"
+            "text" => "<p>Ein Text</p>",
         ];
 
         $content = $matcher->match([], $value);
@@ -33,14 +33,14 @@ class RichtTextMatcherTest extends TestCase
         $value = [
             "normalized" => true,
             "modelType" => "html.richTextX",
-            "text" => "<p>Ein Text</p>"
+            "text" => "<p>Ein Text</p>",
         ];
 
         $content = $matcher->match([], $value);
 
         $this->assertEmpty(
             $content,
-            'should not find any content'
+            'should not find any content',
         );
     }
 
@@ -51,14 +51,14 @@ class RichtTextMatcherTest extends TestCase
         $value = [
             "normalized" => true,
             "modelType" => "html.richText",
-            "textX" => "<p>Ein Text</p>"
+            "textX" => "<p>Ein Text</p>",
         ];
 
         $content = $matcher->match([], $value);
 
         $this->assertEmpty(
             $content,
-            'should not find any content'
+            'should not find any content',
         );
     }
 }

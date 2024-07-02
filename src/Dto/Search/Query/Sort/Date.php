@@ -7,6 +7,4 @@ namespace Atoolo\Search\Dto\Search\Query\Sort;
 /**
  * @codeCoverageIgnore
  */
-class Date extends Criteria
-{
-}
+class Date extends Criteria {}

@@ -19,7 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'search:search',
-    description: 'Performs a search'
+    description: 'Performs a search',
 )]
 class Search extends Command
 {
@@ -28,7 +28,7 @@ class Search extends Command
 
     public function __construct(
         private readonly ResourceChannel $channel,
-        private readonly SolrSearch $searcher
+        private readonly SolrSearch $searcher,
     ) {
         parent::__construct();
     }
@@ -40,21 +40,21 @@ class Search extends Command
             ->addArgument(
                 'text',
                 InputArgument::REQUIRED,
-                'Text with which to search.'
+                'Text with which to search.',
             )
             ->addOption(
                 'lang',
                 null,
                 InputArgument::OPTIONAL,
                 'Language to be used for the search. (de, en, fr, it, ...)',
-                ''
+                '',
             )
         ;
     }
 
     protected function execute(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
 
         $this->input = new TypifiedInput($input);
@@ -86,7 +86,7 @@ class Search extends Command
     }
 
     protected function outputResult(
-        SearchResult $result
+        SearchResult $result,
     ): void {
 
         if ($result->total === 0) {

@@ -60,7 +60,7 @@ class SolrDateMapperTest extends TestCase
     public function testMapDateInterval(
         string $interval,
         string $operator,
-        string $expected
+        string $expected,
     ): void {
 
         if ($expected === 'error') {
@@ -69,14 +69,14 @@ class SolrDateMapperTest extends TestCase
 
         $result = SolrDateMapper::mapDateInterval(
             new DateInterval($interval),
-            $operator
+            $operator,
         );
 
         if ($expected !== 'error') {
             $this->assertEquals(
                 $expected,
                 $result,
-                'Unexpected date interval mapping'
+                'Unexpected date interval mapping',
             );
         }
     }
@@ -86,19 +86,19 @@ class SolrDateMapperTest extends TestCase
         $this->assertEquals(
             '+1DAY',
             SolrDateMapper::mapDateInterval(null, '+'),
-            'unexpected default date interval'
+            'unexpected default date interval',
         );
     }
 
     #[DataProvider('getDateRangeRounds')]
     public function testMapDateRangeRound(
         DateRangeRound $round,
-        string $expected
+        string $expected,
     ): void {
         $this->assertEquals(
             $expected,
             SolrDateMapper::mapDateRangeRound($round),
-            'Unexpected date range round mapping'
+            'Unexpected date range round mapping',
         );
     }
 
@@ -108,7 +108,7 @@ class SolrDateMapperTest extends TestCase
         $this->assertEquals(
             '2021-01-01T00:00:00Z',
             SolrDateMapper::mapDateTime($dateTime),
-            'Unexpected date time mapping'
+            'Unexpected date time mapping',
         );
     }
 
@@ -117,7 +117,7 @@ class SolrDateMapperTest extends TestCase
         $this->assertEquals(
             'NOW',
             SolrDateMapper::mapDateTime(null),
-            'NOW should be returned for null date time'
+            'NOW should be returned for null date time',
         );
     }
 
@@ -128,7 +128,7 @@ class SolrDateMapperTest extends TestCase
         $this->assertEquals(
             '2021-01-01T00:00:00Z',
             SolrDateMapper::mapDateTime($default),
-            'default date time should be returned'
+            'default date time should be returned',
         );
     }
 
@@ -138,9 +138,9 @@ class SolrDateMapperTest extends TestCase
             '2021-01-01T00:00:00Z/DAY-1DAY',
             SolrDateMapper::roundStart(
                 '2021-01-01T00:00:00Z',
-                DateRangeRound::START_OF_PREVIOUS_DAY
+                DateRangeRound::START_OF_PREVIOUS_DAY,
             ),
-            'Unexpected round date'
+            'Unexpected round date',
         );
     }
 
@@ -150,9 +150,9 @@ class SolrDateMapperTest extends TestCase
             '2021-01-01T00:00:00Z/DAY',
             SolrDateMapper::roundStart(
                 '2021-01-01T00:00:00Z',
-                null
+                null,
             ),
-            'Unexpected round date'
+            'Unexpected round date',
         );
     }
 
@@ -162,9 +162,9 @@ class SolrDateMapperTest extends TestCase
             '2021-01-01T00:00:00Z/MONTH-1SECOND',
             SolrDateMapper::roundEnd(
                 '2021-01-01T00:00:00Z',
-                DateRangeRound::END_OF_PREVIOUS_MONTH
+                DateRangeRound::END_OF_PREVIOUS_MONTH,
             ),
-            'Unexpected round date'
+            'Unexpected round date',
         );
     }
 
@@ -174,9 +174,9 @@ class SolrDateMapperTest extends TestCase
             '2021-01-01T00:00:00Z/DAY+1DAY-1SECOND',
             SolrDateMapper::roundEnd(
                 '2021-01-01T00:00:00Z',
-                null
+                null,
             ),
-            'Unexpected round date'
+            'Unexpected round date',
         );
     }
 }

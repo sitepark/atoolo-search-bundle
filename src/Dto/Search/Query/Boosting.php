@@ -34,6 +34,5 @@ class Boosting
         public readonly array $boostQueries = [],
         public readonly array $boostFunctions = [],
         public readonly float $tie = 0.0,
-    ) {
-    }
+    ) {}
 }

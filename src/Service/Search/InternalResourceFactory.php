@@ -19,9 +19,8 @@ use Solarium\QueryType\Select\Result\Document;
 class InternalResourceFactory implements ResourceFactory
 {
     public function __construct(
-        private readonly ResourceLoader $resourceLoader
-    ) {
-    }
+        private readonly ResourceLoader $resourceLoader,
+    ) {}
 
     public function accept(Document $document, ResourceLanguage $lang): bool
     {

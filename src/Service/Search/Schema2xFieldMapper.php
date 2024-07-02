@@ -51,7 +51,7 @@ class Schema2xFieldMapper
                 return 'sp_date_list';
             default:
                 throw new InvalidArgumentException(
-                    'Unsupported facet-field-class ' . get_class($facet)
+                    'Unsupported facet-field-class ' . get_class($facet),
                 );
         }
     }
@@ -81,7 +81,7 @@ class Schema2xFieldMapper
                 return 'sp_date_list';
             default:
                 throw new InvalidArgumentException(
-                    'Unsupported filter-field-class ' . get_class($facet)
+                    'Unsupported filter-field-class ' . get_class($facet),
                 );
         }
     }
@@ -103,7 +103,7 @@ class Schema2xFieldMapper
                 return $criteria->field;
             default:
                 throw new InvalidArgumentException(
-                    'Unsupported sort criteria: ' . get_class($criteria)
+                    'Unsupported sort criteria: ' . get_class($criteria),
                 );
         }
     }

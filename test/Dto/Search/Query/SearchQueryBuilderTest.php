@@ -41,7 +41,7 @@ class SearchQueryBuilderTest extends TestCase
         $this->assertEquals(
             ResourceLanguage::of('en'),
             $query->lang,
-            'unexpected lang'
+            'unexpected lang',
         );
     }
 
@@ -143,7 +143,7 @@ class SearchQueryBuilderTest extends TestCase
         $this->assertEquals(
             QueryOperator::AND,
             $query->defaultQueryOperator,
-            'unexpected queryDefaultOperator'
+            'unexpected queryDefaultOperator',
         );
     }
 
@@ -155,7 +155,7 @@ class SearchQueryBuilderTest extends TestCase
         $this->assertEquals(
             $timeZone,
             $query->timeZone,
-            'unexpected timeZone'
+            'unexpected timeZone',
         );
     }
     public function testSetBoosting(): void
@@ -166,7 +166,7 @@ class SearchQueryBuilderTest extends TestCase
         $this->assertSame(
             $boosting,
             $query->boosting,
-            'unexpected boosting'
+            'unexpected boosting',
         );
     }
 }

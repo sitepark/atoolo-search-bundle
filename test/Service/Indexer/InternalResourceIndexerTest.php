@@ -77,11 +77,11 @@ class InternalResourceIndexerTest extends TestCase
     public function setUp(): void
     {
         $this->indexerFilter = $this->createMock(
-            ResourceFilter::class
+            ResourceFilter::class,
         );
 
         $this->indexerProgressHandler = $this->createMock(
-            IndexerProgressHandler::class
+            IndexerProgressHandler::class,
         );
         $this->finder = $this->createMock(LocationFinder::class);
         $this->documentEnricher = $this->createMock(DocumentEnricher::class);
@@ -100,7 +100,7 @@ class InternalResourceIndexerTest extends TestCase
                     '',
                     '',
                     $location->lang,
-                    new DataBag([])
+                    new DataBag([]),
                 );
             });
         $this->solrIndexService = $this->createMock(SolrIndexService::class);
@@ -108,7 +108,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->updater = $this->createMock(SolrIndexUpdater::class);
         $this->updater->method('update')->willReturn($this->updateResult);
         $this->updater->method('createDocument')->willReturn(
-            new IndexSchema2xDocument()
+            new IndexSchema2xDocument(),
         );
         $this->solrIndexService->method('getManagedIndices')
             ->willReturnCallback(function () {
@@ -123,7 +123,7 @@ class InternalResourceIndexerTest extends TestCase
                     throw new UnsupportedIndexLanguageException(
                         'test',
                         $lang,
-                        'unsupported language'
+                        'unsupported language',
                     );
                 }
                 return 'test';
@@ -136,11 +136,11 @@ class InternalResourceIndexerTest extends TestCase
             'Indexer-Name',
             new DataBag([
                 'cleanupThreshold' =>  10,
-                'chunkSize' => 10
-            ])
+                'chunkSize' => 10,
+            ]),
         );
         $this->indexerConfigurationLoader = $this->createMock(
-            IndexerConfigurationLoader::class
+            IndexerConfigurationLoader::class,
         );
         $this->indexerConfigurationLoader->method('load')
             ->willReturn($this->indexerConfiguration);
@@ -170,7 +170,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->assertEquals(
             'test',
             $this->indexer->getIndex(ResourceLanguage::default()),
-            'unexpected index'
+            'unexpected index',
         );
     }
 
@@ -223,7 +223,7 @@ class InternalResourceIndexerTest extends TestCase
                 '/a/j.php',
                 '/a/k.php',
                 '/a/l.php',
-                '/a/error.php'
+                '/a/error.php',
             ]);
 
         $this->updateResult->method('getStatus')
@@ -271,7 +271,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->finder->method('findAll')
             ->willReturn([
                 '/a/b.php',
-                '/a/c.php'
+                '/a/c.php',
             ]);
 
         $this->updateResult->method('getStatus')
@@ -296,7 +296,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->finder->method('findAll')
             ->willReturn([
                 '/a/b.php',
-                '/a/c.php'
+                '/a/c.php',
             ]);
 
         $this->aborter->method('isAbortionRequested')
@@ -316,7 +316,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->finder->method('findAll')
             ->willReturn([
                 '/a/b.php',
-                '/a/c.php'
+                '/a/c.php',
             ]);
 
         $this->updateResult->method('getStatus')
@@ -338,8 +338,8 @@ class InternalResourceIndexerTest extends TestCase
         $this->resourceLoader->method('load')
             ->willThrowException(
                 new InvalidResourceException(
-                    ResourceLocation::of('/a/b.php')
-                )
+                    ResourceLocation::of('/a/b.php'),
+                ),
             );
 
         $this->indexerProgressHandler->expects($this->once())
@@ -353,7 +353,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->finder->method('findPaths')
             ->willReturn([
                 '/a/b.php',
-                '/a/c.php'
+                '/a/c.php',
             ]);
 
         $this->updateResult->method('getStatus')
@@ -370,7 +370,7 @@ class InternalResourceIndexerTest extends TestCase
 
         $this->indexer->update([
             '/a/b.php',
-            '/a/c.php'
+            '/a/c.php',
         ]);
     }
 
@@ -405,7 +405,7 @@ class InternalResourceIndexerTest extends TestCase
             ->with($this->equalTo(['?a=b']));
 
         $this->indexer->update([
-            '?a=b'
+            '?a=b',
         ]);
     }
 
@@ -425,7 +425,7 @@ class InternalResourceIndexerTest extends TestCase
                 '/a/i.php',
                 '/a/j.php',
                 '/a/k.php',
-                '/a/l.php'
+                '/a/l.php',
             ]);
 
         $this->indexerProgressHandler->expects($this->once())
@@ -438,7 +438,7 @@ class InternalResourceIndexerTest extends TestCase
     {
         $this->assertTrue(
             $this->indexer->enabled(),
-            'indexer should be always enabled'
+            'indexer should be always enabled',
         );
     }
 
@@ -447,7 +447,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->assertEquals(
             'Indexer-Name',
             $this->indexer->getName(),
-            'unexpected Indexer Name'
+            'unexpected Indexer Name',
         );
     }
 
@@ -456,7 +456,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->assertEquals(
             $this->indexerProgressHandler,
             $this->indexer->getProgressHandler(),
-            'unexpected progress handler'
+            'unexpected progress handler',
         );
     }
 
@@ -467,7 +467,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->assertEquals(
             $progressHandler,
             $this->indexer->getProgressHandler(),
-            'unexpected progress handler'
+            'unexpected progress handler',
         );
     }
 
@@ -476,7 +476,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->assertEquals(
             'test-source',
             $this->indexer->getSource(),
-            'unexpected source'
+            'unexpected source',
         );
     }
 
@@ -485,7 +485,7 @@ class InternalResourceIndexerTest extends TestCase
         $this->logger->expects($this->once())
             ->method('notice')
             ->with('Indexer is already running', [
-                'index' => 'test'
+                'index' => 'test',
             ]);
         $lock = $this->lockFactory->createLock('indexer.test');
         try {

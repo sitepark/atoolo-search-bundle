@@ -23,10 +23,10 @@ class InternalMediaResourceFactoryTest extends TestCase
     protected function setUp(): void
     {
         $this->resourceLoader = $this->createStub(
-            ResourceLoader::class
+            ResourceLoader::class,
         );
         $this->factory = new InternalMediaResourceFactory(
-            $this->resourceLoader
+            $this->resourceLoader,
         );
     }
 
@@ -39,7 +39,7 @@ class InternalMediaResourceFactoryTest extends TestCase
 
         $this->assertTrue(
             $this->factory->accept($document, ResourceLanguage::default()),
-            'should be accepted'
+            'should be accepted',
         );
     }
 
@@ -48,7 +48,7 @@ class InternalMediaResourceFactoryTest extends TestCase
         $document = $this->createStub(Document::class);
         $this->assertFalse(
             $this->factory->accept($document, ResourceLanguage::default()),
-            'should not be accepted'
+            'should not be accepted',
         );
     }
 
@@ -61,7 +61,7 @@ class InternalMediaResourceFactoryTest extends TestCase
 
         $this->assertFalse(
             $this->factory->accept($document, ResourceLanguage::default()),
-            'should not be accepted'
+            'should not be accepted',
         );
     }
 
@@ -76,7 +76,7 @@ class InternalMediaResourceFactoryTest extends TestCase
         $this->assertEquals(
             $resource,
             $this->factory->create($document, ResourceLanguage::of('en')),
-            'unexpected resource'
+            'unexpected resource',
         );
     }
 
@@ -93,7 +93,7 @@ class InternalMediaResourceFactoryTest extends TestCase
         $document
             ->method('getFields')
             ->willReturn([
-                'url' => $url
+                'url' => $url,
             ]);
         return $document;
     }

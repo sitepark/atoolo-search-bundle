@@ -7,6 +7,4 @@ namespace Atoolo\Search\Dto\Search\Query\Sort;
 /**
  * @codeCoverageIgnore
  */
-class Name extends Criteria
-{
-}
+class Name extends Criteria {}

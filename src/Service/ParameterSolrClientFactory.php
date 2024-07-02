@@ -22,9 +22,8 @@ class ParameterSolrClientFactory implements SolrClientFactory
         private readonly int $port,
         private readonly string $path = '',
         private readonly ?string $proxy = null,
-        private readonly int $timeout = 0
-    ) {
-    }
+        private readonly int $timeout = 0,
+    ) {}
 
     public function create(string $core): Client
     {
@@ -40,15 +39,15 @@ class ParameterSolrClientFactory implements SolrClientFactory
                     'port' => $this->port,
                     'path' => $this->path,
                     'core' => $core,
-                ]
-            ]
+                ],
+            ],
         ];
 
         // create a client instance
         return new Client(
             $adapter,
             $eventDispatcher,
-            $config
+            $config,
         );
     }
 }

@@ -26,6 +26,6 @@ interface ResourceFactory
     public function accept(Document $document, ResourceLanguage $lang): bool;
     public function create(
         Document $document,
-        ResourceLanguage $lang
+        ResourceLanguage $lang,
     ): Resource;
 }

@@ -18,7 +18,7 @@ class SubDirTranslationSplitterTest extends TestCase
         $this->assertEquals(
             ['/a/b.php'],
             $result->getBases(),
-            'unexpected bases'
+            'unexpected bases',
         );
     }
 
@@ -28,7 +28,7 @@ class SubDirTranslationSplitterTest extends TestCase
         $result = $splitter->split([
             '/a/b.php',
             '/a/b.php.translations/it_IT.php',
-            '/a/b.php.translations/en_US.php'
+            '/a/b.php.translations/en_US.php',
         ]);
 
         $this->assertEquals(
@@ -37,7 +37,7 @@ class SubDirTranslationSplitterTest extends TestCase
                 ResourceLanguage::of('it_IT'),
             ],
             $result->getLanguages(),
-            'unexpected locales'
+            'unexpected locales',
         );
     }
 
@@ -50,7 +50,7 @@ class SubDirTranslationSplitterTest extends TestCase
             '/a/b.php.translations/en_US.php',
             '/c/d.php',
             '/c/d.php.translations/it_IT.php',
-            '/c/d.php.translations/en_US.php'
+            '/c/d.php.translations/en_US.php',
         ]);
 
         $lang = ResourceLanguage::of('it_IT');
@@ -64,7 +64,7 @@ class SubDirTranslationSplitterTest extends TestCase
         $this->assertEquals(
             $expected,
             $translations,
-            'unexpected translations'
+            'unexpected translations',
         );
     }
 
@@ -85,7 +85,7 @@ class SubDirTranslationSplitterTest extends TestCase
         $this->assertEquals(
             $expected,
             $translations,
-            'unexpected translations'
+            'unexpected translations',
         );
     }
 
@@ -99,7 +99,7 @@ class SubDirTranslationSplitterTest extends TestCase
         $this->assertEquals(
             [],
             $result->getBases(),
-            'bases should be empty'
+            'bases should be empty',
         );
     }
 
@@ -113,7 +113,7 @@ class SubDirTranslationSplitterTest extends TestCase
         $this->assertEquals(
             ['/test.php'],
             $result->getBases(),
-            'unexpected bases'
+            'unexpected bases',
         );
     }
 }

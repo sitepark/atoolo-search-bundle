@@ -24,9 +24,8 @@ class SolrMoreLikeThis implements MoreLikeThis
         private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
         private readonly SolrResultToResourceResolver $resultToResourceResolver,
-        private readonly Schema2xFieldMapper $schemaFieldMapper
-    ) {
-    }
+        private readonly Schema2xFieldMapper $schemaFieldMapper,
+    ) {}
 
     public function moreLikeThis(MoreLikeThisQuery $query): SearchResult
     {
@@ -40,7 +39,7 @@ class SolrMoreLikeThis implements MoreLikeThis
 
     private function buildSolrQuery(
         Client $client,
-        MoreLikeThisQuery $query
+        MoreLikeThisQuery $query,
     ): SolrMoreLikeThisQuery {
 
         $solrQuery = $client->createMoreLikeThis();
@@ -62,11 +61,11 @@ class SolrMoreLikeThis implements MoreLikeThis
      */
     private function addFilterQueriesToSolrQuery(
         SolrMoreLikeThisQuery $solrQuery,
-        array $filterList
+        array $filterList,
     ): void {
         $filterAppender = new SolrQueryFilterAppender(
             $solrQuery,
-            $this->schemaFieldMapper
+            $this->schemaFieldMapper,
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);
@@ -75,7 +74,7 @@ class SolrMoreLikeThis implements MoreLikeThis
 
     private function buildResult(
         SolrMoreLikeThisResult $result,
-        ResourceLanguage $lang
+        ResourceLanguage $lang,
     ): SearchResult {
 
         $resourceList = $this->resultToResourceResolver
@@ -87,7 +86,7 @@ class SolrMoreLikeThis implements MoreLikeThis
             offset: 0,
             results: $resourceList,
             facetGroups: [],
-            queryTime: $result->getQueryTime() ?? 0
+            queryTime: $result->getQueryTime() ?? 0,
         );
     }
 }

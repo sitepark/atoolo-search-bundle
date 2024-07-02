@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class EnvVarLoaderTest extends TestCase
 {
     private string $baseDir = __DIR__ .
-    '/../resources/Service/EnvVarLoader';
+        '/../resources/Service/EnvVarLoader';
 
     private string $scriptFileNameBackup;
 
@@ -33,7 +33,7 @@ class EnvVarLoaderTest extends TestCase
         $env = $loader->loadEnvVars();
         $this->assertFalse(
             isset($env['SOLR_URL']),
-            'RESOURCE_ROOT should no set'
+            'RESOURCE_ROOT should no set',
         );
     }
 
@@ -44,7 +44,7 @@ class EnvVarLoaderTest extends TestCase
         $env = $loader->loadEnvVars();
         $this->assertFalse(
             isset($env['SOLR_URL']),
-            'RESOURCE_ROOT should no set'
+            'RESOURCE_ROOT should no set',
         );
     }
 
@@ -66,7 +66,7 @@ class EnvVarLoaderTest extends TestCase
                 'SOLR_PATH' => '',
             ],
             $env,
-            'unexpected env'
+            'unexpected env',
         );
     }
 }

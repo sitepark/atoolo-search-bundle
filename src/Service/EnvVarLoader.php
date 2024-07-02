@@ -28,14 +28,14 @@ class EnvVarLoader implements EnvVarLoaderInterface
 
         if (empty($solrUrl) && !empty($resourceRoot)) {
             $solrUrl = $this->determineSolrUrlForCliCallInDevEnvironments(
-                $resourceRoot
+                $resourceRoot,
             );
         }
         if (is_string($solrUrl) && !empty($solrUrl)) {
             $url = parse_url($solrUrl);
             $scheme = $url['scheme'] ?? 'http';
             $host = $url['host'] ?? 'localhost';
-            $port = (string)(
+            $port = (string) (
                 $url['port'] ??
                 (
                     $scheme === 'https'
@@ -69,14 +69,14 @@ class EnvVarLoader implements EnvVarLoaderInterface
      * `.env` file of the IES environment.
      */
     private function determineSolrUrlForCliCallInDevEnvironments(
-        string $resourceRoot
+        string $resourceRoot,
     ): ?string {
 
         $iesEnvBaseDirForResourceLayout = $resourceRoot . '/../../../../';
         $iesEnvBaseDirForDocumentRootLayout = $resourceRoot . '/../../../../..';
         $directories = [
             $iesEnvBaseDirForResourceLayout,
-            $iesEnvBaseDirForDocumentRootLayout
+            $iesEnvBaseDirForDocumentRootLayout,
         ];
 
         foreach ($directories as $dir) {

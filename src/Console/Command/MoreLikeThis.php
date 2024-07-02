@@ -20,7 +20,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'search:mlt',
-    description: 'Performs a more-like-this search'
+    description: 'Performs a more-like-this search',
 )]
 class MoreLikeThis extends Command
 {
@@ -29,7 +29,7 @@ class MoreLikeThis extends Command
 
     public function __construct(
         private readonly ResourceChannel $channel,
-        private readonly SolrMoreLikeThis $searcher
+        private readonly SolrMoreLikeThis $searcher,
     ) {
         parent::__construct();
     }
@@ -42,21 +42,21 @@ class MoreLikeThis extends Command
                 'location',
                 InputArgument::REQUIRED,
                 'Location of the resource to which the MoreLikeThis ' .
-                'search is to be applied.'
+                'search is to be applied.',
             )
             ->addOption(
                 'lang',
                 null,
                 InputArgument::OPTIONAL,
                 'Language to be used for the search. (de, en, fr, it, ...)',
-                ''
+                '',
             )
         ;
     }
 
     protected function execute(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
 
         $this->input = new TypifiedInput($input);
@@ -65,8 +65,8 @@ class MoreLikeThis extends Command
         $location = ResourceLocation::of(
             $this->input->getStringArgument('location'),
             ResourceLanguage::of(
-                $this->input->getStringOption('lang')
-            )
+                $this->input->getStringOption('lang'),
+            ),
         );
 
         $this->io->title('Channel: ' . $this->channel->name);
@@ -86,7 +86,7 @@ class MoreLikeThis extends Command
             location: $location,
             filter: $filterList,
             limit: 5,
-            fields: ['content']
+            fields: ['content'],
         );
     }
 

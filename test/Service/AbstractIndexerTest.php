@@ -33,16 +33,16 @@ class AbstractIndexerTest extends TestCase
         $indexName->method('name')
             ->willReturn('www');
         $this->progressHandler = $this->createMock(
-            IndexerProgressHandler::class
+            IndexerProgressHandler::class,
         );
         $this->aborter = $this->createMock(IndexingAborter::class);
         $config = new IndexerConfiguration(
             'test',
             'Test',
-            new DataBag([])
+            new DataBag([]),
         );
         $this->configLoader = $this->createMock(
-            IndexerConfigurationLoader::class
+            IndexerConfigurationLoader::class,
         );
         $this->configLoader->method('load')
             ->willReturn($config);
@@ -51,7 +51,7 @@ class AbstractIndexerTest extends TestCase
             $this->progressHandler,
             $this->aborter,
             $this->configLoader,
-            'test'
+            'test',
         );
     }
 
@@ -60,7 +60,7 @@ class AbstractIndexerTest extends TestCase
         $this->assertEquals(
             'Test',
             $this->indexer->getName(),
-            'The name of the indexer should be "Test"'
+            'The name of the indexer should be "Test"',
         );
     }
 
@@ -69,7 +69,7 @@ class AbstractIndexerTest extends TestCase
         $this->assertEquals(
             'test',
             $this->indexer->getSource(),
-            'The source of the indexer should be "test"'
+            'The source of the indexer should be "test"',
         );
     }
 
@@ -79,7 +79,7 @@ class AbstractIndexerTest extends TestCase
             $this->progressHandler,
             $this->indexer->getProgressHandler(),
             'The progress handler should be the ' .
-            'same as the one passed to the constructor'
+            'same as the one passed to the constructor',
         );
     }
 
@@ -92,7 +92,7 @@ class AbstractIndexerTest extends TestCase
             $progressHandler,
             $this->indexer->getProgressHandler(),
             'The progress handler should be the ' .
-            'same as the one passed to the setProgressHandler method'
+            'same as the one passed to the setProgressHandler method',
         );
     }
 

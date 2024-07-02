@@ -7,6 +7,4 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 /**
  * @codeCoverageIgnore
  */
-class GroupFacet extends FieldFacet
-{
-}
+class GroupFacet extends FieldFacet {}

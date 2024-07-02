@@ -20,9 +20,8 @@ use Symfony\Component\Finder\Finder;
 class LocationFinder
 {
     public function __construct(
-        private readonly ResourceChannel $resourceChannel
-    ) {
-    }
+        private readonly ResourceChannel $resourceChannel,
+    ) {}
 
     /**
      * @param string[] $excludes regular expressions to exclude paths
@@ -114,7 +113,7 @@ class LocationFinder
                 preg_match(
                     '/' .
                     str_replace('/', '\/', $exclude) . '/',
-                    $path
+                    $path,
                 )
             ) {
                 return true;

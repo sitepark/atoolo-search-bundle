@@ -14,8 +14,7 @@ class IndexerCollection
      */
     public function __construct(
         private readonly iterable $indexers,
-    ) {
-    }
+    ) {}
 
     public function getIndexer(string $source): Indexer
     {
@@ -25,7 +24,7 @@ class IndexerCollection
             }
         }
         throw new InvalidArgumentException(
-            'Indexer not found for source: ' . $source
+            'Indexer not found for source: ' . $source,
         );
     }
 

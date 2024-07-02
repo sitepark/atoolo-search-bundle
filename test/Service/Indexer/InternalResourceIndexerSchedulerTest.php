@@ -18,14 +18,14 @@ class InternalResourceIndexerSchedulerTest extends TestCase
         $indexer = $this->createStub(InternalResourceIndexer::class);
         $scheduler = new InternalResourceIndexerScheduler(
             '0 2 * * *',
-            $indexer
+            $indexer,
         );
 
         $schedule = $scheduler->getSchedule();
 
         $this->assertEquals(
             1,
-            count($schedule->getRecurringMessages())
+            count($schedule->getRecurringMessages()),
         );
     }
 
@@ -34,7 +34,7 @@ class InternalResourceIndexerSchedulerTest extends TestCase
         $indexer = $this->createMock(InternalResourceIndexer::class);
         $scheduler = new InternalResourceIndexerScheduler(
             '0 2 * * *',
-            $indexer
+            $indexer,
         );
 
         $indexer->expects($this->once())

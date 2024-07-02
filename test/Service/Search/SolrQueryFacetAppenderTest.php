@@ -112,8 +112,8 @@ class SolrQueryFacetAppenderTest extends TestCase
             new MultiQueryFacet(
                 'key',
                 [ new QueryFacet('key', 'test:a', ['exclude']) ],
-                ['exclude']
-            )
+                ['exclude'],
+            ),
         );
     }
 
@@ -131,8 +131,8 @@ class SolrQueryFacetAppenderTest extends TestCase
                 new DateTime('2021-01-02T00:00:00Z'),
                 new DateTime('2021-01-03T00:00:00Z'),
                 null,
-                ['exclude']
-            )
+                ['exclude'],
+            ),
         );
     }
 
@@ -159,8 +159,8 @@ class SolrQueryFacetAppenderTest extends TestCase
                 new DateTime('2021-01-01T00:00:00Z'),
                 new DateTime('2021-01-03T00:00:00Z'),
                 new DateInterval('P1D'),
-                ['exclude']
-            )
+                ['exclude'],
+            ),
         );
     }
 
@@ -173,7 +173,7 @@ class SolrQueryFacetAppenderTest extends TestCase
                 '2021-01-01T00:00:00Z-2DAYS/DAY' .
                 ' TO ' .
                 '2021-01-01T00:00:00Z+3DAYS/DAY+1DAY-1SECOND' .
-                ']'
+                ']',
             );
         $this->facetQuery->expects($this->once())
             ->method('setExcludes')
@@ -187,8 +187,8 @@ class SolrQueryFacetAppenderTest extends TestCase
                 null,
                 null,
                 null,
-                ['exclude']
-            )
+                ['exclude'],
+            ),
         );
     }
 
@@ -201,7 +201,7 @@ class SolrQueryFacetAppenderTest extends TestCase
                 '2021-01-01T00:00:00Z/DAY' .
                 ' TO ' .
                 '2021-01-01T00:00:00Z+3DAYS/DAY+1DAY-1SECOND' .
-                ']'
+                ']',
             );
         $this->facetQuery->expects($this->once())
             ->method('setExcludes')
@@ -215,8 +215,8 @@ class SolrQueryFacetAppenderTest extends TestCase
                 null,
                 null,
                 null,
-                ['exclude']
-            )
+                ['exclude'],
+            ),
         );
     }
 
@@ -229,7 +229,7 @@ class SolrQueryFacetAppenderTest extends TestCase
                 '2021-01-01T00:00:00Z-2DAYS/DAY' .
                 ' TO ' .
                 '2021-01-01T00:00:00Z/DAY+1DAY-1SECOND' .
-                ']'
+                ']',
             );
         $this->facetQuery->expects($this->once())
             ->method('setExcludes')
@@ -243,8 +243,8 @@ class SolrQueryFacetAppenderTest extends TestCase
                 null,
                 null,
                 null,
-                ['exclude']
-            )
+                ['exclude'],
+            ),
         );
     }
 
@@ -274,8 +274,8 @@ class SolrQueryFacetAppenderTest extends TestCase
                 new DateInterval('P1D'),
                 null,
                 null,
-                ['exclude']
-            )
+                ['exclude'],
+            ),
         );
     }
 
@@ -283,7 +283,7 @@ class SolrQueryFacetAppenderTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->appender->append(
-            $this->createStub(Facet::class)
+            $this->createStub(Facet::class),
         );
     }
 }

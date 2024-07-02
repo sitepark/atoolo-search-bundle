@@ -30,11 +30,11 @@ class ResourceChannelBasedIndexNameTest extends TestCase
             '',
             '',
             'test',
-            ['en_US']
+            ['en_US'],
         );
 
         $this->indexName = new ResourceChannelBasedIndexName(
-            $resourceChannel
+            $resourceChannel,
         );
     }
 
@@ -44,7 +44,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
             'test',
             $this->indexName->name(ResourceLanguage::default()),
             'The default index name should be returned ' .
-            'if no language is given'
+            'if no language is given',
         );
     }
 
@@ -54,7 +54,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
             'test-en_US',
             $this->indexName->name(ResourceLanguage::of('en')),
             'The language-specific index name should be returned ' .
-            'if a language is given'
+            'if a language is given',
         );
     }
 
@@ -64,7 +64,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
             'test',
             $this->indexName->name(ResourceLanguage::of('')),
             'The default index name should be returned ' .
-            'if the default language is given'
+            'if the default language is given',
         );
     }
 
@@ -74,7 +74,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
             'test',
             $this->indexName->name(ResourceLanguage::of('de')),
             'The default index name should be returned ' .
-            'if the default language is given'
+            'if the default language is given',
         );
     }
 
@@ -89,7 +89,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
         $this->assertEquals(
             ['test', 'test-en_US'],
             $this->indexName->names(),
-            'All index names should be returned'
+            'All index names should be returned',
         );
     }
 }

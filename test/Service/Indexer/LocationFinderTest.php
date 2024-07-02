@@ -16,7 +16,7 @@ class LocationFinderTest extends TestCase
     protected function setUp(): void
     {
         $resourceDir = realpath(
-            __DIR__ . '/../../resources/Service/Indexer/LocationFinder'
+            __DIR__ . '/../../resources/Service/Indexer/LocationFinder',
         );
         if ($resourceDir === false) {
             throw new InvalidArgumentException('basepath not found');
@@ -33,7 +33,7 @@ class LocationFinderTest extends TestCase
             $resourceDir,
             '',
             '',
-            []
+            [],
         );
         $this->locationFinder = new LocationFinder($resourceChannel);
     }
@@ -45,10 +45,10 @@ class LocationFinderTest extends TestCase
             [
                 '/a.php',
                 '/b/c.php',
-                '/f.pdf.media.php'
+                '/f.pdf.media.php',
             ],
             $locations,
-            'unexpected locations'
+            'unexpected locations',
         );
     }
 
@@ -58,10 +58,10 @@ class LocationFinderTest extends TestCase
         $this->assertEquals(
             [
                 '/a.php',
-                '/f.pdf.media.php'
+                '/f.pdf.media.php',
             ],
             $locations,
-            'unexpected locations'
+            'unexpected locations',
         );
     }
 
@@ -69,15 +69,15 @@ class LocationFinderTest extends TestCase
     {
         $locations = $this->locationFinder->findPaths(
             [
-                'a.php'
-            ]
+                'a.php',
+            ],
         );
         $this->assertEquals(
             [
                 '/a.php',
             ],
             $locations,
-            'unexpected locations'
+            'unexpected locations',
         );
     }
 
@@ -86,13 +86,13 @@ class LocationFinderTest extends TestCase
     {
         $locations = $this->locationFinder->findPaths(
             [
-                '/a.php'
+                '/a.php',
             ],
-            ['/a.*']
+            ['/a.*'],
         );
         $this->assertEmpty(
             $locations,
-            'locations should be empty'
+            'locations should be empty',
         );
     }
 
@@ -101,14 +101,14 @@ class LocationFinderTest extends TestCase
         $locations = $this->locationFinder->findPaths(
             [
                 '/b',
-            ]
+            ],
         );
         $this->assertEquals(
             [
                 '/b/c.php',
             ],
             $locations,
-            'unexpected locations'
+            'unexpected locations',
         );
     }
 
@@ -118,11 +118,11 @@ class LocationFinderTest extends TestCase
             [
                 '/b',
             ],
-            ['c\..*']
+            ['c\..*'],
         );
         $this->assertEmpty(
             $locations,
-            'locations should be empty'
+            'locations should be empty',
         );
     }
 }

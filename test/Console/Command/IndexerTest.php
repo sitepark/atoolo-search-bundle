@@ -40,11 +40,11 @@ class IndexerTest extends TestCase
             '',
             '',
             'test',
-            []
+            [],
         );
 
         $indexerA = $this->createStub(
-            \Atoolo\Search\Indexer::class
+            \Atoolo\Search\Indexer::class,
         );
         $indexerA->method('enabled')
             ->willReturn(true);
@@ -54,7 +54,7 @@ class IndexerTest extends TestCase
             ->willReturn('Indexer A');
 
         $indexerB = $this->createStub(
-            \Atoolo\Search\Indexer::class
+            \Atoolo\Search\Indexer::class,
         );
         $indexerB->method('enabled')
             ->willReturn(false);
@@ -64,7 +64,7 @@ class IndexerTest extends TestCase
             ->willReturn('Indexer B');
 
         $indexerC = $this->createStub(
-            \Atoolo\Search\Indexer::class
+            \Atoolo\Search\Indexer::class,
         );
         $indexerC->method('enabled')
             ->willReturn(true);
@@ -76,7 +76,7 @@ class IndexerTest extends TestCase
         $indexers = new IndexerCollection([
             $indexerA,
             $indexerB,
-            $indexerC
+            $indexerC,
         ]);
 
         $progressBar = $this->createStub(IndexerProgressBar::class);
@@ -107,10 +107,10 @@ class IndexerTest extends TestCase
             '',
             '',
             'test',
-            []
+            [],
         );
         $resourceChannelFactory = $this->createStub(
-            ResourceChannelFactory::class
+            ResourceChannelFactory::class,
         );
         $resourceChannelFactory->method('create')
             ->willReturn($resourceChannel);
@@ -131,7 +131,7 @@ class IndexerTest extends TestCase
         $this->assertEquals(
             Command::FAILURE,
             $commandTester->getStatusCode(),
-            'command should failed'
+            'command should failed',
         );
 
         // the output of the command in the console
@@ -143,7 +143,7 @@ Channel: WWW
 
  [ERROR] No indexer available
 EOF,
-            trim($output)
+            trim($output),
         );
     }
     public function testExecuteSelectIndexer(): void
@@ -159,7 +159,7 @@ EOF,
         $output = $this->commandTester->getDisplay();
         $this->assertStringContainsString(
             'You have just selected: Indexer A (source: indexer_a)',
-            $output
+            $output,
         );
     }
 
@@ -167,8 +167,8 @@ EOF,
     {
         $this->commandTester->execute(
             [
-                '--source' => 'indexer_a'
-            ]
+                '--source' => 'indexer_a',
+            ],
         );
 
         $this->commandTester->assertCommandIsSuccessful();
@@ -194,7 +194,7 @@ Status
 
 
 EOF,
-            $output
+            $output,
         );
     }
     /**
@@ -204,13 +204,13 @@ EOF,
     {
 
         $indexer = $this->createStub(
-            \Atoolo\Search\Indexer::class
+            \Atoolo\Search\Indexer::class,
         );
         $indexer->method('enabled')
             ->willReturn(true);
         $indexers = new IndexerCollection([$indexer]);
         $progressBar = $this->createStub(
-            IndexerProgressBar::class
+            IndexerProgressBar::class,
         );
         $progressBar
             ->method('getErrors')
@@ -236,7 +236,7 @@ EOF,
         $this->assertStringContainsString(
             'errortest',
             $output,
-            'error message expected'
+            'error message expected',
         );
     }
 
@@ -248,13 +248,13 @@ EOF,
     {
 
         $indexer = $this->createStub(
-            \Atoolo\Search\Indexer::class
+            \Atoolo\Search\Indexer::class,
         );
         $indexer->method('enabled')
             ->willReturn(true);
         $indexers = new IndexerCollection([$indexer]);
         $progressBar = $this->createStub(
-            IndexerProgressBar::class
+            IndexerProgressBar::class,
         );
         $progressBar
             ->method('getErrors')
@@ -272,7 +272,7 @@ EOF,
         $commandTester = new CommandTester($command);
 
         $commandTester->execute([], [
-            'verbosity' => OutputInterface::VERBOSITY_VERBOSE
+            'verbosity' => OutputInterface::VERBOSITY_VERBOSE,
         ]);
 
         $commandTester->assertCommandIsSuccessful();
@@ -282,7 +282,7 @@ EOF,
         $this->assertStringContainsString(
             'Exception trace',
             $output,
-            'error message should contains stack trace'
+            'error message should contains stack trace',
         );
     }
 }

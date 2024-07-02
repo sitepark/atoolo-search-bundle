@@ -7,6 +7,4 @@ namespace Atoolo\Search\Dto\Indexer;
 /**
  * @codeCoverageIgnore
  */
-class InternalResourceIndexerEvent
-{
-}
+class InternalResourceIndexerEvent {}

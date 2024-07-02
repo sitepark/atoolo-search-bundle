@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'name' => 'Without Source'
+    'name' => 'Without Source',
 ];

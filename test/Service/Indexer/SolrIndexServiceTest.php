@@ -32,7 +32,7 @@ class SolrIndexServiceTest extends TestCase
         $response = $this->createStub(CoreAdminResult::class);
         $response->method('getStatusResults')->willReturn([
             $statusResult,
-            $statusResultEn
+            $statusResultEn,
         ]);
 
         $this->client = $this->createMock(Client::class);
@@ -44,7 +44,7 @@ class SolrIndexServiceTest extends TestCase
         $this->factory->method('create')->willReturn($this->client);
         $this->indexService = new SolrIndexService(
             $this->indexName,
-            $this->factory
+            $this->factory,
         );
     }
     public function testUpdater(): void
@@ -59,7 +59,7 @@ class SolrIndexServiceTest extends TestCase
         $this->assertEquals(
             'test',
             $index,
-            'Index name should be returned'
+            'Index name should be returned',
         );
     }
 
@@ -69,7 +69,7 @@ class SolrIndexServiceTest extends TestCase
         $this->indexService->deleteExcludingProcessId(
             ResourceLanguage::default(),
             'test',
-            'test'
+            'test',
         );
     }
 
@@ -84,7 +84,7 @@ class SolrIndexServiceTest extends TestCase
         $this->client->expects($this->once())->method('createUpdate');
         $this->indexService->deleteByQuery(
             ResourceLanguage::default(),
-            'test'
+            'test',
         );
     }
 
@@ -113,7 +113,7 @@ class SolrIndexServiceTest extends TestCase
         $this->assertEquals(
             ['test', 'test-en_US'],
             $indices,
-            'Indices should be returned'
+            'Indices should be returned',
         );
     }
 }

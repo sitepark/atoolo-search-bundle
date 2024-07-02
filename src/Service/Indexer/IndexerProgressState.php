@@ -23,8 +23,7 @@ class IndexerProgressState implements IndexerProgressHandler
         private readonly IndexName $index,
         private readonly IndexerStatusStore $statusStore,
         private readonly string $source,
-    ) {
-    }
+    ) {}
 
     public function prepare(string $message): void
     {
@@ -42,7 +41,7 @@ class IndexerProgressState implements IndexerProgressHandler
         );
         $this->statusStore->store(
             $this->getStatusStoreKey(),
-            $this->status
+            $this->status,
         );
     }
 
@@ -71,7 +70,7 @@ class IndexerProgressState implements IndexerProgressHandler
         );
         $this->statusStore->store(
             $this->getStatusStoreKey(),
-            $this->status
+            $this->status,
         );
     }
 
@@ -95,7 +94,7 @@ class IndexerProgressState implements IndexerProgressHandler
         );
         $this->statusStore->store(
             $this->getStatusStoreKey(),
-            $this->status
+            $this->status,
         );
     }
 
@@ -103,7 +102,7 @@ class IndexerProgressState implements IndexerProgressHandler
     {
         if ($this->status === null) {
             throw new LogicException(
-                'Cannot advance without starting the progress'
+                'Cannot advance without starting the progress',
             );
         }
         $this->status->processed += $step;
@@ -113,7 +112,7 @@ class IndexerProgressState implements IndexerProgressHandler
         }
         $this->statusStore->store(
             $this->getStatusStoreKey(),
-            $this->status
+            $this->status,
         );
     }
 
@@ -121,7 +120,7 @@ class IndexerProgressState implements IndexerProgressHandler
     {
         if ($this->status === null) {
             throw new LogicException(
-                'Cannot advance without starting the progress'
+                'Cannot advance without starting the progress',
             );
         }
         $this->status->skipped += $step;
@@ -131,7 +130,7 @@ class IndexerProgressState implements IndexerProgressHandler
     {
         if ($this->status === null) {
             throw new LogicException(
-                'Cannot advance without starting the progress'
+                'Cannot advance without starting the progress',
             );
         }
         $this->status->errors++;
@@ -141,7 +140,7 @@ class IndexerProgressState implements IndexerProgressHandler
     {
         if ($this->status === null) {
             throw new LogicException(
-                'Cannot advance without starting the progress'
+                'Cannot advance without starting the progress',
             );
         }
         if (!$this->isUpdate) {
@@ -157,7 +156,7 @@ class IndexerProgressState implements IndexerProgressHandler
     {
         if ($this->status === null) {
             throw new LogicException(
-                'Cannot advance without starting the progress'
+                'Cannot advance without starting the progress',
             );
         }
         $this->status->state = IndexerStatusState::ABORTED;

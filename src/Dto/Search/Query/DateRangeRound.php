@@ -7,7 +7,7 @@ namespace Atoolo\Search\Dto\Search\Query;
 /**
  * @codeCoverageIgnore
  */
-enum DateRangeRound : string
+enum DateRangeRound: string
 {
     case START_OF_DAY = 'START_OF_DAY';
     case START_OF_PREVIOUS_DAY = 'START_OF_PREVIOUS_DAY';

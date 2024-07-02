@@ -14,7 +14,6 @@ class FacetGroup
      */
     public function __construct(
         public readonly string $key,
-        public readonly array $facets
-    ) {
-    }
+        public readonly array $facets,
+    ) {}
 }

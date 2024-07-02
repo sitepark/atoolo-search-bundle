@@ -201,12 +201,12 @@ class SolrQueryFilterAppenderTest extends TestCase
             [
                 'P1D',
                 'P1D',
-                'test:[NOW-1DAYS/DAY TO NOW+1DAYS/DAY+1DAY-1SECOND]'
+                'test:[NOW-1DAYS/DAY TO NOW+1DAYS/DAY+1DAY-1SECOND]',
             ],
             [
                 'P1W',
                 'P2M',
-                'test:[NOW-7DAYS/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]'
+                'test:[NOW-7DAYS/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]',
             ],
         ];
     }
@@ -222,21 +222,21 @@ class SolrQueryFilterAppenderTest extends TestCase
                 'P1D',
                 null,
                 'test:[2021-01-01T00:00:00Z-1DAYS/DAY' .
-                ' TO 2021-01-01T00:00:00Z/DAY+1DAY-1SECOND]'
+                ' TO 2021-01-01T00:00:00Z/DAY+1DAY-1SECOND]',
             ],
             [
                 new DateTime('2021-01-01 00:00:00Z'),
                 null,
                 'P2M',
                 'test:[2021-01-01T00:00:00Z/DAY' .
-                ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]'
+                ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
             ],
             [
                 new DateTime('2021-01-01 00:00:00Z'),
                 'P1W',
                 'P2M',
                 'test:[2021-01-01T00:00:00Z-7DAYS/DAY' .
-                ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]'
+                ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
             ],
         ];
     }
@@ -259,14 +259,14 @@ class SolrQueryFilterAppenderTest extends TestCase
     #[DataProvider('additionProviderForBeforeIntervals')]
     public function testGetQueryWithFrom(
         string $before,
-        string $expected
+        string $expected,
     ): void {
         $filter = new RelativeDateRangeFilter(
             null,
             new DateInterval($before),
             null,
             null,
-            null
+            null,
         );
 
         $this->filterQuery->expects($this->once())
@@ -282,14 +282,14 @@ class SolrQueryFilterAppenderTest extends TestCase
     #[DataProvider('additionProviderForAfterIntervals')]
     public function testGetQueryWithTo(
         string $after,
-        string $expected
+        string $expected,
     ): void {
         $filter = new RelativeDateRangeFilter(
             null,
             null,
             new DateInterval($after),
             null,
-            null
+            null,
         );
 
         $this->filterQuery->expects($this->once())
@@ -306,14 +306,14 @@ class SolrQueryFilterAppenderTest extends TestCase
     public function testGetQueryWithFromAndTo(
         string $before,
         string $after,
-        string $expected
+        string $expected,
     ): void {
         $filter = new RelativeDateRangeFilter(
             null,
             new DateInterval($before),
             new DateInterval($after),
             null,
-            null
+            null,
         );
 
         $this->filterQuery->expects($this->once())
@@ -331,14 +331,14 @@ class SolrQueryFilterAppenderTest extends TestCase
         DateTime $base,
         ?string $before,
         ?string $after,
-        string $expected
+        string $expected,
     ): void {
         $filter = new RelativeDateRangeFilter(
             $base,
             $before === null ? null : new DateInterval($before),
             $after === null ? null : new DateInterval($after),
             null,
-            null
+            null,
         );
 
         $this->filterQuery->expects($this->once())
@@ -353,14 +353,14 @@ class SolrQueryFilterAppenderTest extends TestCase
      */
     #[DataProvider('additionProviderForInvalidIntervals')]
     public function testGetQueryWithInvalidIntervals(
-        string $interval
+        string $interval,
     ): void {
         $filter = new RelativeDateRangeFilter(
             null,
             null,
             new DateInterval($interval),
             null,
-            null
+            null,
         );
         $this->expectException(InvalidArgumentException::class);
         $this->appender->append($filter);

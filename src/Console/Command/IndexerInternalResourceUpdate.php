@@ -17,7 +17,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'search:indexer:update-internal-resources',
-    description: 'Update internal resources in search index'
+    description: 'Update internal resources in search index',
 )]
 class IndexerInternalResourceUpdate extends Command
 {
@@ -39,14 +39,14 @@ class IndexerInternalResourceUpdate extends Command
             ->addArgument(
                 'paths',
                 InputArgument::REQUIRED | InputArgument::IS_ARRAY,
-                'Resources paths or directories of resources to be updated.'
+                'Resources paths or directories of resources to be updated.',
             )
         ;
     }
 
     protected function execute(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
 
         $typedInput = new TypifiedInput($input);
@@ -59,7 +59,7 @@ class IndexerInternalResourceUpdate extends Command
 
         $this->io->section(
             'Index resource paths with Indexer "' .
-            $this->indexer->getName() . '"'
+            $this->indexer->getName() . '"',
         );
         $this->io->listing($paths);
         $progressHandler = $this->indexer->getProgressHandler();

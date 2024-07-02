@@ -12,15 +12,15 @@ class AbsoluteDateRangeFilter extends Filter
     public function __construct(
         public readonly ?DateTime $from,
         public readonly ?DateTime $to,
-        ?string $key = null
+        ?string $key = null,
     ) {
         parent::__construct(
             $key,
-            $key !== null ? [$key] : []
+            $key !== null ? [$key] : [],
         );
         if ($this->from === null && $this->to === null) {
             throw new InvalidArgumentException(
-                'At least `from` or `to` must be specified'
+                'At least `from` or `to` must be specified',
             );
         }
     }

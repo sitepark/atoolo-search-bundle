@@ -46,9 +46,8 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 {
     public function __construct(
         private readonly SiteKitNavigationHierarchyLoader $navigationLoader,
-        private readonly ContentCollector $contentCollector
-    ) {
-    }
+        private readonly ContentCollector $contentCollector,
+    ) {}
 
     public function cleanup(): void
     {
@@ -61,7 +60,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
     public function enrichDocument(
         Resource $resource,
         IndexDocument $doc,
-        string $processId
+        string $processId,
     ): IndexDocument {
 
         $data = $resource->data;
@@ -77,7 +76,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 
         if (empty($doc->description)) {
             $doc->description = $resource->data->getString(
-                'metadata.intro'
+                'metadata.intro',
             );
         }
         $doc->sp_objecttype = $resource->objectType;
@@ -116,10 +115,10 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $doc->meta_content_language = $lang;
 
         $doc->sp_changed = $this->toDateTime(
-            $data->getInt('changed')
+            $data->getInt('changed'),
         );
         $doc->sp_generated = $this->toDateTime(
-            $data->getInt('generated')
+            $data->getInt('generated'),
         );
 
         $doc->sp_archive = $base->getBool('archive');
@@ -140,21 +139,21 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 
         $doc->sp_boost_keywords = implode(
             ' ',
-            $metadata->getArray('boostKeywords')
+            $metadata->getArray('boostKeywords'),
         );
 
         try {
             $sites = $this->getParentSiteGroupIdList($resource);
 
             $navigationRoot = $this->navigationLoader->loadRoot(
-                $resource->toLocation()
+                $resource->toLocation(),
             );
 
             $siteGroupId = $navigationRoot->data->getInt(
-                'siteGroup.id'
+                'siteGroup.id',
             );
             if ($siteGroupId !== 0) {
-                $sites[] = (string)$siteGroupId;
+                $sites[] = (string) $siteGroupId;
             }
             $doc->sp_site = array_unique($sites);
         } catch (Exception $e) {
@@ -162,7 +161,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
                 $resource->toLocation(),
                 'Unable to set sp_site: ' . $e->getMessage(),
                 0,
-                $e
+                $e,
             );
         }
 
@@ -177,7 +176,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         if (!empty($categoryList)) {
             $categoryIdList = [];
             foreach ($categoryList as $category) {
-                $categoryIdList[] = (string)$category['id'];
+                $categoryIdList[] = (string) $category['id'];
             }
             $doc->sp_category = $categoryIdList;
         }
@@ -187,7 +186,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         if (!empty($categoryPath)) {
             $categoryIdPath = [];
             foreach ($categoryPath as $category) {
-                $categoryIdPath[] = (string)$category['id'];
+                $categoryIdPath[] = (string) $category['id'];
             }
             $doc->sp_category_path = $categoryIdPath;
         }
@@ -205,7 +204,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $doc->sp_group_path = $groupPathAsIdList;
 
         $doc->sp_date = $this->toDateTime(
-            $base->getInt('date')
+            $base->getInt('date'),
         );
         if ($doc->sp_date !== null) {
             $doc->sp_date_list = [$doc->sp_date];
@@ -226,7 +225,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             }
             $doc->sp_contenttype = array_merge(
                 $doc->sp_contenttype,
-                ...$contentTypeList
+                ...$contentTypeList,
             );
             $doc->sp_contenttype = array_unique($doc->sp_contenttype);
 
@@ -235,7 +234,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 
         $contentType = $base->getString(
             'mime',
-            'text/html; charset=UTF-8'
+            'text/html; charset=UTF-8',
         );
         $doc->meta_content_type = $contentType;
 
@@ -246,13 +245,13 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 
         if ($accessType === 'allow' && !empty($groups)) {
             $doc->include_groups = array_map(
-                fn($id): string => (string)$this->idWithoutSignature($id),
-                $groups
+                fn($id): string => (string) $this->idWithoutSignature($id),
+                $groups,
             );
         } elseif ($accessType === 'deny' && !empty($groups)) {
             $doc->exclude_groups = array_map(
-                fn($id): string => (string)$this->idWithoutSignature($id),
-                $groups
+                fn($id): string => (string) $this->idWithoutSignature($id),
+                $groups,
             );
         } else {
             $doc->exclude_groups = ['none'];
@@ -276,11 +275,11 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 
         $content = [];
         $content[] = $resource->data->getString(
-            'searchindexdata.content'
+            'searchindexdata.content',
         );
 
         $content[] = $this->contentCollector->collect(
-            $resource->data->getArray('content')
+            $resource->data->getArray('content'),
         );
 
         /** @var ContactPoint $contactPoint */
@@ -296,7 +295,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $cleanContent = preg_replace(
             '/\s+/',
             ' ',
-            implode(' ', $content)
+            implode(' ', $content),
         );
 
         $doc->content = trim($cleanContent ?? '');
@@ -347,7 +346,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
     private function idWithoutSignature(string $id): int
     {
         $s = substr($id, -11);
-        return (int)$s;
+        return (int) $s;
     }
 
     private function getLocaleFromResource(Resource $resource): string
@@ -421,7 +420,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
     private function getNavigationParents(Resource $resource): array
     {
         return $resource->data->getAssociativeArray(
-            'base.trees.navigation.parents'
+            'base.trees.navigation.parents',
         );
     }
 }

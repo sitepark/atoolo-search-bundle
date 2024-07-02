@@ -40,7 +40,7 @@ class SuggestTest extends TestCase
             '',
             '',
             'test',
-            []
+            [],
         );
 
         $this->solrSuggest = $this->createStub(SolrSuggest::class);
@@ -58,15 +58,15 @@ class SuggestTest extends TestCase
         $result = new SuggestResult(
             [
                 new Suggestion('security', 10),
-                new Suggestion('section', 5)
+                new Suggestion('section', 5),
             ],
-            10
+            10,
         );
         $this->solrSuggest->method('suggest')
             ->willReturn($result);
 
         $this->commandTester->execute([
-            'terms' => 'sec'
+            'terms' => 'sec',
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();
@@ -84,7 +84,7 @@ Channel: WWW
  Query-Time: 10ms
 
 EOF,
-            $output
+            $output,
         );
     }
 
@@ -95,7 +95,7 @@ EOF,
             ->willReturn($result);
 
         $this->commandTester->execute([
-            'terms' => 'sec'
+            'terms' => 'sec',
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();
@@ -111,7 +111,7 @@ Channel: WWW
  No suggestions found
 
 EOF,
-            $output
+            $output,
         );
     }
 }

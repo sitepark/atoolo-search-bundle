@@ -11,9 +11,8 @@ use Atoolo\Search\Exception\UnsupportedIndexLanguageException;
 class ResourceChannelBasedIndexName implements IndexName
 {
     public function __construct(
-        private readonly ResourceChannel $resourceChannel
-    ) {
-    }
+        private readonly ResourceChannel $resourceChannel,
+    ) {}
 
     /**
      * @throws UnsupportedIndexLanguageException
@@ -51,7 +50,7 @@ class ResourceChannelBasedIndexName implements IndexName
      */
     private function langToAvailableLocale(
         ResourceChannel $resourceChannel,
-        ResourceLanguage $lang
+        ResourceLanguage $lang,
     ): string {
 
         if ($lang->code === ResourceLanguage::default()->code) {
@@ -78,7 +77,7 @@ class ResourceChannelBasedIndexName implements IndexName
             $resourceChannel->searchIndex,
             $lang,
             'No valid index can be determined for the language ' .
-            $lang->code
+            $lang->code,
         );
     }
 }

@@ -27,12 +27,11 @@ class IndexerProgressBar implements IndexerProgressHandler
     private array $errors = [];
 
     public function __construct(
-        private readonly OutputInterface $output = new ConsoleOutput()
-    ) {
-    }
+        private readonly OutputInterface $output = new ConsoleOutput(),
+    ) {}
 
     public function init(
-        IndexerProgressHandler $progressHandler
+        IndexerProgressHandler $progressHandler,
     ): void {
         $this->currentProgressHandler = $progressHandler;
         $this->errors = [];
@@ -87,7 +86,7 @@ class IndexerProgressBar implements IndexerProgressHandler
         $this->progressBar?->setProgressCharacter('<fg=' . $color . '>➤</>');
         $this->progressBar?->setFormat(
             "%current%/%max% [%bar%] %percent:3s%%\n" .
-            "  %estimated:-20s%  %memory:20s%"
+            "  %estimated:-20s%  %memory:20s%",
         );
     }
 

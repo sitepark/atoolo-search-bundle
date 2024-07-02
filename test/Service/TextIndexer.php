@@ -20,9 +20,7 @@ class TextIndexer extends AbstractIndexer
     /**
      * @inheritDoc
      */
-    public function remove(array $idList): void
-    {
-    }
+    public function remove(array $idList): void {}
 
     /**
      * make this method public for testing

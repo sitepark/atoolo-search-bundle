@@ -15,7 +15,7 @@ class UnexpectedResultExceptionTest extends TestCase
         $this->assertEquals(
             'test',
             $e->getResult(),
-            'unexpected result'
+            'unexpected result',
         );
     }
 }

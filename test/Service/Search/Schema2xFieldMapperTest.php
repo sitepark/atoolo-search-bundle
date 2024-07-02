@@ -100,13 +100,13 @@ class Schema2xFieldMapperTest extends TestCase
     #[DataProvider('getFacets')]
     public function testGetFacetField(
         string $facetClass,
-        string $expected
+        string $expected,
     ): void {
         /** @var Facet $facet */
         $facet = $this->createStub($facetClass);
         $this->assertEquals(
             $expected,
-            $this->mapper->getFacetField($facet)
+            $this->mapper->getFacetField($facet),
         );
     }
 
@@ -114,7 +114,7 @@ class Schema2xFieldMapperTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->mapper->getFacetField(
-            $this->createStub(Facet::class)
+            $this->createStub(Facet::class),
         );
     }
 
@@ -125,13 +125,13 @@ class Schema2xFieldMapperTest extends TestCase
     #[DataProvider('getFilter')]
     public function testGetFilterField(
         string $filterClass,
-        string $expected
+        string $expected,
     ): void {
         /** @var Filter $filter */
         $filter = $this->createStub($filterClass);
         $this->assertEquals(
             $expected,
-            $this->mapper->getFilterField($filter)
+            $this->mapper->getFilterField($filter),
         );
     }
 
@@ -139,7 +139,7 @@ class Schema2xFieldMapperTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->mapper->getFilterField(
-            $this->createStub(Filter::class)
+            $this->createStub(Filter::class),
         );
     }
 
@@ -150,13 +150,13 @@ class Schema2xFieldMapperTest extends TestCase
     #[DataProvider('getSortCriteria')]
     public function testGetSortField(
         string $sortCriteriaClass,
-        string $expected
+        string $expected,
     ): void {
         /** @var Criteria $criteria */
         $criteria = $this->createStub($sortCriteriaClass);
         $this->assertEquals(
             $expected,
-            $this->mapper->getSortField($criteria)
+            $this->mapper->getSortField($criteria),
         );
     }
 
@@ -165,7 +165,7 @@ class Schema2xFieldMapperTest extends TestCase
         $criteria = new CustomField('custom_field');
         $this->assertEquals(
             'custom_field',
-            $this->mapper->getSortField($criteria)
+            $this->mapper->getSortField($criteria),
         );
     }
 
@@ -173,7 +173,7 @@ class Schema2xFieldMapperTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->mapper->getSortField(
-            $this->createStub(Criteria::class)
+            $this->createStub(Criteria::class),
         );
     }
 
@@ -181,7 +181,7 @@ class Schema2xFieldMapperTest extends TestCase
     {
         $this->assertEquals(
             'sp_archive',
-            $this->mapper->getArchiveField()
+            $this->mapper->getArchiveField(),
         );
     }
 }

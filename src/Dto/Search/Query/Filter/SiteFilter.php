@@ -7,6 +7,4 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
 /**
  * @codeCoverageIgnore
  */
-class SiteFilter extends FieldFilter
-{
-}
+class SiteFilter extends FieldFilter {}

@@ -7,6 +7,4 @@ namespace Atoolo\Search\Dto\Search\Query\Facet;
 /**
  * @codeCoverageIgnore
  */
-class ContentSectionTypeFacet extends FieldFacet
-{
-}
+class ContentSectionTypeFacet extends FieldFacet {}

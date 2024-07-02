@@ -16,7 +16,7 @@ class FieldFacet extends Facet
     public function __construct(
         string $key,
         public readonly array $terms,
-        array $excludeFilter = []
+        array $excludeFilter = [],
     ) {
         parent::__construct($key, $excludeFilter);
     }

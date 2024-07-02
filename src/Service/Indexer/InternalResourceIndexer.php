@@ -65,10 +65,9 @@ class InternalResourceIndexer implements Indexer
         private readonly ?PhpLimitIncreaser $limitIncreaser,
         private readonly LoggerInterface $logger = new NullLogger(),
         private readonly LockFactory $lockFactory = new LockFactory(
-            new SemaphoreStore()
+            new SemaphoreStore(),
         ),
-    ) {
-    }
+    ) {}
 
     public function enabled(): bool
     {
@@ -99,7 +98,7 @@ class InternalResourceIndexer implements Indexer
     }
 
     public function setProgressHandler(
-        IndexerProgressHandler $progressHandler
+        IndexerProgressHandler $progressHandler,
     ): void {
         $this->progressHandler = $progressHandler;
     }
@@ -120,7 +119,7 @@ class InternalResourceIndexer implements Indexer
 
         $this->indexService->deleteByIdListForAllLanguages(
             $this->source,
-            $idList
+            $idList,
         );
         $this->indexService->commitForAllLanguages();
     }
@@ -137,11 +136,11 @@ class InternalResourceIndexer implements Indexer
     public function index(): IndexerStatus
     {
         $lock = $this->lockFactory->createLock(
-            'indexer.' . $this->getBaseIndex()
+            'indexer.' . $this->getBaseIndex(),
         );
         if (!$lock->acquire()) {
             $this->logger->notice('Indexer is already running', [
-                'index' => $this->getBaseIndex()
+                'index' => $this->getBaseIndex(),
             ]);
             return $this->progressHandler->getStatus();
         }
@@ -189,7 +188,7 @@ class InternalResourceIndexer implements Indexer
         try {
             $collectedPaths = $this->finder->findPaths(
                 $paths,
-                $param->excludes
+                $param->excludes,
             );
 
             $total = count($collectedPaths);
@@ -218,19 +217,19 @@ class InternalResourceIndexer implements Indexer
         $config = $this->configLoader->load($this->source);
         /** @var string[] $excludes */
         $excludes = $config->data->getArray(
-            'excludes'
+            'excludes',
         );
         return new IndexerParameter(
             $config->name,
             $config->data->getInt(
                 'cleanupThreshold',
-                1000
+                1000,
             ),
             $config->data->getInt(
                 'chunkSize',
-                500
+                500,
             ),
-            $excludes
+            $excludes,
         );
     }
 
@@ -246,7 +245,7 @@ class InternalResourceIndexer implements Indexer
      */
     private function indexResources(
         IndexerParameter $parameter,
-        array $pathList
+        array $pathList,
     ): void {
         if (count($pathList) === 0) {
             return;
@@ -255,7 +254,7 @@ class InternalResourceIndexer implements Indexer
         $splitterResult = $this->translationSplitter->split($pathList);
         $this->indexTranslationSplittedResources(
             $parameter,
-            $splitterResult
+            $splitterResult,
         );
     }
 
@@ -268,7 +267,7 @@ class InternalResourceIndexer implements Indexer
      */
     private function indexTranslationSplittedResources(
         IndexerParameter $parameter,
-        TranslationSplitterResult $splitterResult
+        TranslationSplitterResult $splitterResult,
     ): void {
 
         $processId = uniqid('', true);
@@ -280,7 +279,7 @@ class InternalResourceIndexer implements Indexer
             $parameter,
             ResourceLanguage::default(),
             $index,
-            $splitterResult->getBases()
+            $splitterResult->getBases(),
         );
 
         foreach ($splitterResult->getLanguages() as $lang) {
@@ -291,7 +290,7 @@ class InternalResourceIndexer implements Indexer
                     $parameter,
                     $lang,
                     $langIndex,
-                    $splitterResult->getTranslations($lang)
+                    $splitterResult->getTranslations($lang),
                 );
             } catch (UnsupportedIndexLanguageException $e) {
                 $this->handleError($e->getMessage());
@@ -310,7 +309,7 @@ class InternalResourceIndexer implements Indexer
         IndexerParameter $parameter,
         ResourceLanguage $lang,
         string $index,
-        array $locations
+        array $locations,
     ): void {
 
         if (empty($locations)) {
@@ -333,7 +332,7 @@ class InternalResourceIndexer implements Indexer
                 $index,
                 $locations,
                 $offset,
-                $parameter->chunkSize
+                $parameter->chunkSize,
             );
 
             gc_collect_cycles();
@@ -353,7 +352,7 @@ class InternalResourceIndexer implements Indexer
             $this->indexService->deleteExcludingProcessId(
                 $lang,
                 $this->source,
-                $processId
+                $processId,
             );
         }
         $this->indexService->commit($lang);
@@ -374,13 +373,13 @@ class InternalResourceIndexer implements Indexer
         string $index,
         array $locations,
         int $offset,
-        int $length
+        int $length,
     ): int|false {
         $resourceList = $this->loadResources(
             $lang,
             $locations,
             $offset,
-            $length
+            $length,
         );
         if ($resourceList === false) {
             return false;
@@ -412,7 +411,7 @@ class InternalResourceIndexer implements Indexer
         ResourceLanguage $lang,
         array $locations,
         int $offset,
-        int $length
+        int $length,
     ): array|false {
 
         $maxLength = count($locations) - $offset;
@@ -426,7 +425,7 @@ class InternalResourceIndexer implements Indexer
         for ($i = $offset; $i < $end; $i++) {
             $location = ResourceLocation::of(
                 $locations[$i],
-                $lang
+                $lang,
             );
             try {
                 $resource = $this->resourceLoader->load($location);
@@ -444,7 +443,7 @@ class InternalResourceIndexer implements Indexer
     private function add(
         ResourceLanguage $lang,
         string $processId,
-        array $resources
+        array $resources,
     ): UpdateResult {
 
         $updater = $this->indexService->updater($lang);
@@ -462,7 +461,7 @@ class InternalResourceIndexer implements Indexer
                     $doc = $enricher->enrichDocument(
                         $resource,
                         $doc,
-                        $processId
+                        $processId,
                     );
                 }
                 foreach ($this->documentEnricherList as $enricher) {
@@ -488,7 +487,7 @@ class InternalResourceIndexer implements Indexer
             $error->getMessage(),
             [
                 'exception' => $error,
-            ]
+            ],
         );
     }
 
@@ -496,7 +495,7 @@ class InternalResourceIndexer implements Indexer
     {
         $this->indexService->deleteByQuery(
             ResourceLanguage::default(),
-            'crawl_status:error OR crawl_status:warning'
+            'crawl_status:error OR crawl_status:warning',
         );
     }
 }

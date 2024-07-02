@@ -12,9 +12,8 @@ use RuntimeException;
 class IndexerConfigurationLoader
 {
     public function __construct(
-        private readonly ResourceChannel $resourceChannel
-    ) {
-    }
+        private readonly ResourceChannel $resourceChannel,
+    ) {}
 
     /**
      * @return array<IndexerConfiguration>
@@ -69,7 +68,7 @@ class IndexerConfigurationLoader
             if (!is_array($data)) {
                 throw new RuntimeException(
                     'The indexer configuration ' .
-                    $file . ' should return an array'
+                    $file . ' should return an array',
                 );
             }
 

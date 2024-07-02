@@ -13,12 +13,12 @@ class MissMatchingResourceFactoryException extends RuntimeException
         private readonly ResourceLocation $location,
         string $message = "",
         int $code = 0,
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ) {
         parent::__construct(
             $location->__toString() . ': ' . $message,
             $code,
-            $previous
+            $previous,
         );
     }
 

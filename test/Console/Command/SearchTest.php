@@ -43,7 +43,7 @@ class SearchTest extends TestCase
             '',
             '',
             'test',
-            []
+            [],
         );
 
         $this->solrSearch = $this->createStub(SolrSearch::class);
@@ -64,7 +64,7 @@ class SearchTest extends TestCase
             '',
             '',
             ResourceLanguage::default(),
-            new DataBag([])
+            new DataBag([]),
         );
         $result = new SearchResult(
             1,
@@ -75,17 +75,17 @@ class SearchTest extends TestCase
                 'objectType',
                 [new Facet(
                     'content',
-                    1
-                )]
+                    1,
+                )],
             )],
-            10
+            10,
         );
 
         $this->solrSearch->method('search')
             ->willReturn($result);
 
         $this->commandTester->execute([
-            'text' => 'test abc'
+            'text' => 'test abc',
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();
@@ -113,7 +113,7 @@ objectType
  Query-Time: 10ms
 
 EOF,
-            $output
+            $output,
         );
     }
 
@@ -126,14 +126,14 @@ EOF,
             0,
             [],
             [],
-            10
+            10,
         );
 
         $this->solrSearch->method('search')
             ->willReturn($result);
 
         $this->commandTester->execute([
-            'text' => 'test abc'
+            'text' => 'test abc',
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();
@@ -148,7 +148,7 @@ Channel: WWW
  No results found
 
 EOF,
-            $output
+            $output,
         );
     }
 }

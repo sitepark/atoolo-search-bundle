@@ -25,7 +25,7 @@ class TypifiedInputTest extends TestCase
         $this->assertEquals(
             123,
             $input->getIntOption('a'),
-            'unexpected option value'
+            'unexpected option value',
         );
     }
 
@@ -54,7 +54,7 @@ class TypifiedInputTest extends TestCase
         $this->assertEquals(
             'abc',
             $input->getStringOption('a'),
-            'unexpected option value'
+            'unexpected option value',
         );
     }
 
@@ -83,7 +83,7 @@ class TypifiedInputTest extends TestCase
         $this->assertEquals(
             'abc',
             $input->getStringArgument('a'),
-            'unexpected argument value'
+            'unexpected argument value',
         );
     }
 
@@ -111,7 +111,7 @@ class TypifiedInputTest extends TestCase
         $this->assertEquals(
             ['a', 'b', 'c'],
             $input->getArrayArgument('a'),
-            'unexpected argument value'
+            'unexpected argument value',
         );
     }
 

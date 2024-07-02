@@ -24,7 +24,7 @@ class IndexerStatusStore
         $normalizers = [
             new BackedEnumNormalizer(),
             new DateTimeNormalizer(),
-            new PropertyNormalizer()
+            new PropertyNormalizer(),
         ];
 
         $this->serializer = new Serializer($normalizers, $encoders);
@@ -72,7 +72,7 @@ class IndexerStatusStore
         $file = $this->getStatusFile($key);
         if (file_exists($file) && !is_writable($file)) {
             throw new RuntimeException(
-                'File ' . $file . ' is not writable'
+                'File ' . $file . ' is not writable',
             );
         }
         $json = $this
@@ -99,20 +99,20 @@ class IndexerStatusStore
                 !@mkdir(
                     $concurrentDirectory,
                     0777,
-                    true
+                    true,
                 ) &&
                 !is_dir($concurrentDirectory)
             )
         ) {
             throw new RuntimeException(sprintf(
                 'Directory "%s" was not created',
-                $concurrentDirectory
+                $concurrentDirectory,
             ));
         }
 
         if (!is_writable($this->basedir)) {
             throw new RuntimeException(
-                'Directory ' . $this->basedir . ' is not writable'
+                'Directory ' . $this->basedir . ' is not writable',
             );
         }
     }

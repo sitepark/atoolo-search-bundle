@@ -11,9 +11,7 @@ class ContentCollector
     /**
      * @param iterable<ContentMatcher> $matchers
      */
-    public function __construct(private readonly iterable $matchers)
-    {
-    }
+    public function __construct(private readonly iterable $matchers) {}
 
     /**
     * @param array<mixed,mixed> $data

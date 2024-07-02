@@ -12,7 +12,7 @@ class NotFilter extends Filter
     public function __construct(
         public readonly Filter $filter,
         ?string $key = null,
-        array $tags = []
+        array $tags = [],
     ) {
         parent::__construct($key, $tags);
     }

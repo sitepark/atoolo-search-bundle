@@ -21,6 +21,6 @@ use Atoolo\Search\Dto\Search\Result\SearchResult;
 interface MoreLikeThis
 {
     public function moreLikeThis(
-        MoreLikeThisQuery $query
+        MoreLikeThisQuery $query,
     ): SearchResult;
 }

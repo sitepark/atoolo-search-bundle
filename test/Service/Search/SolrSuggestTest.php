@@ -33,7 +33,7 @@ class SolrSuggestTest extends TestCase
     {
         $indexName = $this->createStub(IndexName::class);
         $clientFactory = $this->createStub(
-            SolrClientFactory::class
+            SolrClientFactory::class,
         );
         $client = $this->createStub(Client::class);
         $clientFactory->method('create')->willReturn($client);
@@ -49,13 +49,13 @@ class SolrSuggestTest extends TestCase
         $client->method('select')->willReturn($this->result);
 
         $schemaFieldMapper = $this->createStub(
-            Schema2xFieldMapper::class
+            Schema2xFieldMapper::class,
         );
 
         $this->searcher = new SolrSuggest(
             $indexName,
             $clientFactory,
-            $schemaFieldMapper
+            $schemaFieldMapper,
         );
     }
 
@@ -66,7 +66,7 @@ class SolrSuggestTest extends TestCase
         $query = new SuggestQuery(
             'cat',
             ResourceLanguage::default(),
-            [$filter]
+            [$filter],
         );
 
         $response = new Response(<<<END
@@ -96,7 +96,7 @@ END);
         $this->assertEquals(
             $expected,
             $suggestResult->suggestions,
-            'unexpected suggestion'
+            'unexpected suggestion',
         );
     }
 
@@ -120,7 +120,7 @@ END);
 
         $this->assertEmpty(
             $suggestResult->suggestions,
-            'suggestion should be empty'
+            'suggestion should be empty',
         );
     }
 

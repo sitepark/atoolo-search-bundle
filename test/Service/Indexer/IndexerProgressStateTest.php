@@ -39,7 +39,7 @@ class IndexerProgressStateTest extends TestCase
         $this->state = new IndexerProgressState(
             $indexName,
             $this->statusStore,
-            'source'
+            'source',
         );
     }
 
@@ -50,7 +50,7 @@ class IndexerProgressStateTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/\[PREPARING].*prepare message.*/',
             $this->state->getStatus()->getStatusLine(),
-            "unexpected status line"
+            "unexpected status line",
         );
     }
 
@@ -61,7 +61,7 @@ class IndexerProgressStateTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/\[RUNNING].*processed: 0\/10,/',
             $this->state->getStatus()->getStatusLine(),
-            "unexpected status line"
+            "unexpected status line",
         );
     }
 
@@ -86,7 +86,7 @@ class IndexerProgressStateTest extends TestCase
             $endTime,
             0,
             0,
-            'prepare message'
+            'prepare message',
         );
 
         $this->state->start(10);
@@ -94,7 +94,7 @@ class IndexerProgressStateTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/\[RUNNING].*start: 31\.01\.2024 11:15,.*processed: 0\/10,/',
             $this->state->getStatus()->getStatusLine(),
-            "unexpected status line"
+            "unexpected status line",
         );
     }
 
@@ -110,7 +110,7 @@ class IndexerProgressStateTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/\[RUNNING].*processed: 0\/10,/',
             $this->state->getStatus()->getStatusLine(),
-            "unexpected status line"
+            "unexpected status line",
         );
     }
 
@@ -137,7 +137,7 @@ class IndexerProgressStateTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/\[RUNNING].*processed: 1\/10,.*updated: 1,/',
             $this->state->getStatus()->getStatusLine(),
-            "unexpected status line"
+            "unexpected status line",
         );
     }
 
@@ -151,7 +151,7 @@ class IndexerProgressStateTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/\[RUNNING].*skipped: 1,/',
             $this->state->getStatus()->getStatusLine(),
-            "unexpected status line"
+            "unexpected status line",
         );
     }
 
@@ -170,7 +170,7 @@ class IndexerProgressStateTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/\[RUNNING].*errors: 1$/',
             $this->state->getStatus()->getStatusLine(),
-            "unexpected status line"
+            "unexpected status line",
         );
     }
 
@@ -192,7 +192,7 @@ class IndexerProgressStateTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/\[FINISHED]/',
             $this->state->getStatus()->getStatusLine(),
-            "unexpected status line"
+            "unexpected status line",
         );
     }
 
@@ -211,7 +211,7 @@ class IndexerProgressStateTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/\[ABORTED]/',
             $this->state->getStatus()->getStatusLine(),
-            "unexpected status line"
+            "unexpected status line",
         );
     }
 
@@ -233,13 +233,13 @@ class IndexerProgressStateTest extends TestCase
         $state = new IndexerProgressState(
             $indexName,
             $statusStore,
-            'source'
+            'source',
         );
 
         $this->assertEquals(
             $status,
             $state->getStatus(),
-            'unexpected status'
+            'unexpected status',
         );
     }
 }
