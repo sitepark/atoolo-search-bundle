@@ -11,7 +11,6 @@ class Suggestion
 {
     public function __construct(
         public readonly string $term,
-        public readonly int $hits
-    ) {
-    }
+        public readonly int $hits,
+    ) {}
 }

@@ -15,6 +15,5 @@ class IndexerConfiguration
         public readonly string $source,
         public readonly string $name,
         public readonly DataBag $data,
-    ) {
-    }
+    ) {}
 }

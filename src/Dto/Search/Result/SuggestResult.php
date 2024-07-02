@@ -19,9 +19,8 @@ class SuggestResult implements IteratorAggregate
      */
     public function __construct(
         public readonly array $suggestions,
-        public readonly int $queryTime
-    ) {
-    }
+        public readonly int $queryTime,
+    ) {}
 
     /**
      * @return ArrayIterator<int,Suggestion>

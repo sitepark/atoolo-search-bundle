@@ -37,9 +37,8 @@ class SolrSearch implements Search
         private readonly SolrClientFactory $clientFactory,
         private readonly SolrResultToResourceResolver $resultToResourceResolver,
         private readonly Schema2xFieldMapper $schemaFieldMapper,
-        private readonly iterable $solrQueryModifierList = []
-    ) {
-    }
+        private readonly iterable $solrQueryModifierList = [],
+    ) {}
 
     public function search(SearchQuery $query): SearchResult
     {
@@ -54,7 +53,7 @@ class SolrSearch implements Search
 
     private function buildSolrQuery(
         Client $client,
-        SearchQuery $query
+        SearchQuery $query,
     ): SolrSelectQuery {
 
         $solrQuery = $client->createSelect();
@@ -75,16 +74,16 @@ class SolrSearch implements Search
         $this->addTextFilterToSolrQuery($solrQuery, $query->text);
         $this->addQueryDefaultOperatorToSolrQuery(
             $solrQuery,
-            $query->defaultQueryOperator
+            $query->defaultQueryOperator,
         );
         $this->addFilterQueriesToSolrQuery(
             $solrQuery,
             $query->filter,
-            $query->archive
+            $query->archive,
         );
         $this->addFacetListToSolrQuery(
             $solrQuery,
-            $query->facets
+            $query->facets,
         );
 
         if ($query->timeZone !== null) {
@@ -103,7 +102,7 @@ class SolrSearch implements Search
      */
     private function addSortToSolrQuery(
         SolrSelectQuery $solrQuery,
-        array $criteriaList
+        array $criteriaList,
     ): void {
 
         $sorts = [];
@@ -116,20 +115,20 @@ class SolrSearch implements Search
     }
 
     private function addRequiredFieldListToSolrQuery(
-        SolrSelectQuery $solrQuery
+        SolrSelectQuery $solrQuery,
     ): void {
         $solrQuery->setFields([
             'url',
             'title',
             'description',
             'sp_id',
-            'sp_objecttype'
+            'sp_objecttype',
         ]);
     }
 
     private function addTextFilterToSolrQuery(
         SolrSelectQuery $solrQuery,
-        string $text
+        string $text,
     ): void {
         if (empty($text)) {
             return;
@@ -138,14 +137,14 @@ class SolrSearch implements Search
             '/("[^"]*")|\h+/',
             $text,
             -1,
-            PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
+            PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE,
         ) ?: '';
         $that = $this;
         $terms = array_map(
             static function ($term) use ($solrQuery, $that) {
                 return $that->escapeTerm($term, $solrQuery);
             },
-            is_array($terms) ? $terms : [$terms]
+            is_array($terms) ? $terms : [$terms],
         );
         $text = implode(' ', $terms);
         $solrQuery->setQuery($text);
@@ -153,7 +152,7 @@ class SolrSearch implements Search
 
     private function escapeTerm(
         string $term,
-        SolrSelectQuery $solrQuery
+        SolrSelectQuery $solrQuery,
     ): string {
         $term = trim($term);
         $operator = ($term[0] === '+' || $term[0] === '-') ? $term[0] : null;
@@ -177,12 +176,12 @@ class SolrSearch implements Search
 
     private function addQueryDefaultOperatorToSolrQuery(
         SolrSelectQuery $solrQuery,
-        QueryOperator $operator
+        QueryOperator $operator,
     ): void {
         $solrQuery->setQueryDefaultOperator(
             $operator === QueryOperator::OR
                 ? SolrSelectQuery::QUERY_OPERATOR_OR
-                : SolrSelectQuery::QUERY_OPERATOR_AND
+                : SolrSelectQuery::QUERY_OPERATOR_AND,
         );
     }
 
@@ -192,11 +191,11 @@ class SolrSearch implements Search
     private function addFilterQueriesToSolrQuery(
         SolrSelectQuery $solrQuery,
         array $filterList,
-        bool $archive
+        bool $archive,
     ): void {
         $filterAppender = new SolrQueryFilterAppender(
             $solrQuery,
-            $this->schemaFieldMapper
+            $this->schemaFieldMapper,
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);
@@ -211,11 +210,11 @@ class SolrSearch implements Search
      */
     private function addFacetListToSolrQuery(
         SolrSelectQuery $solrQuery,
-        array $facetList
+        array $facetList,
     ): void {
         $facetAppender = new SolrQueryFacetAppender(
             $solrQuery,
-            $this->schemaFieldMapper
+            $this->schemaFieldMapper,
         );
         foreach ($facetList as $facet) {
             $facetAppender->append($facet);
@@ -224,30 +223,30 @@ class SolrSearch implements Search
 
     private function addBoosting(
         SolrSelectQuery $solrQuery,
-        ?Boosting $boosting
+        ?Boosting $boosting,
     ): void {
         $boosting = $boosting ?? new DefaultBoosting();
 
         $edismax = $solrQuery->getEDisMax();
         if (!empty($boosting->queryFields)) {
             $edismax->setQueryFields(
-                implode(' ', $boosting->queryFields)
+                implode(' ', $boosting->queryFields),
             );
         }
         if (!empty($boosting->phraseFields)) {
             $edismax->setPhraseFields(
-                implode(' ', $boosting->phraseFields)
+                implode(' ', $boosting->phraseFields),
             );
         }
         foreach ($boosting->boostQueries as $key => $query) {
             $edismax->addBoostQuery([
                 'key' => $key,
-                'query' => $query
+                'query' => $query,
             ]);
         }
         if (!empty($boosting->boostFunctions)) {
             $edismax->setBoostFunctions(
-                implode(' ', $boosting->boostFunctions)
+                implode(' ', $boosting->boostFunctions),
             );
         }
         if ($boosting->tie > 0.0) {
@@ -258,7 +257,7 @@ class SolrSearch implements Search
     private function buildResult(
         SearchQuery $query,
         SelectResult $result,
-        ResourceLanguage $lang
+        ResourceLanguage $lang,
     ): SearchResult {
 
         $resourceList = $this->resultToResourceResolver
@@ -271,7 +270,7 @@ class SolrSearch implements Search
             offset: $query->offset,
             results: $resourceList,
             facetGroups: $facetGroupList,
-            queryTime: $result->getQueryTime() ?? 0
+            queryTime: $result->getQueryTime() ?? 0,
         );
     }
 
@@ -280,7 +279,7 @@ class SolrSearch implements Search
      */
     private function buildFacetGroupList(
         SearchQuery $query,
-        SelectResult $result
+        SelectResult $result,
     ): array {
 
         $facetSet = $result->getFacetSet();
@@ -299,7 +298,7 @@ class SolrSearch implements Search
             ) {
                 $facetGroupList[] = $this->buildFacetGroupByField(
                     $facet->key,
-                    $resultFacet
+                    $resultFacet,
                 );
             }
 
@@ -308,7 +307,7 @@ class SolrSearch implements Search
             ) {
                 $facetGroupList[] = $this->buildFacetGroupByQuery(
                     $facet->key,
-                    $resultFacet
+                    $resultFacet,
                 );
             }
         }
@@ -317,23 +316,23 @@ class SolrSearch implements Search
 
     private function buildFacetGroupByField(
         string $key,
-        SolrFacetField $solrFacet
+        SolrFacetField $solrFacet,
     ): FacetGroup {
         $facetList = [];
         foreach ($solrFacet as $value => $count) {
             if (!is_int($count)) {
                 throw new InvalidArgumentException(
-                    'facet count should be a int: ' . $count
+                    'facet count should be a int: ' . $count,
                 );
             }
-            $facetList[] = new Facet((string)$value, $count);
+            $facetList[] = new Facet((string) $value, $count);
         }
         return new FacetGroup($key, $facetList);
     }
 
     private function buildFacetGroupByQuery(
         string $key,
-        SolrFacetQuery $solrFacet
+        SolrFacetQuery $solrFacet,
     ): FacetGroup {
         $facetList = [];
 

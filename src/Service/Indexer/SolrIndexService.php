@@ -13,9 +13,8 @@ class SolrIndexService
 {
     public function __construct(
         private readonly IndexName $index,
-        private readonly SolrClientFactory $clientFactory
-    ) {
-    }
+        private readonly SolrClientFactory $clientFactory,
+    ) {}
 
     public function getIndex(ResourceLanguage $lang): string
     {
@@ -34,12 +33,12 @@ class SolrIndexService
     public function deleteExcludingProcessId(
         ResourceLanguage $lang,
         string $source,
-        string $processId
+        string $processId,
     ): void {
         $this->deleteByQuery(
             $lang,
             '-crawl_process_id:' . $processId . ' AND ' .
-            ' sp_source:' . $source
+            ' sp_source:' . $source,
         );
     }
 
@@ -48,11 +47,11 @@ class SolrIndexService
      */
     public function deleteByIdListForAllLanguages(
         string $source,
-        array $idList
+        array $idList,
     ): void {
         $this->deleteByQueryForAllLanguages(
             'sp_id:(' . implode(' ', $idList) . ') AND ' .
-            'sp_source:' . $source
+            'sp_source:' . $source,
         );
     }
 

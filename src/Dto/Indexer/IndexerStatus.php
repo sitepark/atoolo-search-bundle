@@ -32,9 +32,8 @@ class IndexerStatus
         public DateTime $lastUpdate,
         public int $updated,
         public int $errors,
-        public string $prepareMessage = ''
-    ) {
-    }
+        public string $prepareMessage = '',
+    ) {}
 
     public static function empty(): IndexerStatus
     {
@@ -48,7 +47,7 @@ class IndexerStatus
             0,
             $now,
             0,
-            0
+            0,
         );
     }
 

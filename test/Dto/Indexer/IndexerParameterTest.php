@@ -18,7 +18,7 @@ class IndexerParameterTest extends TestCase
         new IndexerParameter(
             '',
             0,
-            9
+            9,
         );
     }
 }

@@ -45,17 +45,17 @@ class ExternalResourceFactory implements ResourceFactory
             objectType: $this->getField(
                 $document,
                 'sp_objecttype',
-                'external'
+                'external',
             ),
             lang: ResourceLanguage::of(
-                $this->getField($document, 'meta_content_language')
+                $this->getField($document, 'meta_content_language'),
             ),
             data: new DataBag([
                 'base' => [
                     'teaser' => [
-                        'text' => $this->getField($document, 'description')
-                    ]
-                ]
+                        'text' => $this->getField($document, 'description'),
+                    ],
+                ],
             ]),
         );
     }
@@ -63,7 +63,7 @@ class ExternalResourceFactory implements ResourceFactory
     private function getField(
         Document $document,
         string $name,
-        string $default = ''
+        string $default = '',
     ): string {
         $value = $document->getFields()[$name] ?? null;
         if ($value === null) {
@@ -74,6 +74,6 @@ class ExternalResourceFactory implements ResourceFactory
             return implode(' ', $value);
         }
 
-        return (string)$value;
+        return (string) $value;
     }
 }

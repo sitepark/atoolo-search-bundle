@@ -8,9 +8,8 @@ class IndexingAborter
 {
     public function __construct(
         private readonly string $workdir,
-        private readonly string $type
-    ) {
-    }
+        private readonly string $type,
+    ) {}
 
     public function isAbortionRequested(string $index): bool
     {

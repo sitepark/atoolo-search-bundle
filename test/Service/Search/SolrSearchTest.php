@@ -54,7 +54,7 @@ class SolrSearchTest extends TestCase
     {
         $indexName = $this->createStub(IndexName::class);
         $clientFactory = $this->createStub(
-            SolrClientFactory::class
+            SolrClientFactory::class,
         );
         $client = $this->createStub(Client::class);
         $clientFactory->method('create')->willReturn($client);
@@ -74,7 +74,7 @@ class SolrSearchTest extends TestCase
         $this->resource = $this->createStub(Resource::class);
 
         $resultToResourceResolver = $this->createStub(
-            SolrResultToResourceResolver::class
+            SolrResultToResourceResolver::class,
         );
 
         $solrQueryModifier = $this->createStub(SolrQueryModifier::class);
@@ -85,7 +85,7 @@ class SolrSearchTest extends TestCase
             ->willReturn([$this->resource]);
 
         $schemaFieldMapper = $this->createStub(
-            Schema2xFieldMapper::class
+            Schema2xFieldMapper::class,
         );
 
         $this->searcher = new SolrSearch(
@@ -110,7 +110,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -118,7 +118,7 @@ class SolrSearchTest extends TestCase
         $this->assertEquals(
             [$this->resource],
             $searchResult->results,
-            'unexpected results'
+            'unexpected results',
         );
     }
 
@@ -135,7 +135,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -143,7 +143,7 @@ class SolrSearchTest extends TestCase
         $this->assertEquals(
             [$this->resource],
             $searchResult->results,
-            'unexpected results'
+            'unexpected results',
         );
     }
 
@@ -166,7 +166,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -174,7 +174,7 @@ class SolrSearchTest extends TestCase
         $this->assertEquals(
             [$this->resource],
             $searchResult->results,
-            'unexpected results'
+            'unexpected results',
         );
     }
 
@@ -191,7 +191,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::AND,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -199,7 +199,7 @@ class SolrSearchTest extends TestCase
         $this->assertEquals(
             [$this->resource],
             $searchResult->results,
-            'unexpected results'
+            'unexpected results',
         );
     }
 
@@ -218,7 +218,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -226,7 +226,7 @@ class SolrSearchTest extends TestCase
         $this->assertEquals(
             [$this->resource],
             $searchResult->results,
-            'unexpected results'
+            'unexpected results',
         );
     }
 
@@ -239,8 +239,8 @@ class SolrSearchTest extends TestCase
             new MultiQueryFacet(
                 'multiquery',
                 [new QueryFacet('query', 'sp_id:123')],
-                ['ob']
-            )
+                ['ob'],
+            ),
         ];
 
         $query = new SearchQuery(
@@ -254,7 +254,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -262,7 +262,7 @@ class SolrSearchTest extends TestCase
         $this->assertEquals(
             [$this->resource],
             $searchResult->results,
-            'unexpected results'
+            'unexpected results',
         );
     }
 
@@ -270,7 +270,7 @@ class SolrSearchTest extends TestCase
     {
 
         $facets = [
-            $this->createStub(Facet::class)
+            $this->createStub(Facet::class),
         ];
 
         $query = new SearchQuery(
@@ -284,7 +284,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -296,10 +296,10 @@ class SolrSearchTest extends TestCase
 
         $facet = new SolrFacetField([
             'content' => 10,
-            'media' => 5
+            'media' => 5,
         ]);
         $facetSet = new \Solarium\Component\Result\FacetSet([
-            'objectType' => $facet
+            'objectType' => $facet,
         ]);
 
         $this->result->method('getFacetSet')
@@ -320,7 +320,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -329,14 +329,14 @@ class SolrSearchTest extends TestCase
             'objectType',
             [
                 new \Atoolo\Search\Dto\Search\Result\Facet('content', 10),
-                new \Atoolo\Search\Dto\Search\Result\Facet('media', 5)
-            ]
+                new \Atoolo\Search\Dto\Search\Result\Facet('media', 5),
+            ],
         );
 
         $this->assertEquals(
             $expected,
             $searchResult->facetGroups[0],
-            'unexpected facet results'
+            'unexpected facet results',
         );
     }
 
@@ -345,7 +345,7 @@ class SolrSearchTest extends TestCase
 
         $facet = new SolrFacetQuery(5);
         $facetSet = new \Solarium\Component\Result\FacetSet([
-            'aquery' => $facet
+            'aquery' => $facet,
         ]);
 
         $this->result->method('getFacetSet')
@@ -366,7 +366,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -374,14 +374,14 @@ class SolrSearchTest extends TestCase
         $expected = new FacetGroup(
             'aquery',
             [
-               new \Atoolo\Search\Dto\Search\Result\Facet('aquery', 5)
-            ]
+                new \Atoolo\Search\Dto\Search\Result\Facet('aquery', 5),
+            ],
         );
 
         $this->assertEquals(
             $expected,
             $searchResult->facetGroups[0],
-            'unexpected facet results'
+            'unexpected facet results',
         );
     }
     public function testInvalidResultFacets(): void
@@ -391,7 +391,7 @@ class SolrSearchTest extends TestCase
             'content' => 'nonint',
         ]);
         $facetSet = new \Solarium\Component\Result\FacetSet([
-            'objectType' => $facet
+            'objectType' => $facet,
         ]);
 
         $this->result->method('getFacetSet')
@@ -403,8 +403,8 @@ class SolrSearchTest extends TestCase
             new MultiQueryFacet(
                 'multiquery',
                 [new QueryFacet('query', 'sp_id:123')],
-                ['ob']
-            )
+                ['ob'],
+            ),
         ];
 
         $query = new SearchQuery(
@@ -418,7 +418,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -449,14 +449,14 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $searchResult = $this->searcher->search($query);
 
         $this->assertEmpty(
             $searchResult->facetGroups,
-            'facets should be empty'
+            'facets should be empty',
         );
     }
 
@@ -473,7 +473,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: new DateTimeZone("UTC"),
-            boosting: null
+            boosting: null,
         );
 
         $this->solrQuery->expects($this->once())
@@ -496,7 +496,7 @@ class SolrSearchTest extends TestCase
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
-            boosting: null
+            boosting: null,
         );
 
         $this->solrQuery->expects($this->once())

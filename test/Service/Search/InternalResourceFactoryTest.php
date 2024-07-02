@@ -23,10 +23,10 @@ class InternalResourceFactoryTest extends TestCase
     protected function setUp(): void
     {
         $this->resourceLoader = $this->createStub(
-            ResourceLoader::class
+            ResourceLoader::class,
         );
         $this->factory = new InternalResourceFactory(
-            $this->resourceLoader
+            $this->resourceLoader,
         );
     }
 
@@ -35,7 +35,7 @@ class InternalResourceFactoryTest extends TestCase
         $document = $this->createDocument('/test.php');
         $this->assertTrue(
             $this->factory->accept($document, ResourceLanguage::default()),
-            'should be accepted'
+            'should be accepted',
         );
     }
 
@@ -44,7 +44,7 @@ class InternalResourceFactoryTest extends TestCase
         $document = $this->createStub(Document::class);
         $this->assertFalse(
             $this->factory->accept($document, ResourceLanguage::default()),
-            'should not be accepted'
+            'should not be accepted',
         );
     }
 
@@ -53,7 +53,7 @@ class InternalResourceFactoryTest extends TestCase
         $document = $this->createDocument('/test.txt');
         $this->assertFalse(
             $this->factory->accept($document, ResourceLanguage::default()),
-            'should not be accepted'
+            'should not be accepted',
         );
     }
 
@@ -68,7 +68,7 @@ class InternalResourceFactoryTest extends TestCase
         $this->assertEquals(
             $resource,
             $this->factory->create($document, ResourceLanguage::of('de')),
-            'unexpected resource'
+            'unexpected resource',
         );
     }
 
@@ -85,7 +85,7 @@ class InternalResourceFactoryTest extends TestCase
         $document
             ->method('getFields')
             ->willReturn([
-                'url' => $url
+                'url' => $url,
             ]);
         return $document;
     }

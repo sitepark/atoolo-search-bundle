@@ -18,9 +18,8 @@ class SolrQueryFacetAppender
 {
     public function __construct(
         private readonly SolrSelectQuery $solrQuery,
-        private readonly Schema2xFieldMapper $fieldMapper
-    ) {
-    }
+        private readonly Schema2xFieldMapper $fieldMapper,
+    ) {}
 
     public function append(Facet $facet): void
     {
@@ -36,7 +35,7 @@ class SolrQueryFacetAppender
             $this->appendRelativeDateRangeFacet($facet);
         } else {
             throw new InvalidArgumentException(
-                'Unsupported facet-class ' . get_class($facet)
+                'Unsupported facet-class ' . get_class($facet),
             );
         }
     }
@@ -45,7 +44,7 @@ class SolrQueryFacetAppender
      * https://solarium.readthedocs.io/en/stable/queries/select-query/building-a-select-query/components/facetset-component/facet-field/
      */
     private function appendFacetField(
-        FieldFacet $facet
+        FieldFacet $facet,
     ): void {
         $facetSet = $this->solrQuery->getFacetSet();
         /** @var Field $solrFacet */
@@ -65,7 +64,7 @@ class SolrQueryFacetAppender
      * https://solarium.readthedocs.io/en/stable/queries/select-query/building-a-select-query/components/facetset-component/facet-query/
      */
     private function appendFacetQuery(
-        QueryFacet $facet
+        QueryFacet $facet,
     ): void {
         $facetSet = $this->solrQuery->getFacetSet();
         $facetSet->createFacetQuery($facet->key)
@@ -77,7 +76,7 @@ class SolrQueryFacetAppender
      * https://solarium.readthedocs.io/en/stable/queries/select-query/building-a-select-query/components/facetset-component/facet-multiquery/
      */
     private function appendFacetMultiQuery(
-        MultiQueryFacet $facet
+        MultiQueryFacet $facet,
     ): void {
         $facetSet = $this->solrQuery->getFacetSet();
         $solrFacet = $facetSet->createFacetMultiQuery($facet->key);
@@ -85,13 +84,13 @@ class SolrQueryFacetAppender
         foreach ($facet->queries as $facetQuery) {
             $solrFacet->createQuery(
                 $facetQuery->key,
-                $facetQuery->query
+                $facetQuery->query,
             );
         }
     }
 
     private function appendAbsoluteDateRangeFacet(
-        AbsoluteDateRangeFacet $facet
+        AbsoluteDateRangeFacet $facet,
     ): void {
         $start = SolrDateMapper::mapDateTime($facet->from);
         $end = SolrDateMapper::mapDateTime($facet->to);
@@ -102,29 +101,29 @@ class SolrQueryFacetAppender
     }
 
     private function appendRelativeDateRangeFacet(
-        RelativeDateRangeFacet $facet
+        RelativeDateRangeFacet $facet,
     ): void {
 
         $start = $facet->before === null
             ? SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($facet->base),
-                $facet->roundStart
+                $facet->roundStart,
             )
             : SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($facet->base) .
                     SolrDateMapper::mapDateInterval($facet->before, '-'),
-                $facet->roundStart
+                $facet->roundStart,
             );
 
         $end = $facet->after === null
             ? SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($facet->base),
-                $facet->roundStart
+                $facet->roundStart,
             )
             : SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($facet->base) .
                 SolrDateMapper::mapDateInterval($facet->after, '+'),
-                $facet->roundEnd
+                $facet->roundEnd,
             );
 
         $gap = $facet->gap !== null
@@ -137,7 +136,7 @@ class SolrQueryFacetAppender
         Facet $facet,
         string $start,
         string $end,
-        ?string $gap
+        ?string $gap,
     ): void {
         if ($gap === null) {
             // without `gap` it is a simple facet query
@@ -145,7 +144,7 @@ class SolrQueryFacetAppender
                 $facet->key,
                 $this->getFacetField($facet) . ':' .
                 '[' . $start . ' TO ' . $end . ']',
-                $facet->excludeFilter
+                $facet->excludeFilter,
             );
             $this->appendFacetQuery($facetQuery);
             return;

@@ -25,12 +25,12 @@ class SolrIndexUpdaterTest extends TestCase
     {
         $this->updateQuery = $this->createMock(UpdateQuery::class);
         $this->updateQuery->method('createDocument')->willReturn(
-            new IndexSchema2xDocument()
+            new IndexSchema2xDocument(),
         );
         $this->client = $this->createMock(Client::class);
         $this->updater = new SolrIndexUpdater(
             $this->client,
-            $this->updateQuery
+            $this->updateQuery,
         );
     }
 

@@ -15,7 +15,7 @@ class QueryFacet extends Facet
     public function __construct(
         string $key,
         public readonly string $query,
-        array $excludeFilter = []
+        array $excludeFilter = [],
     ) {
         parent::__construct($key, $excludeFilter);
     }

@@ -35,22 +35,22 @@ class DumpIndexDocumentTest extends TestCase
             '',
             '',
             'test',
-            []
+            [],
         );
 
         $dumper = $this->createStub(IndexDocumentDumper::class);
         $dumper->method('dump')
             ->willReturn([
-                ['sp_id' => '123']
+                ['sp_id' => '123'],
             ]);
 
         $dumperCommand = new DumpIndexDocument(
             $resourceChannel,
-            $dumper
+            $dumper,
         );
 
         $application = new Application([
-            $dumperCommand
+            $dumperCommand,
         ]);
 
         $command = $application->find('search:dump-index-document');
@@ -60,7 +60,7 @@ class DumpIndexDocumentTest extends TestCase
     public function testExecute(): void
     {
         $this->commandTester->execute([
-            'paths' => ['test.php']
+            'paths' => ['test.php'],
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();
@@ -77,7 +77,7 @@ Channel: WWW
 }
 
 EOF,
-            $output
+            $output,
         );
     }
 }

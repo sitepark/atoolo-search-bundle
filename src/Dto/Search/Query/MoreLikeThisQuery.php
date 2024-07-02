@@ -28,7 +28,6 @@ class MoreLikeThisQuery
         public readonly ResourceLocation $location,
         public readonly array $filter = [],
         public readonly int $limit = 5,
-        public readonly array $fields = ['description', 'content']
-    ) {
-    }
+        public readonly array $fields = ['description', 'content'],
+    ) {}
 }

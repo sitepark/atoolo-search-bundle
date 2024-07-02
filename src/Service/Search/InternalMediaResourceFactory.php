@@ -21,9 +21,8 @@ use Solarium\QueryType\Select\Result\Document;
 class InternalMediaResourceFactory implements ResourceFactory
 {
     public function __construct(
-        private readonly ResourceLoader $resourceLoader
-    ) {
-    }
+        private readonly ResourceLoader $resourceLoader,
+    ) {}
 
     public function accept(Document $document, ResourceLanguage $lang): bool
     {
@@ -45,7 +44,7 @@ class InternalMediaResourceFactory implements ResourceFactory
 
     private function getMetaLocation(
         Document $document,
-        ResourceLanguage $lang
+        ResourceLanguage $lang,
     ): ?ResourceLocation {
         $url = $this->getField($document, 'url');
         if ($url === null) {
@@ -53,7 +52,7 @@ class InternalMediaResourceFactory implements ResourceFactory
         }
         return ResourceLocation::of(
             $url . '.meta.php',
-            $lang
+            $lang,
         );
     }
 

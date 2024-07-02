@@ -32,7 +32,7 @@ class IndexingAborterTest extends TestCase
     {
         $this->assertFalse(
             $this->aborter->isAbortionRequested('test'),
-            'should not aborted'
+            'should not aborted',
         );
     }
     public function testIsAbortionRequestedWithExistsMarkerFile(): void
@@ -40,7 +40,7 @@ class IndexingAborterTest extends TestCase
         touch($this->file);
         $this->assertTrue(
             $this->aborter->isAbortionRequested('test'),
-            'should not aborted'
+            'should not aborted',
         );
     }
 
@@ -49,7 +49,7 @@ class IndexingAborterTest extends TestCase
         $this->aborter->requestAbortion('test');
         $this->assertFileExists(
             $this->file,
-            'requestAbortion call should create file'
+            'requestAbortion call should create file',
         );
     }
 
@@ -59,7 +59,7 @@ class IndexingAborterTest extends TestCase
         $this->aborter->resetAbortionRequest('test');
         $this->assertFileDoesNotExist(
             $this->file,
-            'resetAbortionRequest call should remove file'
+            'resetAbortionRequest call should remove file',
         );
     }
 }

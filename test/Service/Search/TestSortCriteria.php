@@ -6,6 +6,4 @@ namespace Atoolo\Search\Test\Service\Search;
 
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 
-class TestSortCriteria extends Criteria
-{
-}
+class TestSortCriteria extends Criteria {}

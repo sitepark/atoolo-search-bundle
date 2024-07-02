@@ -14,12 +14,12 @@ class UnsupportedIndexLanguageException extends RuntimeException
         private readonly ResourceLanguage $lang,
         string $message = "",
         int $code = 0,
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ) {
         parent::__construct(
             $index . '/' . $lang->code . ': ' . $message,
             $code,
-            $previous
+            $previous,
         );
     }
 

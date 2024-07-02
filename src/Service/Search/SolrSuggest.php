@@ -33,9 +33,8 @@ class SolrSuggest implements Suggest
     public function __construct(
         private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
-        private readonly Schema2xFieldMapper $schemaFieldMapper
-    ) {
-    }
+        private readonly Schema2xFieldMapper $schemaFieldMapper,
+    ) {}
 
     /**
      * @throws UnexpectedResultException
@@ -52,7 +51,7 @@ class SolrSuggest implements Suggest
 
     private function buildSolrQuery(
         Client $client,
-        SuggestQuery $query
+        SuggestQuery $query,
     ): SolrSelectQuery {
         $solrQuery = $client->createSelect();
         $solrQuery->addParam("spellcheck", "true");
@@ -69,7 +68,7 @@ class SolrSuggest implements Suggest
         $solrQuery->addParam("facet.method", "enum");
         $solrQuery->addParam(
             "facet.prefix",
-            $query->text
+            $query->text,
         );
         $solrQuery->addParam("facet.limit", $query->limit);
         $solrQuery->addParam("facet.field", self::INDEX_SUGGEST_FIELD);
@@ -89,11 +88,11 @@ class SolrSuggest implements Suggest
      */
     private function addFilterQueriesToSolrQuery(
         SolrSelectQuery $solrQuery,
-        array $filterList
+        array $filterList,
     ): void {
         $filterAppender = new SolrQueryFilterAppender(
             $solrQuery,
-            $this->schemaFieldMapper
+            $this->schemaFieldMapper,
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);
@@ -101,14 +100,14 @@ class SolrSuggest implements Suggest
     }
 
     private function buildResult(
-        SolrSelectResult $solrResult
+        SolrSelectResult $solrResult,
     ): SuggestResult {
         $suggestions = $this->parseSuggestion(
-            $solrResult->getResponse()->getBody()
+            $solrResult->getResponse()->getBody(),
         );
         return new SuggestResult(
             $suggestions,
-            $solrResult->getQueryTime() ?? 0
+            $solrResult->getQueryTime() ?? 0,
         );
     }
 
@@ -117,7 +116,7 @@ class SolrSuggest implements Suggest
      * @return Suggestion[]
      */
     private function parseSuggestion(
-        string $responseBody
+        string $responseBody,
     ): array {
         try {
             /** @var SolariumResponse $json */
@@ -125,7 +124,7 @@ class SolrSuggest implements Suggest
                 $responseBody,
                 true,
                 5,
-                JSON_THROW_ON_ERROR
+                JSON_THROW_ON_ERROR,
             );
             $facets =
                 $json['facet_counts']['facet_fields'][self::INDEX_SUGGEST_FIELD]
@@ -136,7 +135,7 @@ class SolrSuggest implements Suggest
             $suggestions = [];
             for ($i = 0; $i < $len - 1; $i += 2) {
                 $term = $facets[$i];
-                $hits = (int)$facets[$i + 1];
+                $hits = (int) $facets[$i + 1];
                 $suggestions[] = new Suggestion($term, $hits);
             }
 
@@ -146,7 +145,7 @@ class SolrSuggest implements Suggest
                 $responseBody,
                 "Invalid JSON for suggest result",
                 0,
-                $e
+                $e,
             );
         }
     }

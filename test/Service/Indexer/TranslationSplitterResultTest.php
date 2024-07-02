@@ -15,16 +15,16 @@ class TranslationSplitterResultTest extends TestCase
     {
         $result = new TranslationSplitterResult(
             [
-                ResourceLocation::of('/a/b.php')
+                ResourceLocation::of('/a/b.php'),
             ],
-            []
+            [],
         );
         $this->assertEquals(
             [
-                ResourceLocation::of('/a/b.php')
+                ResourceLocation::of('/a/b.php'),
             ],
             $result->getBases(),
-            'unexpected bases'
+            'unexpected bases',
         );
     }
 
@@ -38,13 +38,13 @@ class TranslationSplitterResultTest extends TestCase
             [
                 $it->code => [ResourceLocation::of('/a/b.php', $it)],
                 $en->code => [ResourceLocation::of('/a/b.php', $en)],
-            ]
+            ],
         );
 
         $this->assertEquals(
             [$en, $it],
             $result->getLanguages(),
-            'unexpected languages'
+            'unexpected languages',
         );
     }
 
@@ -62,8 +62,8 @@ class TranslationSplitterResultTest extends TestCase
                 $en->code => [
                     ResourceLocation::of('/a/b.php', $en),
                     ResourceLocation::of('/a/b.php', $en),
-                ]
-            ]
+                ],
+            ],
         );
 
         $translations = $result->getTranslations($it);
@@ -76,7 +76,7 @@ class TranslationSplitterResultTest extends TestCase
         $this->assertEquals(
             $expected,
             $translations,
-            'unexpected translations'
+            'unexpected translations',
         );
     }
     public function testGetMissingTranslations(): void
@@ -87,7 +87,7 @@ class TranslationSplitterResultTest extends TestCase
         $this->assertEquals(
             [],
             $result->getTranslations($lang),
-            'empty array expected'
+            'empty array expected',
         );
     }
 }

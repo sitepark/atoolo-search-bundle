@@ -17,13 +17,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'search:dump-index-document',
-    description: 'Dump a index document'
+    description: 'Dump a index document',
 )]
 class DumpIndexDocument extends Command
 {
     public function __construct(
         private readonly ResourceChannel $channel,
-        private readonly IndexDocumentDumper $dumper
+        private readonly IndexDocumentDumper $dumper,
     ) {
         parent::__construct();
     }
@@ -35,7 +35,7 @@ class DumpIndexDocument extends Command
             ->addArgument(
                 'paths',
                 InputArgument::REQUIRED | InputArgument::IS_ARRAY,
-                'Resources paths or directories of resources to be indexed.'
+                'Resources paths or directories of resources to be indexed.',
             )
         ;
     }
@@ -45,7 +45,7 @@ class DumpIndexDocument extends Command
      */
     protected function execute(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
 
         $typedInput = new TypifiedInput($input);
@@ -60,7 +60,7 @@ class DumpIndexDocument extends Command
         foreach ($dump as $fields) {
             $output->writeln(json_encode(
                 $fields,
-                JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT
+                JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT,
             ));
         }
 

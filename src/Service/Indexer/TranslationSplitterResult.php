@@ -14,9 +14,8 @@ class TranslationSplitterResult
      */
     public function __construct(
         private readonly array $bases,
-        private readonly array $translations
-    ) {
-    }
+        private readonly array $translations,
+    ) {}
 
     /**
      * @return ResourceLanguage[]
@@ -28,7 +27,7 @@ class TranslationSplitterResult
         return array_map(
             static fn($lang)
                 => ResourceLanguage::of($lang),
-            $languages
+            $languages,
         );
     }
 
@@ -40,9 +39,9 @@ class TranslationSplitterResult
         return $this->bases;
     }
 
-     /**
-     * @return string[]
-     */
+    /**
+    * @return string[]
+    */
     public function getTranslations(ResourceLanguage $lang): array
     {
         return $this->translations[$lang->code] ?? [];

@@ -35,7 +35,7 @@ class IndexerCollectionTest extends TestCase
         $this->assertCount(
             1,
             $indexers->getIndexers(),
-            'unexpected number of indexers'
+            'unexpected number of indexers',
         );
     }
 
@@ -46,7 +46,7 @@ class IndexerCollectionTest extends TestCase
         $this->assertCount(
             1,
             $indexers->getIndexers(),
-            'unexpected number of indexers'
+            'unexpected number of indexers',
         );
     }
 }

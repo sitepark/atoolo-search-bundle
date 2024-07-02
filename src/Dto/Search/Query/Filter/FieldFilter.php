@@ -13,16 +13,16 @@ class FieldFilter extends Filter
      */
     public function __construct(
         public readonly array $values,
-        ?string $key = null
+        ?string $key = null,
     ) {
         if (count($values) === 0) {
             throw new InvalidArgumentException(
-                'values is an empty array'
+                'values is an empty array',
             );
         }
         parent::__construct(
             $key,
-            $key !== null ? [$key] : []
+            $key !== null ? [$key] : [],
         );
     }
 }

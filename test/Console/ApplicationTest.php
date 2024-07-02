@@ -23,21 +23,21 @@ class ApplicationTest extends TestCase
     public function testConstruct(): void
     {
         $resourceChannel = $this->createStub(
-            ResourceChannel::class
+            ResourceChannel::class,
         );
         $indexer = $this->createStub(
-            InternalResourceIndexer::class
+            InternalResourceIndexer::class,
         );
         $indexers = new IndexerCollection([$indexer]);
         $progressBar = $this->createStub(IndexerProgressBar::class);
         $application = new Application([
-            new Indexer($resourceChannel, $progressBar, $indexers)
+            new Indexer($resourceChannel, $progressBar, $indexers),
         ]);
         $command = $application->get('search:indexer');
         $this->assertInstanceOf(
             Indexer::class,
             $command,
-            'unexpected indexer command'
+            'unexpected indexer command',
         );
     }
 }

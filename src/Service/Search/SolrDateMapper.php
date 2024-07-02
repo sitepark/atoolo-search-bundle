@@ -14,7 +14,7 @@ class SolrDateMapper
 {
     public static function mapDateInterval(
         ?DateInterval $value,
-        string $operator
+        string $operator,
     ): string {
         if ($value === null) {
             return $operator . '1DAY';
@@ -32,17 +32,17 @@ class SolrDateMapper
         }
         if ($value->h > 0) {
             throw new InvalidArgumentException(
-                'Hours are not supported for the RelativeDateRangeFilter'
+                'Hours are not supported for the RelativeDateRangeFilter',
             );
         }
         if ($value->i > 0) {
             throw new InvalidArgumentException(
-                'Minutes are not supported for the RelativeDateRangeFilter'
+                'Minutes are not supported for the RelativeDateRangeFilter',
             );
         }
         if ($value->s > 0) {
             throw new InvalidArgumentException(
-                'Seconds are not supported for the RelativeDateRangeFilter'
+                'Seconds are not supported for the RelativeDateRangeFilter',
             );
         }
         return $interval;
@@ -50,7 +50,7 @@ class SolrDateMapper
 
     public static function mapDateTime(
         ?DateTime $date,
-        string $default = 'NOW'
+        string $default = 'NOW',
     ): string {
         if ($date === null) {
             return $default;
@@ -102,19 +102,19 @@ class SolrDateMapper
 
     public static function roundStart(
         string $start,
-        ?DateRangeRound $round
+        ?DateRangeRound $round,
     ): string {
         return $start . self::mapDateRangeRound(
-            $round ?? DateRangeRound::START_OF_DAY
+            $round ?? DateRangeRound::START_OF_DAY,
         );
     }
 
     public static function roundEnd(
         string $end,
-        ?DateRangeRound $round
+        ?DateRangeRound $round,
     ): string {
         return $end . self::mapDateRangeRound(
-            $round ?? DateRangeRound::END_OF_DAY
+            $round ?? DateRangeRound::END_OF_DAY,
         );
     }
 }

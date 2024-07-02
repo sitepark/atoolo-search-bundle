@@ -25,9 +25,8 @@ class SearchResult implements IteratorAggregate
         public readonly int $offset,
         public readonly array $results,
         public readonly array $facetGroups,
-        public readonly int $queryTime
-    ) {
-    }
+        public readonly int $queryTime,
+    ) {}
 
     public function getIterator(): Traversable
     {

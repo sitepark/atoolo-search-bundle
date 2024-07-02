@@ -22,18 +22,18 @@ class IndexerConfigurationLoaderTest extends TestCase
     public function testExists(): void
     {
         $loader = $this->createLoader(
-            self::RESOURCE_BASE . '/with-internal'
+            self::RESOURCE_BASE . '/with-internal',
         );
         $this->assertTrue(
             $loader->exists('internal'),
-            'Internal config should exist'
+            'Internal config should exist',
         );
     }
 
     public function testLoad(): void
     {
         $loader = $this->createLoader(
-            self::RESOURCE_BASE . '/with-internal'
+            self::RESOURCE_BASE . '/with-internal',
         );
 
         $config = $loader->load('internal');
@@ -50,14 +50,14 @@ class IndexerConfigurationLoaderTest extends TestCase
         $this->assertEquals(
             $expected,
             $config,
-            'unexpected config'
+            'unexpected config',
         );
     }
 
     public function testLoadNotExists(): void
     {
         $loader = $this->createLoader(
-            self::RESOURCE_BASE . '/with-internal'
+            self::RESOURCE_BASE . '/with-internal',
         );
 
         $config = $loader->load('not-exists');
@@ -72,14 +72,14 @@ class IndexerConfigurationLoaderTest extends TestCase
         $this->assertEquals(
             $expected,
             $config,
-            'unexpected config'
+            'unexpected config',
         );
     }
 
     public function testLoadAll(): void
     {
         $loader = $this->createLoader(
-            self::RESOURCE_BASE . '/with-internal'
+            self::RESOURCE_BASE . '/with-internal',
         );
 
         $expected = new IndexerConfiguration(
@@ -94,27 +94,27 @@ class IndexerConfigurationLoaderTest extends TestCase
         $this->assertEquals(
             [$expected],
             $loader->loadAll(),
-            'unexpected config'
+            'unexpected config',
         );
     }
 
     public function testLoadAllNotADirectory(): void
     {
         $loader = $this->createLoader(
-            self::RESOURCE_BASE . '/not-a-directory'
+            self::RESOURCE_BASE . '/not-a-directory',
         );
 
         $this->assertEquals(
             [],
             $loader->loadAll(),
-            'should return empty array'
+            'should return empty array',
         );
     }
 
     public function testLoadAllWithConfigReturnString(): void
     {
         $loader = $this->createLoader(
-            self::RESOURCE_BASE . '/return-string'
+            self::RESOURCE_BASE . '/return-string',
         );
 
         $this->expectException(RuntimeException::class);
@@ -122,7 +122,7 @@ class IndexerConfigurationLoaderTest extends TestCase
     }
 
     private function createLoader(
-        string $configDir
+        string $configDir,
     ): IndexerConfigurationLoader {
         $resourceChannel = new ResourceChannel(
             '',
@@ -136,7 +136,7 @@ class IndexerConfigurationLoaderTest extends TestCase
             '',
             $configDir,
             '',
-            []
+            [],
         );
         return new IndexerConfigurationLoader($resourceChannel);
     }

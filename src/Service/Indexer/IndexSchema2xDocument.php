@@ -12,13 +12,13 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     private const INHERITED_FIELDS = [
         'fields',
         'modifiers',
-        'fieldBoosts'
+        'fieldBoosts',
     ];
 
     private const META_FIELDS = [
         'metaString',
         'metaText',
-        'metaBool'
+        'metaBool',
     ];
 
     public ?string $sp_id = null;
@@ -182,7 +182,7 @@ class IndexSchema2xDocument extends Document implements IndexDocument
                 fn($value, $key) => !is_null($value)
                     && !in_array($key, self::INHERITED_FIELDS, true)
                     && !in_array($key, self::META_FIELDS, true),
-                ARRAY_FILTER_USE_BOTH
+                ARRAY_FILTER_USE_BOTH,
             ),
             ... $this->metaString,
             ... $this->metaText,

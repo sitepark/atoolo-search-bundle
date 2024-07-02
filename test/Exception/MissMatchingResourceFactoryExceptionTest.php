@@ -13,12 +13,12 @@ class MissMatchingResourceFactoryExceptionTest extends TestCase
     public function testGetLocation(): void
     {
         $e = new MissMatchingResourceFactoryException(
-            ResourceLocation::of('/test.php')
+            ResourceLocation::of('/test.php'),
         );
         $this->assertEquals(
             ResourceLocation::of('/test.php'),
             $e->getLocation(),
-            'unexpected location'
+            'unexpected location',
         );
     }
 }

@@ -14,9 +14,8 @@ class IndexDocumentDumper
      */
     public function __construct(
         private readonly ResourceLoader $resourceLoader,
-        private readonly iterable $documentEnricherList
-    ) {
-    }
+        private readonly iterable $documentEnricherList,
+    ) {}
 
     /**
      * @param string[] $paths
@@ -38,7 +37,7 @@ class IndexDocumentDumper
                 $doc = $enricher->enrichDocument(
                     $resource,
                     $doc,
-                    $processId
+                    $processId,
                 );
             }
 

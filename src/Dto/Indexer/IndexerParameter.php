@@ -13,11 +13,11 @@ class IndexerParameter
         public readonly string $name,
         public readonly int $cleanupThreshold = 0,
         public readonly int $chunkSize = 500,
-        public readonly array $excludes = []
+        public readonly array $excludes = [],
     ) {
         if ($this->chunkSize < 10) {
             throw new \InvalidArgumentException(
-                'chunk size must be greater than 9'
+                'chunk size must be greater than 9',
             );
         }
     }

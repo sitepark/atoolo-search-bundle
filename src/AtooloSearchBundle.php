@@ -26,8 +26,8 @@ class AtooloSearchBundle extends Bundle
             new LoaderResolver(
                 [
                     new YamlFileLoader($container, $locator),
-                ]
-            )
+                ],
+            ),
         );
 
         $loader->load('search.yaml');

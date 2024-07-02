@@ -16,7 +16,7 @@ class DocumentEnrichingExceptionTest extends TestCase
         $this->assertEquals(
             ResourceLocation::of('/test.php'),
             $e->getLocation(),
-            'unexpected location'
+            'unexpected location',
         );
     }
 }

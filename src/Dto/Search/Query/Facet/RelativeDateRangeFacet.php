@@ -23,11 +23,11 @@ class RelativeDateRangeFacet extends Facet
         public readonly ?DateInterval $gap,
         public readonly ?DateRangeRound $roundStart,
         public readonly ?DateRangeRound $roundEnd,
-        array $excludeFilter = []
+        array $excludeFilter = [],
     ) {
         parent::__construct(
             $key,
-            $excludeFilter
+            $excludeFilter,
         );
     }
 }

@@ -15,7 +15,7 @@ class AndFilter extends Filter
     public function __construct(
         public readonly array $filter,
         ?string $key = null,
-        array $tags = []
+        array $tags = [],
     ) {
         parent::__construct($key, $tags);
     }

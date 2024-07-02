@@ -23,7 +23,7 @@ class PhpLimitIncreaserTest extends TestCase
 
     public function tearDown(): void
     {
-        set_time_limit((int)$this->savedTimeLimit);
+        set_time_limit((int) $this->savedTimeLimit);
         ini_set('memory_limit', $this->savedMemoryLimit);
     }
 
@@ -31,20 +31,20 @@ class PhpLimitIncreaserTest extends TestCase
     {
         $increaser = new PhpLimitIncreaser(
             60 * 60 * 2,
-            ''
+            '',
         );
         $increaser->increase();
 
         $this->assertEquals(
             60 * 60 * 2,
             ini_get('max_execution_time'),
-            'max_execution_time does not match expected value'
+            'max_execution_time does not match expected value',
         );
 
         $this->assertEquals(
             $this->savedMemoryLimit,
-            (string)ini_get('memory_limit'),
-            'memory_limit does not match expected value'
+            (string) ini_get('memory_limit'),
+            'memory_limit does not match expected value',
         );
     }
 
@@ -52,15 +52,15 @@ class PhpLimitIncreaserTest extends TestCase
     {
         $increaser = new PhpLimitIncreaser(
             60 * 60 * 2,
-            ''
+            '',
         );
         $increaser->increase();
         $increaser->reset();
 
         $this->assertEquals(
             $this->savedTimeLimit,
-            (string)ini_get('max_execution_time'),
-            'max_execution_time does not match expected value'
+            (string) ini_get('max_execution_time'),
+            'max_execution_time does not match expected value',
         );
     }
 
@@ -68,14 +68,14 @@ class PhpLimitIncreaserTest extends TestCase
     {
         $increaser = new PhpLimitIncreaser(
             0,
-            ''
+            '',
         );
         $increaser->increase();
 
         $this->assertEquals(
             $this->savedTimeLimit,
-            (string)ini_get('max_execution_time'),
-            'max_execution_time does not match expected value'
+            (string) ini_get('max_execution_time'),
+            'max_execution_time does not match expected value',
         );
     }
 
@@ -83,14 +83,14 @@ class PhpLimitIncreaserTest extends TestCase
     {
         $increaser = new PhpLimitIncreaser(
             0,
-            '10G'
+            '10G',
         );
         $increaser->increase();
 
         $this->assertEquals(
             '10G',
             ini_get('memory_limit'),
-            'memory_limit does not match expected value'
+            'memory_limit does not match expected value',
         );
     }
 
@@ -100,14 +100,14 @@ class PhpLimitIncreaserTest extends TestCase
 
         $increaser = new PhpLimitIncreaser(
             0,
-            '10G'
+            '10G',
         );
         $increaser->increase();
 
         $this->assertEquals(
             PhpLimitIncreaser::UNLIMITED_MEMORY,
             ini_get('memory_limit'),
-            'memory_limit does not match expected value'
+            'memory_limit does not match expected value',
         );
     }
 
@@ -115,14 +115,14 @@ class PhpLimitIncreaserTest extends TestCase
     {
         $increaser = new PhpLimitIncreaser(
             0,
-            PhpLimitIncreaser::UNLIMITED_MEMORY
+            PhpLimitIncreaser::UNLIMITED_MEMORY,
         );
         $increaser->increase();
 
         $this->assertEquals(
             PhpLimitIncreaser::UNLIMITED_MEMORY,
             ini_get('memory_limit'),
-            'memory_limit does not match expected value'
+            'memory_limit does not match expected value',
         );
     }
 
@@ -130,15 +130,15 @@ class PhpLimitIncreaserTest extends TestCase
     {
         $increaser = new PhpLimitIncreaser(
             0,
-            '512M'
+            '512M',
         );
         $increaser->increase();
         $increaser->reset();
 
         $this->assertEquals(
             $this->savedMemoryLimit,
-            (string)ini_get('memory_limit'),
-            'memory_limit does not match expected value'
+            (string) ini_get('memory_limit'),
+            'memory_limit does not match expected value',
         );
     }
 
@@ -146,14 +146,14 @@ class PhpLimitIncreaserTest extends TestCase
     {
         $increaser = new PhpLimitIncreaser(
             0,
-            '1'
+            '1',
         );
         $increaser->increase();
 
         $this->assertEquals(
             $this->savedMemoryLimit,
-            (string)ini_get('memory_limit'),
-            'memory_limit does not match expected value'
+            (string) ini_get('memory_limit'),
+            'memory_limit does not match expected value',
         );
     }
 
@@ -161,14 +161,14 @@ class PhpLimitIncreaserTest extends TestCase
     {
         $increaser = new PhpLimitIncreaser(
             0,
-            '1X'
+            '1X',
         );
         $increaser->increase();
 
         $this->assertEquals(
             $this->savedMemoryLimit,
-            (string)ini_get('memory_limit'),
-            'memory_limit does not match expected value'
+            (string) ini_get('memory_limit'),
+            'memory_limit does not match expected value',
         );
     }
 }

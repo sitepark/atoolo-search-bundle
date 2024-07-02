@@ -11,7 +11,6 @@ class Facet
 {
     public function __construct(
         public readonly string $key,
-        public readonly int $hits
-    ) {
-    }
+        public readonly int $hits,
+    ) {}
 }

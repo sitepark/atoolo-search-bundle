@@ -19,11 +19,11 @@ class RelativeDateRangeFilter extends Filter
         public readonly ?DateInterval $after,
         public readonly ?DateRangeRound $roundStart,
         public readonly ?DateRangeRound $roundEnd,
-        ?string $key = null
+        ?string $key = null,
     ) {
         parent::__construct(
             $key,
-            $key !== null ? [$key] : []
+            $key !== null ? [$key] : [],
         );
     }
 }

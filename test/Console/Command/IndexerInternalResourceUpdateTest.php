@@ -38,11 +38,11 @@ class IndexerInternalResourceUpdateTest extends TestCase
             '',
             '',
             'test',
-            []
+            [],
         );
 
         $indexer = $this->createStub(
-            InternalResourceIndexer::class
+            InternalResourceIndexer::class,
         );
         $progressBar = $this->createStub(IndexerProgressBar::class);
 
@@ -55,7 +55,7 @@ class IndexerInternalResourceUpdateTest extends TestCase
         $application = new Application([$command]);
 
         $command = $application->find(
-            'search:indexer:update-internal-resources'
+            'search:indexer:update-internal-resources',
         );
         $this->commandTester = new CommandTester($command);
     }
@@ -64,7 +64,7 @@ class IndexerInternalResourceUpdateTest extends TestCase
     {
         $this->commandTester->execute([
             // pass arguments to the helper
-            'paths' => ['a.php', 'b.php']
+            'paths' => ['a.php', 'b.php'],
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();
@@ -92,7 +92,7 @@ Status
 
 
 EOF,
-            $output
+            $output,
         );
     }
 
@@ -103,10 +103,10 @@ EOF,
     {
 
         $indexer = $this->createStub(
-            InternalResourceIndexer::class
+            InternalResourceIndexer::class,
         );
         $progressBar = $this->createStub(
-            IndexerProgressBar::class
+            IndexerProgressBar::class,
         );
         $progressBar
             ->method('getErrors')
@@ -121,7 +121,7 @@ EOF,
         $application = new Application([$command]);
 
         $command = $application->find(
-            'search:indexer:update-internal-resources'
+            'search:indexer:update-internal-resources',
         );
         $commandTester = new CommandTester($command);
 
@@ -134,7 +134,7 @@ EOF,
         $this->assertStringContainsString(
             'errortest',
             $output,
-            'error message expected'
+            'error message expected',
         );
     }
 
@@ -146,10 +146,10 @@ EOF,
     {
 
         $indexer = $this->createStub(
-            InternalResourceIndexer::class
+            InternalResourceIndexer::class,
         );
         $progressBar = $this->createStub(
-            IndexerProgressBar::class
+            IndexerProgressBar::class,
         );
         $progressBar
             ->method('getErrors')
@@ -164,17 +164,17 @@ EOF,
         $application = new Application([$command]);
 
         $command = $application->find(
-            'search:indexer:update-internal-resources'
+            'search:indexer:update-internal-resources',
         );
         $commandTester = new CommandTester($command);
 
         $commandTester->execute(
             [
-                'paths' => ['a.php']
+                'paths' => ['a.php'],
             ],
             [
-                'verbosity' => OutputInterface::VERBOSITY_VERBOSE
-            ]
+                'verbosity' => OutputInterface::VERBOSITY_VERBOSE,
+            ],
         );
 
         $commandTester->assertCommandIsSuccessful();
@@ -184,7 +184,7 @@ EOF,
         $this->assertStringContainsString(
             'Exception trace',
             $output,
-            'error message should contains stack trace'
+            'error message should contains stack trace',
         );
     }
 }

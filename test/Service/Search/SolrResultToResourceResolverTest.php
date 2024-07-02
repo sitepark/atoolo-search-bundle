@@ -22,7 +22,7 @@ class SolrResultToResourceResolverTest extends TestCase
         $document = $this->createStub(Document::class);
         $result = $this->createStub(SelectResult::class);
         $result->method('getIterator')->willReturn(
-            new ArrayIterator([$document])
+            new ArrayIterator([$document]),
         );
 
         $resource = $this->createStub(Resource::class);
@@ -35,13 +35,13 @@ class SolrResultToResourceResolverTest extends TestCase
 
         $resourceList = $resolver->loadResourceList(
             $result,
-            ResourceLanguage::default()
+            ResourceLanguage::default(),
         );
 
         $this->assertEquals(
             [$resource],
             $resourceList,
-            'unexpected resourceList'
+            'unexpected resourceList',
         );
     }
 
@@ -51,7 +51,7 @@ class SolrResultToResourceResolverTest extends TestCase
         $document->method('getFields')->willReturn(['url' => 'test']);
         $result = $this->createStub(SelectResult::class);
         $result->method('getIterator')->willReturn(
-            new ArrayIterator([$document])
+            new ArrayIterator([$document]),
         );
 
         $resourceFactory = $this->createStub(ResourceFactory::class);
@@ -61,12 +61,12 @@ class SolrResultToResourceResolverTest extends TestCase
 
         $resourceList = $resolver->loadResourceList(
             $result,
-            ResourceLanguage::default()
+            ResourceLanguage::default(),
         );
 
         $this->assertEmpty(
             $resourceList,
-            'resourceList should be empty'
+            'resourceList should be empty',
         );
     }
 
@@ -75,7 +75,7 @@ class SolrResultToResourceResolverTest extends TestCase
         $document = $this->createStub(Document::class);
         $result = $this->createStub(SelectResult::class);
         $result->method('getIterator')->willReturn(
-            new ArrayIterator([$document])
+            new ArrayIterator([$document]),
         );
 
         $resourceFactory = $this->createStub(ResourceFactory::class);
@@ -85,12 +85,12 @@ class SolrResultToResourceResolverTest extends TestCase
 
         $resourceList = $resolver->loadResourceList(
             $result,
-            ResourceLanguage::default()
+            ResourceLanguage::default(),
         );
 
         $this->assertEmpty(
             $resourceList,
-            'resourceList should be empty'
+            'resourceList should be empty',
         );
     }
 }

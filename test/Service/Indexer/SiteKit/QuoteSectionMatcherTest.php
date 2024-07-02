@@ -19,8 +19,8 @@ class QuoteSectionMatcherTest extends TestCase
             "type" => "quote",
             "model" => [
                 "quote" => "Quote-Text",
-                "citation" => "Citation"
-            ]
+                "citation" => "Citation",
+            ],
         ];
 
         $content = $matcher->match(['items'], $value);
@@ -28,7 +28,7 @@ class QuoteSectionMatcherTest extends TestCase
         $this->assertEquals(
             'Quote-Text Citation',
             $content,
-            'unexpected quote text'
+            'unexpected quote text',
         );
     }
     public function testMatcherNoMatchPathToShort(): void
@@ -39,15 +39,15 @@ class QuoteSectionMatcherTest extends TestCase
             "type" => "quote",
             "model" => [
                 "quote" => "Quote-Text",
-                "citation" => "Citation"
-            ]
+                "citation" => "Citation",
+            ],
         ];
 
         $content = $matcher->match([], $value);
 
         $this->assertEmpty(
             $content,
-            'should not find any content'
+            'should not find any content',
         );
     }
 
@@ -59,15 +59,15 @@ class QuoteSectionMatcherTest extends TestCase
             "type" => "quote",
             "model" => [
                 "quote" => "Quote-Text",
-                "citation" => "Citation"
-            ]
+                "citation" => "Citation",
+            ],
         ];
 
         $content = $matcher->match(['itemsX'], $value);
 
         $this->assertEmpty(
             $content,
-            'should not find any content'
+            'should not find any content',
         );
     }
 
@@ -79,15 +79,15 @@ class QuoteSectionMatcherTest extends TestCase
             "type" => "quoteX",
             "model" => [
                 "quote" => "Quote-Text",
-                "citation" => "Citation"
-            ]
+                "citation" => "Citation",
+            ],
         ];
 
         $content = $matcher->match(['items'], $value);
 
         $this->assertEmpty(
             $content,
-            'should not find any content'
+            'should not find any content',
         );
     }
 
@@ -99,15 +99,15 @@ class QuoteSectionMatcherTest extends TestCase
             "type" => "quote",
             "modelX" => [
                 "quote" => "Quote-Text",
-                "citation" => "Citation"
-            ]
+                "citation" => "Citation",
+            ],
         ];
 
         $content = $matcher->match(['items'], $value);
 
         $this->assertEmpty(
             $content,
-            'should not find any content'
+            'should not find any content',
         );
     }
 }

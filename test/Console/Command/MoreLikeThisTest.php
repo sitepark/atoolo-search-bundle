@@ -42,7 +42,7 @@ class MoreLikeThisTest extends TestCase
             '',
             '',
             'test',
-            []
+            [],
         );
 
         $resultResource = new Resource(
@@ -51,7 +51,7 @@ class MoreLikeThisTest extends TestCase
             '',
             '',
             ResourceLanguage::default(),
-            new DataBag([])
+            new DataBag([]),
         );
         $result = new SearchResult(
             1,
@@ -59,13 +59,13 @@ class MoreLikeThisTest extends TestCase
             0,
             [$resultResource],
             [],
-            10
+            10,
         );
         $this->solrMoreLikeThis = $this->createStub(SolrMoreLikeThis::class);
 
         $command = new MoreLikeThis(
             $resourceChannel,
-            $this->solrMoreLikeThis
+            $this->solrMoreLikeThis,
         );
 
         $application = new Application([$command]);
@@ -83,7 +83,7 @@ class MoreLikeThisTest extends TestCase
             '',
             '',
             ResourceLanguage::default(),
-            new DataBag([])
+            new DataBag([]),
         );
         $result = new SearchResult(
             1,
@@ -91,13 +91,13 @@ class MoreLikeThisTest extends TestCase
             0,
             [$resultResource],
             [],
-            10
+            10,
         );
         $this->solrMoreLikeThis->method('moreLikeThis')
             ->willReturn($result);
 
         $this->commandTester->execute([
-            'location' => '/test.php'
+            'location' => '/test.php',
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();
@@ -115,7 +115,7 @@ Channel: WWW
  Query-Time: 10ms
 
 EOF,
-            $output
+            $output,
         );
     }
 
@@ -128,13 +128,13 @@ EOF,
             0,
             [],
             [],
-            10
+            10,
         );
         $this->solrMoreLikeThis->method('moreLikeThis')
             ->willReturn($result);
 
         $this->commandTester->execute([
-            'location' => '/test.php'
+            'location' => '/test.php',
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();
@@ -150,7 +150,7 @@ Channel: WWW
  No results found.
 
 EOF,
-            $output
+            $output,
         );
     }
 }

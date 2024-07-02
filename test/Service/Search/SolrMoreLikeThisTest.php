@@ -33,7 +33,7 @@ class SolrMoreLikeThisTest extends TestCase
 
         $indexName = $this->createStub(IndexName::class);
         $clientFactory = $this->createStub(
-            SolrClientFactory::class
+            SolrClientFactory::class,
         );
         $client = $this->createStub(Client::class);
         $clientFactory->method('create')->willReturn($client);
@@ -50,20 +50,20 @@ class SolrMoreLikeThisTest extends TestCase
         $this->resource = $this->createStub(Resource::class);
 
         $resultToResourceResolver = $this->createStub(
-            SolrResultToResourceResolver::class
+            SolrResultToResourceResolver::class,
         );
         $resultToResourceResolver
             ->method('loadResourceList')
             ->willReturn([$this->resource]);
         $schemaFieldMapper = $this->createStub(
-            Schema2xFieldMapper::class
+            Schema2xFieldMapper::class,
         );
 
         $this->searcher = new SolrMoreLikeThis(
             $indexName,
             $clientFactory,
             $resultToResourceResolver,
-            $schemaFieldMapper
+            $schemaFieldMapper,
         );
     }
 
@@ -73,7 +73,7 @@ class SolrMoreLikeThisTest extends TestCase
 
         $query = new MoreLikeThisQuery(
             ResourceLocation::of('/test.php'),
-            [$filter]
+            [$filter],
         );
 
         $searchResult = $this->searcher->moreLikeThis($query);
@@ -81,7 +81,7 @@ class SolrMoreLikeThisTest extends TestCase
         $this->assertEquals(
             [$this->resource],
             $searchResult->results,
-            'unexpected results'
+            'unexpected results',
         );
     }
 }

@@ -20,9 +20,8 @@ class SolrQueryFilterAppender
 {
     public function __construct(
         private readonly SolrSelectQuery $solrQuery,
-        private readonly Schema2xFieldMapper $fieldMapper
-    ) {
-    }
+        private readonly Schema2xFieldMapper $fieldMapper,
+    ) {}
 
     public function excludeArchived(): void
     {
@@ -57,7 +56,7 @@ class SolrQueryFilterAppender
                 return $this->getRelativeDateRangeQuery($filter);
             default:
                 throw new InvalidArgumentException(
-                    'unsupported filter ' . get_class($filter)
+                    'unsupported filter ' . get_class($filter),
                 );
         }
     }
@@ -97,7 +96,7 @@ class SolrQueryFilterAppender
     }
 
     private function getAbsoluteDateRangeQuery(
-        AbsoluteDateRangeFilter $filter
+        AbsoluteDateRangeFilter $filter,
     ): string {
         $field = $this->getFilterField($filter);
         $from = SolrDateMapper::mapDateTime($filter->from, '*');
@@ -106,32 +105,32 @@ class SolrQueryFilterAppender
     }
 
     private function getRelativeDateRangeQuery(
-        RelativeDateRangeFilter $filter
+        RelativeDateRangeFilter $filter,
     ): string {
 
         if ($filter->before === null) {
             $from = SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($filter->base),
-                $filter->roundStart
+                $filter->roundStart,
             );
         } else {
             $from = SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($filter->base) .
                     SolrDateMapper::mapDateInterval($filter->before, '-'),
-                $filter->roundStart
+                $filter->roundStart,
             );
         }
 
         if ($filter->after === null) {
             $to = SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($filter->base),
-                $filter->roundEnd
+                $filter->roundEnd,
             );
         } else {
             $to = SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($filter->base) .
                     SolrDateMapper::mapDateInterval($filter->after, '+'),
-                $filter->roundEnd
+                $filter->roundEnd,
             );
         }
 

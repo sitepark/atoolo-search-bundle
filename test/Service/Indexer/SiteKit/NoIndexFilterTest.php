@@ -22,12 +22,12 @@ class NoIndexFilterTest extends TestCase
             'test',
             'test',
             ResourceLanguage::default(),
-            new DataBag([])
+            new DataBag([]),
         );
         $filter = new NoIndexFilter();
         $this->assertTrue(
             $filter->accept($resource),
-            "resource should be accepted"
+            "resource should be accepted",
         );
     }
 
@@ -39,12 +39,12 @@ class NoIndexFilterTest extends TestCase
             'test',
             'test',
             ResourceLanguage::default(),
-            new DataBag(['noIndex' => true])
+            new DataBag(['noIndex' => true]),
         );
         $filter = new NoIndexFilter();
         $this->assertFalse(
             $filter->accept($resource),
-            "resource should not be accepted"
+            "resource should not be accepted",
         );
     }
 }

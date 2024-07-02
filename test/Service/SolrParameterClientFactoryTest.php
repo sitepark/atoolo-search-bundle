@@ -16,7 +16,7 @@ class SolrParameterClientFactoryTest extends TestCase
         $factory = new ParameterSolrClientFactory(
             'http',
             'localhost',
-            8080
+            8080,
         );
         $client = $factory->create('myindex');
         $this->assertNotNull($client, 'client instance expected');

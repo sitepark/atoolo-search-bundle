@@ -19,7 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'search:indexer',
-    description: 'Fill a search index'
+    description: 'Fill a search index',
 )]
 class Indexer extends Command
 {
@@ -42,21 +42,21 @@ class Indexer extends Command
             ->addArgument(
                 'paths',
                 InputArgument::OPTIONAL | InputArgument::IS_ARRAY,
-                'Resources paths or directories of resources to be indexed.'
+                'Resources paths or directories of resources to be indexed.',
             )
             ->addOption(
                 'source',
                 null,
                 InputArgument::OPTIONAL,
                 'Uses only the indexer of a specific source',
-                ''
+                '',
             )
         ;
     }
 
     protected function execute(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
 
         $typedInput = new TypifiedInput($input);
@@ -123,7 +123,7 @@ class Indexer extends Command
 
         $question = new ChoiceQuestion(
             'Please select the indexer you want to use [0]',
-            $names
+            $names,
         );
         $question->setErrorMessage('Indexer %s is invalid.');
 
@@ -139,7 +139,7 @@ class Indexer extends Command
         $this->io->newLine();
         $this->io->section(
             'Index with Indexer "' . $indexer->getName() . '" ' .
-            '(source: ' . $indexer->getSource() . ')'
+            '(source: ' . $indexer->getSource() . ')',
         );
         $progressHandler = $indexer->getProgressHandler();
         $this->progressBar->init($progressHandler);

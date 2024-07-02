@@ -12,12 +12,12 @@ class UnexpectedResultException extends RuntimeException
         private readonly string $result,
         string $message = "",
         int $code = 0,
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ) {
         parent::__construct(
             $message . ": " . $this->result,
             $code,
-            $previous
+            $previous,
         );
     }
 

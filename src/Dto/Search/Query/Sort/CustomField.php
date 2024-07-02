@@ -11,7 +11,7 @@ class CustomField extends Criteria
 {
     public function __construct(
         public readonly string $field,
-        Direction $direction = Direction::ASC
+        Direction $direction = Direction::ASC,
     ) {
         parent::__construct($direction);
     }

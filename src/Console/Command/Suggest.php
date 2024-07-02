@@ -21,7 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'search:suggest',
-    description: 'Performs a suggest search'
+    description: 'Performs a suggest search',
 )]
 class Suggest extends Command
 {
@@ -30,7 +30,7 @@ class Suggest extends Command
 
     public function __construct(
         private readonly ResourceChannel $channel,
-        private readonly SolrSuggest $search
+        private readonly SolrSuggest $search,
     ) {
         parent::__construct();
     }
@@ -42,21 +42,21 @@ class Suggest extends Command
             ->addArgument(
                 'terms',
                 InputArgument::REQUIRED,
-                'Suggest terms.'
+                'Suggest terms.',
             )
             ->addOption(
                 'lang',
                 null,
                 InputArgument::OPTIONAL,
                 'Language to be used for the search. (de, en, fr, it, ...)',
-                ''
+                '',
             )
         ;
     }
 
     protected function execute(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
         $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
@@ -81,8 +81,8 @@ class Suggest extends Command
             $terms,
             ResourceLanguage::of($lang),
             [
-                $excludeMedia
-            ]
+                $excludeMedia,
+            ],
         );
     }
 
@@ -96,7 +96,7 @@ class Suggest extends Command
         foreach ($result as $suggest) {
             $this->io->text(
                 $suggest->term .
-                ' (' . $suggest->hits . ')'
+                ' (' . $suggest->hits . ')',
             );
         }
         $this->io->text('Query-Time: ' . $result->queryTime . 'ms');

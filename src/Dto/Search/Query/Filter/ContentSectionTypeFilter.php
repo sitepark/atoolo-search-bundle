@@ -7,6 +7,4 @@ namespace Atoolo\Search\Dto\Search\Query\Filter;
 /**
  * @codeCoverageIgnore
  */
-class ContentSectionTypeFilter extends FieldFilter
-{
-}
+class ContentSectionTypeFilter extends FieldFilter {}

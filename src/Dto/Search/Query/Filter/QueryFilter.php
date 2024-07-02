@@ -14,7 +14,7 @@ class QueryFilter extends Filter
         ?string $key = null,
     ) {
         parent::__construct(
-            $key
+            $key,
         );
     }
 }

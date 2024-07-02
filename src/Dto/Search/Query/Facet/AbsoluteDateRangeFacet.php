@@ -20,11 +20,11 @@ class AbsoluteDateRangeFacet extends Facet
         public readonly ?DateTime $from,
         public readonly ?DateTime $to,
         public readonly ?DateInterval $gap,
-        array $excludeFilter = []
+        array $excludeFilter = [],
     ) {
         parent::__construct(
             $key,
-            $excludeFilter
+            $excludeFilter,
         );
     }
 }

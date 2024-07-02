@@ -22,8 +22,7 @@ abstract class AbstractIndexer implements Indexer
         protected readonly IndexingAborter $aborter,
         protected readonly IndexerConfigurationLoader $configLoader,
         protected readonly string $source,
-    ) {
-    }
+    ) {}
 
     protected function getKey(): string
     {
@@ -52,7 +51,7 @@ abstract class AbstractIndexer implements Indexer
     }
 
     public function setProgressHandler(
-        IndexerProgressHandler $progressHandler
+        IndexerProgressHandler $progressHandler,
     ): void {
         $this->progressHandler = $progressHandler;
     }

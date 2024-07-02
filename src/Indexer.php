@@ -25,7 +25,7 @@ interface Indexer
     public function getProgressHandler(): IndexerProgressHandler;
 
     public function setProgressHandler(
-        IndexerProgressHandler $progressHandler
+        IndexerProgressHandler $progressHandler,
     ): void;
 
     public function index(): IndexerStatus;

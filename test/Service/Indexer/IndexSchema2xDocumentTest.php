@@ -19,7 +19,7 @@ class IndexSchema2xDocumentTest extends TestCase
         $this->assertEquals(
             ['sp_id' => '123'],
             $doc->getFields(),
-            'unexpected fields'
+            'unexpected fields',
         );
     }
 
@@ -31,7 +31,7 @@ class IndexSchema2xDocumentTest extends TestCase
         $this->assertEquals(
             ['sp_meta_string_myname' => 'myvalue'],
             $doc->getFields(),
-            'unexpected meta fields'
+            'unexpected meta fields',
         );
     }
 
@@ -43,7 +43,7 @@ class IndexSchema2xDocumentTest extends TestCase
         $this->assertEquals(
             ['sp_meta_text_myname' => 'myvalue'],
             $doc->getFields(),
-            'unexpected meta fields'
+            'unexpected meta fields',
         );
     }
 
@@ -55,7 +55,7 @@ class IndexSchema2xDocumentTest extends TestCase
         $this->assertEquals(
             ['sp_meta_bool_myname' => true],
             $doc->getFields(),
-            'unexpected meta fields'
+            'unexpected meta fields',
         );
     }
 }

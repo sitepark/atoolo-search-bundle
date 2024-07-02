@@ -7,6 +7,4 @@ namespace Atoolo\Search\Dto\Search\Query\Sort;
 /**
  * @codeCoverageIgnore
  */
-class Headline extends Criteria
-{
-}
+class Headline extends Criteria {}

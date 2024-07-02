@@ -18,9 +18,8 @@ class SolrIndexUpdater
 
     public function __construct(
         private readonly Client $client,
-        private readonly UpdateQuery $update
-    ) {
-    }
+        private readonly UpdateQuery $update,
+    ) {}
 
     public function createDocument(): Document
     {

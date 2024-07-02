@@ -12,9 +12,8 @@ class PhpLimitIncreaser
 
     public function __construct(
         private readonly int $timeLimit,
-        private readonly string $memoryLimit
-    ) {
-    }
+        private readonly string $memoryLimit,
+    ) {}
 
     public function increase(): void
     {
@@ -24,7 +23,7 @@ class PhpLimitIncreaser
             ini_get('memory_limit') ?: self::UNLIMITED_MEMORY;
 
         if (
-            ((int)$this->savedTimeLimit) < $this->timeLimit
+            ((int) $this->savedTimeLimit) < $this->timeLimit
         ) {
             set_time_limit($this->timeLimit);
         }
@@ -36,7 +35,7 @@ class PhpLimitIncreaser
 
     public function reset(): void
     {
-        set_time_limit((int)$this->savedTimeLimit);
+        set_time_limit((int) $this->savedTimeLimit);
         ini_set('memory_limit', $this->savedMemoryLimit);
     }
 
@@ -61,7 +60,7 @@ class PhpLimitIncreaser
     {
         [$number, $suffix] = sscanf($memory, '%u%c') ?? [null, null];
         if (!is_string($suffix)) {
-            return (int)$memory;
+            return (int) $memory;
         }
 
         $pos = stripos(' KMG', $suffix);

@@ -29,8 +29,7 @@ class InternalResourceIndexerScheduler implements ScheduleProviderInterface
             new SemaphoreStore(),
         ),
         private readonly LoggerInterface $logger = new NullLogger(),
-    ) {
-    }
+    ) {}
 
     public function getSchedule(): Schedule
     {
@@ -39,7 +38,7 @@ class InternalResourceIndexerScheduler implements ScheduleProviderInterface
             ->add(
                 RecurringMessage::cron(
                     $this->cron,
-                    new InternalResourceIndexerEvent()
+                    new InternalResourceIndexerEvent(),
                 ),
             )->lock($this->lockFactory->createLock(
                 'internal-resource-indexer-scheduler-'

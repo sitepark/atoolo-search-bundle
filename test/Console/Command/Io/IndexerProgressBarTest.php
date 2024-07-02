@@ -131,7 +131,7 @@ class IndexerProgressBarTest extends TestCase
         $this->assertCount(
             1,
             $this->progressBar->getErrors(),
-            'unexpected error count'
+            'unexpected error count',
         );
     }
 

@@ -59,7 +59,7 @@ class SubDirTranslationSplitter implements TranslationSplitter
 
         return ResourceLocation::of(
             substr($normalizedPath, 0, $pos + 4),
-            ResourceLanguage::of($locale)
+            ResourceLanguage::of($locale),
         );
     }
 

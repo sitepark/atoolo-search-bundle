@@ -33,7 +33,6 @@ class SearchQuery
         public readonly bool $archive,
         public readonly QueryOperator $defaultQueryOperator,
         public readonly ?DateTimeZone $timeZone,
-        public readonly ?Boosting $boosting
-    ) {
-    }
+        public readonly ?Boosting $boosting,
+    ) {}
 }

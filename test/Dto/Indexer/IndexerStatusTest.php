@@ -38,7 +38,7 @@ class IndexerStatusTest extends TestCase
             4,
             $lastUpdate,
             6,
-            2
+            2,
         );
     }
 
@@ -54,7 +54,7 @@ class IndexerStatusTest extends TestCase
                 'updated: 6, ' .
                 'errors: 2',
             $this->status->getStatusLine(),
-            "unexpected status line"
+            "unexpected status line",
         );
     }
 
@@ -79,7 +79,7 @@ class IndexerStatusTest extends TestCase
             $startTime,
             6,
             2,
-            'prepare message'
+            'prepare message',
         );
 
         $this->assertEquals(
@@ -88,7 +88,7 @@ class IndexerStatusTest extends TestCase
             'time: 01h 01m 01s, ' .
             'message: prepare message',
             $status->getStatusLine(),
-            "unexpected status line"
+            "unexpected status line",
         );
     }
 
@@ -110,7 +110,7 @@ class IndexerStatusTest extends TestCase
         $this->assertMatchesRegularExpression(
             $patter,
             $status->getStatusLine(),
-            "unexpected status line for empty status"
+            "unexpected status line for empty status",
         );
     }
 
@@ -132,7 +132,7 @@ class IndexerStatusTest extends TestCase
             0,
             $lastUpdate,
             0,
-            0
+            0,
         );
 
         $dateTimePattern = '[0-9]{2}\.[0-9]{2}\.[0-9]{4} [0-9]{2}:[0-9]{2}';
@@ -141,7 +141,7 @@ class IndexerStatusTest extends TestCase
         $this->assertMatchesRegularExpression(
             $patter,
             $status->getStatusLine(),
-            "unexpected status line without endTime"
+            "unexpected status line without endTime",
         );
     }
 }

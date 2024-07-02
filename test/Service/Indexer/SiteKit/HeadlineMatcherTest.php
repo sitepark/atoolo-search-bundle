@@ -16,7 +16,7 @@ class HeadlineMatcherTest extends TestCase
         $matcher = new HeadlineMatcher();
 
         $value = [
-            "headline" => "Überschrift"
+            "headline" => "Überschrift",
         ];
 
         $content = $matcher->match(['items', 'model'], $value);
@@ -29,14 +29,14 @@ class HeadlineMatcherTest extends TestCase
         $matcher = new HeadlineMatcher();
 
         $value = [
-            "headline" => "Überschrift"
+            "headline" => "Überschrift",
         ];
 
         $content = $matcher->match(['model'], $value);
 
         $this->assertEmpty(
             $content,
-            'should not find any content'
+            'should not find any content',
         );
     }
 
@@ -45,14 +45,14 @@ class HeadlineMatcherTest extends TestCase
         $matcher = new HeadlineMatcher();
 
         $value = [
-            "headline" => "Überschrift"
+            "headline" => "Überschrift",
         ];
 
         $content = $matcher->match(['items', 'modelX'], $value);
 
         $this->assertEmpty(
             $content,
-            'should not find any content'
+            'should not find any content',
         );
     }
 }

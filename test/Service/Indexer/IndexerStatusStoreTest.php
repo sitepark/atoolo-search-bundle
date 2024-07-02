@@ -38,7 +38,7 @@ class IndexerStatusStoreTest extends TestCase
         $store->store('test', $status);
 
         $json = file_get_contents(
-            self::TEST_DIR . '/atoolo.search.index.test.status.json'
+            self::TEST_DIR . '/atoolo.search.index.test.status.json',
         );
 
         $expected =
@@ -68,7 +68,7 @@ class IndexerStatusStoreTest extends TestCase
 
         $this->assertDirectoryExists(
             $baseDir,
-            'non exists basedir should be created'
+            'non exists basedir should be created',
         );
     }
 
@@ -145,7 +145,7 @@ class IndexerStatusStoreTest extends TestCase
         $this->assertEquals(
             $expected,
             $status,
-            'unexpected status'
+            'unexpected status',
         );
     }
 
@@ -161,7 +161,7 @@ class IndexerStatusStoreTest extends TestCase
         $this->assertEquals(
             0,
             $status->total,
-            'empty status expected'
+            'empty status expected',
         );
     }
 
@@ -210,7 +210,7 @@ class IndexerStatusStoreTest extends TestCase
             4,
             $lastUpdate,
             6,
-            2
+            2,
         );
     }
 }

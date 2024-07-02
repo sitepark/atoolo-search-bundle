@@ -26,7 +26,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     public function setUp(): void
     {
         $this->navigationLoader = $this->createMock(
-            SiteKitNavigationHierarchyLoader::class
+            SiteKitNavigationHierarchyLoader::class,
         );
         $this->navigationLoader
             ->method('loadRoot')
@@ -35,7 +35,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                     throw new InvalidResourceException($location);
                 }
                 return $this->createResource([
-                    'siteGroup' => ['id' => 999]
+                    'siteGroup' => ['id' => 999],
                 ]);
             });
         $contentCollector = $this->createStub(ContentCollector::class);
@@ -45,7 +45,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
         $this->enricher = new DefaultSchema2xDocumentEnricher(
             $this->navigationLoader,
-            $contentCollector
+            $contentCollector,
         );
     }
 
@@ -64,7 +64,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             '',
             '',
             ResourceLanguage::default(),
-            new DataBag([])
+            new DataBag([]),
         );
         $doc = $this->enrichWithResource($resource);
         $this->assertEquals('123', $doc->sp_id, 'unexpected id');
@@ -73,7 +73,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     public function testEnrichName(): void
     {
         $resource = $this->createResource([
-            'name' => 'test'
+            'name' => 'test',
         ]);
         $doc = $this->enrichWithResource($resource);
         $this->assertEquals('test', $doc->sp_name, 'unexpected name');
@@ -82,13 +82,13 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     public function testEnrichObjectType(): void
     {
         $resource = $this->createResource([
-            'objectType' => 'test'
+            'objectType' => 'test',
         ]);
         $doc = $this->enrichWithResource($resource);
         $this->assertEquals(
             'test',
             $doc->sp_objecttype,
-            'unexpected objectType'
+            'unexpected objectType',
         );
     }
 
@@ -110,7 +110,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             'abc',
             $doc->description,
-            'unexpected description'
+            'unexpected description',
         );
     }
 
@@ -119,7 +119,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $doc = $this->enrichWithData([]);
         $this->assertTrue(
             $doc->sp_canonical,
-            'unexpected canonical'
+            'unexpected canonical',
         );
     }
 
@@ -129,12 +129,12 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $doc = $this->enricher->enrichDocument(
             $resource,
             new IndexSchema2xDocument(),
-            'progress-id'
+            'progress-id',
         );
         $this->assertEquals(
             $doc->crawl_process_id,
             'progress-id',
-            'unexpected progress id'
+            'unexpected progress id',
         );
     }
 
@@ -144,7 +144,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             '123',
             $doc->id,
-            'unexpected id'
+            'unexpected id',
         );
     }
 
@@ -154,7 +154,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             '/test.php',
             $doc->url,
-            'unexpected url'
+            'unexpected url',
         );
     }
 
@@ -164,7 +164,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             '/test.php',
             $doc->url,
-            'unexpected url'
+            'unexpected url',
         );
     }
 
@@ -177,11 +177,11 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 'teaser' => [
                     'headline' => 'test',
                     'image' => [
-                        'copyright' => 'test'
+                        'copyright' => 'test',
                     ],
-                    'text' => 'test'
-                ]
-            ]
+                    'text' => 'test',
+                ],
+            ],
         ]);
         $this->assertEquals(
             [
@@ -192,10 +192,10 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 'teaserImage',
                 'teaserImageCopyright',
                 'teaserHeadline',
-                'teaserText'
+                'teaserText',
             ],
             $doc->sp_contenttype,
-            'unexpected sp_contenttype'
+            'unexpected sp_contenttype',
         );
     }
 
@@ -205,7 +205,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             'de',
             $doc->sp_language,
-            'unexpected language'
+            'unexpected language',
         );
     }
 
@@ -215,7 +215,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             'en',
             $doc->sp_language,
-            'unexpected language'
+            'unexpected language',
         );
     }
 
@@ -225,7 +225,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             'en',
             $doc->sp_language,
-            'unexpected language'
+            'unexpected language',
         );
     }
 
@@ -234,13 +234,13 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $doc = $this->enrichWithData([
             'groupPath' => [
                 ['id' => 1, 'locale' => 'fr_FR'],
-                ['id' => 2, 'locale' => 'it_IT']
-            ]
+                ['id' => 2, 'locale' => 'it_IT'],
+            ],
         ]);
         $this->assertEquals(
             'it',
             $doc->sp_language,
-            'unexpected language'
+            'unexpected language',
         );
     }
 
@@ -250,7 +250,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             'de',
             $doc->meta_content_language,
-            'unexpected language'
+            'unexpected language',
         );
     }
 
@@ -263,7 +263,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             $expected,
             $doc->sp_changed,
-            'unexpected sp_changed'
+            'unexpected sp_changed',
         );
     }
 
@@ -276,7 +276,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             $expected,
             $doc->sp_generated,
-            'unexpected sp_generated'
+            'unexpected sp_generated',
         );
     }
 
@@ -289,7 +289,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             $expected,
             $doc->sp_date,
-            'unexpected sp_generated'
+            'unexpected sp_generated',
         );
     }
 
@@ -298,7 +298,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $doc = $this->enrichWithData(['base' => ['archive' => true]]);
         $this->assertTrue(
             $doc->sp_archive,
-            'unexpected language'
+            'unexpected language',
         );
     }
 
@@ -308,7 +308,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             'test',
             $doc->sp_title,
-            'unexpected sp_title'
+            'unexpected sp_title',
         );
     }
 
@@ -317,13 +317,13 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $doc = $this->enrichWithData(['base' => [
             'title' => 'test',
             'teaser' => [
-                'headline' => 'test'
-            ]
+                'headline' => 'test',
+            ],
         ]]);
         $this->assertEquals(
             'test',
             $doc->sp_title,
-            'unexpected sp_title'
+            'unexpected sp_title',
         );
     }
 
@@ -333,7 +333,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             'test',
             $doc->sp_title,
-            'unexpected sp_title'
+            'unexpected sp_title',
         );
     }
 
@@ -341,13 +341,13 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     {
         $doc = $this->enrichWithData(['base' => [
             'teaser' => [
-                'headline' => 'test'
-            ]
+                'headline' => 'test',
+            ],
         ]]);
         $this->assertEquals(
             'test',
             $doc->sp_sortvalue,
-            'unexpected sp_sortvalue'
+            'unexpected sp_sortvalue',
         );
     }
 
@@ -356,13 +356,13 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $doc = $this->enrichWithData(['base' => [
             'title' => 'test',
             'teaser' => [
-                'headline' => 'test'
-            ]
+                'headline' => 'test',
+            ],
         ]]);
         $this->assertEquals(
             'test',
             $doc->sp_sortvalue,
-            'unexpected sp_sortvalue'
+            'unexpected sp_sortvalue',
         );
     }
 
@@ -372,31 +372,31 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             'test',
             $doc->sp_sortvalue,
-            'unexpected sp_sortvalue'
+            'unexpected sp_sortvalue',
         );
     }
 
     public function testEnrichKeywords(): void
     {
         $doc = $this->enrichWithData(['metadata' => [
-            'keywords' => ['abc', 'cde']
+            'keywords' => ['abc', 'cde'],
         ]]);
         $this->assertEquals(
             ['abc', 'cde'],
             $doc->keywords,
-            'unexpected keywords'
+            'unexpected keywords',
         );
     }
 
     public function testEnrichBoostKeywords(): void
     {
         $doc = $this->enrichWithData(['metadata' => [
-            'boostKeywords' => ['abc', 'cde']
+            'boostKeywords' => ['abc', 'cde'],
         ]]);
         $this->assertEquals(
             'abc cde',
             $doc->sp_boost_keywords,
-            'unexpected keywords'
+            'unexpected keywords',
         );
     }
 
@@ -407,22 +407,22 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 'navigation' => [
                     'parents' => [
                         ['siteGroup' => ['id' => '123']],
-                        ['siteGroup' => ['id' => '456']]
-                    ]
-                ]
-            ]
+                        ['siteGroup' => ['id' => '456']],
+                    ],
+                ],
+            ],
         ]]);
         $this->assertEquals(
             ['123', '456', '999'],
             $doc->sp_site,
-            'unexpected keywords'
+            'unexpected keywords',
         );
     }
 
     public function testEnrichSpSitesWithInvalidRootResource(): void
     {
         $resource = $this->createResource([
-            'url' => 'throwException'
+            'url' => 'throwException',
         ]);
 
         $this->expectException(DocumentEnrichingException::class);
@@ -435,15 +435,15 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             'geo' => [
                 'wkt' => [
                     'primary' => [
-                        'value' => 'test'
-                    ]
-                ]
-            ]
+                        'value' => 'test',
+                    ],
+                ],
+            ],
         ]]);
         $this->assertEquals(
             ['value' => 'test'],
             $doc->sp_geo_points,
-            'unexpected sp_geo_points'
+            'unexpected sp_geo_points',
         );
     }
 
@@ -454,12 +454,12 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 ['id' => 1],
                 ['id' => 2],
                 ['id' => 3],
-            ]
+            ],
         ]]);
         $this->assertEquals(
             ['1', '2', '3'],
             $doc->sp_category,
-            'unexpected sp_category'
+            'unexpected sp_category',
         );
     }
 
@@ -470,12 +470,12 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 ['id' => 1],
                 ['id' => 2],
                 ['id' => 3],
-            ]
+            ],
         ]]);
         $this->assertEquals(
             ['1', '2', '3'],
             $doc->sp_category_path,
-            'unexpected sp_category_path'
+            'unexpected sp_category_path',
         );
     }
 
@@ -486,12 +486,12 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 ['id' => 1],
                 ['id' => 2],
                 ['id' => 3],
-            ]
+            ],
         ]);
         $this->assertEquals(
             2,
             $doc->sp_group,
-            'unexpected sp_group'
+            'unexpected sp_group',
         );
     }
 
@@ -502,12 +502,12 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 ['id' => 1],
                 ['id' => 2],
                 ['id' => 3],
-            ]
+            ],
         ]);
         $this->assertEquals(
             [1, 2, 3],
             $doc->sp_group_path,
-            'unexpected sp_group_path'
+            'unexpected sp_group_path',
         );
     }
 
@@ -519,8 +519,8 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 'scheduling' => [
                     ['from' => 1708932236, 'contentType' => 'test'],
                     ['from' => 1709105036, 'contentType' => 'test'],
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $expected = new DateTime();
@@ -529,7 +529,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             $expected,
             $doc->sp_date,
-            'unexpected sp_date'
+            'unexpected sp_date',
         );
     }
 
@@ -543,14 +543,14 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                     ['from' => 1708932236, 'contentType' => 'test1'],
                     ['from' => 1709105036, 'contentType' => 'test2'],
                     ['from' => 1707981836, 'contentType' => 'test1'],
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $this->assertEquals(
             ['content', 'article', 'test1', 'test2'],
             $doc->sp_contenttype,
-            'unexpected sp_contenttype'
+            'unexpected sp_contenttype',
         );
     }
 
@@ -561,8 +561,8 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 'scheduling' => [
                     ['from' => 1708932236, 'contentType' => 'test'],
                     ['from' => 1709105036, 'contentType' => 'test'],
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $dateA = new DateTime();
@@ -573,7 +573,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             [$dateA, $dateB],
             $doc->sp_date_list,
-            'unexpected sp_date'
+            'unexpected sp_date',
         );
     }
 
@@ -584,7 +584,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             'text/html; charset=UTF-8',
             $doc->meta_content_type,
-            'unexpected meta_content_type'
+            'unexpected meta_content_type',
         );
     }
 
@@ -593,14 +593,14 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $doc = $this->enrichWithData([
             'access' => [
                 'type' => 'allow',
-                'groups' => ['100010100000001028']
-            ]
+                'groups' => ['100010100000001028'],
+            ],
         ]);
 
         $this->assertEquals(
             ['1028'],
             $doc->include_groups,
-            'unexpected include_groups'
+            'unexpected include_groups',
         );
     }
 
@@ -611,7 +611,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             ['all'],
             $doc->include_groups,
-            'unexpected include_groups'
+            'unexpected include_groups',
         );
     }
 
@@ -620,14 +620,14 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $doc = $this->enrichWithData([
             'access' => [
                 'type' => 'deny',
-                'groups' => ['100010100000001028']
-            ]
+                'groups' => ['100010100000001028'],
+            ],
         ]);
 
         $this->assertEquals(
             ['1028'],
             $doc->exclude_groups,
-            'unexpected exclude_groups'
+            'unexpected exclude_groups',
         );
     }
 
@@ -638,20 +638,20 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             ['none'],
             $doc->exclude_groups,
-            'unexpected exclude_groups'
+            'unexpected exclude_groups',
         );
     }
 
     public function testEnrichMetaContentType(): void
     {
         $doc = $this->enrichWithData([
-            'base' => ['mime' => 'application/pdf']
+            'base' => ['mime' => 'application/pdf'],
         ]);
 
         $this->assertEquals(
             'application/pdf',
             $doc->meta_content_type,
-            'unexpected meta_content_type'
+            'unexpected meta_content_type',
         );
     }
 
@@ -662,7 +662,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $this->assertEquals(
             ['internal'],
             $doc->sp_source,
-            'unexpected sp_source'
+            'unexpected sp_source',
         );
     }
 
@@ -672,16 +672,16 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             'metadata' => [
                 'categories' => [
                     ['id' => 1, 'name' => 'CategoryA'],
-                    ['id' => 2, 'name' => 'CategoryB']
-                ]
+                    ['id' => 2, 'name' => 'CategoryB'],
+                ],
             ],
-            'searchindexdata' => ['content' => 'abc']
+            'searchindexdata' => ['content' => 'abc'],
         ]);
 
         $this->assertEquals(
             'abc collected content CategoryA CategoryB',
             $doc->content,
-            'unexpected content'
+            'unexpected content',
         );
     }
 
@@ -695,28 +695,28 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                             ['phone' => [
                                 'countryCode' => '49',
                                 'areaCode' => '251',
-                                'localNumber' => '123'
+                                'localNumber' => '123',
                             ]],
                             ['phone' => [
                                 'countryCode' => '49',
                                 'areaCode' => '2571',
-                                'localNumber' => '456'
-                            ]]
+                                'localNumber' => '456',
+                            ]],
                         ],
                         'emailList' => [
                             ['email' => 'test1@sitepark.com'],
-                            ['email' => 'test2@sitepark.com']
-                        ]
+                            ['email' => 'test2@sitepark.com'],
+                        ],
                     ],
                     'addressData' => [
                         'street' => 'Neubrückenstr',
                         'buildingName' => 'Pressehaus',
                         'postOfficeBoxData' => [
-                            'buildingName' => 'Sitepark'
-                        ]
-                    ]
+                            'buildingName' => 'Sitepark',
+                        ],
+                    ],
                 ],
-            ]
+            ],
         ]);
 
         $this->assertEquals(
@@ -724,18 +724,18 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             'test1@sitepark.com test2@sitepark.com ' .
             'Neubrückenstr Pressehaus Sitepark',
             $doc->content,
-            'unexpected content'
+            'unexpected content',
         );
     }
 
     private function enrichWithResource(
-        Resource $resource
+        Resource $resource,
     ): IndexSchema2xDocument {
         /** @var IndexSchema2xDocument $doc */
         $doc = $this->enricher->enrichDocument(
             $resource,
             new IndexSchema2xDocument(),
-            'progress-id'
+            'progress-id',
         );
         return $doc;
     }
@@ -744,14 +744,14 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
      * @param array<string, array<string,mixed>> $data
      */
     private function enrichWithData(
-        array $data
+        array $data,
     ): IndexSchema2xDocument {
         $resource = $this->createResource($data);
         /** @var IndexSchema2xDocument $doc */
         $doc = $this->enricher->enrichDocument(
             $resource,
             new IndexSchema2xDocument(),
-            'progress-id'
+            'progress-id',
         );
         return $doc;
     }
@@ -767,7 +767,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             $data['name'] ?? '',
             $data['objectType'] ?? '',
             ResourceLanguage::of($data['locale'] ?? ''),
-            new DataBag($data)
+            new DataBag($data),
         );
     }
 }
