@@ -177,6 +177,7 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     public function getFields(): array
     {
         return [
+            ...parent::getFields(),
             ...array_filter(
                 get_object_vars($this),
                 fn($value, $key) => !is_null($value)

@@ -113,3 +113,8 @@ services:
     arguments:
       - '%atoolo_search.indexer.internal_resource_indexer_scheduler.cron%'
       - '@atoolo_search.indexer.internal_resource_indexer'
+
+  atoolo_search.indexer.solr_xml_reader:
+    class: Atoolo\Search\Service\Indexer\SolrXmlReader
+    arguments:
+      - '@atoolo_resource.resource_channel'
