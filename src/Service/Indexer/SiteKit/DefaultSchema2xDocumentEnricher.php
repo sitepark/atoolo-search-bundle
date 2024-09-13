@@ -127,12 +127,15 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             ?: $metadata->getString('headline')
             ?: $base->getString('title');
         $doc->sp_title = $headline;
-        $doc->sp_startletter = $headline;
 
         $sortHeadline = $base->getString('teaser.headline')
             ?: $metadata->getString('headline')
             ?: $base->getString('title');
         $doc->sp_sortvalue = $sortHeadline;
+
+        if ($base->has('startletter')) {
+            $doc->sp_startletter = $base->getString('startletter');
+        }
 
         /** @var string[] $keyword */
         $keyword = $metadata->getArray('keywords');
