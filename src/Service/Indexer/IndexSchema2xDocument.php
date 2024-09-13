@@ -25,6 +25,7 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     public ?string $sp_name = null;
     public ?string $sp_anchor = null;
     public ?string $title = null;
+    public ?string $sp_startletter = null;
     public ?string $description = null;
     public ?string $sp_objecttype = null;
     public ?bool $sp_canonical = null;
