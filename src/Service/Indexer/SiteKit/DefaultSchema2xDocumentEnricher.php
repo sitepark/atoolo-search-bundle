@@ -123,10 +123,11 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 
         $doc->sp_archive = $base->getBool('archive');
 
-        $headline = $metadata->getString('headline')
-            ?: $base->getString('teaser.headline')
+        $headline = $base->getString('teaser.headline')
+            ?: $metadata->getString('headline')
             ?: $base->getString('title');
         $doc->sp_title = $headline;
+        $doc->sp_startletter = $headline;
 
         $sortHeadline = $base->getString('teaser.headline')
             ?: $metadata->getString('headline')
