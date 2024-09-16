@@ -728,6 +728,18 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         );
     }
 
+    public function testEnrichStartletter(): void
+    {
+        $doc = $this->enrichWithData(['base' => [
+            'startletter' => 'z'
+        ]]);
+        $this->assertEquals(
+            'z',
+            $doc->sp_startletter,
+            'unexpected base.startletter',
+        );
+    }
+
     private function enrichWithResource(
         Resource $resource,
     ): IndexSchema2xDocument {
