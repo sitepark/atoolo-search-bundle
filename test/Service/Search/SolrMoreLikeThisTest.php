@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Search;
 
 use Atoolo\Resource\Resource;
-use Atoolo\Resource\ResourceLocation;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Service\IndexName;
@@ -72,8 +72,10 @@ class SolrMoreLikeThisTest extends TestCase
         $filter = new ObjectTypeFilter(['test']);
 
         $query = new MoreLikeThisQuery(
-            ResourceLocation::of('/test.php'),
-            [$filter],
+            id: '123',
+            lang: ResourceLanguage::default(),
+            limit: 5,
+            filter: [$filter],
         );
 
         $searchResult = $this->searcher->moreLikeThis($query);

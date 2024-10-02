@@ -29,12 +29,12 @@ class SolrMoreLikeThis implements MoreLikeThis
 
     public function moreLikeThis(MoreLikeThisQuery $query): SearchResult
     {
-        $index = $this->index->name($query->location->lang);
+        $index = $this->index->name($query->lang);
         $client = $this->clientFactory->create($index);
         $solrQuery = $this->buildSolrQuery($client, $query);
         /** @var SolrMoreLikeThisResult $result */
         $result = $client->execute($solrQuery);
-        return $this->buildResult($result, $query->location->lang);
+        return $this->buildResult($result, $query->lang);
     }
 
     private function buildSolrQuery(
@@ -44,13 +44,15 @@ class SolrMoreLikeThis implements MoreLikeThis
 
         $solrQuery = $client->createMoreLikeThis();
         $solrQuery->setOmitHeader(false);
-        $solrQuery->setQuery('url:"' . $query->location . '"');
+        $solrQuery->setQuery('id:' . $query->id);
         $solrQuery->setMltFields($query->fields);
         $solrQuery->setRows($query->limit);
         $solrQuery->setMinimumTermFrequency(2);
         $solrQuery->setMatchInclude(true);
 
         // Filter
+        $filterQuery = $solrQuery->createFilterQuery('self');
+        $filterQuery->setQuery('-id:' . $query->id);
         $this->addFilterQueriesToSolrQuery($solrQuery, $query->filter);
 
         return $solrQuery;

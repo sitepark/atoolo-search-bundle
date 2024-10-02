@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Search\Query;
 
-use Atoolo\Resource\ResourceLocation;
+use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 
 /**
@@ -25,9 +25,10 @@ class MoreLikeThisQuery
      * which entries are similar.
      */
     public function __construct(
-        public readonly ResourceLocation $location,
-        public readonly array $filter = [],
+        public readonly string $id,
+        public readonly ResourceLanguage $lang,
         public readonly int $limit = 5,
+        public readonly array $filter = [],
         public readonly array $fields = ['description', 'content'],
     ) {}
 }

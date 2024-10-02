@@ -97,7 +97,7 @@ class MoreLikeThisTest extends TestCase
             ->willReturn($result);
 
         $this->commandTester->execute([
-            'location' => '/test.php',
+            'id' => '123',
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();
@@ -134,7 +134,7 @@ EOF,
             ->willReturn($result);
 
         $this->commandTester->execute([
-            'location' => '/test.php',
+            'id' => '123',
         ]);
 
         $this->commandTester->assertCommandIsSuccessful();

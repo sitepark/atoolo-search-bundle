@@ -6,7 +6,6 @@ namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceLanguage;
-use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
@@ -39,9 +38,9 @@ class MoreLikeThis extends Command
         $this
             ->setHelp('Command to perform a more-like-this search')
             ->addArgument(
-                'location',
+                'id',
                 InputArgument::REQUIRED,
-                'Location of the resource to which the MoreLikeThis ' .
+                'Id of the resource to which the MoreLikeThis ' .
                 'search is to be applied.',
             )
             ->addOption(
@@ -62,30 +61,28 @@ class MoreLikeThis extends Command
         $this->input = new TypifiedInput($input);
         $this->io = new SymfonyStyle($input, $output);
 
-        $location = ResourceLocation::of(
-            $this->input->getStringArgument('location'),
-            ResourceLanguage::of(
-                $this->input->getStringOption('lang'),
-            ),
+        $id = $this->input->getStringArgument('id');
+        $lang = ResourceLanguage::of(
+            $this->input->getStringOption('lang'),
         );
 
         $this->io->title('Channel: ' . $this->channel->name);
 
-        $query = $this->buildQuery($location);
+        $query = $this->buildQuery($id, $lang);
         $result = $this->searcher->moreLikeThis($query);
         $this->outputResult($result);
 
         return Command::SUCCESS;
     }
 
-    protected function buildQuery(
-        ResourceLocation $location,
-    ): MoreLikeThisQuery {
+    protected function buildQuery(string $id, ResourceLanguage $lang): MoreLikeThisQuery
+    {
         $filterList = [];
         return new MoreLikeThisQuery(
-            location: $location,
-            filter: $filterList,
+            id: $id,
+            lang: $lang,
             limit: 5,
+            filter: $filterList,
             fields: ['content'],
         );
     }
