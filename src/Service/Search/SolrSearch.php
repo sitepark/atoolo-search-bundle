@@ -121,6 +121,7 @@ class SolrSearch implements Search
             'url',
             'title',
             'description',
+            'id',
             'sp_id',
             'sp_objecttype',
         ]);
@@ -265,7 +266,7 @@ class SolrSearch implements Search
         $facetGroupList = $this->buildFacetGroupList($query, $result);
 
         return new SearchResult(
-            total:$result->getNumFound() ?? 0,
+            total: $result->getNumFound() ?? 0,
             limit: $query->limit,
             offset: $query->offset,
             results: $resourceList,
