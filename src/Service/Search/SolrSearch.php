@@ -40,7 +40,7 @@ class SolrSearch implements Search
         'sp_date_list',
         'sp_date_from',
         'sp_date_to',
-        'sp_meta_*'
+        'sp_meta_*',
     ];
 
     /**
@@ -132,7 +132,7 @@ class SolrSearch implements Search
         SolrSelectQuery $solrQuery,
     ): void {
         $solrQuery->setFields(
-            self::QUERY_FIELDS_REQUIRED
+            self::QUERY_FIELDS_REQUIRED,
         );
     }
 
