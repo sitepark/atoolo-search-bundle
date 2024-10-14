@@ -29,6 +29,18 @@ use Solarium\QueryType\Select\Result\Result as SelectResult;
  */
 class SolrSearch implements Search
 {
+    public const QUERY_FIELDS_REQUIRED = [
+        'url',
+        'title',
+        'description',
+        'id',
+        'sp_id',
+        'sp_objecttype',
+        'sp_date',
+        'sp_date_list',
+        'sp_meta_*',
+    ];
+
     /**
      * @param iterable<SolrQueryModifier> $solrQueryModifierList
      */
@@ -117,14 +129,9 @@ class SolrSearch implements Search
     private function addRequiredFieldListToSolrQuery(
         SolrSelectQuery $solrQuery,
     ): void {
-        $solrQuery->setFields([
-            'url',
-            'title',
-            'description',
-            'id',
-            'sp_id',
-            'sp_objecttype',
-        ]);
+        $solrQuery->setFields(
+            self::QUERY_FIELDS_REQUIRED,
+        );
     }
 
     private function addTextFilterToSolrQuery(
