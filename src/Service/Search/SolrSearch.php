@@ -38,8 +38,6 @@ class SolrSearch implements Search
         'sp_objecttype',
         'sp_date',
         'sp_date_list',
-        'sp_date_from',
-        'sp_date_to',
         'sp_meta_*',
     ];
 
