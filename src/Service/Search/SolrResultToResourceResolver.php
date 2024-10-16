@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Search;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Resource\ResourceLocation;
@@ -26,6 +27,7 @@ class SolrResultToResourceResolver
      */
     public function __construct(
         private readonly iterable $resourceFactoryList,
+        private readonly SolrExplainBuilder $explainBuilder,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {}
 
@@ -40,12 +42,36 @@ class SolrResultToResourceResolver
         /** @var Document $document */
         foreach ($result as $document) {
             try {
-                $resourceList[] = $this->loadResource($document, $lang);
+                $resourceList[] = $this->createResource($document, $lang);
             } catch (Exception $e) {
                 $this->logger->error($e->getMessage(), ['exception' => $e]);
             }
         }
         return $resourceList;
+    }
+
+    private function createResource(
+        Document $document,
+        ResourceLanguage $lang,
+    ): Resource {
+        $resource = $this->loadResource($document, $lang);
+        $explain = $document->getFields()['explain'] ?? [];
+        if (!empty($explain)) {
+            $explain = $this->explainBuilder->build($explain);
+
+            $rawData = $resource->data->get();
+            $rawData['explain'] = $explain;
+
+            return new Resource(
+                $resource->location,
+                $resource->id,
+                $resource->name,
+                $resource->objectType,
+                $resource->lang,
+                new DataBag($rawData),
+            );
+        }
+        return $resource;
     }
 
     private function loadResource(

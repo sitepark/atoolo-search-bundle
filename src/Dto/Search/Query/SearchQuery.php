@@ -34,5 +34,6 @@ class SearchQuery
         public readonly QueryOperator $defaultQueryOperator,
         public readonly ?DateTimeZone $timeZone,
         public readonly ?Boosting $boosting,
+        public readonly bool $explain = false,
     ) {}
 }
