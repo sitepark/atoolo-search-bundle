@@ -169,4 +169,14 @@ class SearchQueryBuilderTest extends TestCase
             'unexpected boosting',
         );
     }
+
+    public function testSetExplain(): void
+    {
+        $this->builder->explain(true);
+        $query = $this->builder->build();
+        $this->assertTrue(
+            $query->explain,
+            'unexpected explain',
+        );
+    }
 }

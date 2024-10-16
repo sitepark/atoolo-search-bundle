@@ -50,10 +50,14 @@ services:
     class: Atoolo\Search\Service\Search\SolrResultToResourceResolver
     arguments:
       - !tagged_iterator atoolo_search.resource_factory
+      - '@atoolo_search.explain_builder'
       - '@logger'
 
   atoolo_search.field_mapper:
     class: Atoolo\Search\Service\Search\Schema2xFieldMapper
+
+  atoolo_search.explain_builder:
+    class: Atoolo\Search\Service\Search\SolrExplainBuilder
 
   atoolo_search.search:
     class: Atoolo\Search\Service\Search\SolrSearch

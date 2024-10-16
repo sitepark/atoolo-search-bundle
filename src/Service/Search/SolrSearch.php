@@ -47,7 +47,7 @@ class SolrSearch implements Search
     public function __construct(
         private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
-        private readonly SolrResultToResourceResolver $resultToResourceResolver,
+        private readonly SolrResultToResourceResolver $resourceResolver,
         private readonly Schema2xFieldMapper $schemaFieldMapper,
         private readonly iterable $solrQueryModifierList = [],
     ) {}
@@ -82,7 +82,7 @@ class SolrSearch implements Search
         $solrQuery->setOmitHeader(false);
 
         $this->addSortToSolrQuery($solrQuery, $query->sort);
-        $this->addRequiredFieldListToSolrQuery($solrQuery);
+        $this->addRequiredFieldListToSolrQuery($solrQuery, $query->explain);
         $this->addTextFilterToSolrQuery($solrQuery, $query->text);
         $this->addQueryDefaultOperatorToSolrQuery(
             $solrQuery,
@@ -128,10 +128,14 @@ class SolrSearch implements Search
 
     private function addRequiredFieldListToSolrQuery(
         SolrSelectQuery $solrQuery,
+        bool $explain,
     ): void {
         $solrQuery->setFields(
             self::QUERY_FIELDS_REQUIRED,
         );
+        if ($explain) {
+            $solrQuery->addField('explain:[explain style=nl]');
+        }
     }
 
     private function addTextFilterToSolrQuery(
@@ -268,8 +272,7 @@ class SolrSearch implements Search
         ResourceLanguage $lang,
     ): SearchResult {
 
-        $resourceList = $this->resultToResourceResolver
-            ->loadResourceList($result, $lang);
+        $resourceList = $this->resourceResolver->loadResourceList($result, $lang);
         $facetGroupList = $this->buildFacetGroupList($query, $result);
 
         return new SearchResult(

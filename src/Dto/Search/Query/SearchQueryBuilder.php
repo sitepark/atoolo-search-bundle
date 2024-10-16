@@ -39,6 +39,8 @@ class SearchQueryBuilder
 
     private ?Boosting $boosting = null;
 
+    private bool $explain = false;
+
     public function __construct()
     {
         $this->lang = ResourceLanguage::default();
@@ -168,6 +170,13 @@ class SearchQueryBuilder
         return $this;
     }
 
+    public function explain(
+        bool $explain,
+    ): static {
+        $this->explain = $explain;
+        return $this;
+    }
+
     public function build(): SearchQuery
     {
         return new SearchQuery(
@@ -182,6 +191,7 @@ class SearchQueryBuilder
             defaultQueryOperator: $this->defaultQueryOperator,
             timeZone: $this->timeZone,
             boosting: $this->boosting,
+            explain: $this->explain,
         );
     }
 }

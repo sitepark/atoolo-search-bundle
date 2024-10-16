@@ -505,4 +505,29 @@ class SolrSearchTest extends TestCase
 
         $this->searcher->search($query);
     }
+
+    public function testExplain(): void
+    {
+        $query = new SearchQuery(
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null,
+            explain: true,
+        );
+
+        $this->solrQuery
+            ->expects($this->once())
+            ->method('addField')
+            ->with('explain:[explain style=nl]');
+
+        $this->searcher->search($query);
+    }
 }
