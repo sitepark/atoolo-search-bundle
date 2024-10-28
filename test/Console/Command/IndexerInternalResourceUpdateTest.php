@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Console\Command;
 
 use Atoolo\Resource\ResourceChannel;
+use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\IndexerInternalResourceUpdate;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
@@ -26,6 +27,7 @@ class IndexerInternalResourceUpdateTest extends TestCase
      */
     public function setUp(): void
     {
+        $resourceTanent = $this->createMock(ResourceTenant::class);
         $this->resourceChannel = new ResourceChannel(
             '',
             'WWW',
@@ -39,6 +41,7 @@ class IndexerInternalResourceUpdateTest extends TestCase
             '',
             'test',
             [],
+            $resourceTanent,
         );
 
         $indexer = $this->createStub(

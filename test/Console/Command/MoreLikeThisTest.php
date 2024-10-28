@@ -8,6 +8,7 @@ use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\MoreLikeThis;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
@@ -30,6 +31,7 @@ class MoreLikeThisTest extends TestCase
      */
     public function setUp(): void
     {
+        $resourceTanent = $this->createMock(ResourceTenant::class);
         $resourceChannel = new ResourceChannel(
             '',
             'WWW',
@@ -43,6 +45,7 @@ class MoreLikeThisTest extends TestCase
             '',
             'test',
             [],
+            $resourceTanent,
         );
 
         $resultResource = new Resource(

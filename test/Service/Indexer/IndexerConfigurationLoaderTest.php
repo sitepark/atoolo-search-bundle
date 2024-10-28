@@ -6,6 +6,7 @@ namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Resource\DataBag;
 use Atoolo\Resource\ResourceChannel;
+use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Dto\Indexer\IndexerConfiguration;
 use Atoolo\Search\Service\Indexer\IndexerConfigurationLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -124,6 +125,7 @@ class IndexerConfigurationLoaderTest extends TestCase
     private function createLoader(
         string $configDir,
     ): IndexerConfigurationLoader {
+        $resourceTanent = $this->createMock(ResourceTenant::class);
         $resourceChannel = new ResourceChannel(
             '',
             '',
@@ -137,6 +139,7 @@ class IndexerConfigurationLoaderTest extends TestCase
             $configDir,
             '',
             [],
+            $resourceTanent,
         );
         return new IndexerConfigurationLoader($resourceChannel);
     }

@@ -6,6 +6,7 @@ namespace Atoolo\Search\Test\Service;
 
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Exception\UnsupportedIndexLanguageException;
 use Atoolo\Search\Service\ResourceChannelBasedIndexName;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -18,6 +19,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
 
     public function setUp(): void
     {
+        $resourceTanent = $this->createMock(ResourceTenant::class);
         $resourceChannel = new ResourceChannel(
             '',
             '',
@@ -31,6 +33,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
             '',
             'test',
             ['en_US'],
+            $resourceTanent,
         );
 
         $this->indexName = new ResourceChannelBasedIndexName(

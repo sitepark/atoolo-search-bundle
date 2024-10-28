@@ -6,6 +6,7 @@ namespace Atoolo\Search\Test\Console\Command;
 
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceChannelFactory;
+use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Indexer;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
@@ -28,6 +29,7 @@ class IndexerTest extends TestCase
      */
     public function setUp(): void
     {
+        $resourceTanent = $this->createMock(ResourceTenant::class);
         $this->resourceChannel = new ResourceChannel(
             '',
             'WWW',
@@ -41,6 +43,7 @@ class IndexerTest extends TestCase
             '',
             'test',
             [],
+            $resourceTanent,
         );
 
         $indexerA = $this->createStub(
@@ -95,6 +98,7 @@ class IndexerTest extends TestCase
 
     public function testExecuteWithoutIndexer(): void
     {
+        $resourceTanent = $this->createMock(ResourceTenant::class);
         $resourceChannel = new ResourceChannel(
             '',
             'WWW',
@@ -108,6 +112,7 @@ class IndexerTest extends TestCase
             '',
             'test',
             [],
+            $resourceTanent,
         );
         $resourceChannelFactory = $this->createStub(
             ResourceChannelFactory::class,

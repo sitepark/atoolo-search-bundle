@@ -8,6 +8,7 @@ use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Search;
 use Atoolo\Search\Dto\Search\Result\Facet;
@@ -31,6 +32,7 @@ class SearchTest extends TestCase
      */
     public function setUp(): void
     {
+        $resourceTanent = $this->createMock(ResourceTenant::class);
         $resourceChannel = new ResourceChannel(
             '',
             'WWW',
@@ -44,6 +46,7 @@ class SearchTest extends TestCase
             '',
             'test',
             [],
+            $resourceTanent,
         );
 
         $this->solrSearch = $this->createStub(SolrSearch::class);

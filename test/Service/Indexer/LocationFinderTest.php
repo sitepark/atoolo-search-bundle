@@ -4,6 +4,7 @@ namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Resource\ResourceChannel;
+use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Service\Indexer\LocationFinder;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -21,6 +22,7 @@ class LocationFinderTest extends TestCase
         if ($resourceDir === false) {
             throw new InvalidArgumentException('basepath not found');
         }
+        $resourceTanent = $this->createMock(ResourceTenant::class);
         $resourceChannel = new ResourceChannel(
             '',
             '',
@@ -34,6 +36,7 @@ class LocationFinderTest extends TestCase
             '',
             '',
             [],
+            $resourceTanent,
         );
         $this->locationFinder = new LocationFinder($resourceChannel);
     }

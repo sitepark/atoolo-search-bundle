@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Console\Command;
 
 use Atoolo\Resource\ResourceChannel;
+use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\DumpIndexDocument;
 use Atoolo\Search\Service\Indexer\IndexDocumentDumper;
@@ -23,6 +24,7 @@ class DumpIndexDocumentTest extends TestCase
      */
     public function setUp(): void
     {
+        $resourceTanent = $this->createMock(ResourceTenant::class);
         $resourceChannel = new ResourceChannel(
             '',
             'WWW',
@@ -36,6 +38,7 @@ class DumpIndexDocumentTest extends TestCase
             '',
             'test',
             [],
+            $resourceTanent,
         );
 
         $dumper = $this->createStub(IndexDocumentDumper::class);

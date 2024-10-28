@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Resource\ResourceChannel;
+use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Service\Indexer\SolrXmlReader;
 use Exception;
 use LogicException;
@@ -22,6 +23,7 @@ class SolrXmlReaderTest extends TestCase
 
     public function setUp(): void
     {
+        $resourceTanent = $this->createMock(ResourceTenant::class);
         $this->reader = new SolrXmlReader(new ResourceChannel(
             id: '',
             name: '',
@@ -35,6 +37,7 @@ class SolrXmlReaderTest extends TestCase
             configDir: '',
             searchIndex: '',
             translationLocales: [],
+            tenant: $resourceTanent,
         ));
     }
 
