@@ -22,6 +22,8 @@ use Atoolo\Search\Dto\Search\Query\Filter\IdFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SiteFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Query\Sort\CustomField;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
@@ -29,6 +31,7 @@ use Atoolo\Search\Dto\Search\Query\Sort\Headline;
 use Atoolo\Search\Dto\Search\Query\Sort\Name;
 use Atoolo\Search\Dto\Search\Query\Sort\Natural;
 use Atoolo\Search\Dto\Search\Query\Sort\Score;
+use Atoolo\Search\Dto\Search\Query\Sort\SpatialDist;
 use InvalidArgumentException;
 
 class Schema2xFieldMapper
@@ -61,27 +64,36 @@ class Schema2xFieldMapper
         return 'sp_archive';
     }
 
-    public function getFilterField(Filter $facet): string
+    public function getGeoPointField(): string
+    {
+        return 'sp_geo_points';
+    }
+
+
+    public function getFilterField(Filter $filter): string
     {
         switch (true) {
-            case $facet instanceof IdFilter:
+            case $filter instanceof IdFilter:
                 return 'id';
-            case $facet instanceof CategoryFilter:
+            case $filter instanceof CategoryFilter:
                 return 'sp_category_path';
-            case $facet instanceof ContentSectionTypeFilter:
+            case $filter instanceof ContentSectionTypeFilter:
                 return 'sp_contenttype';
-            case $facet instanceof GroupFilter:
+            case $filter instanceof GroupFilter:
                 return 'sp_group_path';
-            case $facet instanceof ObjectTypeFilter:
+            case $filter instanceof ObjectTypeFilter:
                 return 'sp_objecttype';
-            case $facet instanceof SiteFilter:
+            case $filter instanceof SiteFilter:
                 return 'sp_site';
-            case $facet instanceof RelativeDateRangeFilter:
-            case $facet instanceof AbsoluteDateRangeFilter:
+            case $filter instanceof RelativeDateRangeFilter:
+            case $filter instanceof AbsoluteDateRangeFilter:
                 return 'sp_date_list';
+            case $filter instanceof SpatialOrbitalFilter:
+            case $filter instanceof SpatialArbitraryRectangleFilter:
+                return $this->getGeoPointField();
             default:
                 throw new InvalidArgumentException(
-                    'Unsupported filter-field-class ' . get_class($facet),
+                    'Unsupported filter-field-class ' . get_class($filter),
                 );
         }
     }
@@ -99,6 +111,13 @@ class Schema2xFieldMapper
                 return 'sp_sortvalue';
             case $criteria instanceof Score:
                 return 'score';
+            case $criteria instanceof SpatialDist:
+                $params = [
+                    $this->getGeoPointField(),
+                    $criteria->point->lat,
+                    $criteria->point->lng,
+                ];
+                return 'geodist(' . implode(',', $params) . ')';
             case $criteria instanceof CustomField:
                 return $criteria->field;
             default:

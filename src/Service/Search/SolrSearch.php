@@ -7,6 +7,7 @@ namespace Atoolo\Search\Service\Search;
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Boosting;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\GeoPoint;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
@@ -97,6 +98,7 @@ class SolrSearch implements Search
             $solrQuery,
             $query->facets,
         );
+        $this->addDistanceField($solrQuery, $query->distanceReferencePoint);
 
         if ($query->timeZone !== null) {
             $solrQuery->setTimezone($query->timeZone);
@@ -123,6 +125,7 @@ class SolrSearch implements Search
             $direction = strtolower($criteria->direction->name);
             $sorts[$field] = $direction;
         }
+
         $solrQuery->setSorts($sorts);
     }
 
@@ -215,6 +218,21 @@ class SolrSearch implements Search
         if (!$archive) {
             $filterAppender->excludeArchived();
         }
+    }
+
+    private function addDistanceField(
+        SolrSelectQuery $solrQuery,
+        ?GeoPoint $distanceReferencePoint,
+    ): void {
+        if ($distanceReferencePoint === null) {
+            return;
+        }
+        $params = [
+            $this->schemaFieldMapper->getGeoPointField(),
+            $distanceReferencePoint->lat,
+            $distanceReferencePoint->lng,
+        ];
+        $solrQuery->addField('distance:geodist(' . implode(',', $params) . ')');
     }
 
     /**

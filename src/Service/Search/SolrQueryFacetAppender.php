@@ -10,6 +10,7 @@ use Atoolo\Search\Dto\Search\Query\Facet\FieldFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\MultiQueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\QueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\SpatialDistanceRangeFacet;
 use InvalidArgumentException;
 use Solarium\Component\Facet\Field;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
@@ -33,6 +34,9 @@ class SolrQueryFacetAppender
             $this->appendAbsoluteDateRangeFacet($facet);
         } elseif ($facet instanceof RelativeDateRangeFacet) {
             $this->appendRelativeDateRangeFacet($facet);
+        } elseif ($facet instanceof SpatialDistanceRangeFacet) {
+            $this->appendGeoDistanceRangeFacet($facet);
+
         } else {
             throw new InvalidArgumentException(
                 'Unsupported facet-class ' . get_class($facet),
@@ -98,6 +102,24 @@ class SolrQueryFacetAppender
             ? SolrDateMapper::mapDateInterval($facet->gap, '+')
             : null;
         $this->appendFacetRange($facet, $start, $end, $gap);
+    }
+
+    private function appendGeoDistanceRangeFacet(
+        SpatialDistanceRangeFacet $facet,
+    ): void {
+
+        $params = [
+            $this->fieldMapper->getGeoPointField(),
+            $facet->point->lat,
+            $facet->point->lng,
+        ];
+
+        $facetQuery = new QueryFacet(
+            $facet->key,
+            '{!frange l=' . $facet->from . ' u=' . $facet->to . '}geodist(' . implode(',', $params) . ')',
+            $facet->excludeFilter,
+        );
+        $this->appendFacetQuery($facetQuery);
     }
 
     private function appendRelativeDateRangeFacet(

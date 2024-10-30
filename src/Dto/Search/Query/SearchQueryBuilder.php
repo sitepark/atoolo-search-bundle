@@ -39,6 +39,8 @@ class SearchQueryBuilder
 
     private ?Boosting $boosting = null;
 
+    private ?GeoPoint $distanceReferencePoint = null;
+
     private bool $explain = false;
 
     public function __construct()
@@ -170,6 +172,13 @@ class SearchQueryBuilder
         return $this;
     }
 
+    public function distanceReferencePoint(
+        GeoPoint $distanceReferencePoint,
+    ): static {
+        $this->distanceReferencePoint = $distanceReferencePoint;
+        return $this;
+    }
+
     public function explain(
         bool $explain,
     ): static {
@@ -191,6 +200,7 @@ class SearchQueryBuilder
             defaultQueryOperator: $this->defaultQueryOperator,
             timeZone: $this->timeZone,
             boosting: $this->boosting,
+            distanceReferencePoint: $this->distanceReferencePoint,
             explain: $this->explain,
         );
     }

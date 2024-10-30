@@ -8,6 +8,7 @@ use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Boosting;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\GeoPoint;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
 use Atoolo\Search\Dto\Search\Query\SearchQueryBuilder;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
@@ -167,6 +168,18 @@ class SearchQueryBuilderTest extends TestCase
             $boosting,
             $query->boosting,
             'unexpected boosting',
+        );
+    }
+
+    public function testSetDistanceReferencePoint(): void
+    {
+        $point = new GeoPoint(1, 2);
+        $this->builder->distanceReferencePoint($point);
+        $query = $this->builder->build();
+        $this->assertSame(
+            $point,
+            $query->distanceReferencePoint,
+            'unexpected distanceReferencePoint',
         );
     }
 

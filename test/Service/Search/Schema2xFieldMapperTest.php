@@ -13,7 +13,6 @@ use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\SiteFacet;
 use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
-use Atoolo\Search\Dto\Search\Query\Filter\ArchiveFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\CategoryFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ContentSectionTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
@@ -22,13 +21,18 @@ use Atoolo\Search\Dto\Search\Query\Filter\IdFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SiteFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
+use Atoolo\Search\Dto\Search\Query\GeoPoint;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Query\Sort\CustomField;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
+use Atoolo\Search\Dto\Search\Query\Sort\Direction;
 use Atoolo\Search\Dto\Search\Query\Sort\Headline;
 use Atoolo\Search\Dto\Search\Query\Sort\Name;
 use Atoolo\Search\Dto\Search\Query\Sort\Natural;
 use Atoolo\Search\Dto\Search\Query\Sort\Score;
+use Atoolo\Search\Dto\Search\Query\Sort\SpatialDist;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Exception;
 use InvalidArgumentException;
@@ -76,6 +80,8 @@ class Schema2xFieldMapperTest extends TestCase
             [ SiteFilter::class, 'sp_site' ],
             [ RelativeDateRangeFilter::class, 'sp_date_list' ],
             [ AbsoluteDateRangeFilter::class, 'sp_date_list' ],
+            [ SpatialOrbitalFilter::class, 'sp_geo_points' ],
+            [ SpatialArbitraryRectangleFilter::class, 'sp_geo_points' ],
         ];
     }
 
@@ -156,6 +162,15 @@ class Schema2xFieldMapperTest extends TestCase
         $criteria = $this->createStub($sortCriteriaClass);
         $this->assertEquals(
             $expected,
+            $this->mapper->getSortField($criteria),
+        );
+    }
+
+    public function testGetSortSpatialDistField(): void
+    {
+        $criteria = new SpatialDist(Direction::ASC, new GeoPoint(1, 2));
+        $this->assertEquals(
+            'geodist(sp_geo_points,2,1)',
             $this->mapper->getSortField($criteria),
         );
     }

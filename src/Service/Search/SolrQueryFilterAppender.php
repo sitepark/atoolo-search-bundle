@@ -6,13 +6,15 @@ namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\AndFilter;
-use Atoolo\Search\Dto\Search\Query\Filter\ArchiveFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\FieldFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Filter\NotFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\OrFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\QueryFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalMode;
 use InvalidArgumentException;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 
@@ -29,12 +31,13 @@ class SolrQueryFilterAppender
         $field = $this->fieldMapper->getArchiveField();
         $filterQuery->setQuery('-' . $field . ':true');
     }
+
     public function append(Filter $filter): void
     {
         $key = $filter->key ?? uniqid('', true);
         $filterQuery = $this->solrQuery->createFilterQuery($key);
         $filterQuery->setQuery($this->getQuery($filter));
-        $filterQuery->setTags($filter->tags);
+        $filterQuery->setTags(array_merge($filter->tags, [$key]));
     }
 
     private function getQuery(Filter $filter): string
@@ -54,6 +57,10 @@ class SolrQueryFilterAppender
                 return $this->getAbsoluteDateRangeQuery($filter);
             case $filter instanceof RelativeDateRangeFilter:
                 return $this->getRelativeDateRangeQuery($filter);
+            case $filter instanceof SpatialOrbitalFilter:
+                return $this->getSpatialOrbitalQuery($filter);
+            case $filter instanceof SpatialArbitraryRectangleFilter:
+                return $this->getSpatialArbitraryRectangleQuery($filter);
             default:
                 throw new InvalidArgumentException(
                     'unsupported filter ' . get_class($filter),
@@ -116,7 +123,7 @@ class SolrQueryFilterAppender
         } else {
             $from = SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($filter->base) .
-                    SolrDateMapper::mapDateInterval($filter->before, '-'),
+                SolrDateMapper::mapDateInterval($filter->before, '-'),
                 $filter->roundStart,
             );
         }
@@ -129,7 +136,7 @@ class SolrQueryFilterAppender
         } else {
             $to = SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($filter->base) .
-                    SolrDateMapper::mapDateInterval($filter->after, '+'),
+                SolrDateMapper::mapDateInterval($filter->after, '+'),
                 $filter->roundEnd,
             );
         }
@@ -137,5 +144,43 @@ class SolrQueryFilterAppender
         $field = $this->getFilterField($filter);
 
         return $field . ':[' . $from . ' TO ' . $to . ']';
+    }
+
+    private function getSpatialOrbitalQuery(
+        SpatialOrbitalFilter $filter,
+    ): string {
+
+        $field = $this->getFilterField($filter);
+        $params = [
+            'sfield=' . $field,
+            'pt=' . $filter->centerPoint->lat . ',' . $filter->centerPoint->lng,
+            'd=' . $filter->distance,
+        ];
+
+        if ($filter->mode === SpatialOrbitalMode::GREAT_CIRCLE_DISTANCE) {
+            return '{!geofilt ' . implode(' ', $params) . '}';
+        }
+
+        if ($filter->mode === SpatialOrbitalMode::BOUNDING_BOX) {
+            return '{!bbox ' . implode(' ', $params) . '}';
+        }
+    }
+
+    private function getSpatialArbitraryRectangleQuery(
+        SpatialArbitraryRectangleFilter $filter,
+    ): string {
+
+        $field = $this->getFilterField($filter);
+
+        return $field
+            . ':[ '
+            . $filter->lowerLeftCorner->lat
+            . ','
+            . $filter->lowerLeftCorner->lng
+            . ' TO '
+            . $filter->upperRightCorner->lat
+            . ','
+            . $filter->upperRightCorner->lng
+            . ' ]';
     }
 }
