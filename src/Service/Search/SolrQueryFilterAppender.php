@@ -27,7 +27,7 @@ class SolrQueryFilterAppender
 
     public function excludeArchived(): void
     {
-        $filterQuery = $this->solrQuery->createFilterQuery();
+        $filterQuery = $this->solrQuery->createFilterQuery('archive');
         $field = $this->fieldMapper->getArchiveField();
         $filterQuery->setQuery('-' . $field . ':true');
     }
