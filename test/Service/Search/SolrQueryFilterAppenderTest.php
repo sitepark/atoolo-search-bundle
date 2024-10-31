@@ -12,6 +12,10 @@ use Atoolo\Search\Dto\Search\Query\Filter\NotFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\OrFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\QueryFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalMode;
+use Atoolo\Search\Dto\Search\Query\GeoPoint;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryFilterAppender;
 use DateInterval;
@@ -162,6 +166,50 @@ class SolrQueryFilterAppenderTest extends TestCase
         $this->filterQuery->expects($this->once())
             ->method('setQuery')
             ->with('test:[* TO 2021-01-02T00:00:00Z]');
+
+        $this->appender->append($filter);
+    }
+
+    public function testSpatialOrbitalFilterWithGreateCircleDistanceMode(): void
+    {
+        $filter = new SpatialOrbitalFilter(
+            4,
+            new GeoPoint(1, 2),
+            SpatialOrbitalMode::GREAT_CIRCLE_DISTANCE,
+        );
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('{!geofilt sfield=test pt=2,1 d=4}');
+
+        $this->appender->append($filter);
+    }
+
+    public function testSpatialOrbitalFilterWithBoundingBoxMode(): void
+    {
+        $filter = new SpatialOrbitalFilter(
+            4,
+            new GeoPoint(1, 2),
+            SpatialOrbitalMode::BOUNDING_BOX,
+        );
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('{!bbox sfield=test pt=2,1 d=4}');
+
+        $this->appender->append($filter);
+    }
+
+    public function testSpatialArbitraryRectangleFilter(): void
+    {
+        $filter = new SpatialArbitraryRectangleFilter(
+            new GeoPoint(1, 2),
+            new GeoPoint(3, 4),
+        );
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('test:[ 2,1 TO 4,3 ]');
 
         $this->appender->append($filter);
     }

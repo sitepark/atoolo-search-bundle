@@ -55,13 +55,11 @@ class SolrResultToResourceResolver
         ResourceLanguage $lang,
     ): Resource {
         $resource = $this->loadResource($document, $lang);
-        $explain = $document->getFields()['explain'] ?? [];
-        if (!empty($explain)) {
-            $explain = $this->explainBuilder->build($explain);
 
+        $dataExtensions = $this->extendResourceData($document);
+        if (!empty($dataExtensions)) {
             $rawData = $resource->data->get();
-            $rawData['explain'] = $explain;
-
+            $rawData = array_merge_recursive($rawData, $dataExtensions);
             return new Resource(
                 $resource->location,
                 $resource->id,
@@ -72,6 +70,33 @@ class SolrResultToResourceResolver
             );
         }
         return $resource;
+    }
+
+    /**
+     * @return array{
+     *   base?: array{
+     *     geo?: array{
+     *       distance?: float
+     *     }
+     *   },
+     *   explain?: array<string, mixed>
+     * }
+     */
+    private function extendResourceData(Document $document): array
+    {
+
+        $dataExtensions = [];
+        $explain = $document->getFields()['explain'] ?? [];
+        if (!empty($explain)) {
+            $explain = $this->explainBuilder->build($explain);
+            $dataExtensions['explain'] = $explain;
+        }
+
+        $distance = $document->getFields()['distance'] ?? null;
+        if ($distance !== null) {
+            $dataExtensions['base']['geo']['distance'] = $distance;
+        }
+        return $dataExtensions;
     }
 
     private function loadResource(

@@ -10,6 +10,8 @@ use Atoolo\Search\Dto\Search\Query\Facet\MultiQueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\QueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\SpatialDistanceRangeFacet;
+use Atoolo\Search\Dto\Search\Query\GeoPoint;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryFacetAppender;
 use DateInterval;
@@ -275,6 +277,26 @@ class SolrQueryFacetAppenderTest extends TestCase
                 null,
                 null,
                 ['exclude'],
+            ),
+        );
+    }
+
+    public function testAppendGeoDistanceRangeFacet(): void
+    {
+        $this->facetQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('{!frange l=0 u=10}geodist(,10,10)');
+        $this->facetQuery->expects($this->once())
+            ->method('setExcludes')
+            ->with(['geofilter']);
+
+        $this->appender->append(
+            new SpatialDistanceRangeFacet(
+                'mykey',
+                new GeoPoint(10, 10),
+                0,
+                10,
+                ['geofilter'],
             ),
         );
     }

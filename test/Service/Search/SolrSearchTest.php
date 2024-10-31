@@ -11,6 +11,7 @@ use Atoolo\Search\Dto\Search\Query\Facet\MultiQueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\QueryFacet;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
+use Atoolo\Search\Dto\Search\Query\GeoPoint;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
@@ -87,6 +88,7 @@ class SolrSearchTest extends TestCase
         $schemaFieldMapper = $this->createStub(
             Schema2xFieldMapper::class,
         );
+        $schemaFieldMapper->method('getGeoPointField')->willReturn('geo_points');
 
         $this->searcher = new SolrSearch(
             $indexName,
@@ -111,6 +113,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -136,6 +139,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -167,6 +171,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -176,6 +181,30 @@ class SolrSearchTest extends TestCase
             $searchResult->results,
             'unexpected results',
         );
+    }
+
+    public function testSelectWithDistanceField(): void
+    {
+        $query = new SearchQuery(
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null,
+            distanceReferencePoint: new GeoPoint(3, 4),
+        );
+
+        $this->solrQuery->expects($this->once())
+            ->method('addField')
+            ->with('distance:geodist(geo_points,4,3)');
+
+        $this->searcher->search($query);
     }
 
     public function testSelectWithAndDefaultOperator(): void
@@ -192,6 +221,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::AND,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -219,6 +249,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -255,6 +286,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -285,6 +317,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -321,6 +354,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -367,6 +401,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -419,6 +454,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $this->expectException(InvalidArgumentException::class);
@@ -450,6 +486,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $searchResult = $this->searcher->search($query);
@@ -474,6 +511,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: new DateTimeZone("UTC"),
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $this->solrQuery->expects($this->once())
@@ -497,6 +535,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
         );
 
         $this->solrQuery->expects($this->once())
@@ -520,6 +559,7 @@ class SolrSearchTest extends TestCase
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
+            distanceReferencePoint: null,
             explain: true,
         );
 

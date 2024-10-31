@@ -146,4 +146,48 @@ class SolrResultToResourceResolverTest extends TestCase
             'unexpected explain',
         );
     }
+
+    /**
+     * @throws Exception
+     */
+    public function testWithGeoDinstance(): void
+    {
+        $document = $this->createStub(Document::class);
+        $document->method('getFields')->willReturn(['distance' => 22]);
+        $result = $this->createStub(SelectResult::class);
+        $result->method('getIterator')->willReturn(
+            new ArrayIterator([$document]),
+        );
+
+        $resourceFactory = $this->createStub(ResourceFactory::class);
+        $resourceFactory->method('accept')->willReturn(true);
+        $resource = new Resource(
+            'location',
+            'id',
+            'name',
+            'objectType',
+            ResourceLanguage::default(),
+            new DataBag([]),
+        );
+        $resourceFactory->method('create')->willReturn($resource);
+
+        $explainBuilder = $this->createMock(SolrExplainBuilder::class);
+
+        $resolver = new SolrResultToResourceResolver([$resourceFactory], $explainBuilder);
+
+        $resourceList = $resolver->loadResourceList(
+            $result,
+            ResourceLanguage::default(),
+        );
+
+        /** @var array{geo:array{distance:float}} $base */
+        $base = $resourceList[0]->data->getArray('base');
+
+        $this->assertEquals(
+            22.0,
+            $base['geo']['distance'],
+            'unexpected explain',
+        );
+    }
+
 }
