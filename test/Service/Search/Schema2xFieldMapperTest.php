@@ -92,7 +92,7 @@ class Schema2xFieldMapperTest extends TestCase
     {
         return [
             [ Name::class, 'sp_name' ],
-            [ Headline::class, 'sp_title' ],
+            [ Headline::class, 'sp_sortvalue' ],
             [ Date::class, 'sp_date' ],
             [ Natural::class, 'sp_sortvalue' ],
             [ Score::class, 'score' ],
