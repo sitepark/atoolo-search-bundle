@@ -27,7 +27,6 @@ use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Query\Sort\CustomField;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
-use Atoolo\Search\Dto\Search\Query\Sort\Headline;
 use Atoolo\Search\Dto\Search\Query\Sort\Name;
 use Atoolo\Search\Dto\Search\Query\Sort\Natural;
 use Atoolo\Search\Dto\Search\Query\Sort\Score;
@@ -103,8 +102,6 @@ class Schema2xFieldMapper
         switch (true) {
             case $criteria instanceof Name:
                 return 'sp_name';
-            case $criteria instanceof Headline:
-                return 'sp_sortvalue';
             case $criteria instanceof Date:
                 return 'sp_date';
             case $criteria instanceof Natural:

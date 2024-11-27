@@ -15,7 +15,6 @@ use Atoolo\Search\Dto\Search\Query\GeoPoint;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
-use Atoolo\Search\Dto\Search\Query\Sort\Headline;
 use Atoolo\Search\Dto\Search\Query\Sort\Name;
 use Atoolo\Search\Dto\Search\Query\Sort\Natural;
 use Atoolo\Search\Dto\Search\Query\Sort\Score;
@@ -160,7 +159,6 @@ class SolrSearchTest extends TestCase
             limit: 10,
             sort: [
                 new Name(),
-                new Headline(),
                 new Date(),
                 new Natural(),
                 new Score(),

@@ -28,7 +28,6 @@ use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Query\Sort\CustomField;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
 use Atoolo\Search\Dto\Search\Query\Sort\Direction;
-use Atoolo\Search\Dto\Search\Query\Sort\Headline;
 use Atoolo\Search\Dto\Search\Query\Sort\Name;
 use Atoolo\Search\Dto\Search\Query\Sort\Natural;
 use Atoolo\Search\Dto\Search\Query\Sort\Score;
@@ -92,7 +91,6 @@ class Schema2xFieldMapperTest extends TestCase
     {
         return [
             [ Name::class, 'sp_name' ],
-            [ Headline::class, 'sp_sortvalue' ],
             [ Date::class, 'sp_date' ],
             [ Natural::class, 'sp_sortvalue' ],
             [ Score::class, 'score' ],
