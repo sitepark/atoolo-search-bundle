@@ -104,7 +104,7 @@ class Schema2xFieldMapper
             case $criteria instanceof Name:
                 return 'sp_name';
             case $criteria instanceof Headline:
-                return 'sp_title';
+                return 'sp_sortvalue';
             case $criteria instanceof Date:
                 return 'sp_date';
             case $criteria instanceof Natural:
