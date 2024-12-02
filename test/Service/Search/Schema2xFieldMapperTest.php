@@ -16,6 +16,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\CategoryFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ContentSectionTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\Filter\GeoLocatedFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\GroupFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\IdFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
@@ -79,6 +80,7 @@ class Schema2xFieldMapperTest extends TestCase
             [ SiteFilter::class, 'sp_site' ],
             [ RelativeDateRangeFilter::class, 'sp_date_list' ],
             [ AbsoluteDateRangeFilter::class, 'sp_date_list' ],
+            [ GeoLocatedFilter::class, 'sp_geo_points' ],
             [ SpatialOrbitalFilter::class, 'sp_geo_points' ],
             [ SpatialArbitraryRectangleFilter::class, 'sp_geo_points' ],
         ];

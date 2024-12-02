@@ -13,10 +13,10 @@ use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\SiteFacet;
 use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
-use Atoolo\Search\Dto\Search\Query\Filter\ArchiveFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\CategoryFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ContentSectionTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\Filter\GeoLocatedFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\GroupFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\IdFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
@@ -37,25 +37,17 @@ class Schema2xFieldMapper
 {
     public function getFacetField(Facet $facet): string
     {
-        switch (true) {
-            case $facet instanceof CategoryFacet:
-                return 'sp_category_path';
-            case $facet instanceof ContentSectionTypeFacet:
-                return 'sp_contenttype';
-            case $facet instanceof GroupFacet:
-                return 'sp_group_path';
-            case $facet instanceof ObjectTypeFacet:
-                return 'sp_objecttype';
-            case $facet instanceof SiteFacet:
-                return 'sp_site';
-            case $facet instanceof RelativeDateRangeFacet:
-            case $facet instanceof AbsoluteDateRangeFacet:
-                return 'sp_date_list';
-            default:
-                throw new InvalidArgumentException(
-                    'Unsupported facet-field-class ' . get_class($facet),
-                );
-        }
+        return match (true) {
+            $facet instanceof CategoryFacet => 'sp_category_path',
+            $facet instanceof ContentSectionTypeFacet => 'sp_contenttype',
+            $facet instanceof GroupFacet => 'sp_group_path',
+            $facet instanceof ObjectTypeFacet => 'sp_objecttype',
+            $facet instanceof SiteFacet => 'sp_site',
+            $facet instanceof RelativeDateRangeFacet, $facet instanceof AbsoluteDateRangeFacet => 'sp_date_list',
+            default => throw new InvalidArgumentException(
+                'Unsupported facet-field-class ' . get_class($facet),
+            ),
+        };
     }
 
     public function getArchiveField(): string
@@ -71,30 +63,20 @@ class Schema2xFieldMapper
 
     public function getFilterField(Filter $filter): string
     {
-        switch (true) {
-            case $filter instanceof IdFilter:
-                return 'id';
-            case $filter instanceof CategoryFilter:
-                return 'sp_category_path';
-            case $filter instanceof ContentSectionTypeFilter:
-                return 'sp_contenttype';
-            case $filter instanceof GroupFilter:
-                return 'sp_group_path';
-            case $filter instanceof ObjectTypeFilter:
-                return 'sp_objecttype';
-            case $filter instanceof SiteFilter:
-                return 'sp_site';
-            case $filter instanceof RelativeDateRangeFilter:
-            case $filter instanceof AbsoluteDateRangeFilter:
-                return 'sp_date_list';
-            case $filter instanceof SpatialOrbitalFilter:
-            case $filter instanceof SpatialArbitraryRectangleFilter:
-                return $this->getGeoPointField();
-            default:
-                throw new InvalidArgumentException(
-                    'Unsupported filter-field-class ' . get_class($filter),
-                );
-        }
+        return match (true) {
+            $filter instanceof IdFilter => 'id',
+            $filter instanceof CategoryFilter => 'sp_category_path',
+            $filter instanceof ContentSectionTypeFilter => 'sp_contenttype',
+            $filter instanceof GroupFilter => 'sp_group_path',
+            $filter instanceof ObjectTypeFilter => 'sp_objecttype',
+            $filter instanceof SiteFilter => 'sp_site',
+            $filter instanceof RelativeDateRangeFilter, $filter instanceof AbsoluteDateRangeFilter => 'sp_date_list',
+            $filter instanceof SpatialOrbitalFilter, $filter instanceof SpatialArbitraryRectangleFilter => $this->getGeoPointField(),
+            $filter instanceof GeoLocatedFilter => 'sp_geo_points',
+            default => throw new InvalidArgumentException(
+                'Unsupported filter-field-class ' . get_class($filter),
+            ),
+        };
     }
 
     public function getSortField(Criteria $criteria): string

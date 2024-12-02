@@ -8,6 +8,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\AndFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\FieldFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\Filter\GeoLocatedFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\NotFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\OrFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\QueryFilter;
@@ -166,6 +167,28 @@ class SolrQueryFilterAppenderTest extends TestCase
         $this->filterQuery->expects($this->once())
             ->method('setQuery')
             ->with('test:[* TO 2021-01-02T00:00:00Z]');
+
+        $this->appender->append($filter);
+    }
+
+    public function testGeoLocatedFilterExistsTrue(): void
+    {
+        $filter = new GeoLocatedFilter(true);
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('test:*');
+
+        $this->appender->append($filter);
+    }
+
+    public function testGeoLocatedFilterExistsFalse(): void
+    {
+        $filter = new GeoLocatedFilter(false);
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('-test:*');
 
         $this->appender->append($filter);
     }
