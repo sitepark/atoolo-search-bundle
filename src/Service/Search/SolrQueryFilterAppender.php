@@ -8,6 +8,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\AndFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\FieldFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\Filter\GeoLocatedFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\NotFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\OrFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\QueryFilter;
@@ -42,30 +43,21 @@ class SolrQueryFilterAppender
 
     private function getQuery(Filter $filter): string
     {
-        switch (true) {
-            case $filter instanceof FieldFilter:
-                return $this->getFieldQuery($filter);
-            case $filter instanceof AndFilter:
-                return $this->getAndQuery($filter);
-            case $filter instanceof OrFilter:
-                return $this->getOrQuery($filter);
-            case $filter instanceof NotFilter:
-                return 'NOT ' . $this->getQuery($filter->filter);
-            case $filter instanceof QueryFilter:
-                return $filter->query;
-            case $filter instanceof AbsoluteDateRangeFilter:
-                return $this->getAbsoluteDateRangeQuery($filter);
-            case $filter instanceof RelativeDateRangeFilter:
-                return $this->getRelativeDateRangeQuery($filter);
-            case $filter instanceof SpatialOrbitalFilter:
-                return $this->getSpatialOrbitalQuery($filter);
-            case $filter instanceof SpatialArbitraryRectangleFilter:
-                return $this->getSpatialArbitraryRectangleQuery($filter);
-            default:
-                throw new InvalidArgumentException(
-                    'unsupported filter ' . get_class($filter),
-                );
-        }
+        return match (true) {
+            $filter instanceof FieldFilter => $this->getFieldQuery($filter),
+            $filter instanceof AndFilter => $this->getAndQuery($filter),
+            $filter instanceof OrFilter => $this->getOrQuery($filter),
+            $filter instanceof NotFilter => 'NOT ' . $this->getQuery($filter->filter),
+            $filter instanceof QueryFilter => $filter->query,
+            $filter instanceof AbsoluteDateRangeFilter => $this->getAbsoluteDateRangeQuery($filter),
+            $filter instanceof RelativeDateRangeFilter => $this->getRelativeDateRangeQuery($filter),
+            $filter instanceof SpatialOrbitalFilter => $this->getSpatialOrbitalQuery($filter),
+            $filter instanceof SpatialArbitraryRectangleFilter => $this->getSpatialArbitraryRectangleQuery($filter),
+            $filter instanceof GeoLocatedFilter => $this->getGeoLocatedQuery($filter),
+            default => throw new InvalidArgumentException(
+                'unsupported filter ' . get_class($filter),
+            ),
+        };
     }
 
     private function getAndQuery(AndFilter $andFilter): string
@@ -86,6 +78,12 @@ class SolrQueryFilterAppender
         }
 
         return '(' . implode(' OR ', $query) . ')';
+    }
+
+    private function getGeoLocatedQuery(GeoLocatedFilter $filter): string
+    {
+        $field = $this->getFilterField($filter);
+        return ($filter->exists ? '' : '-') . $field . ':*';
     }
 
     private function getFieldQuery(FieldFilter $filter): string
