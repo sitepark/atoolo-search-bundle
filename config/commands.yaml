@@ -47,4 +47,4 @@ services:
     Atoolo\Search\Console\Application:
         public: true
         arguments:
-            - !tagged command
+            - !tagged_iterator command
