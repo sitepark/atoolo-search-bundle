@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phive xmlns="https://phar.io/phive">
-  <phar name="phpstan" version="^1.10.22" location="./tools/phpstan" copy="false" installed="1.11.7"/>
-  <phar name="composer-normalize" version="^2.32.0" location="./tools/composer-normalize" copy="false" installed="2.43.0"/>
-  <phar name="phpunit" version="^10.4.0" location="./tools/phpunit.phar" copy="true" installed="10.5.26"/>
-  <phar name="overtrue/phplint" version="^9.0.4" location="./tools/phplint" copy="false" installed="9.4.1"/>
-  <phar name="php-cs-fixer" version="^3.58.1" installed="3.59.3" copy="false" location="./tools/php-cs-fixer"/>
+  <phar name="phpstan" version="^1.10.22" location="./tools/phpstan" copy="false" installed="1.12.12"/>
+  <phar name="composer-normalize" version="^2.32.0" location="./tools/composer-normalize" copy="false" installed="2.45.0"/>
+  <phar name="phpunit" version="^10.4.0" location="./tools/phpunit.phar" copy="true" installed="10.5.39"/>
+  <phar name="overtrue/phplint" version="^9.0.4" location="./tools/phplint" copy="false" installed="9.5.5"/>
+  <phar name="php-cs-fixer" version="^3.58.1" installed="3.65.0" copy="false" location="./tools/php-cs-fixer"/>
 </phive>

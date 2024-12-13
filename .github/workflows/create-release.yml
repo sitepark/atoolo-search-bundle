@@ -8,6 +8,7 @@ jobs:
         with:
             botName: "sitepark-bot"
             botEmail: "opensource@sitepark.com"
+            phpVersion: "8.4"
         secrets:
             # Sitepark-BOT personal access token
             BOT_PAT: ${{ secrets.BOT_PAT }}
