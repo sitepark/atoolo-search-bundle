@@ -1,5 +1,6 @@
 /vendor
 /vendor.orig
+composer.lock
 .idea
 /var/cache/*
 !var/cache/.gitkeep
