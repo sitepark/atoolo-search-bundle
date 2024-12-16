@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer;
 
+use Atoolo\Resource\Resource;
 use Atoolo\Search\Service\Indexer\ContentCollector;
 use Atoolo\Search\Service\Indexer\SiteKit\ContentMatcher;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,7 +16,7 @@ class ContentCollectorTest extends TestCase
     public function testCollect(): void
     {
         $matcher = (new class implements ContentMatcher {
-            public function match(array $path, array $value): string|false
+            public function match(array $path, array $value, Resource $resource): string|false
             {
                 $modelType = $value['modelType'] ?? false;
                 if ($modelType !== 'html.richText') {
@@ -41,7 +42,9 @@ class ContentCollectorTest extends TestCase
                 ],
             ],
         ];
-        $content = $collector->collect($data);
+
+        $resource = $this->createStub(Resource::class);
+        $content = $collector->collect($data, $resource);
 
         $this->assertEquals('<p>Ein Text</p>', $content, 'unexpected content');
     }

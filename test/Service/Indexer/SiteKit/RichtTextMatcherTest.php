@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer\SiteKit;
 
+use Atoolo\Resource\Resource;
 use Atoolo\Search\Service\Indexer\SiteKit\RichtTextMatcher;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +22,8 @@ class RichtTextMatcherTest extends TestCase
             "text" => "<p>Ein Text</p>",
         ];
 
-        $content = $matcher->match([], $value);
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match([], $value, $resource);
 
         $this->assertEquals('Ein Text', $content, 'unexpected content');
     }
@@ -36,7 +38,8 @@ class RichtTextMatcherTest extends TestCase
             "text" => "<p>Ein Text</p>",
         ];
 
-        $content = $matcher->match([], $value);
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match([], $value, $resource);
 
         $this->assertEmpty(
             $content,
@@ -54,7 +57,8 @@ class RichtTextMatcherTest extends TestCase
             "textX" => "<p>Ein Text</p>",
         ];
 
-        $content = $matcher->match([], $value);
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match([], $value, $resource);
 
         $this->assertEmpty(
             $content,
