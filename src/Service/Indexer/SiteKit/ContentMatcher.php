@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer\SiteKit;
 
+use Atoolo\Resource\Resource;
+
 /**
  * The `ContentMatcher` interface is implemented in order to extract from the
  * content structure of resources the content that is relevant for the `content`
@@ -31,5 +33,5 @@ interface ContentMatcher
      * @return string|false The extracted content or `false` if the
      *         content is not relevant for the search index.
      */
-    public function match(array $path, array $value): string|false;
+    public function match(array $path, array $value, Resource $resource): string|false;
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer\SiteKit;
 
+use Atoolo\Resource\Resource;
 use Atoolo\Search\Service\Indexer\SiteKit\QuoteSectionMatcher;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -23,7 +24,8 @@ class QuoteSectionMatcherTest extends TestCase
             ],
         ];
 
-        $content = $matcher->match(['items'], $value);
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match(['items'], $value, $resource);
 
         $this->assertEquals(
             'Quote-Text Citation',
@@ -43,7 +45,8 @@ class QuoteSectionMatcherTest extends TestCase
             ],
         ];
 
-        $content = $matcher->match([], $value);
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match([], $value, $resource);
 
         $this->assertEmpty(
             $content,
@@ -63,7 +66,8 @@ class QuoteSectionMatcherTest extends TestCase
             ],
         ];
 
-        $content = $matcher->match(['itemsX'], $value);
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match(['itemsX'], $value, $resource);
 
         $this->assertEmpty(
             $content,
@@ -83,7 +87,8 @@ class QuoteSectionMatcherTest extends TestCase
             ],
         ];
 
-        $content = $matcher->match(['items'], $value);
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match(['items'], $value, $resource);
 
         $this->assertEmpty(
             $content,
@@ -103,7 +108,8 @@ class QuoteSectionMatcherTest extends TestCase
             ],
         ];
 
-        $content = $matcher->match(['items'], $value);
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match(['items'], $value, $resource);
 
         $this->assertEmpty(
             $content,

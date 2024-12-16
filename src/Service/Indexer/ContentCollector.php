@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Resource\Resource;
 use Atoolo\Search\Service\Indexer\SiteKit\ContentMatcher;
 
 class ContentCollector
@@ -16,9 +17,9 @@ class ContentCollector
     /**
     * @param array<mixed,mixed> $data
      */
-    public function collect(array $data): string
+    public function collect(array $data, Resource $resource): string
     {
-        $content = $this->walk([], $data);
+        $content = $this->walk([], $data, $resource);
         return implode(' ', $content);
     }
 
@@ -27,7 +28,7 @@ class ContentCollector
      * @param array<mixed,mixed> $data
      * @return string[]
      */
-    private function walk(array $path, array $data): array
+    private function walk(array $path, array $data, Resource $resource): array
     {
         $contentCollections = [];
         foreach ($data as $key => $value) {
@@ -41,14 +42,14 @@ class ContentCollector
 
             $matcherContent = [];
             foreach ($this->matchers as $matcher) {
-                $content = $matcher->match($path, $value);
+                $content = $matcher->match($path, $value, $resource);
                 if (!is_string($content)) {
                     continue;
                 }
                 $matcherContent[] = $content;
             }
             $contentCollections[] = $matcherContent;
-            $contentCollections[] = $this->walk($path, $value);
+            $contentCollections[] = $this->walk($path, $value, $resource);
 
             if (is_string($key)) {
                 array_pop($path);

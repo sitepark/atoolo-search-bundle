@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer\SiteKit;
 
+use Atoolo\Resource\Resource;
 use Atoolo\Search\Service\Indexer\SiteKit\HeadlineMatcher;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -19,7 +20,8 @@ class HeadlineMatcherTest extends TestCase
             "headline" => "Überschrift",
         ];
 
-        $content = $matcher->match(['items', 'model'], $value);
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match(['items', 'model'], $value, $resource);
 
         $this->assertEquals('Überschrift', $content, 'unexpected headline');
     }
@@ -32,7 +34,8 @@ class HeadlineMatcherTest extends TestCase
             "headline" => "Überschrift",
         ];
 
-        $content = $matcher->match(['model'], $value);
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match(['model'], $value, $resource);
 
         $this->assertEmpty(
             $content,
@@ -48,7 +51,8 @@ class HeadlineMatcherTest extends TestCase
             "headline" => "Überschrift",
         ];
 
-        $content = $matcher->match(['items', 'modelX'], $value);
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match(['items', 'modelX'], $value, $resource);
 
         $this->assertEmpty(
             $content,

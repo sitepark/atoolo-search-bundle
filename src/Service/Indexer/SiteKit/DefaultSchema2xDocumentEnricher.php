@@ -284,6 +284,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 
         $content[] = $this->contentCollector->collect(
             $resource->data->getArray('content'),
+            $resource,
         );
 
         /** @var ContactPoint $contactPoint */
