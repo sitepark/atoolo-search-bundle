@@ -220,11 +220,18 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $doc->sp_date = $this->toDateTime($schedulingList[0]['from']);
             $dateList = [];
             $contentTypeList = [];
+
+            $now = new \DateTime();
+            $currentDay = $now->format('Ymd');
+
             foreach ($schedulingList as $scheduling) {
                 $contentTypeList[] = explode(' ', $scheduling['contentType']);
                 $from = $this->toDateTime($scheduling['from']);
                 if ($from !== null) {
-                    $dateList[] = $from;
+                    $day = $from->format('Ymd');
+                    if ($day >= $currentDay) {
+                        $dateList[] = $from;
+                    }
                 }
             }
             $doc->sp_contenttype = array_merge(
