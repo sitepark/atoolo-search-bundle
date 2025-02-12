@@ -33,13 +33,7 @@ class SearchQueryDenormalizer implements DenormalizerInterface, DenormalizerAwar
             $builder->text($data['text']);
         }
         if (isset($data['lang'])) {
-            // support both ResourceLanguage::of and constructor
-            if (is_string($data['lang'])) {
-                $builder->lang(ResourceLanguage::of($data['lang']));
-            } else {
-                // @phpstan-ignore argument.type
-                $builder->lang($this->denormalizer->denormalize($data['lang'], ResourceLanguage::class));
-            }
+            $builder->lang(ResourceLanguage::of($data['lang']));
         }
         if (isset($data['offset'])) {
             $builder->offset($data['offset']);
