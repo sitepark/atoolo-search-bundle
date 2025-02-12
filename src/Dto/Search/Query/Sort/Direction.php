@@ -5,8 +5,8 @@ namespace Atoolo\Search\Dto\Search\Query\Sort;
 /**
  * @codeCoverageIgnore
  */
-enum Direction
+enum Direction: string
 {
-    case ASC;
-    case DESC;
+    case ASC = 'ASC';
+    case DESC = 'DESC';
 }
