@@ -1,0 +1,8 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Atoolo\Search\Serializer\Search\Query\SearchQueryDenormalizer:
+    tags:
+      - { name: 'serializer.normalizer' }

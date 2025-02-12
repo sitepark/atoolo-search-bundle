@@ -33,5 +33,6 @@ class AtooloSearchBundle extends Bundle
         $loader->load('search.yaml');
         $loader->load('indexer.yaml');
         $loader->load('commands.yaml');
+        $loader->load('serializer.yaml');
     }
 }
