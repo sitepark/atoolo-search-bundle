@@ -556,24 +556,60 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichDateListViaScheduling(): void
     {
+        $dateA = new Datetime();
+        //reset microseconds
+        $dateA->setTime(12, 0, 0, 0);
+        // cause DateInterval doesn't consider microseconds
+        $dateA->add(new \DateInterval('P1D'));
+
+        $dateB = new Datetime();
+        $dateB->setTime(12, 0, 0, 0);
+        $dateB->add(new \DateInterval('P3D'));
+
         $doc = $this->enrichWithData([
             'metadata' => [
                 'scheduling' => [
-                    ['from' => 1708932236, 'contentType' => 'test'],
-                    ['from' => 1709105036, 'contentType' => 'test'],
+                    ['from' => $dateA->getTimestamp(), 'contentType' => 'test'],
+                    ['from' => $dateB->getTimestamp(), 'contentType' => 'test'],
                 ],
             ],
         ]);
-
-        $dateA = new DateTime();
-        $dateA->setTimestamp(1708932236);
-        $dateB = new DateTime();
-        $dateB->setTimestamp(1709105036);
 
         $this->assertEquals(
             [$dateA, $dateB],
             $doc->sp_date_list,
             'unexpected sp_date',
+        );
+    }
+
+    public function testEnrichDateListViaSchedulingDependOnCurrentDate(): void
+    {
+        $pastDate = new DateTime();
+        $pastDate->setTime(12, 0, 0, 0);
+        $pastDate->sub(new \DateInterval('P7D'));
+
+        $nextDate = new DateTime();
+        $nextDate->setTime(12, 0, 0, 0);
+        $nextDate->add(new \DateInterval('P7D'));
+
+        $afterNextDate = new DateTime();
+        $afterNextDate->setTime(12, 0, 0, 0);
+        $afterNextDate->add(new \DateInterval('P14D'));
+
+        $doc = $this->enrichWithData([
+            'metadata' => [
+                'scheduling' => [
+                    ['from' => $pastDate->getTimestamp(), 'contentType' => 'schedule_start'],
+                    ['from' => $nextDate->getTimestamp(), 'contentType' => 'schedule_start'],
+                    ['from' => $afterNextDate->getTimestamp(), 'contentType' => 'schedule_start'],
+                ],
+            ],
+        ]);
+
+        $this->assertEquals(
+            [$nextDate, $afterNextDate],
+            $doc->sp_date_list,
+            'unexpected sp_date_list',
         );
     }
 
