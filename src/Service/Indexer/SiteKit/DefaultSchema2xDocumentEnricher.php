@@ -217,7 +217,6 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         /** @var array<array{from:int, contentType:string}> $schedulingList */
         $schedulingList = $metadata->getArray('scheduling');
         if (!empty($schedulingList)) {
-            $doc->sp_date = $this->toDateTime($schedulingList[0]['from']);
             $dateList = [];
             $contentTypeList = [];
 
@@ -240,6 +239,9 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             );
             $doc->sp_contenttype = array_unique($doc->sp_contenttype);
 
+            if (count($dateList) > 0) {
+                $doc->sp_date = $dateList[0];
+            }
             $doc->sp_date_list = $dateList;
         }
 
