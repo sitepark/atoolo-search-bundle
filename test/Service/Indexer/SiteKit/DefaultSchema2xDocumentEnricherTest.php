@@ -511,7 +511,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         );
     }
 
-    public function testEnrichDateViaScheduling(): void
+    public function testEnrichExpiredDateViaScheduling(): void
     {
         $doc = $this->enrichWithData([
             'base' => ['date' => 1707549836],
@@ -524,7 +524,32 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         ]);
 
         $expected = new DateTime();
-        $expected->setTimestamp(1708932236);
+        $expected->setTimestamp(1707549836);
+
+        $this->assertEquals(
+            $expected,
+            $doc->sp_date,
+            'unexpected sp_date',
+        );
+    }
+
+    public function testEnrichValidDateViaScheduling(): void
+    {
+        $date = new DateTime();
+        $date = $date->add(new \DateInterval('P1D'));
+
+        $doc = $this->enrichWithData([
+            'base' => ['date' => 1707549836],
+            'metadata' => [
+                'scheduling' => [
+                    ['from' => 1708932236, 'contentType' => 'test'],
+                    ['from' => $date->getTimestamp(), 'contentType' => 'test'],
+                ],
+            ],
+        ]);
+
+        $expected = new DateTime();
+        $expected->setTimestamp($date->getTimestamp());
 
         $this->assertEquals(
             $expected,
