@@ -38,6 +38,8 @@ use Solarium\Component\Result\Facet\Query as SolrFacetQuery;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 use Solarium\QueryType\Select\Result\Result as SelectResult;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 #[CoversClass(SolrSearch::class)]
 class SolrSearchTest extends TestCase
@@ -49,6 +51,8 @@ class SolrSearchTest extends TestCase
     private SolrSelectQuery&MockObject $solrQuery;
 
     private SolrSearch $searcher;
+
+    private RequestStack|Stub $requestStack;
 
     protected function setUp(): void
     {
@@ -89,11 +93,14 @@ class SolrSearchTest extends TestCase
         );
         $schemaFieldMapper->method('getGeoPointField')->willReturn('geo_points');
 
+        $this->requestStack = $this->createStub(RequestStack::class);
+
         $this->searcher = new SolrSearch(
             $indexName,
             $clientFactory,
             $resultToResourceResolver,
             $schemaFieldMapper,
+            $this->requestStack,
             [$solrQueryModifier],
         );
     }
@@ -148,6 +155,65 @@ class SolrSearchTest extends TestCase
             $searchResult->results,
             'unexpected results',
         );
+    }
+
+    public function testSelectWithSession(): void
+    {
+        $query = new SearchQuery(
+            text: 'abc"',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null,
+            distanceReferencePoint: null,
+        );
+
+        $session = $this->createStub(Session::class);
+        $this->requestStack->method('getSession')
+            ->willReturn($session);
+
+        $session->method('getId')->willReturn('123');
+        $this->searcher->search($query);
+
+        $this->solrQuery->expects($this->never())
+            ->method('addParam');
+    }
+
+    public function testSelectWithAuthGroup(): void
+    {
+        $query = new SearchQuery(
+            text: 'abc"',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null,
+            distanceReferencePoint: null,
+        );
+
+        $session = $this->createStub(Session::class);
+        $this->requestStack->method('getSession')
+            ->willReturn($session);
+
+        $session->method('getId')->willReturn('123');
+        $session->method('get')->willReturn('345');
+
+        $this->solrQuery->expects($this->once())
+            ->method('addParam')
+            ->with('groups', '345');
+
+        $this->searcher->search($query);
     }
 
     public function testSelectWithSort(): void
