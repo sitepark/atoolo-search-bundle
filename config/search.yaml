@@ -66,6 +66,7 @@ services:
       - '@atoolo_search.solarium_client_factory'
       - '@atoolo_search.result_to_resource_resolver'
       - '@atoolo_search.field_mapper'
+      - '@request_stack'
       - !tagged_iterator atoolo_search.query_modifier
 
   atoolo_search.suggest:

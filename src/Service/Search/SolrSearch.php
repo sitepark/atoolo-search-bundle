@@ -24,6 +24,7 @@ use Solarium\Component\Result\Facet\Query as SolrFacetQuery;
 use Solarium\Core\Client\Client;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 use Solarium\QueryType\Select\Result\Result as SelectResult;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Implementation of the searcher on the basis of a Solr index.
@@ -50,6 +51,7 @@ class SolrSearch implements Search
         private readonly SolrClientFactory $clientFactory,
         private readonly SolrResultToResourceResolver $resourceResolver,
         private readonly Schema2xFieldMapper $schemaFieldMapper,
+        private readonly RequestStack $requestStack,
         private readonly iterable $solrQueryModifierList = [],
     ) {}
 
@@ -107,6 +109,7 @@ class SolrSearch implements Search
         }
 
         $this->addBoosting($solrQuery, $query->boosting);
+        $this->addUserGroups($solrQuery);
 
         return $solrQuery;
     }
@@ -282,6 +285,26 @@ class SolrSearch implements Search
         if ($boosting->tie > 0.0) {
             $edismax->setTie($boosting->tie);
         }
+    }
+
+    private function addUserGroups(
+        SolrSelectQuery $solrQuery,
+    ): void {
+        $session = $this->requestStack->getSession();
+        if (!$session->getId()) {
+            return;
+        }
+
+        $groups = $session->get('auth-groups');
+        if (empty($groups)) {
+            $groups = $_SESSION['auth-groups'] ?? null;
+        }
+
+        if (empty($groups)) {
+            return;
+        }
+
+        $solrQuery->addParam('groups', $groups);
     }
 
     private function buildResult(
