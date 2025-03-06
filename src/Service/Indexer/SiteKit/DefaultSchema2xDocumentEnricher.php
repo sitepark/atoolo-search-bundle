@@ -261,6 +261,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
                 fn($id): string => (string) $this->idWithoutSignature($id),
                 $groups,
             );
+            $doc->include_groups[] = 'admin';
         } elseif ($accessType === 'deny' && !empty($groups)) {
             $doc->exclude_groups = array_map(
                 fn($id): string => (string) $this->idWithoutSignature($id),

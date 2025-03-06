@@ -659,7 +659,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         ]);
 
         $this->assertEquals(
-            ['1028'],
+            ['1028', 'admin'],
             $doc->include_groups,
             'unexpected include_groups',
         );
