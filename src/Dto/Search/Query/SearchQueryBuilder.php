@@ -9,6 +9,7 @@ use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use DateTimeZone;
+use InvalidArgumentException;
 
 class SearchQueryBuilder
 {
@@ -29,6 +30,8 @@ class SearchQueryBuilder
      * @var array<string,Facet>
      */
     private array $facets = [];
+
+    private bool $spellcheck = false;
 
     private bool $archive = false;
 
@@ -72,7 +75,7 @@ class SearchQueryBuilder
     public function offset(int $offset): static
     {
         if ($offset < 0) {
-            throw new \InvalidArgumentException('offset is lower then 0');
+            throw new InvalidArgumentException('offset is lower then 0');
         }
         $this->offset = $offset;
         return $this;
@@ -84,7 +87,7 @@ class SearchQueryBuilder
     public function limit(int $limit): static
     {
         if ($limit < 0) {
-            throw new \InvalidArgumentException('limit is lower then 0');
+            throw new InvalidArgumentException('limit is lower then 0');
         }
         $this->limit = $limit;
         return $this;
@@ -110,7 +113,7 @@ class SearchQueryBuilder
             if ($filter->key !== null) {
                 foreach ($this->filter as $existingFilter) {
                     if ($existingFilter->key === $filter->key) {
-                        throw new \InvalidArgumentException(
+                        throw new InvalidArgumentException(
                             'filter key "' . $filter->key .
                             '" already exists',
                         );
@@ -129,13 +132,22 @@ class SearchQueryBuilder
     {
         foreach ($facetList as $facet) {
             if (isset($this->facets[$facet->key])) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     'facet key "' . $facet->key .
                     '" already exists',
                 );
             }
             $this->facets[$facet->key] = $facet;
         }
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function spellcheck(bool $spellcheck): static
+    {
+        $this->spellcheck = $spellcheck;
         return $this;
     }
 
@@ -196,6 +208,7 @@ class SearchQueryBuilder
             sort: $this->sort,
             filter: $this->filter,
             facets: array_values($this->facets),
+            spellcheck: $this->spellcheck,
             archive: $this->archive,
             defaultQueryOperator: $this->defaultQueryOperator,
             timeZone: $this->timeZone,

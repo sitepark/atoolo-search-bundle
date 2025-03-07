@@ -62,6 +62,7 @@ class MoreLikeThisTest extends TestCase
             0,
             [$resultResource],
             [],
+            null,
             10,
         );
         $this->solrMoreLikeThis = $this->createStub(SolrMoreLikeThis::class);
@@ -94,6 +95,7 @@ class MoreLikeThisTest extends TestCase
             0,
             [$resultResource],
             [],
+            null,
             10,
         );
         $this->solrMoreLikeThis->method('moreLikeThis')
@@ -131,6 +133,7 @@ EOF,
             0,
             [],
             [],
+            null,
             10,
         );
         $this->solrMoreLikeThis->method('moreLikeThis')

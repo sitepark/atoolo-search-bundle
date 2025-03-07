@@ -19,6 +19,9 @@ use Atoolo\Search\Dto\Search\Query\Sort\Name;
 use Atoolo\Search\Dto\Search\Query\Sort\Natural;
 use Atoolo\Search\Dto\Search\Query\Sort\Score;
 use Atoolo\Search\Dto\Search\Result\FacetGroup;
+use Atoolo\Search\Dto\Search\Result\Spellcheck;
+use Atoolo\Search\Dto\Search\Result\SpellcheckSuggestion;
+use Atoolo\Search\Dto\Search\Result\SpellcheckWord;
 use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryModifier;
@@ -28,6 +31,7 @@ use Atoolo\Search\Service\SolrClientFactory;
 use DateTimeZone;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub\Stub;
 use PHPUnit\Framework\TestCase;
@@ -38,6 +42,9 @@ use Solarium\Component\Result\Facet\Query as SolrFacetQuery;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 use Solarium\QueryType\Select\Result\Result as SelectResult;
+use Solarium\Component\Result\Spellcheck\Result as SpellcheckResult;
+use Solarium\Component\Result\Spellcheck\Suggestion as SolrSpellcheckSuggestion;
+use Solarium\Component\Result\Spellcheck\Collation as SolrSpellcheckCollation;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 
@@ -115,6 +122,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: [],
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -141,6 +149,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: [],
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -167,6 +176,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: [],
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -195,6 +205,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: [],
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -231,6 +242,7 @@ class SolrSearchTest extends TestCase
             ],
             filter: [],
             facets: [],
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -257,6 +269,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: [],
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -281,6 +294,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: [],
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::AND,
             timeZone: null,
@@ -309,6 +323,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [$filter],
             facets: [],
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -346,6 +361,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: $facets,
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -377,6 +393,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: $facets,
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -414,6 +431,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: $facets,
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -461,6 +479,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: $facets,
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -514,6 +533,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: $facets,
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -546,6 +566,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: $facets,
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -561,6 +582,161 @@ class SolrSearchTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     */
+    public function testSelectWithSpellcheck(): void
+    {
+
+        $query = new SearchQuery(
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            spellcheck: true,
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null,
+            distanceReferencePoint: null,
+        );
+
+        $spellcheckResult = $this->createStub(SpellcheckResult::class);
+        $spellcheckResult->method('getCorrectlySpelled')->willReturn(false);
+
+        $suggest = $this->createStub(SolrSpellcheckSuggestion::class);
+        $suggest->method('getOriginalTerm')->willReturn('abc');
+        $suggest->method('getOriginalFrequency')->willReturn(3);
+        $suggest->method('getWord')->willReturn('cde');
+        $suggest->method('getFrequency')->willReturn(12);
+
+        $spellcheckResult->method('getSuggestions')
+            ->willReturn([$suggest]);
+
+        $collection = $this->createStub(SolrSpellcheckCollation::class);
+        $collection->method('getQuery')->willReturn('cde');
+        $spellcheckResult->method('getCollation')
+            ->willReturn($collection);
+
+        $this->result->method('getSpellcheck')
+            ->willReturn($spellcheckResult);
+
+        $this->solrQuery->expects($this->once())
+            ->method('getSpellcheck');
+
+        $searchResult = $this->searcher->search($query);
+
+        $expected = new Spellcheck(
+            [new SpellcheckSuggestion(
+                original: new SpellcheckWord('abc', 3),
+                suggestion: new SpellcheckWord('cde', 12),
+            )],
+            'cde',
+        );
+
+        $this->assertEquals(
+            $expected,
+            $searchResult->spellcheck,
+            'unexpected spellcheck results',
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testSelectWithCorrectlySpellcheck(): void
+    {
+
+        $query = new SearchQuery(
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            spellcheck: true,
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null,
+            distanceReferencePoint: null,
+        );
+
+        $spellcheckResult = $this->createStub(SpellcheckResult::class);
+        $spellcheckResult->method('getCorrectlySpelled')->willReturn(true);
+
+        $this->result->method('getSpellcheck')
+            ->willReturn($spellcheckResult);
+
+        $searchResult = $this->searcher->search($query);
+
+        $this->assertNull(
+            $searchResult->spellcheck,
+            'unexpected spellcheck results',
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testSelectWithSpellcheckAndWithoutCollection(): void
+    {
+
+        $query = new SearchQuery(
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            spellcheck: true,
+            archive: false,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null,
+            distanceReferencePoint: null,
+        );
+
+        $spellcheckResult = $this->createStub(SpellcheckResult::class);
+        $spellcheckResult->method('getCorrectlySpelled')->willReturn(false);
+
+        $suggest = $this->createStub(SolrSpellcheckSuggestion::class);
+        $suggest->method('getOriginalTerm')->willReturn('abc');
+        $suggest->method('getOriginalFrequency')->willReturn(3);
+        $suggest->method('getWord')->willReturn('cde');
+        $suggest->method('getFrequency')->willReturn(12);
+
+        $spellcheckResult->method('getSuggestions')
+            ->willReturn([$suggest]);
+
+        $this->result->method('getSpellcheck')
+            ->willReturn($spellcheckResult);
+
+        $this->solrQuery->expects($this->once())
+            ->method('getSpellcheck');
+
+        $searchResult = $this->searcher->search($query);
+
+        $expected = new Spellcheck(
+            [new SpellcheckSuggestion(
+                original: new SpellcheckWord('abc', 3),
+                suggestion: new SpellcheckWord('cde', 12),
+            )],
+            '',
+        );
+
+        $this->assertEquals(
+            $expected,
+            $searchResult->spellcheck,
+            'unexpected spellcheck results',
+        );
+    }
+
     public function testSetTimeZone(): void
     {
         $query = new SearchQuery(
@@ -571,6 +747,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: [],
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: new DateTimeZone("UTC"),
@@ -595,6 +772,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: [],
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
@@ -619,6 +797,7 @@ class SolrSearchTest extends TestCase
             sort: [],
             filter: [],
             facets: [],
+            spellcheck: false,
             archive: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
