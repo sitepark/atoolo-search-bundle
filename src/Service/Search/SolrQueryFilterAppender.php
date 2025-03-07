@@ -16,6 +16,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalMode;
+use Atoolo\Search\Dto\Search\Query\Filter\TeaserPropertyFilter;
 use InvalidArgumentException;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 
@@ -49,6 +50,7 @@ class SolrQueryFilterAppender
             $filter instanceof OrFilter => $this->getOrQuery($filter),
             $filter instanceof NotFilter => 'NOT ' . $this->getQuery($filter->filter),
             $filter instanceof QueryFilter => $filter->query,
+            $filter instanceof TeaserPropertyFilter => $this->getTeaserPropertyFilter($filter),
             $filter instanceof AbsoluteDateRangeFilter => $this->getAbsoluteDateRangeQuery($filter),
             $filter instanceof RelativeDateRangeFilter => $this->getRelativeDateRangeQuery($filter),
             $filter instanceof SpatialOrbitalFilter => $this->getSpatialOrbitalQuery($filter),
@@ -98,6 +100,28 @@ class SolrQueryFilterAppender
     private function getFilterField(Filter $filter): string
     {
         return $this->fieldMapper->getFilterField($filter);
+    }
+
+    private function getTeaserPropertyFilter(TeaserPropertyFilter $filter): string
+    {
+        $field = $this->fieldMapper->getFilterField($filter);
+        $query = [];
+        if ($filter->image !== null) {
+            $query[] = (!$filter->image ? '-' : '') . $field . ':teaserImage';
+        }
+        if ($filter->imageCopyright !== null) {
+            $query[] = (!$filter->imageCopyright ? '-' : '') . $field . ':teaserImageCopyright';
+        }
+        if ($filter->headline !== null) {
+            $query[] = (!$filter->headline ? '-' : '') . $field . ':teaserHeadline';
+        }
+        if ($filter->text !== null) {
+            $query[] = (!$filter->text ? '-' : '') . $field . ':teaserText';
+        }
+        if (empty($query)) {
+            return '';
+        }
+        return '(' . implode(' AND ', $query) . ')';
     }
 
     private function getAbsoluteDateRangeQuery(
