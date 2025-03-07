@@ -72,6 +72,13 @@ class SearchQueryBuilderTest extends TestCase
         $this->builder->limit(-1);
     }
 
+    public function testSetSpellcheck(): void
+    {
+        $this->builder->spellcheck(true);
+        $query = $this->builder->build();
+        $this->assertTrue($query->spellcheck, 'spellcheck should be true');
+    }
+
     public function testSetArchive(): void
     {
         $this->builder->archive(true);

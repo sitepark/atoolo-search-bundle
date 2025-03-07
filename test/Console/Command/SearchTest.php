@@ -81,6 +81,7 @@ class SearchTest extends TestCase
                     1,
                 )],
             )],
+            null,
             10,
         );
 
@@ -129,6 +130,7 @@ EOF,
             0,
             [],
             [],
+            null,
             10,
         );
 

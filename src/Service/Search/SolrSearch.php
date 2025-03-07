@@ -14,6 +14,9 @@ use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Result\Facet;
 use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
+use Atoolo\Search\Dto\Search\Result\Spellcheck;
+use Atoolo\Search\Dto\Search\Result\SpellcheckSuggestion;
+use Atoolo\Search\Dto\Search\Result\SpellcheckWord;
 use Atoolo\Search\Search;
 use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\Search\SiteKit\DefaultBoosting;
@@ -81,6 +84,10 @@ class SolrSearch implements Search
         $solrQuery->setStart($query->offset);
         $solrQuery->setRows($query->limit);
 
+        if ($query->spellcheck) {
+            $this->addSpellcheck($solrQuery);
+        }
+
         // to get query-time
         $solrQuery->setOmitHeader(false);
 
@@ -112,6 +119,14 @@ class SolrSearch implements Search
         $this->addUserGroups($solrQuery);
 
         return $solrQuery;
+    }
+
+    private function addSpellcheck(
+        SolrSelectQuery $solrQuery,
+    ): void {
+        $spellcheck = $solrQuery->getSpellcheck();
+        $spellcheck->setCollate(true);
+        $spellcheck->setExtendedResults(true);
     }
 
     /**
@@ -316,12 +331,15 @@ class SolrSearch implements Search
         $resourceList = $this->resourceResolver->loadResourceList($result, $lang);
         $facetGroupList = $this->buildFacetGroupList($query, $result);
 
+        $spellcheck = $this->buildSpellcheck($result);
+
         return new SearchResult(
             total: $result->getNumFound() ?? 0,
             limit: $query->limit,
             offset: $query->offset,
             results: $resourceList,
             facetGroups: $facetGroupList,
+            spellcheck: $spellcheck,
             queryTime: $result->getQueryTime() ?? 0,
         );
     }
@@ -393,5 +411,40 @@ class SolrSearch implements Search
 
         $facetList[] = new Facet($key, $value);
         return new FacetGroup($key, $facetList);
+    }
+
+    private function buildSpellcheck(
+        SelectResult $result,
+    ): Spellcheck|null {
+        $spellcheckResult = $result->getSpellcheck();
+        if ($spellcheckResult === null) {
+            return null;
+        }
+
+        if ($spellcheckResult->getCorrectlySpelled()) {
+            return null;
+        }
+
+        $suggestions = [];
+        foreach ($spellcheckResult->getSuggestions() as $suggestion) {
+            $original = new SpellcheckWord(
+                $suggestion->getOriginalTerm() ?? '',
+                $suggestion->getOriginalFrequency() ?? 0,
+            );
+            $suggestion = new SpellcheckWord(
+                $suggestion->getWord() ?? '',
+                $suggestion->getFrequency(),
+            );
+            $suggestions[] = new SpellcheckSuggestion(
+                $original,
+                $suggestion,
+            );
+        }
+        return new Spellcheck(
+            $suggestions,
+            $spellcheckResult->getCollation() === null
+                ? ''
+                : $spellcheckResult->getCollation()->getQuery(),
+        );
     }
 }

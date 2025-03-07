@@ -81,9 +81,9 @@
         "analyse:phplint": "./tools/phplint",
         "analyse:phpstan": "./tools/phpstan analyse",
         "cs-fix": [
-            "@cs-fix:phpcbf"
+            "@cs-fix:php-cs-fixer"
         ],
-        "cs-fix:phpcbf": "./vendor/bin/phpcbf",
+        "cs-fix:php-cs-fixer": "./tools/php-cs-fixer fix",
         "report": [
             "@report:phpstan"
         ],

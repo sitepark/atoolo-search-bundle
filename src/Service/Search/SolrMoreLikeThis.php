@@ -88,6 +88,7 @@ class SolrMoreLikeThis implements MoreLikeThis
             offset: 0,
             results: $resourceList,
             facetGroups: [],
+            spellcheck: null,
             queryTime: $result->getQueryTime() ?? 0,
         );
     }
