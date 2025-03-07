@@ -16,6 +16,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalMode;
+use Atoolo\Search\Dto\Search\Query\Filter\TeaserPropertyFilter;
 use Atoolo\Search\Dto\Search\Query\GeoPoint;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryFilterAppender;
@@ -133,6 +134,39 @@ class SolrQueryFilterAppenderTest extends TestCase
 
         $this->appender->append($filter);
     }
+
+    public function testTeaserPropertyFilter(): void
+    {
+        $filter = new TeaserPropertyFilter(
+            image: true,
+            imageCopyright: false,
+            headline: true,
+            text: false,
+        );
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('(test:teaserImage AND -test:teaserImageCopyright AND test:teaserHeadline AND -test:teaserText)');
+
+        $this->appender->append($filter);
+    }
+
+    public function testEmptyTeaserPropertyFilter(): void
+    {
+        $filter = new TeaserPropertyFilter(
+            image: null,
+            imageCopyright: null,
+            headline: null,
+            text: null,
+        );
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('');
+
+        $this->appender->append($filter);
+    }
+
 
     public function testAbsoluteDateRangeFilterWithFromAndTo(): void
     {

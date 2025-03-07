@@ -28,6 +28,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\SiteFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SourceFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\TeaserPropertyFilter;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Query\Sort\CustomField;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
@@ -72,7 +73,7 @@ class Schema2xFieldMapper
         return match (true) {
             $filter instanceof IdFilter => 'id',
             $filter instanceof CategoryFilter => 'sp_category_path',
-            $filter instanceof ContentSectionTypeFilter => 'sp_contenttype',
+            $filter instanceof ContentSectionTypeFilter, $filter instanceof TeaserPropertyFilter => 'sp_contenttype',
             $filter instanceof GroupFilter => 'sp_group_path',
             $filter instanceof ObjectTypeFilter => 'sp_objecttype',
             $filter instanceof SiteFilter => 'sp_site',
