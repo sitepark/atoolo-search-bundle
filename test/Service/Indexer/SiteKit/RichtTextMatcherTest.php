@@ -28,6 +28,22 @@ class RichtTextMatcherTest extends TestCase
         $this->assertEquals('Ein Text', $content, 'unexpected content');
     }
 
+    public function testMatcherWithSpaceBetweenTags(): void
+    {
+        $matcher = new RichtTextMatcher();
+
+        $value = [
+            "normalized" => true,
+            "modelType" => "html.richText",
+            "text" => "<div><strong>Einleitung</strong><p>Beschreibung</p></div>",
+        ];
+
+        $resource = $this->createStub(Resource::class);
+        $content = $matcher->match([], $value, $resource);
+
+        $this->assertEquals('Einleitung Beschreibung', $content, 'unexpected content');
+    }
+
     public function testMatcherNotMatchedInvalidType(): void
     {
         $matcher = new RichtTextMatcher();

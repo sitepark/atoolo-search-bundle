@@ -19,6 +19,10 @@ class RichtTextMatcher implements ContentMatcher
         }
 
         $text = $value['text'] ?? false;
-        return is_string($text) ? strip_tags($text) : false;
+        if (is_string($text)) {
+            $text = str_replace('><', '> <', $text);
+            return trim(strip_tags($text));
+        }
+        return false;
     }
 }
