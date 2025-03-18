@@ -34,7 +34,10 @@ use Exception;
  *     street?:string,
  *     postOfficeBoxData?: array{
  *          buildingName?:string
- *     }
+ *     },
+ *     notice?:string,
+ *     publicTransportationNotice?:string,
+ *     accessibleDescription?:string
  * }
  * @phpstan-type ContactPoint array{
  *     contactData?:ContactData,
@@ -353,6 +356,9 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $content[] = $data['street'] ?? '';
             $content[] = $data['buildingName'] ?? '';
             $content[] = $data['postOfficeBoxData']['buildingName'] ?? '';
+            $content[] = $data['notice'] ?? '';
+            $content[] = $data['publicTransportationNotice'] ?? '';
+            $content[] = $data['accessibleDescription'] ?? '';
         }
 
         return implode(' ', $content);
