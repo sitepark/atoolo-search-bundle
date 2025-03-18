@@ -41,7 +41,7 @@ class RichtTextMatcherTest extends TestCase
         $resource = $this->createStub(Resource::class);
         $content = $matcher->match([], $value, $resource);
 
-        $this->assertEquals('Einleitung Beschreibung', $content, 'unexpected content');
+        $this->assertEquals("Einleitung\n\nBeschreibung", $content, 'unexpected content');
     }
 
     public function testMatcherNotMatchedInvalidType(): void
