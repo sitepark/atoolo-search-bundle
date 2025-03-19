@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Indexer\SiteKit;
 
 use Atoolo\Resource\Resource;
+use Soundasleep\Html2Text;
+use Soundasleep\Html2TextException;
 
 class RichtTextMatcher implements ContentMatcher
 {
@@ -19,6 +21,10 @@ class RichtTextMatcher implements ContentMatcher
         }
 
         $text = $value['text'] ?? false;
-        return is_string($text) ? strip_tags($text) : false;
+        $convertOptions = [
+            'ignore_errors' => true,
+            'drop_links' => true,
+        ];
+        return is_string($text) ? Html2Text::convert($text, $convertOptions) : false;
     }
 }
