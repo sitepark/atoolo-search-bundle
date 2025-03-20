@@ -11,6 +11,7 @@ use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Indexer;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
 use Atoolo\Search\Service\Indexer\IndexerCollection;
+use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
@@ -47,7 +48,7 @@ class IndexerTest extends TestCase
         );
 
         $indexerA = $this->createStub(
-            \Atoolo\Search\Indexer::class,
+            InternalResourceIndexer::class,
         );
         $indexerA->method('enabled')
             ->willReturn(true);
@@ -202,6 +203,43 @@ EOF,
             $output,
         );
     }
+
+    public function testExecuteIndexerAWithPath(): void
+    {
+        $this->commandTester->execute(
+            [
+                '--source' => 'indexer_a',
+                'paths' => ['/path/to/file'],
+            ],
+        );
+
+        $this->commandTester->assertCommandIsSuccessful();
+
+        // the output of the command in the console
+        $output = $this->commandTester->getDisplay();
+        $this->assertEquals(
+            <<<EOF
+
+Channel: WWW
+============
+
+
+Index with Indexer "Indexer A" (source: indexer_a)
+--------------------------------------------------
+
+
+
+Status
+------
+
+ 
+
+
+EOF,
+            $output,
+        );
+    }
+
     /**
      * @throws Exception
      */
