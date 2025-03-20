@@ -8,6 +8,7 @@ use Atoolo\Resource\ResourceChannel;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
 use Atoolo\Search\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Service\Indexer\IndexerCollection;
+use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -65,6 +66,7 @@ class Indexer extends Command
         $this->io = new SymfonyStyle($input, $output);
 
         $source = $typedInput->getStringOption('source');
+        $paths = $typedInput->getArrayArgument('paths');
 
         $this->io->title('Channel: ' . $this->channel->name);
 
@@ -76,7 +78,7 @@ class Indexer extends Command
         }
 
         $indexer = $this->selectIndexer($selectableIndexer);
-        $this->index($indexer);
+        $this->index($indexer, $paths);
         return Command::SUCCESS;
     }
 
@@ -134,7 +136,10 @@ class Indexer extends Command
         return $selectable[$pos];
     }
 
-    private function index(\Atoolo\Search\Indexer $indexer): void
+    /**
+     * @param array<string> $paths
+     */
+    private function index(\Atoolo\Search\Indexer $indexer, array $paths): void
     {
         $this->io->newLine();
         $this->io->section(
@@ -145,7 +150,11 @@ class Indexer extends Command
         $this->progressBar->init($progressHandler);
         $indexer->setProgressHandler($this->progressBar);
         try {
-            $status = $indexer->index();
+            if (!empty($paths) && $indexer instanceof InternalResourceIndexer) {
+                $status = $indexer->update($paths);
+            } else {
+                $status = $indexer->index();
+            }
         } finally {
             $indexer->setProgressHandler($progressHandler);
         }
