@@ -72,6 +72,17 @@ class SolrQueryFilterAppenderTest extends TestCase
         $this->appender->append($field);
     }
 
+    public function testFieldFilterWithEmptyField(): void
+    {
+        $field = new FieldFilter(['']);
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('test:["" TO *]');
+
+        $this->appender->append($field);
+    }
+
     public function testFieldFilterWithTwoFields(): void
     {
         $field = new FieldFilter(['a', 'b']);

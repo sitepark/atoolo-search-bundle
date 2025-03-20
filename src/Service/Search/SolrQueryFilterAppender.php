@@ -91,9 +91,19 @@ class SolrQueryFilterAppender
     private function getFieldQuery(FieldFilter $filter): string
     {
         $field = $this->getFilterField($filter);
-        $filterValue = count($filter->values) === 1
-            ? $filter->values[0]
-            : '(' . implode(' ', $filter->values) . ')';
+        $values = array_map(
+            static function (string $value) {
+                $value = trim($value);
+                if (empty($value)) {
+                    return '["" TO *]';
+                }
+                return $value;
+            },
+            $filter->values,
+        );
+        $filterValue = count($values) === 1
+            ? $values[0]
+            : '(' . implode(' ', $values) . ')';
         return $field . ':' . $filterValue;
     }
 
