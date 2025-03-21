@@ -113,7 +113,7 @@ class SolrSearch implements Search
         $this->addBoosting($solrQuery, $query->boosting);
         $this->addUserGroups($solrQuery);
 
-        // supplements the query with standard values, e.g. for boosting
+        // applying optional modifiers to search query, e.g. for adding return fields
         foreach ($this->solrQueryModifierList as $solrQueryModifier) {
             $solrQuery = $solrQueryModifier->modify($solrQuery);
         }
