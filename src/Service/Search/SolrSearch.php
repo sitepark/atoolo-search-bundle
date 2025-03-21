@@ -76,11 +76,6 @@ class SolrSearch implements Search
 
         $solrQuery = $client->createSelect();
 
-        // supplements the query with standard values, e.g. for boosting
-        foreach ($this->solrQueryModifierList as $solrQueryModifier) {
-            $solrQuery = $solrQueryModifier->modify($solrQuery);
-        }
-
         $solrQuery->setStart($query->offset);
         $solrQuery->setRows($query->limit);
 
@@ -117,6 +112,11 @@ class SolrSearch implements Search
 
         $this->addBoosting($solrQuery, $query->boosting);
         $this->addUserGroups($solrQuery);
+
+        // supplements the query with standard values, e.g. for boosting
+        foreach ($this->solrQueryModifierList as $solrQueryModifier) {
+            $solrQuery = $solrQueryModifier->modify($solrQuery);
+        }
 
         return $solrQuery;
     }
