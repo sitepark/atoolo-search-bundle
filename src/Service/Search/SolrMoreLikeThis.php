@@ -53,7 +53,7 @@ class SolrMoreLikeThis implements MoreLikeThis
         // Filter
         $filterQuery = $solrQuery->createFilterQuery('self');
         $filterQuery->setQuery('-id:' . $query->id);
-        $this->addFilterQueriesToSolrQuery($solrQuery, $query->filter);
+        $this->addFilterQueriesToSolrQuery($solrQuery, $query->filter, $query->archive);
 
         return $solrQuery;
     }
@@ -64,6 +64,7 @@ class SolrMoreLikeThis implements MoreLikeThis
     private function addFilterQueriesToSolrQuery(
         SolrMoreLikeThisQuery $solrQuery,
         array $filterList,
+        bool $archive,
     ): void {
         $filterAppender = new SolrQueryFilterAppender(
             $solrQuery,
@@ -71,6 +72,9 @@ class SolrMoreLikeThis implements MoreLikeThis
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);
+        }
+        if (!$archive) {
+            $filterAppender->excludeArchived();
         }
     }
 
