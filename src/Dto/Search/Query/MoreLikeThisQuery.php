@@ -30,5 +30,6 @@ class MoreLikeThisQuery
         public readonly int $limit = 5,
         public readonly array $filter = [],
         public readonly array $fields = ['description', 'content'],
+        public readonly bool $archive = false,
     ) {}
 }

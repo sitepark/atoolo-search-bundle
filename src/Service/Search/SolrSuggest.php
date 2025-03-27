@@ -78,7 +78,7 @@ class SolrSuggest implements Suggest
         $solrQuery->setRows(0);
 
         // Filter
-        $this->addFilterQueriesToSolrQuery($solrQuery, $query->filter);
+        $this->addFilterQueriesToSolrQuery($solrQuery, $query->filter, $query->archive);
 
         return $solrQuery;
     }
@@ -89,6 +89,7 @@ class SolrSuggest implements Suggest
     private function addFilterQueriesToSolrQuery(
         SolrSelectQuery $solrQuery,
         array $filterList,
+        bool $archive,
     ): void {
         $filterAppender = new SolrQueryFilterAppender(
             $solrQuery,
@@ -96,6 +97,9 @@ class SolrSuggest implements Suggest
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);
+        }
+        if (!$archive) {
+            $filterAppender->excludeArchived();
         }
     }
 
