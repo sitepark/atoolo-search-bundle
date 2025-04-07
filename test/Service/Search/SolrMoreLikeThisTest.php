@@ -9,6 +9,7 @@ use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Service\IndexName;
+use Atoolo\Search\Service\Search\QueryTemplateResolver;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrMoreLikeThis;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
@@ -58,12 +59,16 @@ class SolrMoreLikeThisTest extends TestCase
         $schemaFieldMapper = $this->createStub(
             Schema2xFieldMapper::class,
         );
+        $queryTemplateResolver = $this->createStub(
+            QueryTemplateResolver::class,
+        );
 
         $this->searcher = new SolrMoreLikeThis(
             $indexName,
             $clientFactory,
             $resultToResourceResolver,
             $schemaFieldMapper,
+            $queryTemplateResolver,
         );
     }
 

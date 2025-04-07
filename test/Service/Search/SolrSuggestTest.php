@@ -10,10 +10,12 @@ use Atoolo\Search\Dto\Search\Query\SuggestQuery;
 use Atoolo\Search\Dto\Search\Result\Suggestion;
 use Atoolo\Search\Exception\UnexpectedResultException;
 use Atoolo\Search\Service\IndexName;
+use Atoolo\Search\Service\Search\QueryTemplateResolver;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrSuggest;
 use Atoolo\Search\Service\SolrClientFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Solarium\Client;
@@ -29,6 +31,9 @@ class SolrSuggestTest extends TestCase
 
     private SolrSuggest $searcher;
 
+    /**
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $indexName = $this->createStub(IndexName::class);
@@ -48,14 +53,15 @@ class SolrSuggestTest extends TestCase
         $this->result = $this->createStub(SelectResult::class);
         $client->method('select')->willReturn($this->result);
 
-        $schemaFieldMapper = $this->createStub(
-            Schema2xFieldMapper::class,
-        );
+        $schemaFieldMapper = $this->createStub(Schema2xFieldMapper::class);
+
+        $queryTemplateResolver = $this->createStub(QueryTemplateResolver::class);
 
         $this->searcher = new SolrSuggest(
             $indexName,
             $clientFactory,
             $schemaFieldMapper,
+            $queryTemplateResolver,
         );
     }
 

@@ -12,12 +12,14 @@ use Atoolo\Search\Dto\Search\Query\Filter\GeoLocatedFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\NotFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\OrFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\QueryFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\QueryTemplateFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalMode;
 use Atoolo\Search\Dto\Search\Query\Filter\TeaserPropertyFilter;
 use Atoolo\Search\Dto\Search\Query\GeoPoint;
+use Atoolo\Search\Service\Search\QueryTemplateResolver;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryFilterAppender;
 use DateInterval;
@@ -49,7 +51,9 @@ class SolrQueryFilterAppenderTest extends TestCase
             ->willReturn('test');
         $fieldMapper->method('getArchiveField')
             ->willReturn('archive');
-        $this->appender = new SolrQueryFilterAppender($solrQuery, $fieldMapper);
+        $queryTemplateResolver = new QueryTemplateResolver();
+
+        $this->appender = new SolrQueryFilterAppender($solrQuery, $fieldMapper, $queryTemplateResolver);
     }
 
     public function testExcludeArchived(): void
@@ -142,6 +146,17 @@ class SolrQueryFilterAppenderTest extends TestCase
         $this->filterQuery->expects($this->once())
             ->method('setQuery')
             ->with('a:b');
+
+        $this->appender->append($filter);
+    }
+
+    public function testQueryTemplateFilter(): void
+    {
+        $filter = new QueryTemplateFilter('myfield:{myvar}', ['myvar' => 'myvalue']);
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('myfield:myvalue');
 
         $this->appender->append($filter);
     }

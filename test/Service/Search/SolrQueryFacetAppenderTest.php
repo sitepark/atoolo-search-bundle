@@ -9,9 +9,11 @@ use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Facet\MultiQueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\QueryFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\QueryTemplateFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\SpatialDistanceRangeFacet;
 use Atoolo\Search\Dto\Search\Query\GeoPoint;
+use Atoolo\Search\Service\Search\QueryTemplateResolver;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryFacetAppender;
 use DateInterval;
@@ -74,7 +76,10 @@ class SolrQueryFacetAppenderTest extends TestCase
         $fieldMapper = $this->createMock(Schema2xFieldMapper::class);
         $fieldMapper->method('getFacetField')
             ->willReturn('test');
-        $this->appender = new SolrQueryFacetAppender($solrQuery, $fieldMapper);
+
+        $queryTemplateResolver = new QueryTemplateResolver();
+
+        $this->appender = new SolrQueryFacetAppender($solrQuery, $fieldMapper, $queryTemplateResolver);
     }
 
     public function testAppendFieldFacet(): void
@@ -117,6 +122,17 @@ class SolrQueryFacetAppenderTest extends TestCase
                 ['exclude'],
             ),
         );
+    }
+
+    public function testAppendQueryTemplateFacet(): void
+    {
+        $this->facetQuery->expects($this->once())
+            ->method('setQuery')
+            ->with('myfield:myvalue');
+        $this->facetQuery->expects($this->once())
+            ->method('setExcludes')
+            ->with(['exclude']);
+        $this->appender->append(new QueryTemplateFacet('key', 'myfield:{myvar}', ['myvar' => 'myvalue'], ['exclude']));
     }
 
     public function testAppendAbsoluteDateRangeFacetWithOutGap(): void

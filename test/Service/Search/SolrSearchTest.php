@@ -23,6 +23,7 @@ use Atoolo\Search\Dto\Search\Result\Spellcheck;
 use Atoolo\Search\Dto\Search\Result\SpellcheckSuggestion;
 use Atoolo\Search\Dto\Search\Result\SpellcheckWord;
 use Atoolo\Search\Service\IndexName;
+use Atoolo\Search\Service\Search\QueryTemplateResolver;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryModifier;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
@@ -100,6 +101,8 @@ class SolrSearchTest extends TestCase
         );
         $schemaFieldMapper->method('getGeoPointField')->willReturn('geo_points');
 
+        $queryTemplateResolver = $this->createStub(QueryTemplateResolver::class);
+
         $this->requestStack = $this->createStub(RequestStack::class);
 
         $this->searcher = new SolrSearch(
@@ -107,6 +110,7 @@ class SolrSearchTest extends TestCase
             $clientFactory,
             $resultToResourceResolver,
             $schemaFieldMapper,
+            $queryTemplateResolver,
             $this->requestStack,
             [$solrQueryModifier],
         );

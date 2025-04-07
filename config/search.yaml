@@ -56,6 +56,9 @@ services:
   atoolo_search.field_mapper:
     class: Atoolo\Search\Service\Search\Schema2xFieldMapper
 
+  atoolo_search.query_template_resolver:
+    class: Atoolo\Search\Service\Search\QueryTemplateResolver
+
   atoolo_search.explain_builder:
     class: Atoolo\Search\Service\Search\SolrExplainBuilder
 
@@ -66,6 +69,7 @@ services:
       - '@atoolo_search.solarium_client_factory'
       - '@atoolo_search.result_to_resource_resolver'
       - '@atoolo_search.field_mapper'
+      - '@atoolo_search.query_template_resolver'
       - '@request_stack'
       - !tagged_iterator atoolo_search.query_modifier
 

@@ -25,6 +25,7 @@ class SolrMoreLikeThis implements MoreLikeThis
         private readonly SolrClientFactory $clientFactory,
         private readonly SolrResultToResourceResolver $resultToResourceResolver,
         private readonly Schema2xFieldMapper $schemaFieldMapper,
+        private readonly QueryTemplateResolver $queryTemplateResolver,
     ) {}
 
     public function moreLikeThis(MoreLikeThisQuery $query): SearchResult
@@ -69,6 +70,7 @@ class SolrMoreLikeThis implements MoreLikeThis
         $filterAppender = new SolrQueryFilterAppender(
             $solrQuery,
             $this->schemaFieldMapper,
+            $this->queryTemplateResolver,
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);

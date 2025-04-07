@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console\Command;
 
+use Atoolo\Resource\Factory\ResourceChannelFactory;
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Resource\ResourceChannelFactory;
 use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Indexer;

@@ -34,6 +34,7 @@ class SolrSuggest implements Suggest
         private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
         private readonly Schema2xFieldMapper $schemaFieldMapper,
+        private readonly QueryTemplateResolver $queryTemplateResolver,
     ) {}
 
     /**
@@ -94,6 +95,7 @@ class SolrSuggest implements Suggest
         $filterAppender = new SolrQueryFilterAppender(
             $solrQuery,
             $this->schemaFieldMapper,
+            $this->queryTemplateResolver,
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);

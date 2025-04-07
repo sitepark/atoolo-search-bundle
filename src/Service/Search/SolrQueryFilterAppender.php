@@ -12,6 +12,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\GeoLocatedFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\NotFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\OrFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\QueryFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\QueryTemplateFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
@@ -25,6 +26,7 @@ class SolrQueryFilterAppender
     public function __construct(
         private readonly SolrSelectQuery $solrQuery,
         private readonly Schema2xFieldMapper $fieldMapper,
+        private readonly QueryTemplateResolver $queryTemplateResolver,
     ) {}
 
     public function excludeArchived(): void
@@ -50,6 +52,7 @@ class SolrQueryFilterAppender
             $filter instanceof OrFilter => $this->getOrQuery($filter),
             $filter instanceof NotFilter => 'NOT ' . $this->getQuery($filter->filter),
             $filter instanceof QueryFilter => $filter->query,
+            $filter instanceof QueryTemplateFilter => $this->getQueryTemplateFilter($filter),
             $filter instanceof TeaserPropertyFilter => $this->getTeaserPropertyFilter($filter),
             $filter instanceof AbsoluteDateRangeFilter => $this->getAbsoluteDateRangeQuery($filter),
             $filter instanceof RelativeDateRangeFilter => $this->getRelativeDateRangeQuery($filter),
@@ -110,6 +113,14 @@ class SolrQueryFilterAppender
     private function getFilterField(Filter $filter): string
     {
         return $this->fieldMapper->getFilterField($filter);
+    }
+
+    private function getQueryTemplateFilter(QueryTemplateFilter $filter): string
+    {
+        return $this->queryTemplateResolver->resolve(
+            $filter->query,
+            $filter->variables,
+        );
     }
 
     private function getTeaserPropertyFilter(TeaserPropertyFilter $filter): string
