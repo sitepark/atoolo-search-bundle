@@ -9,6 +9,7 @@ use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Facet\FieldFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\MultiQueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\QueryFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\QueryTemplateFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\SpatialDistanceRangeFacet;
 use InvalidArgumentException;
@@ -20,6 +21,7 @@ class SolrQueryFacetAppender
     public function __construct(
         private readonly SolrSelectQuery $solrQuery,
         private readonly Schema2xFieldMapper $fieldMapper,
+        private readonly QueryTemplateResolver $queryTemplateResolver,
     ) {}
 
     public function append(Facet $facet): void
@@ -30,6 +32,8 @@ class SolrQueryFacetAppender
             $this->appendFacetQuery($facet);
         } elseif ($facet instanceof MultiQueryFacet) {
             $this->appendFacetMultiQuery($facet);
+        } elseif ($facet instanceof QueryTemplateFacet) {
+            $this->appendQueryTemplateFacet($facet);
         } elseif ($facet instanceof AbsoluteDateRangeFacet) {
             $this->appendAbsoluteDateRangeFacet($facet);
         } elseif ($facet instanceof RelativeDateRangeFacet) {
@@ -91,6 +95,18 @@ class SolrQueryFacetAppender
                 $facetQuery->query,
             );
         }
+    }
+
+    private function appendQueryTemplateFacet(QueryTemplateFacet $facet): void
+    {
+        $query = $this->queryTemplateResolver->resolve(
+            $facet->query,
+            $facet->variables,
+        );
+        $facetSet = $this->solrQuery->getFacetSet();
+        $facetSet->createFacetQuery($facet->key)
+            ->setQuery($query)
+            ->setExcludes($facet->excludeFilter);
     }
 
     private function appendAbsoluteDateRangeFacet(

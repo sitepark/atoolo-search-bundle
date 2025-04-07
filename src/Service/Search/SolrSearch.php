@@ -54,6 +54,7 @@ class SolrSearch implements Search
         private readonly SolrClientFactory $clientFactory,
         private readonly SolrResultToResourceResolver $resourceResolver,
         private readonly Schema2xFieldMapper $schemaFieldMapper,
+        private readonly QueryTemplateResolver $queryTemplateResolver,
         private readonly RequestStack $requestStack,
         private readonly iterable $solrQueryModifierList = [],
     ) {}
@@ -229,6 +230,7 @@ class SolrSearch implements Search
         $filterAppender = new SolrQueryFilterAppender(
             $solrQuery,
             $this->schemaFieldMapper,
+            $this->queryTemplateResolver,
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);
@@ -263,6 +265,7 @@ class SolrSearch implements Search
         $facetAppender = new SolrQueryFacetAppender(
             $solrQuery,
             $this->schemaFieldMapper,
+            $this->queryTemplateResolver,
         );
         foreach ($facetList as $facet) {
             $facetAppender->append($facet);
