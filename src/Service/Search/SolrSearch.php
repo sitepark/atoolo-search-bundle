@@ -447,7 +447,7 @@ class SolrSearch implements Search
             $suggestions,
             $spellcheckResult->getCollation() === null
                 ? ''
-                : $spellcheckResult->getCollation()->getQuery(),
+                : str_replace('\\', '', $spellcheckResult->getCollation()->getQuery()),
         );
     }
 }
