@@ -79,6 +79,7 @@ services:
       - '@atoolo_search.index_name'
       - '@atoolo_search.solarium_client_factory'
       - '@atoolo_search.field_mapper'
+      - '@atoolo_search.query_template_resolver'
 
   atoolo_search.more_like_this:
     class: Atoolo\Search\Service\Search\SolrMoreLikeThis
@@ -87,3 +88,4 @@ services:
       - '@atoolo_search.solarium_client_factory'
       - '@atoolo_search.result_to_resource_resolver'
       - '@atoolo_search.field_mapper'
+      - '@atoolo_search.query_template_resolver'
