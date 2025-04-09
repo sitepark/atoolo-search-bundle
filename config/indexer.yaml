@@ -52,9 +52,6 @@ services:
     tags:
       - { name: 'atoolo_search.indexer.document_enricher.schema2x', priority: 100 }
 
-  atoolo_search.indexer.translation_splitter:
-    class: Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter
-
   atoolo_search.indexer.aborter:
     class: Atoolo\Search\Service\Indexer\IndexingAborter
     arguments:
@@ -97,7 +94,6 @@ services:
       - '@atoolo_search.indexer.internal_resource_progress_state'
       - '@atoolo_search.indexer.location_finder'
       - '@atoolo_resource.resource_loader'
-      - '@atoolo_search.indexer.translation_splitter'
       - '@atoolo_search.indexer.solr_index_service'
       - '@atoolo_search.indexer.aborter'
       - '@atoolo_search.indexer.configuration_loader'

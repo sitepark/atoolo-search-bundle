@@ -18,10 +18,8 @@ use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\InternalResourceIndexer;
 use Atoolo\Search\Service\Indexer\LocationFinder;
 use Atoolo\Search\Service\Indexer\ResourceFilter;
-use Atoolo\Search\Service\Indexer\SiteKit\SubDirTranslationSplitter;
 use Atoolo\Search\Service\Indexer\SolrIndexService;
 use Atoolo\Search\Service\Indexer\SolrIndexUpdater;
-use Atoolo\Search\Service\Indexer\TranslationSplitter;
 use Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -61,8 +59,6 @@ class InternalResourceIndexerTest extends TestCase
 
     private DocumentEnricher&MockObject $documentEnricher;
 
-    private TranslationSplitter $translationSplitter;
-
     private IndexerConfigurationLoader&MockObject $indexerConfigurationLoader;
 
     private IndexerConfiguration $indexerConfiguration;
@@ -90,16 +86,19 @@ class InternalResourceIndexerTest extends TestCase
             ->willReturnCallback(function ($resource, $doc) {
                 return $doc;
             });
-        $this->translationSplitter = new SubDirTranslationSplitter();
         $this->resourceLoader = $this->createStub(ResourceLoader::class);
         $this->resourceLoader->method('load')
             ->willReturnCallback(function ($location) {
+                $resourceLang = $location->lang;
+                if ($location->location === '/a/en.php') {
+                    $resourceLang = ResourceLanguage::of('en_EN');
+                }
                 return new Resource(
                     $location->location,
                     '',
                     '',
                     '',
-                    $location->lang,
+                    $resourceLang,
                     new DataBag([]),
                 );
             });
@@ -154,7 +153,6 @@ class InternalResourceIndexerTest extends TestCase
             $this->indexerProgressHandler,
             $this->finder,
             $this->resourceLoader,
-            $this->translationSplitter,
             $this->solrIndexService,
             $this->aborter,
             $this->indexerConfigurationLoader,
@@ -494,5 +492,24 @@ class InternalResourceIndexerTest extends TestCase
         } finally {
             $lock->release();
         }
+    }
+
+    public function testWithDifferentLocaleInResource(): void
+    {
+        $this->finder->method('findAll')
+            ->willReturn([
+                '/a/a.php',
+                '/a/b.php',
+                '/a/en.php',// will return a 'en_EN' Resource
+            ]);
+        $this->indexerFilter->method('accept')
+            ->willReturn(true);
+
+        // one for 'default' lang and one for resource internal 'en' locale
+        $this->indexerProgressHandler->expects(
+            $this->exactly(2))
+            ->method('advance');
+
+        $this->indexer->index();
     }
 }

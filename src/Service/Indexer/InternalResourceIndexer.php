@@ -57,7 +57,6 @@ class InternalResourceIndexer implements Indexer
         private IndexerProgressHandler $progressHandler,
         private readonly LocationFinder $finder,
         private readonly ResourceLoader $resourceLoader,
-        private readonly TranslationSplitter $translationSplitter,
         private readonly SolrIndexService $indexService,
         private readonly IndexingAborter $aborter,
         private readonly IndexerConfigurationLoader $configLoader,
@@ -251,52 +250,15 @@ class InternalResourceIndexer implements Indexer
             return;
         }
 
-        $splitterResult = $this->translationSplitter->split($pathList);
-        $this->indexTranslationSplittedResources(
-            $parameter,
-            $splitterResult,
-        );
-    }
-
-    /**
-     * There is a separate Solr index for each language. This allows
-     * language-specific tokenizers and other language-relevant configurations
-     * to be used. Via the `$splitterResult` all paths are separated according
-     * to their languages and can be indexed separately. Each language is
-     * indexed separately here.
-     */
-    private function indexTranslationSplittedResources(
-        IndexerParameter $parameter,
-        TranslationSplitterResult $splitterResult,
-    ): void {
+        $this->sortPathlistByLocale($pathList);
 
         $processId = uniqid('', true);
-
-        $index = $this->indexService->getIndex(ResourceLanguage::default());
 
         $this->indexResourcesPerLanguageIndex(
             $processId,
             $parameter,
-            ResourceLanguage::default(),
-            $index,
-            $splitterResult->getBases(),
+            $pathList,
         );
-
-        foreach ($splitterResult->getLanguages() as $lang) {
-            try {
-                $langIndex = $this->indexService->getIndex($lang);
-                $this->indexResourcesPerLanguageIndex(
-                    $processId,
-                    $parameter,
-                    $lang,
-                    $langIndex,
-                    $splitterResult->getTranslations($lang),
-                );
-            } catch (UnsupportedIndexLanguageException $e) {
-                $this->handleError($e->getMessage());
-                continue;
-            }
-        }
     }
 
     /**
@@ -307,8 +269,6 @@ class InternalResourceIndexer implements Indexer
     private function indexResourcesPerLanguageIndex(
         string $processId,
         IndexerParameter $parameter,
-        ResourceLanguage $lang,
-        string $index,
         array $locations,
     ): void {
 
@@ -318,29 +278,57 @@ class InternalResourceIndexer implements Indexer
 
         $offset = 0;
         $successCount = 0;
-
+        $alreadyTreatedMissingIndices = [];
+        $updatedIndexLocales = [];
         $managedIndices = $this->indexService->getManagedIndices();
-        if (!in_array($index, $managedIndices)) {
-            $this->handleError('Index "' . $index . '" not found');
-            return;
-        }
 
         while (true) {
-            $indexedCount = $this->indexChunks(
-                $processId,
-                $lang,
-                $index,
+
+            $resourceLists = $this->loadResources(
                 $locations,
                 $offset,
                 $parameter->chunkSize,
             );
-
-            gc_collect_cycles();
-
-            if ($indexedCount === false) {
+            if ($resourceLists === false) {
                 break;
             }
-            $successCount += $indexedCount;
+
+            foreach ($resourceLists as $resourceLang => $resourceList) {
+                $lang = ResourceLanguage::of($resourceLang);
+                $index = null;
+                try {
+                    $index = $this->indexService->getIndex($lang);
+                    if (!in_array($index, $managedIndices)) {
+                        if (!in_array($lang, $alreadyTreatedMissingIndices)) {
+                            $this->handleError('Unmanaged Index: ' . $index);
+                            $alreadyTreatedMissingIndices[] = $lang;
+                        }
+                        continue;
+                    }
+                } catch (UnsupportedIndexLanguageException $e) {
+                    if (!in_array($lang, $alreadyTreatedMissingIndices)) {
+                        $this->handleError($e->getMessage());
+                        $alreadyTreatedMissingIndices[] = $lang;
+                    }
+                    continue;
+                }
+
+                $indexedCount = $this->indexChunks(
+                    $processId,
+                    $lang,
+                    $index,
+                    $resourceList,
+                );
+                gc_collect_cycles();
+
+                if ($indexedCount === false) {
+                    continue;
+                }
+                $successCount += $indexedCount;
+                if (!in_array($lang, $updatedIndexLocales)) {
+                   $updatedIndexLocales[] = $lang;
+                }
+            }
             $offset += $parameter->chunkSize;
         }
 
@@ -349,13 +337,15 @@ class InternalResourceIndexer implements Indexer
             $parameter->cleanupThreshold > 0 &&
             $successCount >= $parameter->cleanupThreshold
         ) {
-            $this->indexService->deleteExcludingProcessId(
-                $lang,
-                $this->source,
-                $processId,
-            );
+            foreach ($updatedIndexLocales as $indexLocale) {
+                $this->indexService->deleteExcludingProcessId(
+                    $indexLocale,
+                    $this->source,
+                    $processId,
+                );
+                $this->indexService->commit($indexLocale);
+            }
         }
-        $this->indexService->commit($lang);
     }
 
     /**
@@ -365,25 +355,18 @@ class InternalResourceIndexer implements Indexer
      * methods accept a chunk with all paths that are to be indexed via a
      * request.
      *
-     * @param string[] $locations
+     * @param string $processId
+     * @param ResourceLanguage $lang
+     * @param string $index
+     * @param array<Resource> $resourceList
      */
     private function indexChunks(
         string $processId,
         ResourceLanguage $lang,
         string $index,
-        array $locations,
-        int $offset,
-        int $length,
+        array $resourceList,
     ): int|false {
-        $resourceList = $this->loadResources(
-            $lang,
-            $locations,
-            $offset,
-            $length,
-        );
-        if ($resourceList === false) {
-            return false;
-        }
+
         if ($this->aborter->isAbortionRequested($index)) {
             $this->aborter->resetAbortionRequest($index);
             $this->progressHandler->abort();
@@ -404,11 +387,16 @@ class InternalResourceIndexer implements Indexer
     }
 
     /**
+     * Load the <Resource> objects for all $locations and return them in a
+     * associative array with all resources for each found locale
+     * within all the resources.
+     *
      * @param string[] $locations
-     * @return Resource[]|false
+     * @poram int $offset
+     * @poram int $length
+     * @return  array<string, array<Resource>>|false
      */
     private function loadResources(
-        ResourceLanguage $lang,
         array $locations,
         int $offset,
         int $length,
@@ -421,20 +409,24 @@ class InternalResourceIndexer implements Indexer
 
         $end = min($length, $maxLength) + $offset;
 
-        $resourceList = [];
+        $resourceLists = [];
         for ($i = $offset; $i < $end; $i++) {
-            $location = ResourceLocation::of(
-                $locations[$i],
-                $lang,
-            );
+            $resourceLocation = $this->toResourceLocation($locations[$i]);
+            if ($resourceLocation === null) {
+                continue;
+            }
+
             try {
-                $resource = $this->resourceLoader->load($location);
-                $resourceList[] = $resource;
+                $resource = $this->resourceLoader->load($resourceLocation);
+                if (array_key_exists($resource->lang->code, $resourceLists) === false) {
+                    $resourceLists[$resource->lang->code] = [];
+                }
+                $resourceLists[$resource->lang->code][] = $resource;
             } catch (Throwable $e) {
                 $this->handleError($e);
             }
         }
-        return $resourceList;
+        return $resourceLists;
     }
 
     /**
@@ -497,5 +489,83 @@ class InternalResourceIndexer implements Indexer
             ResourceLanguage::default(),
             'crawl_status:error OR crawl_status:warning',
         );
+    }
+
+    /**
+     * Sorts the pathList by the translated locals within the path:
+     * `/dir/file.php` is lover tan
+     * `/dir/anotherFile.php.translations/de_DE.php` is lover tan
+     * `/dir/file.php.translations/it_IT.php` is equal to
+     * `/dir/nextFile.php.translations/it_IT.php`
+     *
+     * @param array<string> $pathList
+     */
+    private function sortPathlistByLocale(array &$pathList): void
+    {
+        usort($pathList, function (string $pathA, string $pathB) {
+            $posA = strrpos($pathA, '.php.translations');
+            $posB = strrpos($pathB, '.php.translations');
+            if ($posA === false || $posB === false) {
+                $eq = $posA <=> $posB;
+                return $eq;
+            }
+            $localeA = substr($pathA, strrpos($pathA, '/') + 1);
+            $localeB = substr($pathB, strrpos($pathB, '/') + 1);
+            return $localeA <=> $localeB;
+        });
+    }
+
+    /**
+     * Converts a path like '/dir/file_a.php' or
+     * '/dir/file_b.php.translations/de_DE.php' to corresponding
+     * ResourceLocation object with the location and ResourceLanguage of th path
+     *
+     * @param string $path
+     * @return ResourceLocation|null
+     */
+    private function toResourceLocation(string $path): ?ResourceLocation
+    {
+        $normalizedPath = $this->normalizePath($path);
+        if (empty($normalizedPath)) {
+            return null;
+        }
+
+        $pos = strrpos($normalizedPath, '.php.translations');
+        if ($pos === false) {
+            return ResourceLocation::of($normalizedPath);
+        }
+
+        $localeFilename = basename($normalizedPath);
+        $locale = basename($localeFilename, '.php');
+
+        return ResourceLocation::of(
+            substr($normalizedPath, 0, $pos + 4),
+            ResourceLanguage::of($locale),
+        );
+    }
+
+    /**
+     * A path can signal to be translated into another language via
+     * the URL parameter loc. For example,
+     * `/dir/file.php?loc=it_IT` defines that the path
+     * `/dir/file.php.translations/it_IT.php` is to be used.
+     * This method translates the URL parameter into the correct path.
+     */
+    private function normalizePath(string $path): string
+    {
+        $queryString = parse_url($path, PHP_URL_QUERY);
+        if (!is_string($queryString)) {
+            return $path;
+        }
+        $urlPath = parse_url($path, PHP_URL_PATH);
+        if (!is_string($urlPath)) {
+            return '';
+        }
+        parse_str($queryString, $params);
+        if (!isset($params['loc']) || !is_string($params['loc'])) {
+            return $urlPath;
+        }
+        $loc = $params['loc'];
+        return $urlPath . '.translations/' . $loc . ".php";
     }
 }
