@@ -507,8 +507,8 @@ class InternalResourceIndexerTest extends TestCase
 
         // one for 'default' lang and one for resource internal 'en' locale
         $this->indexerProgressHandler->expects(
-            $this->exactly(2))
-            ->method('advance');
+            $this->exactly(2),
+        )->method('advance');
 
         $this->indexer->index();
     }

@@ -326,7 +326,7 @@ class InternalResourceIndexer implements Indexer
                 }
                 $successCount += $indexedCount;
                 if (!in_array($lang, $updatedIndexLocales)) {
-                   $updatedIndexLocales[] = $lang;
+                    $updatedIndexLocales[] = $lang;
                 }
             }
             $offset += $parameter->chunkSize;
