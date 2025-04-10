@@ -49,6 +49,16 @@ class InternalResourceIndexer implements Indexer
     private bool $skipCleanup = false;
 
     /**
+     * @var array<string>|null
+     */
+    private ?array $managedIndices = null;
+
+    /**
+     * @var array<string, string|false>
+     */
+    private array $validIndexnameByLanguage = [];
+
+    /**
      * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
      */
     public function __construct(
@@ -211,6 +221,14 @@ class InternalResourceIndexer implements Indexer
         return $this->parameter ??= ($this->loadIndexerParameter());
     }
 
+    /**
+     * @return array<string>
+     */
+    public function getManagedIndices(): array
+    {
+        return $this->managedIndices ??= $this->indexService->getManagedIndices();
+    }
+
     private function loadIndexerParameter(): IndexerParameter
     {
         $config = $this->configLoader->load($this->source);
@@ -249,43 +267,15 @@ class InternalResourceIndexer implements Indexer
         if (count($pathList) === 0) {
             return;
         }
-
-        $this->sortPathlistByLocale($pathList);
-
-        $processId = uniqid('', true);
-
-        $this->indexResourcesPerLanguageIndex(
-            $processId,
-            $parameter,
-            $pathList,
-        );
-    }
-
-    /**
-     * The resources for a language are indexed here.
-     *
-     * @param string[] $locations
-     */
-    private function indexResourcesPerLanguageIndex(
-        string $processId,
-        IndexerParameter $parameter,
-        array $locations,
-    ): void {
-
-        if (empty($locations)) {
-            return;
-        }
-
         $offset = 0;
         $successCount = 0;
-        $alreadyTreatedMissingIndices = [];
         $updatedIndexLocales = [];
-        $managedIndices = $this->indexService->getManagedIndices();
+        $processId = uniqid('', true);
+        $sortedPathlist = $this->sortPathlistByLocale($pathList);
 
         while (true) {
-
             $resourceLists = $this->loadResources(
-                $locations,
+                $sortedPathlist,
                 $offset,
                 $parameter->chunkSize,
             );
@@ -295,36 +285,16 @@ class InternalResourceIndexer implements Indexer
 
             foreach ($resourceLists as $resourceLang => $resourceList) {
                 $lang = ResourceLanguage::of($resourceLang);
-                $index = null;
-                try {
-                    $index = $this->indexService->getIndex($lang);
-                    if (!in_array($index, $managedIndices)) {
-                        if (!in_array($lang, $alreadyTreatedMissingIndices)) {
-                            $this->handleError('Unmanaged Index: ' . $index);
-                            $alreadyTreatedMissingIndices[] = $lang;
-                        }
-                        continue;
-                    }
-                } catch (UnsupportedIndexLanguageException $e) {
-                    if (!in_array($lang, $alreadyTreatedMissingIndices)) {
-                        $this->handleError($e->getMessage());
-                        $alreadyTreatedMissingIndices[] = $lang;
-                    }
-                    continue;
-                }
-
-                $indexedCount = $this->indexChunks(
-                    $processId,
+                $indexedCount = $this->indexResourcesForLanguage(
                     $lang,
-                    $index,
                     $resourceList,
+                    $processId,
                 );
-                gc_collect_cycles();
-
                 if ($indexedCount === false) {
                     continue;
                 }
                 $successCount += $indexedCount;
+
                 if (!in_array($lang, $updatedIndexLocales)) {
                     $updatedIndexLocales[] = $lang;
                 }
@@ -332,12 +302,50 @@ class InternalResourceIndexer implements Indexer
             $offset += $parameter->chunkSize;
         }
 
-        if (
-            !$this->skipCleanup &&
-            $parameter->cleanupThreshold > 0 &&
-            $successCount >= $parameter->cleanupThreshold
-        ) {
-            foreach ($updatedIndexLocales as $indexLocale) {
+        $cleanupThreshold = $parameter->cleanupThreshold;
+        if ($cleanupThreshold > 0 && $successCount >= $cleanupThreshold) {
+            $this->commitLocaleIndices($updatedIndexLocales, $processId);
+        }
+    }
+
+    /**
+     * @param ResourceLanguage $resourceLang
+     * @param array<Resource> $resourceList
+     * @param string $processId
+     * @return int|false
+     */
+    private function indexResourcesForLanguage(
+        ResourceLanguage $resourceLang,
+        array $resourceList,
+        string $processId,
+    ): int|false {
+
+        $index = $this->getIndexByLanguage($resourceLang);
+        if ($index === false) {
+            return false;
+        }
+        $indexedCount = $this->indexChunks(
+            $processId,
+            $resourceLang,
+            $index,
+            $resourceList,
+        );
+        gc_collect_cycles();
+        return  $indexedCount;
+    }
+
+    /**
+     * @param array<ResourceLanguage> $indexLocales
+     * @param string $processId
+     * @return void
+     */
+    private function commitLocaleIndices(
+        array $indexLocales,
+        string $processId,
+    ): void {
+
+        if (!$this->skipCleanup) {
+            foreach ($indexLocales as $indexLocale) {
                 $this->indexService->deleteExcludingProcessId(
                     $indexLocale,
                     $this->source,
@@ -372,9 +380,7 @@ class InternalResourceIndexer implements Indexer
             $this->progressHandler->abort();
             return false;
         }
-        if (empty($resourceList)) {
-            return 0;
-        }
+
         $this->progressHandler->advance(count($resourceList));
         $result = $this->add($lang, $processId, $resourceList);
 
@@ -493,14 +499,15 @@ class InternalResourceIndexer implements Indexer
 
     /**
      * Sorts the pathList by the translated locals within the path:
-     * `/dir/file.php` is lover tan
-     * `/dir/anotherFile.php.translations/de_DE.php` is lover tan
+     * `/dir/file.php` is lower than
+     * `/dir/anotherFile.php.translations/de_DE.php` is lower than
      * `/dir/file.php.translations/it_IT.php` is equal to
      * `/dir/nextFile.php.translations/it_IT.php`
      *
      * @param array<string> $pathList
+     * @return array<string> $sortedList
      */
-    private function sortPathlistByLocale(array &$pathList): void
+    private function sortPathlistByLocale(array $pathList): array
     {
         usort($pathList, function (string $pathA, string $pathB) {
             $posA = strrpos($pathA, '.php.translations');
@@ -513,6 +520,7 @@ class InternalResourceIndexer implements Indexer
             $localeB = substr($pathB, strrpos($pathB, '/') + 1);
             return $localeA <=> $localeB;
         });
+        return $pathList;
     }
 
     /**
@@ -567,5 +575,28 @@ class InternalResourceIndexer implements Indexer
         }
         $loc = $params['loc'];
         return $urlPath . '.translations/' . $loc . ".php";
+    }
+
+    /**
+     * @param ResourceLanguage $lang
+     * @return false|string
+     */
+    private function getIndexByLanguage(ResourceLanguage $lang): false|string
+    {
+        $index = $this->validIndexnameByLanguage[$lang->code] ?? null;
+        if ($index === null) {
+            try {
+                $index = $this->indexService->getIndex($lang);
+                if (!in_array($index, $this->getManagedIndices())) {
+                    $this->handleError('Unmanaged Index: ' . $index);
+                    $index = false;
+                }
+            } catch (UnsupportedIndexLanguageException $e) {
+                $this->handleError($e->getMessage());
+                $index = false;
+            }
+            $this->validIndexnameByLanguage[$lang->code] = $index;
+        }
+        return $index;
     }
 }

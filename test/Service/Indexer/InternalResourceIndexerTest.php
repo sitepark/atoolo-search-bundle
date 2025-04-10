@@ -506,9 +506,27 @@ class InternalResourceIndexerTest extends TestCase
             ->willReturn(true);
 
         // one for 'default' lang and one for resource internal 'en' locale
-        $this->indexerProgressHandler->expects(
-            $this->exactly(2),
-        )->method('advance');
+        $this->indexerProgressHandler->expects($this->exactly(2))
+            ->method('advance');
+        $this->updater->expects($this->exactly(3))
+            ->method('addDocument');
+
+        $this->indexer->index();
+    }
+
+    public function testIndexWithoutLanguages(): void
+    {
+        $this->finder->method('findAll')
+            ->willReturn([
+                '?key=value',
+                '/a/b.php?key=value',
+                '/a/b.php?loc=',
+            ]);
+        $this->indexerFilter->method('accept')
+            ->willReturn(true);
+
+        $this->updater->expects($this->exactly(2))
+            ->method('addDocument');
 
         $this->indexer->index();
     }
