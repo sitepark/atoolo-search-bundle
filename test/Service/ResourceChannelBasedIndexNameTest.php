@@ -81,6 +81,36 @@ class ResourceChannelBasedIndexNameTest extends TestCase
         );
     }
 
+    public function testNameWithEmptyTranslationLocales(): void
+    {
+        $resourceTanent = $this->createMock(ResourceTenant::class);
+        $resourceChannel = new ResourceChannel(
+            '',
+            '',
+            '',
+            '',
+            false,
+            '',
+            'de_DE',
+            '',
+            '',
+            '',
+            'test',
+            [],
+            $resourceTanent,
+        );
+
+        $indexName = new ResourceChannelBasedIndexName(
+            $resourceChannel,
+        );
+
+        $this->assertEquals(
+            'test',
+            $indexName->name(ResourceLanguage::of('it')),
+            'The default index name should be returned as no translation languages are available.',
+        );
+    }
+
     public function testNameWithUnsupportedLang(): void
     {
         $this->expectException(UnsupportedIndexLanguageException::class);

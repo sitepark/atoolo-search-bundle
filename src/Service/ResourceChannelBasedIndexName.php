@@ -66,6 +66,10 @@ class ResourceChannelBasedIndexName implements IndexName
             return '';
         }
 
+        if (empty($resourceChannel->translationLocales)) {
+            return '';
+        }
+
         foreach (
             $resourceChannel->translationLocales as $availableLocale
         ) {
