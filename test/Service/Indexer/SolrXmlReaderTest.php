@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Service\Indexer\SolrXmlReader;
@@ -37,6 +38,7 @@ class SolrXmlReaderTest extends TestCase
             configDir: '',
             searchIndex: '',
             translationLocales: [],
+            attributes: new DataBag([]),
             tenant: $resourceTanent,
         ));
     }
