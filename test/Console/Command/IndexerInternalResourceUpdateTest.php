@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console\Command;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Console\Application;
@@ -41,6 +42,7 @@ class IndexerInternalResourceUpdateTest extends TestCase
             '',
             'test',
             [],
+            new DataBag([]),
             $resourceTanent,
         );
 

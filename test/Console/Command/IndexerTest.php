@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console\Command;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Factory\ResourceChannelFactory;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceTenant;
@@ -44,6 +45,7 @@ class IndexerTest extends TestCase
             '',
             'test',
             [],
+            new DataBag([]),
             $resourceTanent,
         );
 
@@ -113,6 +115,7 @@ class IndexerTest extends TestCase
             '',
             'test',
             [],
+            new DataBag([]),
             $resourceTanent,
         );
         $resourceChannelFactory = $this->createStub(

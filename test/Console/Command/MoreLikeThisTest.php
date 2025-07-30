@@ -45,6 +45,7 @@ class MoreLikeThisTest extends TestCase
             '',
             'test',
             [],
+            new DataBag([]),
             $resourceTanent,
         );
 

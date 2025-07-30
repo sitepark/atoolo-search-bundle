@@ -46,6 +46,7 @@ class SearchTest extends TestCase
             '',
             'test',
             [],
+            new DataBag([]),
             $resourceTanent,
         );
 

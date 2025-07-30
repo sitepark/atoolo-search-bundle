@@ -139,6 +139,7 @@ class IndexerConfigurationLoaderTest extends TestCase
             $configDir,
             '',
             [],
+            new DataBag([]),
             $resourceTanent,
         );
         return new IndexerConfigurationLoader($resourceChannel);

@@ -2,6 +2,7 @@
 
 namespace Atoolo\Search\Test\Service\Indexer;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Loader\StaticResourceBaseLocator;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceTenant;
@@ -36,6 +37,7 @@ class LocationFinderTest extends TestCase
             '',
             '',
             [],
+            new DataBag([]),
             $resourceTanent,
         );
         $this->locationFinder = new LocationFinder($resourceChannel);

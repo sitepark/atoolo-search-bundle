@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Resource\ResourceTenant;
@@ -33,6 +34,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
             '',
             'test',
             ['en_US'],
+            new DataBag([]),
             $resourceTanent,
         );
 
@@ -97,6 +99,7 @@ class ResourceChannelBasedIndexNameTest extends TestCase
             '',
             'test',
             [],
+            new DataBag([]),
             $resourceTanent,
         );
 
