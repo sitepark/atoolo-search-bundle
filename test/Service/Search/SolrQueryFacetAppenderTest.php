@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Search;
 
+use Atoolo\Search\Dto\Search\Query\DateIntervalDirection;
+use Atoolo\Search\Dto\Search\Query\DirectedDateInterval;
 use Atoolo\Search\Dto\Search\Query\Facet\AbsoluteDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Facet\MultiQueryFacet;
@@ -20,6 +22,7 @@ use DateInterval;
 use DateTime;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Solarium\Component\Facet\Field;
@@ -118,7 +121,7 @@ class SolrQueryFacetAppenderTest extends TestCase
         $this->appender->append(
             new MultiQueryFacet(
                 'key',
-                [ new QueryFacet('key', 'test:a', ['exclude']) ],
+                [new QueryFacet('key', 'test:a', ['exclude'])],
                 ['exclude'],
             ),
         );
@@ -188,10 +191,10 @@ class SolrQueryFacetAppenderTest extends TestCase
             ->method('setQuery')
             ->with(
                 'test:[' .
-                '2021-01-01T00:00:00Z-2DAYS/DAY' .
-                ' TO ' .
-                '2021-01-01T00:00:00Z+3DAYS/DAY+1DAY-1SECOND' .
-                ']',
+                    '2021-01-01T00:00:00Z-2DAYS/DAY' .
+                    ' TO ' .
+                    '2021-01-01T00:00:00Z+3DAYS/DAY+1DAY-1SECOND' .
+                    ']',
             );
         $this->facetQuery->expects($this->once())
             ->method('setExcludes')
@@ -216,10 +219,10 @@ class SolrQueryFacetAppenderTest extends TestCase
             ->method('setQuery')
             ->with(
                 'test:[' .
-                '2021-01-01T00:00:00Z/DAY' .
-                ' TO ' .
-                '2021-01-01T00:00:00Z+3DAYS/DAY+1DAY-1SECOND' .
-                ']',
+                    '2021-01-01T00:00:00Z/DAY' .
+                    ' TO ' .
+                    '2021-01-01T00:00:00Z+3DAYS/DAY+1DAY-1SECOND' .
+                    ']',
             );
         $this->facetQuery->expects($this->once())
             ->method('setExcludes')
@@ -244,10 +247,10 @@ class SolrQueryFacetAppenderTest extends TestCase
             ->method('setQuery')
             ->with(
                 'test:[' .
-                '2021-01-01T00:00:00Z-2DAYS/DAY' .
-                ' TO ' .
-                '2021-01-01T00:00:00Z/DAY+1DAY-1SECOND' .
-                ']',
+                    '2021-01-01T00:00:00Z-2DAYS/DAY' .
+                    ' TO ' .
+                    '2021-01-01T00:00:00Z/DAY+1DAY-1SECOND' .
+                    ']',
             );
         $this->facetQuery->expects($this->once())
             ->method('setExcludes')
@@ -297,6 +300,34 @@ class SolrQueryFacetAppenderTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     */
+    #[DataProvider('additionProviderForDirectedBeforeAndAfterIntervals')]
+    public function testAppendRelativeDateRangeFacetWithDirectedIntervals(
+        string $intervalFrom,
+        DateIntervalDirection $directionFrom,
+        string $intervalTo,
+        DateIntervalDirection $directionTo,
+        string $expected,
+    ): void {
+        $this->facetQuery->expects($this->once())
+            ->method('setQuery')
+            ->with($expected);
+        $this->appender->append(
+            new RelativeDateRangeFacet(
+                'key',
+                null,
+                new DirectedDateInterval(new DateInterval($intervalFrom), $directionFrom),
+                new DirectedDateInterval(new DateInterval($intervalTo), $directionTo),
+                null,
+                null,
+                null,
+                [],
+            ),
+        );
+    }
+
     public function testAppendGeoDistanceRangeFacet(): void
     {
         $this->facetQuery->expects($this->once())
@@ -323,5 +354,14 @@ class SolrQueryFacetAppenderTest extends TestCase
         $this->appender->append(
             $this->createStub(Facet::class),
         );
+    }
+
+    public static function additionProviderForDirectedBeforeAndAfterIntervals(): array
+    {
+        return [
+            ['P2M', DateIntervalDirection::PAST, 'P2M', DateIntervalDirection::FUTURE, 'test:[NOW-2MONTHS/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]'],
+            ['P1M', DateIntervalDirection::FUTURE, 'P2M', DateIntervalDirection::FUTURE, 'test:[NOW+1MONTHS/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]'],
+            ['P2M', DateIntervalDirection::PAST, 'P1M', DateIntervalDirection::PAST, 'test:[NOW-2MONTHS/DAY TO NOW-1MONTHS/DAY+1DAY-1SECOND]'],
+        ];
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Search;
 
+use Atoolo\Search\Dto\Search\Query\DateIntervalDirection;
+use Atoolo\Search\Dto\Search\Query\DirectedDateInterval;
 use Atoolo\Search\Dto\Search\Query\Facet\AbsoluteDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Facet\FieldFacet;
@@ -12,6 +14,7 @@ use Atoolo\Search\Dto\Search\Query\Facet\QueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\QueryTemplateFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\SpatialDistanceRangeFacet;
+use DateInterval;
 use InvalidArgumentException;
 use Solarium\Component\Facet\Field;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
@@ -40,7 +43,6 @@ class SolrQueryFacetAppender
             $this->appendRelativeDateRangeFacet($facet);
         } elseif ($facet instanceof SpatialDistanceRangeFacet) {
             $this->appendGeoDistanceRangeFacet($facet);
-
         } else {
             throw new InvalidArgumentException(
                 'Unsupported facet-class ' . get_class($facet),
@@ -142,32 +144,48 @@ class SolrQueryFacetAppender
         RelativeDateRangeFacet $facet,
     ): void {
 
-        $start = $facet->before === null
-            ? SolrDateMapper::roundStart(
+        if ($facet->before === null) {
+            $from = SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($facet->base),
-                $facet->roundStart,
-            )
-            : SolrDateMapper::roundStart(
-                SolrDateMapper::mapDateTime($facet->base) .
-                    SolrDateMapper::mapDateInterval($facet->before, '-'),
                 $facet->roundStart,
             );
-
-        $end = $facet->after === null
-            ? SolrDateMapper::roundEnd(
-                SolrDateMapper::mapDateTime($facet->base),
-                $facet->roundStart,
-            )
-            : SolrDateMapper::roundEnd(
+        } else {
+            $directedInterval = $facet->before instanceof DateInterval
+                ? new DirectedDateInterval($facet->before, DateIntervalDirection::PAST)
+                : $facet->before;
+            $from = SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($facet->base) .
-                SolrDateMapper::mapDateInterval($facet->after, '+'),
+                    SolrDateMapper::mapDateInterval(
+                        $directedInterval->interval,
+                        $directedInterval->direction === DateIntervalDirection::FUTURE ? '+' : '-',
+                    ),
+                $facet->roundStart,
+            );
+        }
+
+        if ($facet->after === null) {
+            $to = SolrDateMapper::roundEnd(
+                SolrDateMapper::mapDateTime($facet->base),
                 $facet->roundEnd,
             );
+        } else {
+            $directedInterval = $facet->after instanceof DateInterval
+                ? new DirectedDateInterval($facet->after, DateIntervalDirection::FUTURE)
+                : $facet->after;
+            $to = SolrDateMapper::roundEnd(
+                SolrDateMapper::mapDateTime($facet->base) .
+                    SolrDateMapper::mapDateInterval(
+                        $directedInterval->interval,
+                        $directedInterval->direction === DateIntervalDirection::FUTURE ? '+' : '-',
+                    ),
+                $facet->roundEnd,
+            );
+        }
 
         $gap = $facet->gap !== null
             ? SolrDateMapper::mapDateInterval($facet->gap, '+')
             : null;
-        $this->appendFacetRange($facet, $start, $end, $gap);
+        $this->appendFacetRange($facet, $from, $to, $gap);
     }
 
     private function appendFacetRange(
@@ -181,7 +199,7 @@ class SolrQueryFacetAppender
             $facetQuery = new QueryFacet(
                 $facet->key,
                 $this->getFacetField($facet) . ':' .
-                '[' . $start . ' TO ' . $end . ']',
+                    '[' . $start . ' TO ' . $end . ']',
                 $facet->excludeFilter,
             );
             $this->appendFacetQuery($facetQuery);

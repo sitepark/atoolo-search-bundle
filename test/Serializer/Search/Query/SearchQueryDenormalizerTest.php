@@ -6,7 +6,9 @@ namespace Atoolo\Search\Test\Serializer\Search\Query;
 
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Boosting;
+use Atoolo\Search\Dto\Search\Query\DateIntervalDirection;
 use Atoolo\Search\Dto\Search\Query\DateRangeRound;
+use Atoolo\Search\Dto\Search\Query\DirectedDateInterval;
 use Atoolo\Search\Dto\Search\Query\Facet\AbsoluteDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\CategoryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\ContentSectionTypeFacet;
@@ -51,6 +53,7 @@ use Atoolo\Search\Dto\Search\Query\Sort\SpatialDist;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Atoolo\Search\Serializer\Search\Query\SearchQueryDenormalizer;
+use DateInterval;
 use Symfony\Component\PropertyInfo\Extractor\PhpStanExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
@@ -190,10 +193,26 @@ class SearchQueryDenormalizerTest extends TestCase
                 ],
                 [
                     'type' => 'relativeDateRange',
-                    'key' => 'relativeDateRange',
+                    'key' => 'relativeDateRange-1',
                     'base' => '10.02.2025',
                     'before' => 'P2Y4DT6H8M',
                     'after' => 'P32D',
+                    'gap' => 'P1D',
+                    'roundStart' => 'START_OF_DAY',
+                    'roundEnd' => 'END_OF_DAY',
+                ],
+                [
+                    'type' => 'relativeDateRange',
+                    'key' => 'relativeDateRange-2',
+                    'base' => '10.02.2025',
+                    'before' => [
+                        'interval' => 'P2Y4DT6H8M',
+                        'direction' => 'PAST',
+                    ],
+                    'after' => [
+                        'interval' => 'P32D',
+                        'direction' => 'FUTURE',
+                    ],
                     'gap' => 'P1D',
                     'roundStart' => 'START_OF_DAY',
                     'roundEnd' => 'END_OF_DAY',
@@ -284,6 +303,20 @@ class SearchQueryDenormalizerTest extends TestCase
                     'roundEnd' => 'END_OF_DAY',
                 ],
                 [
+                    'type' => 'relativeDateRange',
+                    'base' => '10.02.2025',
+                    'before' => [
+                        'interval' => 'P2Y4DT6H8M',
+                        'direction' => 'PAST',
+                    ],
+                    'after' => [
+                        'interval' => 'P32D',
+                        'direction' => 'FUTURE',
+                    ],
+                    'roundStart' => 'START_OF_DAY',
+                    'roundEnd' => 'END_OF_DAY',
+                ],
+                [
                     'type' => 'source',
                     'values' => ['source1', 'source2'],
                 ],
@@ -357,10 +390,19 @@ class SearchQueryDenormalizerTest extends TestCase
                 ),
                 new ObjectTypeFacet('objectType', ['objectType1', 'objectType2']),
                 new RelativeDateRangeFacet(
-                    'relativeDateRange',
+                    'relativeDateRange-1',
                     new \DateTime('10.02.2025'),
                     new \DateInterval('P2Y4DT6H8M'),
                     new \DateInterval('P32D'),
+                    new \DateInterval('P1D'),
+                    DateRangeRound::START_OF_DAY,
+                    DateRangeRound::END_OF_DAY,
+                ),
+                new RelativeDateRangeFacet(
+                    'relativeDateRange-2',
+                    new \DateTime('10.02.2025'),
+                    new DirectedDateInterval(new \DateInterval('P2Y4DT6H8M'), DateIntervalDirection::PAST),
+                    new DirectedDateInterval(new \DateInterval('P32D'), DateIntervalDirection::FUTURE),
                     new \DateInterval('P1D'),
                     DateRangeRound::START_OF_DAY,
                     DateRangeRound::END_OF_DAY,
@@ -398,6 +440,13 @@ class SearchQueryDenormalizerTest extends TestCase
                     new \DateTime('10.02.2025'),
                     new \DateInterval('P2Y4DT6H8M'),
                     new \DateInterval('P32D'),
+                    DateRangeRound::START_OF_DAY,
+                    DateRangeRound::END_OF_DAY,
+                ),
+                new RelativeDateRangeFilter(
+                    new \DateTime('10.02.2025'),
+                    new DirectedDateInterval(new \DateInterval('P2Y4DT6H8M'), DateIntervalDirection::PAST),
+                    new DirectedDateInterval(new \DateInterval('P32D'), DateIntervalDirection::FUTURE),
                     DateRangeRound::START_OF_DAY,
                     DateRangeRound::END_OF_DAY,
                 ),

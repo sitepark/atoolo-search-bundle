@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Search;
 
+use Atoolo\Search\Dto\Search\Query\DateIntervalDirection;
+use Atoolo\Search\Dto\Search\Query\DirectedDateInterval;
 use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\AndFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\FieldFilter;
@@ -343,6 +345,41 @@ class SolrQueryFilterAppenderTest extends TestCase
     }
 
     /**
+     * @return array<array{string, string}>
+     */
+    public static function additionProviderForDirectedBeforeIntervals(): array
+    {
+        return [
+            ['P1D', DateIntervalDirection::PAST, 'test:[NOW-1DAYS/DAY TO NOW/DAY+1DAY-1SECOND]'],
+            ['P1W', DateIntervalDirection::PAST, 'test:[NOW-7DAYS/DAY TO NOW/DAY+1DAY-1SECOND]'],
+            ['P2M', DateIntervalDirection::PAST, 'test:[NOW-2MONTHS/DAY TO NOW/DAY+1DAY-1SECOND]'],
+            ['P3Y', DateIntervalDirection::PAST, 'test:[NOW-3YEARS/DAY TO NOW/DAY+1DAY-1SECOND]'],
+        ];
+    }
+
+    /**
+     * @return array<array{string, string}>
+     */
+    public static function additionProviderForDirectedAfterIntervals(): array
+    {
+        return [
+            ['P1D', DateIntervalDirection::FUTURE, 'test:[NOW/DAY TO NOW+1DAYS/DAY+1DAY-1SECOND]'],
+            ['P1W', DateIntervalDirection::FUTURE, 'test:[NOW/DAY TO NOW+7DAYS/DAY+1DAY-1SECOND]'],
+            ['P2M', DateIntervalDirection::FUTURE, 'test:[NOW/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]'],
+            ['P3Y', DateIntervalDirection::FUTURE, 'test:[NOW/DAY TO NOW+3YEARS/DAY+1DAY-1SECOND]'],
+        ];
+    }
+
+    public static function additionProviderForDirectedBeforeAndAfterIntervals(): array
+    {
+        return [
+            ['P2M', DateIntervalDirection::PAST, 'P2M', DateIntervalDirection::FUTURE, 'test:[NOW-2MONTHS/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]'],
+            ['P1M', DateIntervalDirection::FUTURE, 'P2M', DateIntervalDirection::FUTURE, 'test:[NOW+1MONTHS/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]'],
+            ['P2M', DateIntervalDirection::PAST, 'P1M', DateIntervalDirection::PAST, 'test:[NOW-2MONTHS/DAY TO NOW-1MONTHS/DAY+1DAY-1SECOND]'],
+        ];
+    }
+
+    /**
      * @return array<array{DateTime, ?string, ?string, string}>
      */
     public static function additionProviderWithBase(): array
@@ -353,21 +390,21 @@ class SolrQueryFilterAppenderTest extends TestCase
                 'P1D',
                 null,
                 'test:[2021-01-01T00:00:00Z-1DAYS/DAY' .
-                ' TO 2021-01-01T00:00:00Z/DAY+1DAY-1SECOND]',
+                    ' TO 2021-01-01T00:00:00Z/DAY+1DAY-1SECOND]',
             ],
             [
                 new DateTime('2021-01-01 00:00:00Z'),
                 null,
                 'P2M',
                 'test:[2021-01-01T00:00:00Z/DAY' .
-                ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
+                    ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
             ],
             [
                 new DateTime('2021-01-01 00:00:00Z'),
                 'P1W',
                 'P2M',
                 'test:[2021-01-01T00:00:00Z-7DAYS/DAY' .
-                ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
+                    ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
             ],
         ];
     }
@@ -443,6 +480,80 @@ class SolrQueryFilterAppenderTest extends TestCase
             null,
             new DateInterval($before),
             new DateInterval($after),
+            null,
+            null,
+        );
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with($expected);
+
+        $this->appender->append($filter);
+    }
+
+    /**
+     * @throws Exception
+     */
+    #[DataProvider('additionProviderForDirectedBeforeIntervals')]
+    public function testGetQueryWithDirectedFrom(
+        string $interval,
+        DateIntervalDirection $direction,
+        string $expected,
+    ): void {
+        $filter = new RelativeDateRangeFilter(
+            null,
+            new DirectedDateInterval(new DateInterval($interval), $direction),
+            null,
+            null,
+            null,
+        );
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with($expected);
+
+        $this->appender->append($filter);
+    }
+
+    /**
+     * @throws Exception
+     */
+    #[DataProvider('additionProviderForDirectedAfterIntervals')]
+    public function testGetQueryWithDirectedTo(
+        string $interval,
+        DateIntervalDirection $direction,
+        string $expected,
+    ): void {
+        $filter = new RelativeDateRangeFilter(
+            null,
+            null,
+            new DirectedDateInterval(new DateInterval($interval), $direction),
+            null,
+            null,
+        );
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with($expected);
+
+        $this->appender->append($filter);
+    }
+
+    /**
+     * @throws Exception
+     */
+    #[DataProvider('additionProviderForDirectedBeforeAndAfterIntervals')]
+    public function testGetQueryWithDirectedFromAndTo(
+        string $intervalFrom,
+        DateIntervalDirection $directionFrom,
+        string $intervalTo,
+        DateIntervalDirection $directionTo,
+        string $expected,
+    ): void {
+        $filter = new RelativeDateRangeFilter(
+            null,
+            new DirectedDateInterval(new DateInterval($intervalFrom), $directionFrom),
+            new DirectedDateInterval(new DateInterval($intervalTo), $directionTo),
             null,
             null,
         );

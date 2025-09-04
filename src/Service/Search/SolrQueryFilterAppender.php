@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Search;
 
+use Atoolo\Search\Dto\Search\Query\DateIntervalDirection;
+use Atoolo\Search\Dto\Search\Query\DirectedDateInterval;
 use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\AndFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\FieldFilter;
@@ -18,6 +20,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalMode;
 use Atoolo\Search\Dto\Search\Query\Filter\TeaserPropertyFilter;
+use DateInterval;
 use InvalidArgumentException;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 
@@ -164,9 +167,15 @@ class SolrQueryFilterAppender
                 $filter->roundStart,
             );
         } else {
+            $directedInterval = $filter->before instanceof DateInterval
+                ? new DirectedDateInterval($filter->before, DateIntervalDirection::PAST)
+                : $filter->before;
             $from = SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($filter->base) .
-                SolrDateMapper::mapDateInterval($filter->before, '-'),
+                    SolrDateMapper::mapDateInterval(
+                        $directedInterval->interval,
+                        $directedInterval->direction === DateIntervalDirection::FUTURE ? '+' : '-',
+                    ),
                 $filter->roundStart,
             );
         }
@@ -177,9 +186,15 @@ class SolrQueryFilterAppender
                 $filter->roundEnd,
             );
         } else {
+            $directedInterval = $filter->after instanceof DateInterval
+                ? new DirectedDateInterval($filter->after, DateIntervalDirection::FUTURE)
+                : $filter->after;
             $to = SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($filter->base) .
-                SolrDateMapper::mapDateInterval($filter->after, '+'),
+                    SolrDateMapper::mapDateInterval(
+                        $directedInterval->interval,
+                        $directedInterval->direction === DateIntervalDirection::FUTURE ? '+' : '-',
+                    ),
                 $filter->roundEnd,
             );
         }
