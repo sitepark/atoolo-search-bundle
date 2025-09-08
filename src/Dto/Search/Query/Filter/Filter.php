@@ -29,6 +29,7 @@ use Symfony\Component\Serializer\Attribute\DiscriminatorMap;
         'source' => SourceFilter::class,
         'spatialArbitraryRectangle' => SpatialArbitraryRectangleFilter::class,
         'spatialOrbital' => SpatialOrbitalFilter::class,
+        'teaserProperty' => TeaserPropertyFilter::class,
     ],
 )]
 abstract class Filter
