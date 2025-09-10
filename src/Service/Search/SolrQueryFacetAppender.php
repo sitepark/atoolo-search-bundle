@@ -40,7 +40,6 @@ class SolrQueryFacetAppender
             $this->appendRelativeDateRangeFacet($facet);
         } elseif ($facet instanceof SpatialDistanceRangeFacet) {
             $this->appendGeoDistanceRangeFacet($facet);
-
         } else {
             throw new InvalidArgumentException(
                 'Unsupported facet-class ' . get_class($facet),
@@ -141,26 +140,41 @@ class SolrQueryFacetAppender
     private function appendRelativeDateRangeFacet(
         RelativeDateRangeFacet $facet,
     ): void {
-
-        $start = $facet->before === null
+        $lowerBoundary = $facet->from;
+        if ($lowerBoundary === null && $facet->before !== null) {
+            $lowerBoundary = clone $facet->before;
+            $lowerBoundary->invert = 1; // before is always inverted
+        }
+        $start = $lowerBoundary === null
             ? SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($facet->base),
                 $facet->roundStart,
             )
             : SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($facet->base) .
-                    SolrDateMapper::mapDateInterval($facet->before, '-'),
+                    SolrDateMapper::mapDateInterval(
+                        $lowerBoundary,
+                        $lowerBoundary->invert === 1 ? '-' : '+',
+                    ),
                 $facet->roundStart,
             );
 
-        $end = $facet->after === null
+        $upperBoundary = $facet->to;
+        if ($upperBoundary === null && $facet->after !== null) {
+            $upperBoundary = clone $facet->after;
+            $upperBoundary->invert = 0; // after is always not inverted
+        }
+        $end = $upperBoundary === null
             ? SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($facet->base),
                 $facet->roundStart,
             )
             : SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($facet->base) .
-                SolrDateMapper::mapDateInterval($facet->after, '+'),
+                    SolrDateMapper::mapDateInterval(
+                        $upperBoundary,
+                        $upperBoundary->invert === 1 ? '-' : '+',
+                    ),
                 $facet->roundEnd,
             );
 
@@ -181,7 +195,7 @@ class SolrQueryFacetAppender
             $facetQuery = new QueryFacet(
                 $facet->key,
                 $this->getFacetField($facet) . ':' .
-                '[' . $start . ' TO ' . $end . ']',
+                    '[' . $start . ' TO ' . $end . ']',
                 $facet->excludeFilter,
             );
             $this->appendFacetQuery($facetQuery);

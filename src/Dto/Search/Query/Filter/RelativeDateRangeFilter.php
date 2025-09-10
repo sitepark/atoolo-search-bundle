@@ -13,14 +13,28 @@ use DateTime;
  */
 class RelativeDateRangeFilter extends Filter
 {
+    /**
+     * @deprecated use property `$from` instead
+     */
+    public readonly ?DateInterval $before;
+
+    /**
+     * @deprecated use property `$to` instead
+     */
+    public readonly ?DateInterval $after;
+
     public function __construct(
-        public readonly ?DateTime $base,
-        public readonly ?DateInterval $before,
-        public readonly ?DateInterval $after,
-        public readonly ?DateRangeRound $roundStart,
-        public readonly ?DateRangeRound $roundEnd,
+        public readonly ?DateTime $base = null,
+        ?DateInterval $before = null,
+        ?DateInterval $after = null,
+        public readonly ?DateRangeRound $roundStart = null,
+        public readonly ?DateRangeRound $roundEnd = null,
         ?string $key = null,
+        public readonly ?DateInterval $from = null,
+        public readonly ?DateInterval $to = null,
     ) {
+        $this->before = $before;
+        $this->after = $after;
         parent::__construct(
             $key,
             $key !== null ? [$key] : [],
