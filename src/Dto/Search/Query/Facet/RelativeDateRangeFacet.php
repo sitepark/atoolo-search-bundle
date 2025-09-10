@@ -41,12 +41,12 @@ class RelativeDateRangeFacet extends Facet
         $this->after = $after;
         if ($this->before !== null && $this->from !== null) {
             throw new \InvalidArgumentException(
-                'Cannot use both the deprecated "before" and new "from" arguments. Please use only "from".'
+                'Cannot use both the deprecated "before" and new "from" arguments. Please use only "from".',
             );
         }
         if ($this->after !== null && $this->to !== null) {
             throw new \InvalidArgumentException(
-                'Cannot use both the deprecated "after" and new "to" arguments. Please use only "to".'
+                'Cannot use both the deprecated "after" and new "to" arguments. Please use only "to".',
             );
         }
         parent::__construct(
