@@ -140,12 +140,7 @@ class SolrQueryFacetAppender
     private function appendRelativeDateRangeFacet(
         RelativeDateRangeFacet $facet,
     ): void {
-        $lowerBoundary = $facet->from;
-        if ($lowerBoundary === null && $facet->before !== null) {
-            $lowerBoundary = clone $facet->before;
-            $lowerBoundary->invert = 1; // before is always inverted
-        }
-        $start = $lowerBoundary === null
+        $start = $facet->from === null
             ? SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($facet->base),
                 $facet->roundStart,
@@ -153,18 +148,12 @@ class SolrQueryFacetAppender
             : SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($facet->base) .
                     SolrDateMapper::mapDateInterval(
-                        $lowerBoundary,
-                        $lowerBoundary->invert === 1 ? '-' : '+',
+                        $facet->from,
+                        $facet->from->invert === 1 ? '-' : '+',
                     ),
                 $facet->roundStart,
             );
-
-        $upperBoundary = $facet->to;
-        if ($upperBoundary === null && $facet->after !== null) {
-            $upperBoundary = clone $facet->after;
-            $upperBoundary->invert = 0; // after is always not inverted
-        }
-        $end = $upperBoundary === null
+        $end = $facet->to === null
             ? SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($facet->base),
                 $facet->roundStart,
@@ -172,8 +161,8 @@ class SolrQueryFacetAppender
             : SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($facet->base) .
                     SolrDateMapper::mapDateInterval(
-                        $upperBoundary,
-                        $upperBoundary->invert === 1 ? '-' : '+',
+                        $facet->to,
+                        $facet->to->invert === 1 ? '-' : '+',
                     ),
                 $facet->roundEnd,
             );

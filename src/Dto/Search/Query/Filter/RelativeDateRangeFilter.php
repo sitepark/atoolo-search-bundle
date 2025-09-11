@@ -23,6 +23,10 @@ class RelativeDateRangeFilter extends Filter
      */
     public readonly ?DateInterval $after;
 
+    public readonly ?DateInterval $from;
+
+    public readonly ?DateInterval $to;
+
     public function __construct(
         public readonly ?DateTime $base = null,
         ?DateInterval $before = null,
@@ -30,20 +34,27 @@ class RelativeDateRangeFilter extends Filter
         public readonly ?DateRangeRound $roundStart = null,
         public readonly ?DateRangeRound $roundEnd = null,
         ?string $key = null,
-        public readonly ?DateInterval $from = null,
-        public readonly ?DateInterval $to = null,
+        ?DateInterval $from = null,
+        ?DateInterval $to = null,
     ) {
-        $this->before = $before;
-        $this->after = $after;
-        if ($this->before !== null && $this->from !== null) {
+        if ($before !== null && $from !== null) {
             throw new \InvalidArgumentException(
                 'Cannot use both the deprecated "before" and new "from" arguments. Please use only "from".',
             );
         }
-        if ($this->after !== null && $this->to !== null) {
+        if ($after !== null && $to !== null) {
             throw new \InvalidArgumentException(
                 'Cannot use both the deprecated "after" and new "to" arguments. Please use only "to".',
             );
+        }
+        $this->before = $before;
+        $this->after = $after;
+        $this->to = $to ?? $after;
+        if ($from === null && $before !== null) {
+            $this->from = clone $before;
+            $this->from->invert = $this->from->invert === 1 ? 0 : 1;
+        } else {
+            $this->from = $from;
         }
         parent::__construct(
             $key,

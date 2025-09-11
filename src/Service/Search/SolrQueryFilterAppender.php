@@ -157,12 +157,7 @@ class SolrQueryFilterAppender
     private function getRelativeDateRangeQuery(
         RelativeDateRangeFilter $filter,
     ): string {
-        $lowerBoundary = $filter->from;
-        if ($lowerBoundary === null && $filter->before !== null) {
-            $lowerBoundary = clone $filter->before;
-            $lowerBoundary->invert = 1; // before is always inverted
-        }
-        if ($lowerBoundary === null) {
+        if ($filter->from === null) {
             $from = SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($filter->base),
                 $filter->roundStart,
@@ -171,19 +166,13 @@ class SolrQueryFilterAppender
             $from = SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($filter->base) .
                     SolrDateMapper::mapDateInterval(
-                        $lowerBoundary,
-                        $lowerBoundary->invert === 1 ? '-' : '+',
+                        $filter->from,
+                        $filter->from->invert === 1 ? '-' : '+',
                     ),
                 $filter->roundStart,
             );
         }
-
-        $upperBoundary = $filter->to;
-        if ($upperBoundary === null && $filter->after !== null) {
-            $upperBoundary = clone $filter->after;
-            $upperBoundary->invert = 0; // after is always not inverted
-        }
-        if ($upperBoundary === null) {
+        if ($filter->to === null) {
             $to = SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($filter->base),
                 $filter->roundEnd,
@@ -192,8 +181,8 @@ class SolrQueryFilterAppender
             $to = SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($filter->base) .
                     SolrDateMapper::mapDateInterval(
-                        $upperBoundary,
-                        $upperBoundary->invert === 1 ? '-' : '+',
+                        $filter->to,
+                        $filter->to->invert === 1 ? '-' : '+',
                     ),
                 $filter->roundEnd,
             );
