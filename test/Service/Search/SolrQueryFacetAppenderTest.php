@@ -20,6 +20,7 @@ use DateInterval;
 use DateTime;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Solarium\Component\Facet\Field;
@@ -297,6 +298,37 @@ class SolrQueryFacetAppenderTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     */
+    #[DataProvider('additionProviderForFromAndToIntervals')]
+    public function testAppendRelativeDateRangeFacetWithFromAndTo(
+        DateInterval $from,
+        DateInterval $to,
+        string $expected,
+    ): void {
+        $this->facetQuery->expects($this->once())
+            ->method('setQuery')
+            ->with($expected);
+        $this->facetQuery->expects($this->once())
+            ->method('setExcludes')
+            ->with(['exclude']);
+        $this->appender->append(
+            new RelativeDateRangeFacet(
+                'key',
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                ['exclude'],
+                $from,
+                $to,
+            ),
+        );
+    }
+
     public function testAppendGeoDistanceRangeFacet(): void
     {
         $this->facetQuery->expects($this->once())
@@ -323,5 +355,34 @@ class SolrQueryFacetAppenderTest extends TestCase
         $this->appender->append(
             $this->createStub(Facet::class),
         );
+    }
+
+    /**
+     * @return array<array{\DateInterval, \DateInterval, string}>
+     */
+    public static function additionProviderForFromAndToIntervals(): array
+    {
+        $createDateInterval = function (string $duration, bool $inverted) {
+            $dateInterval = new \DateInterval($duration);
+            $dateInterval->invert = $inverted ? 1 : 0;
+            return $dateInterval;
+        };
+        return [
+            [
+                $createDateInterval('P1M', true),
+                $createDateInterval('P2M', false),
+                'test:[NOW-1MONTHS/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]',
+            ],
+            [
+                $createDateInterval('P2M', true),
+                $createDateInterval('P1M', true),
+                'test:[NOW-2MONTHS/DAY TO NOW-1MONTHS/DAY+1DAY-1SECOND]',
+            ],
+            [
+                $createDateInterval('P1M', false),
+                $createDateInterval('P2M', false),
+                'test:[NOW+1MONTHS/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]',
+            ],
+        ];
     }
 }

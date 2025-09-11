@@ -157,8 +157,7 @@ class SolrQueryFilterAppender
     private function getRelativeDateRangeQuery(
         RelativeDateRangeFilter $filter,
     ): string {
-
-        if ($filter->before === null) {
+        if ($filter->from === null) {
             $from = SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($filter->base),
                 $filter->roundStart,
@@ -166,12 +165,14 @@ class SolrQueryFilterAppender
         } else {
             $from = SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($filter->base) .
-                SolrDateMapper::mapDateInterval($filter->before, '-'),
+                    SolrDateMapper::mapDateInterval(
+                        $filter->from,
+                        $filter->from->invert === 1 ? '-' : '+',
+                    ),
                 $filter->roundStart,
             );
         }
-
-        if ($filter->after === null) {
+        if ($filter->to === null) {
             $to = SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($filter->base),
                 $filter->roundEnd,
@@ -179,7 +180,10 @@ class SolrQueryFilterAppender
         } else {
             $to = SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($filter->base) .
-                SolrDateMapper::mapDateInterval($filter->after, '+'),
+                    SolrDateMapper::mapDateInterval(
+                        $filter->to,
+                        $filter->to->invert === 1 ? '-' : '+',
+                    ),
                 $filter->roundEnd,
             );
         }

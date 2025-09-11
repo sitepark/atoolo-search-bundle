@@ -40,7 +40,6 @@ class SolrQueryFacetAppender
             $this->appendRelativeDateRangeFacet($facet);
         } elseif ($facet instanceof SpatialDistanceRangeFacet) {
             $this->appendGeoDistanceRangeFacet($facet);
-
         } else {
             throw new InvalidArgumentException(
                 'Unsupported facet-class ' . get_class($facet),
@@ -141,26 +140,30 @@ class SolrQueryFacetAppender
     private function appendRelativeDateRangeFacet(
         RelativeDateRangeFacet $facet,
     ): void {
-
-        $start = $facet->before === null
+        $start = $facet->from === null
             ? SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($facet->base),
                 $facet->roundStart,
             )
             : SolrDateMapper::roundStart(
                 SolrDateMapper::mapDateTime($facet->base) .
-                    SolrDateMapper::mapDateInterval($facet->before, '-'),
+                    SolrDateMapper::mapDateInterval(
+                        $facet->from,
+                        $facet->from->invert === 1 ? '-' : '+',
+                    ),
                 $facet->roundStart,
             );
-
-        $end = $facet->after === null
+        $end = $facet->to === null
             ? SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($facet->base),
                 $facet->roundStart,
             )
             : SolrDateMapper::roundEnd(
                 SolrDateMapper::mapDateTime($facet->base) .
-                SolrDateMapper::mapDateInterval($facet->after, '+'),
+                    SolrDateMapper::mapDateInterval(
+                        $facet->to,
+                        $facet->to->invert === 1 ? '-' : '+',
+                    ),
                 $facet->roundEnd,
             );
 
@@ -181,7 +184,7 @@ class SolrQueryFacetAppender
             $facetQuery = new QueryFacet(
                 $facet->key,
                 $this->getFacetField($facet) . ':' .
-                '[' . $start . ' TO ' . $end . ']',
+                    '[' . $start . ' TO ' . $end . ']',
                 $facet->excludeFilter,
             );
             $this->appendFacetQuery($facetQuery);

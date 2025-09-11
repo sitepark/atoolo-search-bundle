@@ -353,21 +353,50 @@ class SolrQueryFilterAppenderTest extends TestCase
                 'P1D',
                 null,
                 'test:[2021-01-01T00:00:00Z-1DAYS/DAY' .
-                ' TO 2021-01-01T00:00:00Z/DAY+1DAY-1SECOND]',
+                    ' TO 2021-01-01T00:00:00Z/DAY+1DAY-1SECOND]',
             ],
             [
                 new DateTime('2021-01-01 00:00:00Z'),
                 null,
                 'P2M',
                 'test:[2021-01-01T00:00:00Z/DAY' .
-                ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
+                    ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
             ],
             [
                 new DateTime('2021-01-01 00:00:00Z'),
                 'P1W',
                 'P2M',
                 'test:[2021-01-01T00:00:00Z-7DAYS/DAY' .
-                ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
+                    ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<array{\DateInterval, \DateInterval, string}>
+     */
+    public static function additionProviderForFromAndToIntervals(): array
+    {
+        $createDateInterval = function (string $duration, bool $inverted) {
+            $dateInterval = new \DateInterval($duration);
+            $dateInterval->invert = $inverted ? 1 : 0;
+            return $dateInterval;
+        };
+        return [
+            [
+                $createDateInterval('P1M', true),
+                $createDateInterval('P2M', false),
+                'test:[NOW-1MONTHS/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]',
+            ],
+            [
+                $createDateInterval('P2M', true),
+                $createDateInterval('P1M', true),
+                'test:[NOW-2MONTHS/DAY TO NOW-1MONTHS/DAY+1DAY-1SECOND]',
+            ],
+            [
+                $createDateInterval('P1M', false),
+                $createDateInterval('P2M', false),
+                'test:[NOW+1MONTHS/DAY TO NOW+2MONTHS/DAY+1DAY-1SECOND]',
             ],
         ];
     }
@@ -388,7 +417,7 @@ class SolrQueryFilterAppenderTest extends TestCase
      * @throws Exception
      */
     #[DataProvider('additionProviderForBeforeIntervals')]
-    public function testGetQueryWithFrom(
+    public function testGetQueryWithBefore(
         string $before,
         string $expected,
     ): void {
@@ -411,7 +440,7 @@ class SolrQueryFilterAppenderTest extends TestCase
      * @throws Exception
      */
     #[DataProvider('additionProviderForAfterIntervals')]
-    public function testGetQueryWithTo(
+    public function testGetQueryWithAfter(
         string $after,
         string $expected,
     ): void {
@@ -434,7 +463,7 @@ class SolrQueryFilterAppenderTest extends TestCase
      * @throws Exception
      */
     #[DataProvider('additionProviderForBeforeAndAfterIntervals')]
-    public function testGetQueryWithFromAndTo(
+    public function testGetQueryWithBeforeAndAfter(
         string $before,
         string $after,
         string $expected,
@@ -470,6 +499,33 @@ class SolrQueryFilterAppenderTest extends TestCase
             $after === null ? null : new DateInterval($after),
             null,
             null,
+        );
+
+        $this->filterQuery->expects($this->once())
+            ->method('setQuery')
+            ->with($expected);
+
+        $this->appender->append($filter);
+    }
+
+    /**
+     * @throws Exception
+     */
+    #[DataProvider('additionProviderForFromAndToIntervals')]
+    public function testGetQueryWithFromAndTo(
+        DateInterval $from,
+        DateInterval $to,
+        string $expected,
+    ): void {
+        $filter = new RelativeDateRangeFilter(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $from,
+            $to,
         );
 
         $this->filterQuery->expects($this->once())
