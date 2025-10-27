@@ -37,11 +37,27 @@ class ExternalResourceFactory implements ResourceFactory
         if ($location === '') {
             throw new LogicException('document should contain an url');
         }
+        $title = $this->getField($document, 'title');
+        $data = [
+            'base' => [
+                'teaser' => [
+                    'text' => $this->getField($document, 'description'),
+                ],
+            ],
+            'metadata' => [
+                'headline' => $title,
+                'schedulingRaw' => $this->createSchedulingRaw($document),
+            ],
+        ];
+        $kicker = $this->getField($document, 'sp_meta_string_kicker');
+        if (!empty($kicker)) {
+            $data['base']['kicker'] = $kicker;
+        }
 
         return new Resource(
             location: $location,
             id: $this->getField($document, 'id'),
-            name: $this->getField($document, 'title'),
+            name: $title,
             objectType: $this->getField(
                 $document,
                 'sp_objecttype',
@@ -50,13 +66,7 @@ class ExternalResourceFactory implements ResourceFactory
             lang: ResourceLanguage::of(
                 $this->getField($document, 'meta_content_language'),
             ),
-            data: new DataBag([
-                'base' => [
-                    'teaser' => [
-                        'text' => $this->getField($document, 'description'),
-                    ],
-                ],
-            ]),
+            data: new DataBag($data),
         );
     }
 
@@ -75,5 +85,34 @@ class ExternalResourceFactory implements ResourceFactory
         }
 
         return (string) $value;
+    }
+
+    /**
+     * Creates a "schedulingRaw" array similar to the data that is
+     * aggregated by eventsCalendar-events.
+     * We can not infer any repition rules yet, as the solr
+     * document does not contain enough information.
+     * Instead, this function just takes each date from sp_date_list and
+     * sets it as a single-occurence scheduling date.
+     *
+     * @return array<array<string,mixed>>
+     */
+    protected function createSchedulingRaw(Document $document): array
+    {
+        $list = $document->getFields()['sp_date_list'] ?? [];
+
+        $rawScheduling = [];
+        foreach ($list as $dateStartRaw) {
+            $dateStart = new \DateTime($dateStartRaw);
+            $dateStartUnix = $dateStart->getTimestamp();
+            $dateStartUnixWithouTime = $dateStartUnix - ($dateStartUnix % (60 * 60 * 24));
+            $rawScheduling[] = [
+                'type' => 'single',
+                'isFullDay' => false,
+                'beginDate' => $dateStartUnixWithouTime,
+                'beginTime' => $dateStart->format('H:i'),
+            ];
+        }
+        return $rawScheduling;
     }
 }
