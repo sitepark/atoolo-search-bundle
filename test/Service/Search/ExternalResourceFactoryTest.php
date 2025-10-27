@@ -121,7 +121,7 @@ class ExternalResourceFactoryTest extends TestCase
                     'isFullDay' => false,
                     'beginDate' => 1771286400,
                     'beginTime' => '14:30',
-                ]
+                ],
             ],
             $resource->data->getAssociativeArray('metadata.schedulingRaw'),
             'unexpected name',
