@@ -85,6 +85,49 @@ class ExternalResourceFactoryTest extends TestCase
         $this->factory->create($document, ResourceLanguage::of('en'));
     }
 
+    public function testWithKicker(): void
+    {
+        $document = $this->createDocument('https://www.sitepark.com');
+        $resource = $this->factory->create(
+            $document,
+            ResourceLanguage::of('en'),
+        );
+
+        $this->assertEquals(
+            'some kicker',
+            $resource->data->getString('base.kicker'),
+            'unexpected name',
+        );
+    }
+
+    public function testWithScheduling(): void
+    {
+        $document = $this->createDocument('https://www.sitepark.com');
+        $resource = $this->factory->create(
+            $document,
+            ResourceLanguage::of('en'),
+        );
+
+        $this->assertEquals(
+            [
+                [
+                    'type' => 'single',
+                    'isFullDay' => false,
+                    'beginDate' => 1770940800,
+                    'beginTime' => '17:30',
+                ],
+                [
+                    'type' => 'single',
+                    'isFullDay' => false,
+                    'beginDate' => 1771286400,
+                    'beginTime' => '14:30',
+                ]
+            ],
+            $resource->data->getAssociativeArray('metadata.schedulingRaw'),
+            'unexpected name',
+        );
+    }
+
     private function createDocument(string $url, string $title = ''): Document
     {
         $document = $this->createStub(Document::class);
@@ -94,6 +137,8 @@ class ExternalResourceFactoryTest extends TestCase
                 'url' => $url,
                 'title' => $title,
                 'description' => ['test'],
+                'sp_date_list' => ['2026-02-13T17:30:00Z', '2026-02-17T14:30:00Z'],
+                'sp_meta_string_kicker' => 'some kicker',
             ]);
         return $document;
     }
