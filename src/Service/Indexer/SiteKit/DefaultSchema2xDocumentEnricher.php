@@ -74,6 +74,27 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $doc->sp_id = $resource->id;
         $doc->sp_name = $resource->name;
         $doc->sp_anchor = $data->getString('anchor');
+        $doc->sp_objecttype = $resource->objectType;
+        $doc->sp_canonical = true;
+        $doc->crawl_process_id = $processId;
+
+        $url = $data->getString('mediaUrl')
+            ?: $data->getString('url');
+        $doc->url = $url;
+
+        /** @var string[] $keyword */
+        $keyword = $metadata->getArray('keywords');
+        $doc->keywords = $keyword;
+
+        $doc->sp_boost_keywords = implode(
+            ' ',
+            $metadata->getArray('boostKeywords'),
+        );
+
+        if ($doc->sp_objecttype === 'searchTip') {
+            return $doc;
+        }
+
         $doc->title = $base->getString('title');
         $doc->description = $metadata->getString('description');
 
@@ -82,13 +103,6 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
                 'metadata.intro',
             );
         }
-        $doc->sp_objecttype = $resource->objectType;
-        $doc->sp_canonical = true;
-        $doc->crawl_process_id = $processId;
-
-        $url = $data->getString('mediaUrl')
-            ?: $data->getString('url');
-        $doc->url = $url;
 
         /** @var string[] $spContentType */
         $spContentType = [$resource->objectType];
@@ -139,15 +153,6 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         if ($base->has('startletter')) {
             $doc->sp_startletter = $base->getString('startletter');
         }
-
-        /** @var string[] $keyword */
-        $keyword = $metadata->getArray('keywords');
-        $doc->keywords = $keyword;
-
-        $doc->sp_boost_keywords = implode(
-            ' ',
-            $metadata->getArray('boostKeywords'),
-        );
 
         try {
             $sites = $this->getParentSiteGroupIdList($resource);
