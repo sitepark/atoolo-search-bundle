@@ -13,7 +13,7 @@
         "php": ">=8.1 <8.5.0",
         "ext-intl": "*",
         "ext-xmlreader": "*",
-        "atoolo/resource-bundle": "dev-main",
+        "atoolo/resource-bundle": "^1.7",
         "dragonmantank/cron-expression": "^3.3",
         "solarium/solarium": "^6.3",
         "soundasleep/html2text": "^2.1",
