@@ -28,13 +28,12 @@ use Solarium\QueryType\Select\Result\Result as SolrSelectResult;
  */
 class SolrSuggest implements Suggest
 {
-    private const INDEX_SUGGEST_FIELD = 'raw_content';
-
     public function __construct(
         private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
         private readonly Schema2xFieldMapper $schemaFieldMapper,
         private readonly QueryTemplateResolver $queryTemplateResolver,
+        private readonly string $indexSuggestField = 'raw_content',
     ) {}
 
     /**
@@ -67,12 +66,9 @@ class SolrSuggest implements Suggest
         $solrQuery->addParam("facet", "true");
         $solrQuery->addParam("facet.sort", "count");
         $solrQuery->addParam("facet.method", "enum");
-        $solrQuery->addParam(
-            "facet.prefix",
-            $query->text,
-        );
+        $solrQuery->addParam("facet.prefix", $query->text);
         $solrQuery->addParam("facet.limit", $query->limit);
-        $solrQuery->addParam("facet.field", self::INDEX_SUGGEST_FIELD);
+        $solrQuery->addParam("facet.field", $this->indexSuggestField);
 
         $solrQuery->setOmitHeader(false);
         $solrQuery->setStart(0);
@@ -133,7 +129,7 @@ class SolrSuggest implements Suggest
                 JSON_THROW_ON_ERROR,
             );
             $facets =
-                $json['facet_counts']['facet_fields'][self::INDEX_SUGGEST_FIELD]
+                $json['facet_counts']['facet_fields'][$this->indexSuggestField]
                 ?? [];
 
             $len = count($facets);
