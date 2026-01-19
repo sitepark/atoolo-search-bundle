@@ -16,9 +16,18 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     ];
 
     private const META_FIELDS = [
+        'metaLong',
+        'metaSingleLong',
+        'metaInt',
+        'metaSingleInt',
+        'metaFloat',
+        'metaSingleFloat',
         'metaString',
+        'metaSingleString',
         'metaText',
+        'metaSingleText',
         'metaBool',
+        'metaSingleBool',
     ];
 
     public ?string $sp_id = null;
@@ -136,10 +145,46 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     public ?array $sp_citygov_product = null;
 
     public ?string $sp_citygov_function = null;
+
+    /**
+     * @var array<string,int|int[]>
+     */
+    private array $metaInt = [];
+
+    /**
+     * @var array<string,int>
+     */
+    private array $metaSingleInt = [];
+
+    /**
+     * @var array<string,int|int[]>
+     */
+    private array $metaLong = [];
+
+    /**
+     * @var array<string,int>
+     */
+    private array $metaSingleLong = [];
+
+    /**
+     * @var array<string,float|float[]>
+     */
+    private array $metaFloat = [];
+
+    /**
+     * @var array<string,float>
+     */
+    private array $metaSingleFloat = [];
+
     /**
      * @var array<string,string|string[]>
      */
     private array $metaString = [];
+
+    /**
+     * @var array<string,string>
+     */
+    private array $metaSingleString = [];
 
     /**
      * @var array<string,string|string[]>
@@ -147,9 +192,60 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     private array $metaText = [];
 
     /**
+     * @var array<string,string>
+     */
+    private array $metaSingleText = [];
+
+    /**
      * @var array<string,bool>
      */
     private array $metaBool = [];
+
+    /**
+     * Same as $metaBool. The underlying solr schema is redundant here as
+     * `sp_meta_bool_*` and `sp_meta_singel_bool_*` have the same type definiton.
+     * @var array<string,bool>
+     */
+    private array $metaSingleBool = [];
+
+    /**
+     * @param int|int[] $value
+     */
+    public function setMetaInt(string $name, int|array $value): void
+    {
+        $this->metaInt['sp_meta_int_' . $name] = $value;
+    }
+
+    public function setMetaSingleInt(string $name, int $value): void
+    {
+        $this->metaSingleInt['sp_meta_single_int_' . $name] = $value;
+    }
+
+    /**
+     * @param int|int[] $value
+     */
+    public function setMetaLong(string $name, int|array $value): void
+    {
+        $this->metaLong['sp_meta_long_' . $name] = $value;
+    }
+
+    public function setMetaSingleLong(string $name, int $value): void
+    {
+        $this->metaSingleLong['sp_meta_single_long_' . $name] = $value;
+    }
+
+    /**
+     * @param float|float[] $value
+     */
+    public function setMetaFloat(string $name, float|array $value): void
+    {
+        $this->metaFloat['sp_meta_float_' . $name] = $value;
+    }
+
+    public function setMetaSingleFloat(string $name, float $value): void
+    {
+        $this->metaSingleFloat['sp_meta_single_float_' . $name] = $value;
+    }
 
     /**
      * @param string|string[] $value
@@ -157,6 +253,11 @@ class IndexSchema2xDocument extends Document implements IndexDocument
     public function setMetaString(string $name, string|array $value): void
     {
         $this->metaString['sp_meta_string_' . $name] = $value;
+    }
+
+    public function setMetaSingleString(string $name, string $value): void
+    {
+        $this->metaSingleString['sp_meta_single_string_' . $name] = $value;
     }
 
     /**
@@ -167,9 +268,19 @@ class IndexSchema2xDocument extends Document implements IndexDocument
         $this->metaText['sp_meta_text_' . $name] = $value;
     }
 
+    public function setMetaSingleText(string $name, string $value): void
+    {
+        $this->metaSingleText['sp_meta_single_text_' . $name] = $value;
+    }
+
     public function setMetaBool(string $name, bool $value): void
     {
         $this->metaBool['sp_meta_bool_' . $name] = $value;
+    }
+
+    public function setMetaSingleBool(string $name, bool $value): void
+    {
+        $this->metaSingleBool['sp_meta_single_bool_' . $name] = $value;
     }
 
     /**
@@ -186,9 +297,18 @@ class IndexSchema2xDocument extends Document implements IndexDocument
                     && !in_array($key, self::META_FIELDS, true),
                 ARRAY_FILTER_USE_BOTH,
             ),
-            ... $this->metaString,
-            ... $this->metaText,
-            ... $this->metaBool,
+            ...$this->metaLong,
+            ...$this->metaSingleLong,
+            ...$this->metaInt,
+            ...$this->metaSingleInt,
+            ...$this->metaFloat,
+            ...$this->metaSingleFloat,
+            ...$this->metaString,
+            ...$this->metaSingleString,
+            ...$this->metaText,
+            ...$this->metaSingleText,
+            ...$this->metaBool,
+            ...$this->metaSingleBool,
         ];
     }
 }
