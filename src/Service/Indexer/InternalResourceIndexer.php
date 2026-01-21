@@ -302,10 +302,11 @@ class InternalResourceIndexer implements Indexer
             $offset += $parameter->chunkSize;
         }
 
-        $cleanupThreshold = $parameter->cleanupThreshold;
-        if ($cleanupThreshold > 0 && $successCount >= $cleanupThreshold) {
-            $this->commitLocaleIndices($updatedIndexLocales, $processId);
-        }
+        $this->commitLocaleIndices(
+            $updatedIndexLocales,
+            $processId,
+            $parameter->cleanupThreshold > 0 && $successCount >= $parameter->cleanupThreshold,
+        );
     }
 
     /**
@@ -342,10 +343,11 @@ class InternalResourceIndexer implements Indexer
     private function commitLocaleIndices(
         array $indexLocales,
         string $processId,
+        bool $thresholdReached,
     ): void {
 
         foreach ($indexLocales as $indexLocale) {
-            if (!$this->skipCleanup) {
+            if ($thresholdReached && !$this->skipCleanup) {
                 $this->indexService->deleteExcludingProcessId(
                     $indexLocale,
                     $this->source,
