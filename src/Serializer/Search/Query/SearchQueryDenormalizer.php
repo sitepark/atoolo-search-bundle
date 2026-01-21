@@ -63,12 +63,10 @@ class SearchQueryDenormalizer implements DenormalizerInterface, DenormalizerAwar
             $builder->timeZone(new \DateTimeZone($data['timeZone']));
         }
         if (isset($data['boosting'])) {
-            // @phpstan-ignore argument.type
             $builder->boosting($this->denormalizer->denormalize($data['boosting'], Boosting::class));
         }
         if (isset($data['distanceReferencePoint'])) {
             $builder->distanceReferencePoint(
-                // @phpstan-ignore argument.type
                 $this->denormalizer->denormalize($data['distanceReferencePoint'], GeoPoint::class),
             );
         }
