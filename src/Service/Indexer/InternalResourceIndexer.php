@@ -344,15 +344,15 @@ class InternalResourceIndexer implements Indexer
         string $processId,
     ): void {
 
-        if (!$this->skipCleanup) {
-            foreach ($indexLocales as $indexLocale) {
+        foreach ($indexLocales as $indexLocale) {
+            if (!$this->skipCleanup) {
                 $this->indexService->deleteExcludingProcessId(
                     $indexLocale,
                     $this->source,
                     $processId,
                 );
-                $this->indexService->commit($indexLocale);
             }
+            $this->indexService->commit($indexLocale);
         }
     }
 
