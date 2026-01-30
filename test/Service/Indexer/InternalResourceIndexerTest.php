@@ -396,6 +396,20 @@ class InternalResourceIndexerTest extends TestCase
         ]);
     }
 
+    public function testUpdateOtherLangWithLocParam(): void
+    {
+        $this->finder
+            ->expects($this->once())
+            ->method('findPaths')
+            ->with([
+                '/a/b.php.translations/en_US.php',
+            ]);
+
+        $this->indexer->update([
+            '/a/b.php?loc=en_US',
+        ]);
+    }
+
     public function testUpdateWithParameter(): void
     {
         $this->finder->expects($this->once())
