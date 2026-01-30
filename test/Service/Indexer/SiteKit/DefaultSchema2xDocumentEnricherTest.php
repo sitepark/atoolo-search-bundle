@@ -837,6 +837,21 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         );
     }
 
+    public function testEnrichSearchTip(): void
+    {
+        $doc = $this->enrichWithData([
+            'objectType' => 'searchTip',
+            'name' => 'Sample Tip',
+            'base' => [
+                'title' => 'Abc',
+            ],
+        ]);
+        $this->assertNull(
+            $doc->sp_title,
+            'searchTip should not have sp_title',
+        );
+    }
+
     private function enrichWithResource(
         Resource $resource,
     ): IndexSchema2xDocument {
@@ -850,7 +865,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     }
 
     /**
-     * @param array<string, array<string,mixed>> $data
+     * @param array<string, array<string,mixed>|string> $data
      */
     private function enrichWithData(
         array $data,
