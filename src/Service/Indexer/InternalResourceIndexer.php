@@ -191,6 +191,10 @@ class InternalResourceIndexer implements Indexer
 
         $this->skipCleanup = true;
 
+        $paths = array_map(function ($p) {
+            return $this->normalizePath($p);
+        }, $paths);
+
         $param = $this->loadIndexerParameter();
 
         $this->limitIncreaser?->increase();
@@ -535,21 +539,20 @@ class InternalResourceIndexer implements Indexer
      */
     private function toResourceLocation(string $path): ?ResourceLocation
     {
-        $normalizedPath = $this->normalizePath($path);
-        if (empty($normalizedPath)) {
+        if (empty($path)) {
             return null;
         }
 
-        $pos = strrpos($normalizedPath, '.php.translations');
+        $pos = strrpos($path, '.php.translations');
         if ($pos === false) {
-            return ResourceLocation::of($normalizedPath);
+            return ResourceLocation::of($path);
         }
 
-        $localeFilename = basename($normalizedPath);
+        $localeFilename = basename($path);
         $locale = basename($localeFilename, '.php');
 
         return ResourceLocation::of(
-            substr($normalizedPath, 0, $pos + 4),
+            substr($path, 0, $pos + 4),
             ResourceLanguage::of($locale),
         );
     }
