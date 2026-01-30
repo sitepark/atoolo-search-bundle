@@ -410,11 +410,26 @@ class InternalResourceIndexerTest extends TestCase
         ]);
     }
 
+    public function testUpdateOtherLangWithOtherParam(): void
+    {
+        $this->finder
+            ->expects($this->once())
+            ->method('findPaths')
+            ->with([
+                '/a/b.php',
+            ]);
+
+        $this->indexer->update([
+            '/a/b.php?a=b',
+        ]);
+    }
+
     public function testUpdateWithParameter(): void
     {
         $this->finder->expects($this->once())
             ->method('findPaths')
-            ->with($this->equalTo(['?a=b']));
+            ->with($this->equalTo(['']))
+            ->willReturn(['']);
 
         $this->indexer->update([
             '?a=b',
@@ -523,23 +538,6 @@ class InternalResourceIndexerTest extends TestCase
         $this->indexerProgressHandler->expects($this->exactly(2))
             ->method('advance');
         $this->updater->expects($this->exactly(3))
-            ->method('addDocument');
-
-        $this->indexer->index();
-    }
-
-    public function testIndexWithoutLanguages(): void
-    {
-        $this->finder->method('findAll')
-            ->willReturn([
-                '?key=value',
-                '/a/b.php?key=value',
-                '/a/b.php?loc=',
-            ]);
-        $this->indexerFilter->method('accept')
-            ->willReturn(true);
-
-        $this->updater->expects($this->exactly(2))
             ->method('addDocument');
 
         $this->indexer->index();
