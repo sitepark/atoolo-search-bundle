@@ -69,6 +69,7 @@ class SolrSuggest implements Suggest
         $solrQuery->addParam("facet.prefix", $query->text);
         $solrQuery->addParam("facet.limit", $query->limit);
         $solrQuery->addParam("facet.field", $this->indexSuggestField);
+        $solrQuery->addParam("facet.mincount", $query->minHitCount);
 
         $solrQuery->setOmitHeader(false);
         $solrQuery->setStart(0);
