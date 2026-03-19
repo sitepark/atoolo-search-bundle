@@ -89,19 +89,14 @@ class InternalResourceIndexerTest extends TestCase
         $this->resourceLoader = $this->createStub(ResourceLoader::class);
         $this->resourceLoader->method('load')
             ->willReturnCallback(function ($location) {
-                $resourceLang = $location->lang;
+                $locale = $location->lang->code;
                 if ($location->location === '/a/en.php') {
-                    $resourceLang = ResourceLanguage::of('en_EN');
+                    $locale = 'en_EN';
                 }
-                return new Resource(
-                    $location->location,
-                    '',
-                    '',
-                    '',
-                    '',
-                    $resourceLang,
-                    new DataBag([]),
-                );
+                return Resource::create([
+                    'url' => $location->location,
+                    'locale' => $locale,
+                ]);
             });
         $this->solrIndexService = $this->createMock(SolrIndexService::class);
         $this->updateResult = $this->createStub(UpdateResult::class);
