@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service;
 
-use Atoolo\Resource\DataBag;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceLanguage;
-use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Exception\UnsupportedIndexLanguageException;
 use Atoolo\Search\Service\ResourceChannelBasedIndexName;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -20,23 +18,11 @@ class ResourceChannelBasedIndexNameTest extends TestCase
 
     public function setUp(): void
     {
-        $resourceTanent = $this->createMock(ResourceTenant::class);
-        $resourceChannel = new ResourceChannel(
-            '',
-            '',
-            '',
-            '',
-            false,
-            '',
-            'de_DE',
-            '',
-            '',
-            '',
-            'test',
-            ['en_US'],
-            new DataBag([]),
-            $resourceTanent,
-        );
+        $resourceChannel = ResourceChannel::create([
+            'locale' => 'de_DE',
+            'searchIndex' => 'test',
+            'translationLocales' => ['en_US'],
+        ]);
 
         $this->indexName = new ResourceChannelBasedIndexName(
             $resourceChannel,
@@ -85,23 +71,10 @@ class ResourceChannelBasedIndexNameTest extends TestCase
 
     public function testNameWithEmptyTranslationLocales(): void
     {
-        $resourceTanent = $this->createMock(ResourceTenant::class);
-        $resourceChannel = new ResourceChannel(
-            '',
-            '',
-            '',
-            '',
-            false,
-            '',
-            'de_DE',
-            '',
-            '',
-            '',
-            'test',
-            [],
-            new DataBag([]),
-            $resourceTanent,
-        );
+        $resourceChannel = ResourceChannel::create([
+            'locale' => 'de_DE',
+            'searchIndex' => 'test',
+        ]);
 
         $indexName = new ResourceChannelBasedIndexName(
             $resourceChannel,

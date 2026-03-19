@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console\Command;
 
-use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Factory\ResourceChannelFactory;
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\Indexer;
 use Atoolo\Search\Console\Command\Io\IndexerProgressBar;
@@ -31,23 +29,10 @@ class IndexerTest extends TestCase
      */
     public function setUp(): void
     {
-        $resourceTanent = $this->createMock(ResourceTenant::class);
-        $this->resourceChannel = new ResourceChannel(
-            '',
-            'WWW',
-            '',
-            '',
-            false,
-            '',
-            '',
-            '',
-            '',
-            '',
-            'test',
-            [],
-            new DataBag([]),
-            $resourceTanent,
-        );
+        $this->resourceChannel = ResourceChannel::create([
+            'name' => 'WWW',
+            'searchIndex' => 'test',
+        ]);
 
         $indexerA = $this->createStub(
             InternalResourceIndexer::class,
@@ -101,23 +86,10 @@ class IndexerTest extends TestCase
 
     public function testExecuteWithoutIndexer(): void
     {
-        $resourceTanent = $this->createMock(ResourceTenant::class);
-        $resourceChannel = new ResourceChannel(
-            '',
-            'WWW',
-            '',
-            '',
-            false,
-            '',
-            '',
-            '',
-            '',
-            '',
-            'test',
-            [],
-            new DataBag([]),
-            $resourceTanent,
-        );
+        $resourceChannel = ResourceChannel::create([
+            'name' => 'WWW',
+            'searchIndex' => 'test',
+        ]);
         $resourceChannelFactory = $this->createStub(
             ResourceChannelFactory::class,
         );

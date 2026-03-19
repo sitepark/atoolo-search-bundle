@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console\Command;
 
-use Atoolo\Resource\DataBag;
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Console\Application;
 use Atoolo\Search\Console\Command\DumpIndexDocument;
 use Atoolo\Search\Service\Indexer\IndexDocumentDumper;
@@ -25,23 +23,10 @@ class DumpIndexDocumentTest extends TestCase
      */
     public function setUp(): void
     {
-        $resourceTanent = $this->createMock(ResourceTenant::class);
-        $resourceChannel = new ResourceChannel(
-            '',
-            'WWW',
-            '',
-            '',
-            false,
-            '',
-            '',
-            '',
-            '',
-            '',
-            'test',
-            [],
-            new DataBag([]),
-            $resourceTanent,
-        );
+        $resourceChannel = ResourceChannel::create([
+            'name' => 'WWW',
+            'searchIndex' => 'test',
+        ]);
 
         $dumper = $this->createStub(IndexDocumentDumper::class);
         $dumper->method('dump')

@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer\SiteKit;
 
-use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceLocation;
-use Atoolo\Resource\ResourceTenant;
 use Atoolo\Search\Service\Indexer\SiteKit\NoNavigationFilter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
@@ -83,22 +81,8 @@ class NoNavigationFilterTest extends TestCase
 
     private function createResourceChannel(string $resourcePathType): ResourceChannel
     {
-        $tenant = $this->createStub(ResourceTenant::class);
-        return new ResourceChannel(
-            '',
-            '',
-            '',
-            '',
-            false,
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            [],
-            new DataBag(['resourcePathType' => $resourcePathType]),
-            $tenant,
-        );
+        return ResourceChannel::create([
+            'attributes' => ['resourcePathType' => $resourcePathType],
+        ]);
     }
 }
