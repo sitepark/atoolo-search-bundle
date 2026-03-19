@@ -14,9 +14,11 @@ use Atoolo\Search\Service\Indexer\ContentCollector;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema2xDocumentEnricher;
 use DateTime;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(DefaultSchema2xDocumentEnricher::class)]
 class DefaultSchema2xDocumentEnricherTest extends TestCase
 {
     private DefaultSchema2xDocumentEnricher $enricher;
@@ -803,6 +805,47 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             'z',
             $doc->sp_startletter,
             'unexpected base.startletter',
+        );
+    }
+
+    public function testEnrichMediaResourceWithContainerIdChangesDocId(): void
+    {
+        $doc = $this->enrichWithData([
+            'id' => '200',
+            'media' => true,
+            'mediaContainer' => ['id' => 100],
+        ]);
+        $this->assertEquals(
+            '100-200',
+            $doc->id,
+            'doc id should be composed of container id and resource id for media with container',
+        );
+    }
+
+    public function testEnrichMediaResourceWithContainerIdExcludesArticle(): void
+    {
+        $doc = $this->enrichWithData([
+            'objectType' => 'download',
+            'media' => true,
+            'mediaContainer' => ['id' => 100],
+        ]);
+        $this->assertNotContains(
+            'article',
+            $doc->sp_contenttype,
+            'media resource should not have "article" content type',
+        );
+    }
+
+    public function testEnrichMediaResourceWithoutContainerIdKeepsDocId(): void
+    {
+        $doc = $this->enrichWithData([
+            'id' => '200',
+            'media' => true,
+        ]);
+        $this->assertEquals(
+            '200',
+            $doc->id,
+            'doc id should remain unchanged for media without container id',
         );
     }
 
