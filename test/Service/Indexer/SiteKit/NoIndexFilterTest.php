@@ -21,6 +21,7 @@ class NoIndexFilterTest extends TestCase
             'test',
             'test',
             'test',
+            'test',
             ResourceLanguage::default(),
             new DataBag([]),
         );
@@ -34,6 +35,7 @@ class NoIndexFilterTest extends TestCase
     public function testAcceptWithNoIndex(): void
     {
         $resource = new Resource(
+            'test',
             'test',
             'test',
             'test',

@@ -62,6 +62,7 @@ class SolrResultToResourceResolver
             $rawData = array_merge_recursive($rawData, $dataExtensions);
             return new Resource(
                 $resource->location,
+                $resource->url,
                 $resource->id,
                 $resource->name,
                 $resource->objectType,

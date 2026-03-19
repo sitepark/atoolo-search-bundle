@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php:*)",
+      "Bash(git -C /home/veltrup/git/atoolo-resource-bundle branch --show-current)",
+      "Bash(git -C /home/veltrup/git/atoolo-resource-bundle log --oneline -5)",
+      "Bash(git -C /home/veltrup/git/atoolo-resource-bundle status --short)",
+      "Bash(git -C /home/veltrup/git/atoolo-resource-bundle show 7552628 --name-only)",
+      "Bash(./tools/phpunit.phar -c phpunit.xml test/Service/Indexer/SiteKit/IndexerFilterTest.php test/Service/Indexer/SiteKit/NoNavigationFilterTest.php test/Service/Search/InternalIdBasedResourceFactoryTest.php test/Service/Indexer/SiteKit/NoIndexFilterTest.php 2>&1)"
+    ]
+  }
+}

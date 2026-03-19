@@ -60,6 +60,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     {
         $resource = new Resource(
             '',
+            '',
             '123',
             '',
             '',
@@ -854,6 +855,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     private function createResource(array $data): Resource
     {
         return new Resource(
+            $data['url'] ?? '',
             $data['url'] ?? '',
             $data['id'] ?? '123',
             $data['name'] ?? '',

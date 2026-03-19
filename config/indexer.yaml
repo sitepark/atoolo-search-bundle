@@ -26,8 +26,18 @@ services:
     arguments:
       - !tagged_iterator atoolo_search.indexer.sitekit.content_matcher
 
-  atoolo_search.indexer.resource_filter:
+  atoolo_search.indexer.resource_no_index_filter:
     class: Atoolo\Search\Service\Indexer\SiteKit\NoIndexFilter
+  atoolo_search.indexer.resource_no_navigation_filter:
+    class: Atoolo\Search\Service\Indexer\SiteKit\NoNavigationFilter
+    arguments:
+      - '@atoolo_resource.resource_channel'
+
+  atoolo_search.indexer.resource_filter:
+    class: Atoolo\Search\Service\Indexer\SiteKit\IndexerFilter
+    arguments:
+      - '@atoolo_search.indexer.resource_no_index_filter'
+      - '@atoolo_search.indexer.resource_no_navigation_filter'
 
   Atoolo\Search\Service\Indexer\SiteKit\HeadlineMatcher:
     tags:

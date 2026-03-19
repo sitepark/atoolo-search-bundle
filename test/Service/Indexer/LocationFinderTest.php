@@ -130,4 +130,19 @@ class LocationFinderTest extends TestCase
             'locations should be empty',
         );
     }
+
+    public function testFindFilesInTmp(): void
+    {
+        $locations = $this->locationFinder->findPaths(
+            [
+                '/tmp/001.php',
+            ],
+            [],
+        );
+        $this->assertEmpty(
+            $locations,
+            'locations should be empty',
+        );
+    }
+
 }

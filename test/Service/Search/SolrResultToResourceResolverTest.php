@@ -122,6 +122,7 @@ class SolrResultToResourceResolverTest extends TestCase
         $resourceFactory->method('accept')->willReturn(true);
         $resource = new Resource(
             'location',
+            'url',
             'id',
             'name',
             'objectType',
@@ -163,6 +164,7 @@ class SolrResultToResourceResolverTest extends TestCase
         $resourceFactory->method('accept')->willReturn(true);
         $resource = new Resource(
             'location',
+            'url',
             'id',
             'name',
             'objectType',
