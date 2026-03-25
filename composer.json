@@ -34,6 +34,7 @@
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
         "infection/infection": "^0.27.6",
+        "overtrue/phplint": "^9.7.1",
         "phpcompatibility/php-compatibility": "^9.3",
         "phpdocumentor/type-resolver": "^1.10",
         "phpunit/phpunit": "^10.4",
@@ -70,7 +71,7 @@
         }
     },
     "scripts": {
-        "post-install-cmd": "phive --no-progress install --force-accept-unsigned --trust-gpg-keys C00543248C87FB13,4AA394086372C20A,CF1A108D0E7AE720,51C67305FFC2E5C0,E82B2FB314E9906E",
+        "post-install-cmd": "phive --no-progress install --trust-gpg-keys C00543248C87FB13,4AA394086372C20A,CF1A108D0E7AE720,51C67305FFC2E5C0,E82B2FB314E9906E",
         "analyse": [
             "@analyse:phplint",
             "@analyse:phpstan",
@@ -79,7 +80,7 @@
         ],
         "analyse:compatibilitycheck": "./vendor/bin/phpcs --standard=./phpcs.compatibilitycheck.xml",
         "analyse:phpcsfixer": "./tools/php-cs-fixer check --diff --show-progress=dots",
-        "analyse:phplint": "./tools/phplint",
+        "analyse:phplint": "./vendor/bin/phplint",
         "analyse:phpstan": "./tools/phpstan analyse",
         "cs-fix": [
             "@cs-fix:php-cs-fixer"
