@@ -82,10 +82,10 @@
         "analyse:phpcsfixer": "./tools/php-cs-fixer check --diff --show-progress=dots",
         "analyse:phplint": "./vendor/bin/phplint",
         "analyse:phpstan": "./tools/phpstan analyse",
-        "cs-fix": [
-            "@cs-fix:php-cs-fixer"
+        "fix": [
+            "@fix:phpcsfixer"
         ],
-        "cs-fix:php-cs-fixer": "./tools/php-cs-fixer fix",
+        "fix:phpcsfixer": "./tools/php-cs-fixer fix",
         "report": [
             "@report:phpstan"
         ],
