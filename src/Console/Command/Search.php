@@ -105,9 +105,9 @@ class Search extends Command
                 $this->io->section($facetGroup->key);
                 $listing = [];
                 foreach ($facetGroup->facets as $facet) {
-                    $listing[] =
-                        $facet->key .
-                        ' (' . $facet->hits . ')';
+                    $listing[]
+                        = $facet->key
+                        . ' (' . $facet->hits . ')';
                 }
                 $this->io->listing($listing);
             }

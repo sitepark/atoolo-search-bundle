@@ -17,10 +17,10 @@ class PhpLimitIncreaser
 
     public function increase(): void
     {
-        $this->savedTimeLimit =
-            ini_get('max_execution_time') ?: '0';
-        $this->savedMemoryLimit =
-            ini_get('memory_limit') ?: self::UNLIMITED_MEMORY;
+        $this->savedTimeLimit
+            = ini_get('max_execution_time') ?: '0';
+        $this->savedMemoryLimit
+            = ini_get('memory_limit') ?: self::UNLIMITED_MEMORY;
 
         if (
             ((int) $this->savedTimeLimit) < $this->timeLimit
@@ -52,8 +52,8 @@ class PhpLimitIncreaser
         if ($limit === self::UNLIMITED_MEMORY) {
             return true;
         }
-        return $this->toMemoryStringToInteger($current) <
-            $this->toMemoryStringToInteger($limit);
+        return $this->toMemoryStringToInteger($current)
+            < $this->toMemoryStringToInteger($limit);
     }
 
     private function toMemoryStringToInteger(string $memory): int

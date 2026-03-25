@@ -58,8 +58,8 @@ class IndexerInternalResourceUpdate extends Command
         $this->io->title('Channel: ' . $this->channel->name);
 
         $this->io->section(
-            'Index resource paths with Indexer "' .
-            $this->indexer->getName() . '"',
+            'Index resource paths with Indexer "'
+            . $this->indexer->getName() . '"',
         );
         $this->io->listing($paths);
         $progressHandler = $this->indexer->getProgressHandler();

@@ -80,8 +80,8 @@ class ResourceChannelBasedIndexName implements IndexName
         throw new UnsupportedIndexLanguageException(
             $resourceChannel->searchIndex,
             $lang,
-            'No valid index can be determined for the language ' .
-            $lang->code,
+            'No valid index can be determined for the language '
+            . $lang->code,
         );
     }
 }

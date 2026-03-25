@@ -41,19 +41,19 @@ class IndexerStatusStoreTest extends TestCase
             self::TEST_DIR . '/atoolo.search.index.test.status.json',
         );
 
-        $expected =
-            '{' .
-            '"state":"FINISHED",' .
-            '"startTime":"2024-01-31T11:15:10+00:00",' .
-            '"endTime":"2024-01-31T12:16:11+00:00",' .
-            '"total":10,' .
-            '"processed":5,' .
-            '"skipped":4,' .
-            '"lastUpdate":"2024-01-31T13:17:12+00:00",' .
-            '"updated":6,' .
-            '"errors":2,' .
-            '"prepareMessage":""' .
-            '}';
+        $expected
+            = '{'
+            . '"state":"FINISHED",'
+            . '"startTime":"2024-01-31T11:15:10+00:00",'
+            . '"endTime":"2024-01-31T12:16:11+00:00",'
+            . '"total":10,'
+            . '"processed":5,'
+            . '"skipped":4,'
+            . '"lastUpdate":"2024-01-31T13:17:12+00:00",'
+            . '"updated":6,'
+            . '"errors":2,'
+            . '"prepareMessage":""'
+            . '}';
 
         $this->assertEquals($expected, $json, 'unexpected json string');
     }
@@ -134,8 +134,8 @@ class IndexerStatusStoreTest extends TestCase
 
     public function testLoad(): void
     {
-        $baseDir = __DIR__ . '/../../resources/' .
-            'Service/Indexer/IndexerStatusStore';
+        $baseDir = __DIR__ . '/../../resources/'
+            . 'Service/Indexer/IndexerStatusStore';
 
         $store = new IndexerStatusStore($baseDir);
 
@@ -151,8 +151,8 @@ class IndexerStatusStoreTest extends TestCase
 
     public function testLoadFileNotExists(): void
     {
-        $baseDir = __DIR__ . '/../../resources/' .
-            'Service/Indexer/IndexerStatusStore';
+        $baseDir = __DIR__ . '/../../resources/'
+            . 'Service/Indexer/IndexerStatusStore';
 
         $store = new IndexerStatusStore($baseDir);
 
@@ -170,8 +170,8 @@ class IndexerStatusStoreTest extends TestCase
      */
     public function testLoadFileNotReadable(): void
     {
-        $file = self::TEST_DIR . '/' .
-            'atoolo.search.index.test-not-readable.status.json';
+        $file = self::TEST_DIR . '/'
+            . 'atoolo.search.index.test-not-readable.status.json';
 
         $filesystem = new Filesystem();
         $filesystem->touch($file);

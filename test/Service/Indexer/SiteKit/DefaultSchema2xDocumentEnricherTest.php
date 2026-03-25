@@ -784,10 +784,10 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         ]);
 
         $this->assertEquals(
-            'collected content +49 251 0251 123 +49 2571 02571 456 ' .
-            'test1@sitepark.com test2@sitepark.com ' .
-            'Neubrückenstr Pressehaus Sitepark ' .
-            'Hinweise zur Adresse ÖPNV Infos Barrierefreier Zugang',
+            'collected content +49 251 0251 123 +49 2571 02571 456 '
+            . 'test1@sitepark.com test2@sitepark.com '
+            . 'Neubrückenstr Pressehaus Sitepark '
+            . 'Hinweise zur Adresse ÖPNV Infos Barrierefreier Zugang',
             $doc->content,
             'unexpected content',
         );

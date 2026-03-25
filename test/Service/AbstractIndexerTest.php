@@ -78,8 +78,8 @@ class AbstractIndexerTest extends TestCase
         $this->assertEquals(
             $this->progressHandler,
             $this->indexer->getProgressHandler(),
-            'The progress handler should be the ' .
-            'same as the one passed to the constructor',
+            'The progress handler should be the '
+            . 'same as the one passed to the constructor',
         );
     }
 
@@ -91,8 +91,8 @@ class AbstractIndexerTest extends TestCase
         $this->assertEquals(
             $progressHandler,
             $this->indexer->getProgressHandler(),
-            'The progress handler should be the ' .
-            'same as the one passed to the setProgressHandler method',
+            'The progress handler should be the '
+            . 'same as the one passed to the setProgressHandler method',
         );
     }
 

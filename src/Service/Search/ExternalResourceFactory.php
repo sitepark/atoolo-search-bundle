@@ -26,8 +26,8 @@ class ExternalResourceFactory implements ResourceFactory
             return false;
         }
         return (
-            str_starts_with($location, 'http://') ||
-            str_starts_with($location, 'https://')
+            str_starts_with($location, 'http://')
+            || str_starts_with($location, 'https://')
         );
     }
 

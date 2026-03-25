@@ -129,8 +129,8 @@ class SolrSuggest implements Suggest
                 5,
                 JSON_THROW_ON_ERROR,
             );
-            $facets =
-                $json['facet_counts']['facet_fields'][$this->indexSuggestField]
+            $facets
+                = $json['facet_counts']['facet_fields'][$this->indexSuggestField]
                 ?? [];
 
             $len = count($facets);

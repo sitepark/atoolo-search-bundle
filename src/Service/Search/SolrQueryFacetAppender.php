@@ -146,8 +146,8 @@ class SolrQueryFacetAppender
                 $facet->roundStart,
             )
             : SolrDateMapper::roundStart(
-                SolrDateMapper::mapDateTime($facet->base) .
-                    SolrDateMapper::mapDateInterval(
+                SolrDateMapper::mapDateTime($facet->base)
+                    . SolrDateMapper::mapDateInterval(
                         $facet->from,
                         $facet->from->invert === 1 ? '-' : '+',
                     ),
@@ -159,8 +159,8 @@ class SolrQueryFacetAppender
                 $facet->roundStart,
             )
             : SolrDateMapper::roundEnd(
-                SolrDateMapper::mapDateTime($facet->base) .
-                    SolrDateMapper::mapDateInterval(
+                SolrDateMapper::mapDateTime($facet->base)
+                    . SolrDateMapper::mapDateInterval(
                         $facet->to,
                         $facet->to->invert === 1 ? '-' : '+',
                     ),
@@ -183,8 +183,8 @@ class SolrQueryFacetAppender
             // without `gap` it is a simple facet query
             $facetQuery = new QueryFacet(
                 $facet->key,
-                $this->getFacetField($facet) . ':' .
-                    '[' . $start . ' TO ' . $end . ']',
+                $this->getFacetField($facet) . ':'
+                    . '[' . $start . ' TO ' . $end . ']',
                 $facet->excludeFilter,
             );
             $this->appendFacetQuery($facetQuery);

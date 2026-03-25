@@ -26,8 +26,8 @@ abstract class AbstractIndexer implements Indexer
 
     protected function getKey(): string
     {
-        return $this->indexName->name(ResourceLanguage::default()) .
-            '-' . $this->source;
+        return $this->indexName->name(ResourceLanguage::default())
+            . '-' . $this->source;
     }
 
     protected function getConfig(): IndexerConfiguration

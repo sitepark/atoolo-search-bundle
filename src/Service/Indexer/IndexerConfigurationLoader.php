@@ -37,8 +37,8 @@ class IndexerConfigurationLoader
 
     private function getFile(string $source): string
     {
-        return $this->resourceChannel->configDir .
-            '/indexer/' . $source . '.php';
+        return $this->resourceChannel->configDir
+            . '/indexer/' . $source . '.php';
     }
 
     public function exists(string $source): bool
@@ -67,8 +67,8 @@ class IndexerConfigurationLoader
             $data = require $file;
             if (!is_array($data)) {
                 throw new RuntimeException(
-                    'The indexer configuration ' .
-                    $file . ' should return an array',
+                    'The indexer configuration '
+                    . $file . ' should return an array',
                 );
             }
 

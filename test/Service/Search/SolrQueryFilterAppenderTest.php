@@ -352,22 +352,22 @@ class SolrQueryFilterAppenderTest extends TestCase
                 new DateTime('2021-01-01 00:00:00Z'),
                 'P1D',
                 null,
-                'test:[2021-01-01T00:00:00Z-1DAYS/DAY' .
-                    ' TO 2021-01-01T00:00:00Z/DAY+1DAY-1SECOND]',
+                'test:[2021-01-01T00:00:00Z-1DAYS/DAY'
+                    . ' TO 2021-01-01T00:00:00Z/DAY+1DAY-1SECOND]',
             ],
             [
                 new DateTime('2021-01-01 00:00:00Z'),
                 null,
                 'P2M',
-                'test:[2021-01-01T00:00:00Z/DAY' .
-                    ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
+                'test:[2021-01-01T00:00:00Z/DAY'
+                    . ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
             ],
             [
                 new DateTime('2021-01-01 00:00:00Z'),
                 'P1W',
                 'P2M',
-                'test:[2021-01-01T00:00:00Z-7DAYS/DAY' .
-                    ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
+                'test:[2021-01-01T00:00:00Z-7DAYS/DAY'
+                    . ' TO 2021-01-01T00:00:00Z+2MONTHS/DAY+1DAY-1SECOND]',
             ],
         ];
     }

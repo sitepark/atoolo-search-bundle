@@ -16,8 +16,8 @@ use RuntimeException;
 #[CoversClass(IndexerConfigurationLoader::class)]
 class IndexerConfigurationLoaderTest extends TestCase
 {
-    private const RESOURCE_BASE = __DIR__ . '/../../resources/' .
-        'Service/Indexer/IndexerConfigurationLoader';
+    private const RESOURCE_BASE = __DIR__ . '/../../resources/'
+        . 'Service/Indexer/IndexerConfigurationLoader';
 
 
     public function testExists(): void

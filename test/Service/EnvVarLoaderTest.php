@@ -11,8 +11,8 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(EnvVarLoader::class)]
 class EnvVarLoaderTest extends TestCase
 {
-    private string $baseDir = __DIR__ .
-        '/../resources/Service/EnvVarLoader';
+    private string $baseDir = __DIR__
+        . '/../resources/Service/EnvVarLoader';
 
     private string $scriptFileNameBackup;
 
@@ -50,8 +50,8 @@ class EnvVarLoaderTest extends TestCase
 
     public function testDetermineSolrUrlForDocker(): void
     {
-        $hostDir = $this->baseDir .
-            '/ies-env/data/publications/example.com/www';
+        $hostDir = $this->baseDir
+            . '/ies-env/data/publications/example.com/www';
 
         $_SERVER['RESOURCE_ROOT'] = $hostDir . '/resources';
 
