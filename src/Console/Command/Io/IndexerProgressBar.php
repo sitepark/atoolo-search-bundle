@@ -85,8 +85,8 @@ class IndexerProgressBar implements IndexerProgressHandler
         $this->progressBar?->setEmptyBarCharacter('<fg=' . $color . '>⚬</>');
         $this->progressBar?->setProgressCharacter('<fg=' . $color . '>➤</>');
         $this->progressBar?->setFormat(
-            "%current%/%max% [%bar%] %percent:3s%%\n" .
-            "  %estimated:-20s%  %memory:20s%",
+            "%current%/%max% [%bar%] %percent:3s%%\n"
+            . "  %estimated:-20s%  %memory:20s%",
         );
     }
 

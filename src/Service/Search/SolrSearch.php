@@ -419,7 +419,7 @@ class SolrSearch implements Search
 
     private function buildSpellcheck(
         SelectResult $result,
-    ): Spellcheck|null {
+    ): ?Spellcheck {
         $spellcheckResult = $result->getSpellcheck();
         if ($spellcheckResult === null) {
             return null;

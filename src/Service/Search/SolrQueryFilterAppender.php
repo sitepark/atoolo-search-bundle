@@ -164,8 +164,8 @@ class SolrQueryFilterAppender
             );
         } else {
             $from = SolrDateMapper::roundStart(
-                SolrDateMapper::mapDateTime($filter->base) .
-                    SolrDateMapper::mapDateInterval(
+                SolrDateMapper::mapDateTime($filter->base)
+                    . SolrDateMapper::mapDateInterval(
                         $filter->from,
                         $filter->from->invert === 1 ? '-' : '+',
                     ),
@@ -179,8 +179,8 @@ class SolrQueryFilterAppender
             );
         } else {
             $to = SolrDateMapper::roundEnd(
-                SolrDateMapper::mapDateTime($filter->base) .
-                    SolrDateMapper::mapDateInterval(
+                SolrDateMapper::mapDateTime($filter->base)
+                    . SolrDateMapper::mapDateInterval(
                         $filter->to,
                         $filter->to->invert === 1 ? '-' : '+',
                     ),

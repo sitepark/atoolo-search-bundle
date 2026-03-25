@@ -19,8 +19,8 @@ class HeadlineMatcher implements ContentMatcher
         }
 
         if (
-            $path[$len - 2] !== 'items' ||
-            $path[$len - 1] !== 'model'
+            $path[$len - 2] !== 'items'
+            || $path[$len - 1] !== 'model'
         ) {
             return false;
         }

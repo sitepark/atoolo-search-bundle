@@ -188,11 +188,11 @@ class SolrQueryFacetAppenderTest extends TestCase
         $this->facetQuery->expects($this->once())
             ->method('setQuery')
             ->with(
-                'test:[' .
-                '2021-01-01T00:00:00Z-2DAYS/DAY' .
-                ' TO ' .
-                '2021-01-01T00:00:00Z+3DAYS/DAY+1DAY-1SECOND' .
-                ']',
+                'test:['
+                . '2021-01-01T00:00:00Z-2DAYS/DAY'
+                . ' TO '
+                . '2021-01-01T00:00:00Z+3DAYS/DAY+1DAY-1SECOND'
+                . ']',
             );
         $this->facetQuery->expects($this->once())
             ->method('setExcludes')
@@ -216,11 +216,11 @@ class SolrQueryFacetAppenderTest extends TestCase
         $this->facetQuery->expects($this->once())
             ->method('setQuery')
             ->with(
-                'test:[' .
-                '2021-01-01T00:00:00Z/DAY' .
-                ' TO ' .
-                '2021-01-01T00:00:00Z+3DAYS/DAY+1DAY-1SECOND' .
-                ']',
+                'test:['
+                . '2021-01-01T00:00:00Z/DAY'
+                . ' TO '
+                . '2021-01-01T00:00:00Z+3DAYS/DAY+1DAY-1SECOND'
+                . ']',
             );
         $this->facetQuery->expects($this->once())
             ->method('setExcludes')
@@ -244,11 +244,11 @@ class SolrQueryFacetAppenderTest extends TestCase
         $this->facetQuery->expects($this->once())
             ->method('setQuery')
             ->with(
-                'test:[' .
-                '2021-01-01T00:00:00Z-2DAYS/DAY' .
-                ' TO ' .
-                '2021-01-01T00:00:00Z/DAY+1DAY-1SECOND' .
-                ']',
+                'test:['
+                . '2021-01-01T00:00:00Z-2DAYS/DAY'
+                . ' TO '
+                . '2021-01-01T00:00:00Z/DAY+1DAY-1SECOND'
+                . ']',
             );
         $this->facetQuery->expects($this->once())
             ->method('setExcludes')

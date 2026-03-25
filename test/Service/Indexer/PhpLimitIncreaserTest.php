@@ -17,8 +17,8 @@ class PhpLimitIncreaserTest extends TestCase
     public function setUp(): void
     {
         $this->savedTimeLimit = ini_get('max_execution_time') ?: '0';
-        $this->savedMemoryLimit = ini_get('memory_limit') ?:
-            PhpLimitIncreaser::UNLIMITED_MEMORY;
+        $this->savedMemoryLimit = ini_get('memory_limit')
+            ?: PhpLimitIncreaser::UNLIMITED_MEMORY;
     }
 
     public function tearDown(): void

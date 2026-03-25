@@ -45,14 +45,14 @@ class IndexerStatusTest extends TestCase
     public function testGetStatusLine(): void
     {
         $this->assertEquals(
-            '[FINISHED] ' .
-                'start: 31.01.2024 11:15, ' .
-                'time: 01h 01m 01s, ' .
-                'processed: 5/10, ' .
-                'skipped: 4, ' .
-                'lastUpdate: 31.01.2024 13:17, ' .
-                'updated: 6, ' .
-                'errors: 2',
+            '[FINISHED] '
+                . 'start: 31.01.2024 11:15, '
+                . 'time: 01h 01m 01s, '
+                . 'processed: 5/10, '
+                . 'skipped: 4, '
+                . 'lastUpdate: 31.01.2024 13:17, '
+                . 'updated: 6, '
+                . 'errors: 2',
             $this->status->getStatusLine(),
             "unexpected status line",
         );
@@ -83,10 +83,10 @@ class IndexerStatusTest extends TestCase
         );
 
         $this->assertEquals(
-            '[PREPARING] ' .
-            'start: 31.01.2024 11:15, ' .
-            'time: 01h 01m 01s, ' .
-            'message: prepare message',
+            '[PREPARING] '
+            . 'start: 31.01.2024 11:15, '
+            . 'time: 01h 01m 01s, '
+            . 'message: prepare message',
             $status->getStatusLine(),
             "unexpected status line",
         );
@@ -97,15 +97,15 @@ class IndexerStatusTest extends TestCase
         $status = IndexerStatus::empty();
 
         $dateTimePattern = '[0-9]{2}\.[0-9]{2}\.[0-9]{4} [0-9]{2}:[0-9]{2}';
-        $patter = '/\[UNKNOWN] ' .
-            'start: ' . $dateTimePattern . ', ' .
-            'time: 00h 00m 00s, ' .
-            'processed: 0\/0, ' .
-            'skipped: 0, ' .
-            'lastUpdate: ' . $dateTimePattern . ', ' .
-            'updated: 0, ' .
-            'errors: 0' .
-            '/';
+        $patter = '/\[UNKNOWN] '
+            . 'start: ' . $dateTimePattern . ', '
+            . 'time: 00h 00m 00s, '
+            . 'processed: 0\/0, '
+            . 'skipped: 0, '
+            . 'lastUpdate: ' . $dateTimePattern . ', '
+            . 'updated: 0, '
+            . 'errors: 0'
+            . '/';
 
         $this->assertMatchesRegularExpression(
             $patter,
