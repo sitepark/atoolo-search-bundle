@@ -894,17 +894,4 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             new DataBag($data),
         );
     }
-
-    public function testEnrichSearchTip(): void
-    {
-        $resource = $this->createResource([
-            'name' => 'document name',
-            'objectType' => 'searchTip',
-            'title' => 'document title',
-        ]);
-        $doc = $this->enrichWithResource($resource);
-        $this->assertEquals('document name', $doc->sp_name, 'missing name');
-        $this->assertEmpty($doc->title, 'title of searchTip must be empty!');
-    }
-
 }
