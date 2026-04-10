@@ -42,6 +42,7 @@ class SolrSearch implements Search
         'sp_id',
         'sp_objecttype',
         'sp_date',
+        // @deprecated use nested Docs instead (sp_date_documents)
         'sp_date_list',
         'sp_meta_*',
     ];

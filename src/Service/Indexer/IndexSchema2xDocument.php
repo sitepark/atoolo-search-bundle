@@ -58,6 +58,10 @@ class IndexSchema2xDocument extends Document implements IndexDocument
      * @var DateTime[]
      */
     public ?array $sp_date_list = null;
+    /**
+    * @var IndexSchema2xDocument[] $sp_date_documents
+    */
+    public ?array $sp_date_documents = null;
     public ?bool $sp_archive = null;
     public ?string $sp_title = null;
     public ?string $sp_sortvalue = null;

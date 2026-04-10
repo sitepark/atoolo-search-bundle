@@ -13,6 +13,8 @@ use Atoolo\Search\Exception\DocumentEnrichingException;
 use Atoolo\Search\Service\Indexer\ContentCollector;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema2xDocumentEnricher;
+use Atoolo\Search\Service\Indexer\SolrIndexService;
+use Atoolo\Search\Service\Indexer\SolrIndexUpdater;
 use DateTime;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -22,6 +24,8 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     private DefaultSchema2xDocumentEnricher $enricher;
 
     private SiteKitNavigationHierarchyLoader&MockObject $navigationLoader;
+
+    private SolrIndexService&MockObject $solrIndexService;
 
     public function setUp(): void
     {
@@ -43,9 +47,23 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             ->method('collect')
             ->willReturn('collected content');
 
+        $updater = $this->createMock(SolrIndexUpdater::class);
+        $updater->method('createDocument')
+            ->willReturnCallback(function () {
+                return new IndexSchema2xDocument();
+            });
+        $this->solrIndexService = $this->createMock(
+            SolrIndexService::class,
+        );
+        //SolrIndexUpdater
+        $this->solrIndexService
+            ->method('updater')
+            ->willReturn($updater);
+
         $this->enricher = new DefaultSchema2xDocumentEnricher(
             $this->navigationLoader,
             $contentCollector,
+            $this->solrIndexService,
         );
     }
 
@@ -599,11 +617,20 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 ],
             ],
         ]);
-
+        $this->assertEquals(
+            2,
+            count($doc->sp_date_documents),
+            'unexpected sp_date_documents count',
+        );
         $this->assertEquals(
             [$dateA, $dateB],
-            $doc->sp_date_list,
-            'unexpected sp_date',
+            array_map(
+                function ($document) {
+                    return $document->sp_date;
+                },
+                $doc->sp_date_documents,
+            ),
+            'unexpected date-document in sp_date_document',
         );
     }
 
@@ -633,8 +660,13 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
         $this->assertEquals(
             [$nextDate, $afterNextDate],
-            $doc->sp_date_list,
-            'unexpected sp_date_list',
+            array_map(
+                function ($document) {
+                    return $document->sp_date;
+                },
+                $doc->sp_date_documents,
+            ),
+            'unexpected sp_date_documents list',
         );
     }
 
@@ -834,7 +866,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     }
 
     /**
-     * @param array<string, array<string,mixed>> $data
+     * @param array<string, mixed>> $data
      */
     private function createResource(array $data): Resource
     {
@@ -847,4 +879,17 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             new DataBag($data),
         );
     }
+
+    public function testEnrichSearchTip(): void
+    {
+        $resource = $this->createResource([
+            'name' => 'document name',
+            'objectType' => 'searchTip',
+            'title' => 'document title',
+        ]);
+        $doc = $this->enrichWithResource($resource);
+        $this->assertEquals('document name', $doc->sp_name, 'missing name');
+        $this->assertEmpty($doc->title, 'title of searchTip must be empty!');
+    }
+
 }

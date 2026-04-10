@@ -198,7 +198,7 @@ class SolrQueryFilterAppenderTest extends TestCase
     {
         $from = new \DateTime('2021-01-01 00:00:00Z');
         $to = new \DateTime('2021-01-02 00:00:00Z');
-        $filter = new AbsoluteDateRangeFilter($from, $to, 'sp_date_list');
+        $filter = new AbsoluteDateRangeFilter($from, $to, 'sp_date');
 
         $this->filterQuery->expects($this->once())
             ->method('setQuery')
@@ -210,7 +210,7 @@ class SolrQueryFilterAppenderTest extends TestCase
     public function testAbsoluteDateRangeFilterWithFrom(): void
     {
         $from = new \DateTime('2021-01-01 00:00:00Z');
-        $filter = new AbsoluteDateRangeFilter($from, null, 'sp_date_list');
+        $filter = new AbsoluteDateRangeFilter($from, null, 'sp_date');
 
         $this->filterQuery->expects($this->once())
             ->method('setQuery')
@@ -222,7 +222,7 @@ class SolrQueryFilterAppenderTest extends TestCase
     public function testAbsoluteDateRangeFilterWithTo(): void
     {
         $to = new \DateTime('2021-01-02 00:00:00Z');
-        $filter = new AbsoluteDateRangeFilter(null, $to, 'sp_date_list');
+        $filter = new AbsoluteDateRangeFilter(null, $to, 'sp_date');
 
         $this->filterQuery->expects($this->once())
             ->method('setQuery')
