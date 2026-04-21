@@ -95,8 +95,8 @@ class Suggest extends Command
 
         foreach ($result as $suggest) {
             $this->io->text(
-                $suggest->term .
-                ' (' . $suggest->hits . ')',
+                $suggest->term
+                . ' (' . $suggest->hits . ')',
             );
         }
         $this->io->text('Query-Time: ' . $result->queryTime . 'ms');

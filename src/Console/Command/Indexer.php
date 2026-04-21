@@ -114,8 +114,8 @@ class Indexer extends Command
 
         $names = [];
         foreach ($selectable as $indexer) {
-            $names[] = $indexer->getName() .
-                ' (source: ' . $indexer->getSource() . ')';
+            $names[] = $indexer->getName()
+                . ' (source: ' . $indexer->getSource() . ')';
         }
         $this->io->newLine();
         $this->io->section('Several indexers are available.');
@@ -143,8 +143,8 @@ class Indexer extends Command
     {
         $this->io->newLine();
         $this->io->section(
-            'Index with Indexer "' . $indexer->getName() . '" ' .
-            '(source: ' . $indexer->getSource() . ')',
+            'Index with Indexer "' . $indexer->getName() . '" '
+            . '(source: ' . $indexer->getSource() . ')',
         );
         $progressHandler = $indexer->getProgressHandler();
         $this->progressBar->init($progressHandler);

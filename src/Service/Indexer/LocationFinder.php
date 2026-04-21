@@ -114,8 +114,8 @@ class LocationFinder
         foreach ($excludes as $exclude) {
             if (
                 preg_match(
-                    '/' .
-                    str_replace('/', '\/', $exclude) . '/',
+                    '/'
+                    . str_replace('/', '\/', $exclude) . '/',
                     $path,
                 )
             ) {

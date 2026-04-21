@@ -346,8 +346,8 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         foreach (($contactPoint['contactData']['phoneList'] ?? []) as $phone) {
             $countryCode = $phone['phone']['countryCode'] ?? '';
             if (
-                !empty($countryCode) &&
-                !in_array($countryCode, $content, true)
+                !empty($countryCode)
+                && !in_array($countryCode, $content, true)
             ) {
                 $content[] = '+' . $countryCode;
             }

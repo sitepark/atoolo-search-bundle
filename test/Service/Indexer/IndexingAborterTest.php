@@ -16,8 +16,8 @@ class IndexingAborterTest extends TestCase
 
     public function setUp(): void
     {
-        $workdir = __DIR__ .
-            '/../../../var/test/IndexingAborterTest';
+        $workdir = __DIR__
+            . '/../../../var/test/IndexingAborterTest';
         if (!is_dir($workdir)) {
             mkdir($workdir, 0777, true);
         }

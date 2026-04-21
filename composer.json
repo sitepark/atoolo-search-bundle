@@ -10,36 +10,37 @@
         }
     ],
     "require": {
-        "php": ">=8.1 <8.5.0",
+        "php": ">=8.1 <8.6.0",
         "ext-intl": "*",
         "ext-xmlreader": "*",
         "atoolo/resource-bundle": "dev-feature/id-based-resource-location",
-        "dragonmantank/cron-expression": "^3.3",
-        "solarium/solarium": "^6.3",
+        "dragonmantank/cron-expression": "^3.6",
+        "solarium/solarium": "^6.4.1",
         "soundasleep/html2text": "^2.1",
-        "symfony/config": "^6.3 || ^7.0",
-        "symfony/console": "^6.3 || ^7.0",
-        "symfony/dependency-injection": "^6.3 || ^7.0",
-        "symfony/dotenv": "^6.3 || ^7.0",
-        "symfony/event-dispatcher": "^6.3 || ^7.0",
-        "symfony/finder": "^6.3 || ^7.0",
-        "symfony/http-kernel": "^6.3 || ^7.0",
-        "symfony/lock": "^6.3 || ^7.0",
-        "symfony/messenger": "^6.3 || ^7.0",
-        "symfony/property-access": "^6.3 || ^7.0",
-        "symfony/scheduler": "^6.3 || ^7.0",
-        "symfony/serializer": "^6.3 || ^7.0",
-        "symfony/yaml": "^6.3 || ^7.0"
+        "symfony/config": "^6.3 || ^7.4.8",
+        "symfony/console": "^6.3 || ^7.4.8",
+        "symfony/dependency-injection": "^6.3 || ^7.4.8",
+        "symfony/dotenv": "^6.3 || ^7.4.8",
+        "symfony/event-dispatcher": "^6.3 || ^7.4.8",
+        "symfony/finder": "^6.3 || ^7.4.8",
+        "symfony/http-kernel": "^6.3 || ^7.4.8",
+        "symfony/lock": "^6.3 || ^7.4.8",
+        "symfony/messenger": "^6.3 || ^7.4.8",
+        "symfony/property-access": "^6.3 || ^7.4.8",
+        "symfony/scheduler": "^6.3 || ^7.4.8",
+        "symfony/serializer": "^6.3 || ^7.4.8",
+        "symfony/yaml": "^6.3 || ^7.4.8"
     },
     "require-dev": {
-        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-        "infection/infection": "^0.27.6",
-        "phpcompatibility/php-compatibility": "^9.3",
-        "phpdocumentor/type-resolver": "^1.10",
-        "phpunit/phpunit": "^10.4",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.2",
+        "infection/infection": "^0.27.11",
+        "overtrue/phplint": "^9.7.1",
+        "phpcompatibility/php-compatibility": "^9.3.5",
+        "phpdocumentor/type-resolver": "^1.12",
+        "phpunit/phpunit": "^10.5.63",
         "roave/security-advisories": "dev-latest",
-        "squizlabs/php_codesniffer": "^3.7",
-        "symfony/filesystem": "^6.3 || ^7.0"
+        "squizlabs/php_codesniffer": "^3.13.5",
+        "symfony/filesystem": "^6.3 || ^7.4.8"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -62,6 +63,7 @@
         "preferred-install": {
             "*": "dist"
         },
+        "bump-after-update": true,
         "sort-packages": true
     },
     "extra": {
@@ -70,7 +72,7 @@
         }
     },
     "scripts": {
-        "post-install-cmd": "phive --no-progress install --force-accept-unsigned --trust-gpg-keys C00543248C87FB13,4AA394086372C20A,CF1A108D0E7AE720,51C67305FFC2E5C0,E82B2FB314E9906E",
+        "post-install-cmd": "phive --no-progress install --trust-gpg-keys C00543248C87FB13,4AA394086372C20A,CF1A108D0E7AE720,51C67305FFC2E5C0,E82B2FB314E9906E",
         "analyse": [
             "@analyse:phplint",
             "@analyse:phpstan",
@@ -79,12 +81,12 @@
         ],
         "analyse:compatibilitycheck": "./vendor/bin/phpcs --standard=./phpcs.compatibilitycheck.xml",
         "analyse:phpcsfixer": "./tools/php-cs-fixer check --diff --show-progress=dots",
-        "analyse:phplint": "./tools/phplint",
+        "analyse:phplint": "./vendor/bin/phplint",
         "analyse:phpstan": "./tools/phpstan analyse",
-        "cs-fix": [
-            "@cs-fix:php-cs-fixer"
+        "fix": [
+            "@fix:phpcsfixer"
         ],
-        "cs-fix:php-cs-fixer": "./tools/php-cs-fixer fix",
+        "fix:phpcsfixer": "./tools/php-cs-fixer fix",
         "report": [
             "@report:phpstan"
         ],

@@ -94,14 +94,14 @@ class IndexerStatusStore
     private function createBaseDirectory(): void
     {
         if (
-            !is_dir($concurrentDirectory = $this->basedir) &&
-            (
+            !is_dir($concurrentDirectory = $this->basedir)
+            && (
                 !@mkdir(
                     $concurrentDirectory,
                     0777,
                     true,
-                ) &&
-                !is_dir($concurrentDirectory)
+                )
+                && !is_dir($concurrentDirectory)
             )
         ) {
             throw new RuntimeException(sprintf(
@@ -121,7 +121,7 @@ class IndexerStatusStore
     {
         $sanitizedKey = str_replace('\\', '', $key);
         $sanitizedKey = basename($sanitizedKey);
-        return $this->basedir .
-            '/atoolo.search.index.' . $sanitizedKey . ".status.json";
+        return $this->basedir
+            . '/atoolo.search.index.' . $sanitizedKey . ".status.json";
     }
 }

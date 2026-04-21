@@ -35,8 +35,8 @@ class SearchQueryBuilder
 
     private bool $archive = false;
 
-    private QueryOperator $defaultQueryOperator =
-        QueryOperator::OR;
+    private QueryOperator $defaultQueryOperator
+        = QueryOperator::OR;
 
     private ?DateTimeZone $timeZone = null;
 
@@ -114,8 +114,8 @@ class SearchQueryBuilder
                 foreach ($this->filter as $existingFilter) {
                     if ($existingFilter->key === $filter->key) {
                         throw new InvalidArgumentException(
-                            'filter key "' . $filter->key .
-                            '" already exists',
+                            'filter key "' . $filter->key
+                            . '" already exists',
                         );
                     }
                 }
@@ -133,8 +133,8 @@ class SearchQueryBuilder
         foreach ($facetList as $facet) {
             if (isset($this->facets[$facet->key])) {
                 throw new InvalidArgumentException(
-                    'facet key "' . $facet->key .
-                    '" already exists',
+                    'facet key "' . $facet->key
+                    . '" already exists',
                 );
             }
             $this->facets[$facet->key] = $facet;

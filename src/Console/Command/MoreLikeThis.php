@@ -40,8 +40,8 @@ class MoreLikeThis extends Command
             ->addArgument(
                 'id',
                 InputArgument::REQUIRED,
-                'Id of the resource to which the MoreLikeThis ' .
-                'search is to be applied.',
+                'Id of the resource to which the MoreLikeThis '
+                . 'search is to be applied.',
             )
             ->addOption(
                 'lang',

@@ -38,10 +38,10 @@ class DefaultBoosting extends Boosting
                 'contenttype:(text/html*)^10',
             ],
             boostFunctions: [
-                "if(termfreq(sp_objecttype,'news')" .
-                    ",scale(sp_date,0,12)" .
-                    ",scale(sp_date,10,11)" .
-                ")",
+                "if(termfreq(sp_objecttype,'news')"
+                    . ",scale(sp_date,0,12)"
+                    . ",scale(sp_date,10,11)"
+                . ")",
             ],
             tie: 0.1,
         );

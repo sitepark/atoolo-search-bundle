@@ -67,20 +67,20 @@ class IndexerStatus
 
         if ($this->state === IndexerStatusState::PREPARING) {
             return
-                '[' . $this->state->name . '] ' .
-                'start: ' . $this->startTime->format('d.m.Y H:i') . ', ' .
-                'time: ' . $duration->format('%Hh %Im %Ss') . ', ' .
-                'message: ' . $this->prepareMessage;
+                '[' . $this->state->name . '] '
+                . 'start: ' . $this->startTime->format('d.m.Y H:i') . ', '
+                . 'time: ' . $duration->format('%Hh %Im %Ss') . ', '
+                . 'message: ' . $this->prepareMessage;
         }
 
         return
-            '[' . $this->state->name . '] ' .
-            'start: ' . $this->startTime->format('d.m.Y H:i') . ', ' .
-            'time: ' . $duration->format('%Hh %Im %Ss') . ', ' .
-            'processed: ' . $this->processed . "/" . $this->total . ', ' .
-            'skipped: ' . $this->skipped . ', ' .
-            'lastUpdate: ' . $lastUpdate->format('d.m.Y H:i') . ', ' .
-            'updated: ' . $this->updated . ', ' .
-            'errors: ' . $this->errors;
+            '[' . $this->state->name . '] '
+            . 'start: ' . $this->startTime->format('d.m.Y H:i') . ', '
+            . 'time: ' . $duration->format('%Hh %Im %Ss') . ', '
+            . 'processed: ' . $this->processed . "/" . $this->total . ', '
+            . 'skipped: ' . $this->skipped . ', '
+            . 'lastUpdate: ' . $lastUpdate->format('d.m.Y H:i') . ', '
+            . 'updated: ' . $this->updated . ', '
+            . 'errors: ' . $this->errors;
     }
 }

@@ -173,7 +173,7 @@ class IndexerProgressState implements IndexerProgressHandler
 
     private function getStatusStoreKey(): string
     {
-        return $this->index->name(ResourceLanguage::default()) .
-            '-' . $this->source;
+        return $this->index->name(ResourceLanguage::default())
+            . '-' . $this->source;
     }
 }

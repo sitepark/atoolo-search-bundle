@@ -37,8 +37,8 @@ class SolrIndexService
     ): void {
         $this->deleteByQuery(
             $lang,
-            '-crawl_process_id:' . $processId . ' AND ' .
-            ' sp_source:' . $source,
+            '-crawl_process_id:' . $processId . ' AND '
+            . ' sp_source:' . $source,
         );
     }
 
@@ -50,8 +50,8 @@ class SolrIndexService
         array $idList,
     ): void {
         $this->deleteByQueryForAllLanguages(
-            'sp_id:(' . implode(' ', $idList) . ') AND ' .
-            'sp_source:' . $source,
+            'sp_id:(' . implode(' ', $idList) . ') AND '
+            . 'sp_source:' . $source,
         );
     }
 
