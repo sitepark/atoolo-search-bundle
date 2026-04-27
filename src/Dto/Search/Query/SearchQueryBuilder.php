@@ -35,6 +35,8 @@ class SearchQueryBuilder
 
     private bool $archive = false;
 
+    private bool $expandByDate = false;
+
     private QueryOperator $defaultQueryOperator
         = QueryOperator::OR;
 
@@ -160,6 +162,16 @@ class SearchQueryBuilder
         return $this;
     }
 
+
+    /**
+     * @return $this
+     */
+    public function expandByDate(bool $expandByDate): static
+    {
+        $this->expandByDate = $expandByDate;
+        return $this;
+    }
+
     /**
      * @return $this
      */
@@ -210,6 +222,7 @@ class SearchQueryBuilder
             facets: array_values($this->facets),
             spellcheck: $this->spellcheck,
             archive: $this->archive,
+            expandByDate: $this->expandByDate,
             defaultQueryOperator: $this->defaultQueryOperator,
             timeZone: $this->timeZone,
             boosting: $this->boosting,

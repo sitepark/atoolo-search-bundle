@@ -32,6 +32,7 @@ class SearchQuery
         public readonly array $facets,
         public readonly bool $spellcheck,
         public readonly bool $archive,
+        public readonly bool $expandByDate,
         public readonly QueryOperator $defaultQueryOperator,
         public readonly ?DateTimeZone $timeZone,
         public readonly ?Boosting $boosting,

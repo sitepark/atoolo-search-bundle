@@ -6,6 +6,10 @@ namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\Boosting;
+use Atoolo\Search\Dto\Search\Query\Facet\AbsoluteDateRangeFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\CategoryFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
+use Atoolo\Search\Dto\Search\Query\Filter\CategoryFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\GeoPoint;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
@@ -42,6 +46,8 @@ class SolrSearch implements Search
         'sp_id',
         'sp_objecttype',
         'sp_date',
+        'sp_date_from',
+        'sp_date_to',
         // @deprecated use nested Docs instead (sp_date_documents)
         'sp_date_list',
         'sp_meta_*',
@@ -65,10 +71,44 @@ class SolrSearch implements Search
         $index = $this->index->name($query->lang);
         $client = $this->clientFactory->create($index);
 
-        $solrQuery = $this->buildSolrQuery($client, $query);
-        /** @var SelectResult $result */
-        $result = $client->execute($solrQuery);
-        return $this->buildResult($query, $result, $query->lang);
+        /**
+         * 'expandByDate' has to search in root AND nested documents,
+         * whereas all other searches only search within root documents.
+         */
+        if ($query->expandByDate) {
+            /*
+             * 1. search parents with child-filter, parent-filter and parent-facetts
+             * 2. search children with parent-filter, child-date-filter and  child-date-facetts
+             * 2. Merge all facets and return children (with merged parent-fields?)
+             */
+            $solrParentQuery = $this->buildSolrDateParentQuery($client, $query);
+            /** @var SelectResult $solrParentsResult */
+            $solrParentsResult = $client->execute($solrParentQuery);
+            $parentResult = $this->buildResult($query, $solrParentsResult, $query->lang);
+            $parentSearchFacetGroups = $parentResult->facetGroups;
+
+            $solrChildrenQuery = $this->buildSolrDateChildrenQuery($client, $query);
+            /** @var SelectResult $solrChildrenResult */
+            $solrChildrenResult = $client->execute($solrChildrenQuery);
+            $childSearchResult = $this->buildResult($query, $solrChildrenResult, $query->lang);
+            $childSearchFacetGroups = $childSearchResult->facetGroups;
+
+            return new SearchResult(
+                total: $solrChildrenResult->getNumFound() ?? 0,
+                limit: $query->limit,
+                offset: $query->offset,
+                results: $childSearchResult->results,
+                facetGroups: array_merge($parentSearchFacetGroups, $childSearchFacetGroups),
+                spellcheck: $parentResult->spellcheck,
+                queryTime: ($solrParentsResult->getQueryTime() + $solrChildrenResult->getQueryTime()),
+            );
+
+        } else {
+            $solrQuery = $this->buildSolrQuery($client, $query);
+            /** @var SelectResult $result */
+            $result = $client->execute($solrQuery);
+            return $this->buildResult($query, $result, $query->lang);
+        }
     }
 
     private function buildSolrQuery(
@@ -89,7 +129,7 @@ class SolrSearch implements Search
         $solrQuery->setOmitHeader(false);
 
         $this->addSortToSolrQuery($solrQuery, $query->sort);
-        $this->addRequiredFieldListToSolrQuery($solrQuery, $query->explain);
+        $this->addRequiredFieldListToSolrQuery($solrQuery, $query->explain, $query->expandByDate);
         $this->addTextFilterToSolrQuery($solrQuery, $query->text);
         $this->addQueryDefaultOperatorToSolrQuery(
             $solrQuery,
@@ -99,10 +139,12 @@ class SolrSearch implements Search
             $solrQuery,
             $query->filter,
             $query->archive,
+            SolrQueryType::QUERY_TYPE_DEFAULT,
         );
         $this->addFacetListToSolrQuery(
             $solrQuery,
             $query->facets,
+            $query->expandByDate,
         );
         $this->addDistanceField($solrQuery, $query->distanceReferencePoint);
 
@@ -123,6 +165,126 @@ class SolrSearch implements Search
         return $solrQuery;
     }
 
+    private function buildSolrDateParentQuery(
+        Client $client,
+        SearchQuery $query,
+    ): SolrSelectQuery {
+        $solrQuery = $client->createSelect();
+
+        // set parent query with all relevant child (date) filter
+        $parentFilterQuery = $solrQuery->createFilterQuery(SolrQueryType::QUERY_TYPE_PARENT->value);
+        $parentFilterQuery->setQuery(
+            "{!parent which='*:* -_nest_parent_:*' filters=\$" . SolrQueryType::QUERY_TYPE_PARENT->value . "}",
+        );
+
+        // only facets and spellcheck are relevant for the result.
+        $solrQuery->setStart(0);
+        $solrQuery->setRows(0);
+        if ($query->spellcheck) {
+            $this->addSpellcheck($solrQuery);
+        }
+        $solrQuery->setOmitHeader(false);
+        //$this->addSortToSolrQuery($solrQuery, $query->sort);
+        $solrQuery->setFields(self::QUERY_FIELDS_REQUIRED);
+
+        $this->addTextFilterToSolrQuery($solrQuery, $query->text);
+        $this->addQueryDefaultOperatorToSolrQuery(
+            $solrQuery,
+            $query->defaultQueryOperator,
+        );
+
+        // set the relevant child filter.
+        $this->addFilterQueriesToSolrQuery(
+            $solrQuery,
+            $query->filter,
+            $query->archive,
+            SolrQueryType::QUERY_TYPE_PARENT,
+        );
+
+        // here the relevant parent facets.
+        $this->addFacetListToSolrQuery(
+            $solrQuery,
+            array_filter($query->facets, function ($filter) {
+                return (
+                    $filter instanceof AbsoluteDateRangeFacet === false
+                    && $filter instanceof RelativeDateRangeFacet === false
+                    && $filter instanceof CategoryFacet === false
+                );
+            }),
+            false,
+        );
+        $this->addDistanceField($solrQuery, $query->distanceReferencePoint);
+
+        if ($query->timeZone !== null) {
+            $solrQuery->setTimezone($query->timeZone);
+        } elseif (date_default_timezone_get()) {
+            $solrQuery->setTimezone(date_default_timezone_get());
+        }
+        $this->addBoosting($solrQuery, $query->boosting);
+        $this->addUserGroups($solrQuery);
+
+        foreach ($this->solrQueryModifierList as $solrQueryModifier) {
+            $solrQuery = $solrQueryModifier->modify($solrQuery);
+        }
+
+        return $solrQuery;
+    }
+
+
+    private function buildSolrDateChildrenQuery(
+        Client $client,
+        SearchQuery $query,
+    ): SolrSelectQuery {
+        $solrQuery = $client->createSelect();
+
+        // set child query with all relevant parent (category, group, ...) filter
+        $parentFilterQuery = $solrQuery->createFilterQuery(SolrQueryType::QUERY_TYPE_CHILD->value);
+        $parentFilterQueryString
+            = '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}';
+        if (!empty($query->text)) {
+            $parentFilterQueryString .= '(' . $query->text . ')';
+        }
+        $parentFilterQuery->setQuery($parentFilterQueryString);
+
+        $solrQuery->setStart($query->offset);
+        $solrQuery->setRows($query->limit);
+        // to get query-time
+        $solrQuery->setOmitHeader(false);
+        $this->addSortToSolrQuery($solrQuery, $query->sort);
+        $this->addRequiredFieldListToSolrQuery($solrQuery, $query->explain, $query->expandByDate);
+        $this->addQueryDefaultOperatorToSolrQuery(
+            $solrQuery,
+            $query->defaultQueryOperator,
+        );
+
+        // set the relevant parent filter.
+        $this->addFilterQueriesToSolrQuery(
+            $solrQuery,
+            $query->filter,
+            $query->archive,
+            SolrQueryType::QUERY_TYPE_CHILD,
+        );
+        // here the relevant child facets.
+        $this->addFacetListToSolrQuery(
+            $solrQuery,
+            array_filter($query->facets, function ($filter) {
+                return (
+                    $filter instanceof AbsoluteDateRangeFacet
+                    || $filter instanceof RelativeDateRangeFacet
+                    || $filter instanceof CategoryFacet
+                );
+            }),
+            $query->expandByDate,
+        );
+
+        if ($query->timeZone !== null) {
+            $solrQuery->setTimezone($query->timeZone);
+        } elseif (date_default_timezone_get()) {
+            $solrQuery->setTimezone(date_default_timezone_get());
+        }
+
+        return $solrQuery;
+    }
     private function addSpellcheck(
         SolrSelectQuery $solrQuery,
     ): void {
@@ -152,12 +314,19 @@ class SolrSearch implements Search
     private function addRequiredFieldListToSolrQuery(
         SolrSelectQuery $solrQuery,
         bool $explain,
+        bool $expandByDate,
     ): void {
         $solrQuery->setFields(
             self::QUERY_FIELDS_REQUIRED,
         );
         if ($explain) {
             $solrQuery->addField('explain:[explain style=nl]');
+        }
+        if ($expandByDate) {
+            $solrQuery->addField('[parent]');
+            $solrQuery->addField('_nest_path_');
+            $solrQuery->addField('_nest_parent_');
+            $solrQuery->addField('_root_');
         }
     }
 
@@ -227,11 +396,13 @@ class SolrSearch implements Search
         SolrSelectQuery $solrQuery,
         array $filterList,
         bool $archive,
+        SolrQueryType $queryType,
     ): void {
         $filterAppender = new SolrQueryFilterAppender(
             $solrQuery,
             $this->schemaFieldMapper,
             $this->queryTemplateResolver,
+            $queryType,
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);
@@ -262,6 +433,7 @@ class SolrSearch implements Search
     private function addFacetListToSolrQuery(
         SolrSelectQuery $solrQuery,
         array $facetList,
+        bool $expandByDate,
     ): void {
         $facetAppender = new SolrQueryFacetAppender(
             $solrQuery,

@@ -22,6 +22,7 @@ use Atoolo\Search\Dto\Search\Query\GeoPoint;
 use Atoolo\Search\Service\Search\QueryTemplateResolver;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryFilterAppender;
+use Atoolo\Search\Service\Search\SolrQueryType;
 use DateInterval;
 use DateTime;
 use Exception;
@@ -37,14 +38,17 @@ use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 class SolrQueryFilterAppenderTest extends TestCase
 {
     private SolrQueryFilterAppender $appender;
+    private SolrQueryFilterAppender $parentAppender;
+    private SolrQueryFilterAppender $childAppender;
 
+    private SolrSelectQuery&MockObject $solrQuery;
     private FilterQuery&MockObject $filterQuery;
 
     public function setUp(): void
     {
         $this->filterQuery = $this->createMock(FilterQuery::class);
-        $solrQuery = $this->createMock(SolrSelectQuery::class);
-        $solrQuery->method('createFilterQuery')
+        $this->solrQuery = $this->createMock(SolrSelectQuery::class);
+        $this->solrQuery->method('createFilterQuery')
             ->willReturn($this->filterQuery);
         $fieldMapper = $this->createMock(Schema2xFieldMapper::class);
         $fieldMapper->method('getFilterField')
@@ -53,7 +57,24 @@ class SolrQueryFilterAppenderTest extends TestCase
             ->willReturn('archive');
         $queryTemplateResolver = new QueryTemplateResolver();
 
-        $this->appender = new SolrQueryFilterAppender($solrQuery, $fieldMapper, $queryTemplateResolver);
+        $this->appender = new SolrQueryFilterAppender(
+            $this->solrQuery,
+            $fieldMapper,
+            $queryTemplateResolver,
+            SolrQueryType::QUERY_TYPE_DEFAULT,
+        );
+        $this->parentAppender = new SolrQueryFilterAppender(
+            $this->solrQuery,
+            $fieldMapper,
+            $queryTemplateResolver,
+            SolrQueryType::QUERY_TYPE_PARENT,
+        );
+        $this->childAppender = new SolrQueryFilterAppender(
+            $this->solrQuery,
+            $fieldMapper,
+            $queryTemplateResolver,
+            SolrQueryType::QUERY_TYPE_CHILD,
+        );
     }
 
     public function testExcludeArchived(): void
@@ -559,4 +580,28 @@ class SolrQueryFilterAppenderTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->appender->append($filter);
     }
+
+    public function testAbsoluteDateRangeParentQueryFilterWithFromAndTo(): void
+    {
+        $from = new \DateTime('2021-02-01 00:00:00Z');
+        $to = new \DateTime('2021-02-02 00:00:00Z');
+        $filter = new AbsoluteDateRangeFilter($from, $to, 'sp_date');
+
+        $this->solrQuery->expects($this->once())
+            ->method('addParam')
+            ->with(SolrQueryType::QUERY_TYPE_PARENT->value, ['test:[2021-02-01T00:00:00Z TO 2021-02-02T00:00:00Z]']);
+
+        $this->parentAppender->append($filter);
+    }
+    public function testChildQueryFieldFilter(): void
+    {
+        $field = new FieldFilter(['fieldFilter']);
+
+        $this->solrQuery->expects($this->once())
+            ->method('addParam')
+            ->with(SolrQueryType::QUERY_TYPE_CHILD->value, ['test:fieldFilter NOT _nest_parent_:*']);
+
+        $this->childAppender->append($field);
+    }
+
 }

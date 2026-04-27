@@ -10,6 +10,7 @@ use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Facet\MultiQueryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\QueryFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\GeoPoint;
 use Atoolo\Search\Dto\Search\Query\QueryOperator;
@@ -26,6 +27,7 @@ use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\Search\QueryTemplateResolver;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryModifier;
+use Atoolo\Search\Service\Search\SolrQueryType;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use Atoolo\Search\Service\Search\SolrSearch;
 use Atoolo\Search\Service\SolrClientFactory;
@@ -57,6 +59,7 @@ class SolrSearchTest extends TestCase
     private SelectResult|Stub $result;
 
     private SolrSelectQuery&MockObject $solrQuery;
+    private FilterQuery&MockObject $filterQuery;
 
     private SolrSearch $searcher;
 
@@ -72,9 +75,10 @@ class SolrSearchTest extends TestCase
         $clientFactory->method('create')->willReturn($client);
 
         $this->solrQuery = $this->createMock(SolrSelectQuery::class);
+        $this->filterQuery = $this->createMock(FilterQuery::class);
 
         $this->solrQuery->method('createFilterQuery')
-            ->willReturn(new FilterQuery());
+            ->willReturn($this->filterQuery);
         $this->solrQuery->method('getFacetSet')
             ->willReturn(new FacetSet());
 
@@ -128,6 +132,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -155,6 +160,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -182,6 +188,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -211,6 +218,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -248,6 +256,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -275,6 +284,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -300,6 +310,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::AND,
             timeZone: null,
             boosting: null,
@@ -329,6 +340,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -367,6 +379,7 @@ class SolrSearchTest extends TestCase
             facets: $facets,
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -399,6 +412,7 @@ class SolrSearchTest extends TestCase
             facets: $facets,
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -437,6 +451,7 @@ class SolrSearchTest extends TestCase
             facets: $facets,
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -485,6 +500,7 @@ class SolrSearchTest extends TestCase
             facets: $facets,
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -539,6 +555,7 @@ class SolrSearchTest extends TestCase
             facets: $facets,
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -572,6 +589,7 @@ class SolrSearchTest extends TestCase
             facets: $facets,
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -602,6 +620,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: true,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -664,6 +683,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: true,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -700,6 +720,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: true,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -753,6 +774,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: new DateTimeZone("UTC"),
             boosting: null,
@@ -778,6 +800,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -803,6 +826,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            expandByDate: false,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
             boosting: null,
@@ -816,5 +840,93 @@ class SolrSearchTest extends TestCase
             ->with('explain:[explain style=nl]');
 
         $this->searcher->search($query);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testSearchWithExpandDate(): void
+    {
+        $query = new SearchQuery(
+            text: 'searchString',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            spellcheck: true,
+            archive: true,
+            expandByDate: true,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: new DateTimeZone("UTC"),
+            boosting: null,
+            distanceReferencePoint: null,
+        );
+
+        $expectedQueries = [
+            '{!parent which=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_PARENT->value . '}',
+            '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}(searchString)',
+        ];
+        $callCount = 0;
+        $this->filterQuery->expects($this->exactly(2))
+            ->method('setQuery')
+            ->willReturnCallback(function ($query) use ($expectedQueries, &$callCount) {
+                $this->assertEquals($expectedQueries[$callCount], $query);
+                $callCount++;
+                return $this->filterQuery;
+            });
+
+        // test adding of '[parent]' Field
+        $this->solrQuery->expects($this->atLeastOnce())
+            ->method('addField')
+            ->withAnyParameters();
+
+        $this->solrQuery->expects($this->never())
+            ->method('addParam');
+
+        $searchResult = $this->searcher->search($query);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testSearchWithExpandDateAndFactes(): void
+    {
+        $facets = [
+            new RelativeDateRangeFacet(
+                'dateFacetKey', //string $key,
+                null, //public readonly ?\DateTime $base = null,
+                null, // ?DateInterval $before = null,
+                null, // ?DateInterval $after = null,
+                null, // public readonly ?DateInterval $gap = null,
+                null, // public readonly ?DateRangeRound $roundStart = null,
+                null, // public readonly ?DateRangeRound $roundEnd = null,
+                [], // array $excludeFilter = [],
+                new \DateInterval('P0D'), // ?DateInterval $from = null,
+                new \DateInterval('P20D'),// ?DateInterval $to = null,
+            ),
+        ];
+        $query = new SearchQuery(
+            text: 'searchString',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: $facets,
+            spellcheck: true,
+            archive: true,
+            expandByDate: true,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null,
+            distanceReferencePoint: null,
+        );
+
+        $this->solrQuery->expects($this->once())
+            ->method('getFacetSet');
+
+        $searchResult = $this->searcher->search($query);
     }
 }
