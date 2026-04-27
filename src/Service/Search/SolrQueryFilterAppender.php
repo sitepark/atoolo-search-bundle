@@ -102,7 +102,10 @@ class SolrQueryFilterAppender
             $filter instanceof FieldFilter => $this->getFieldQuery($filter),
             $filter instanceof AndFilter => $this->getAndQuery($filter),
             $filter instanceof OrFilter => $this->getOrQuery($filter),
-            $filter instanceof NotFilter => 'NOT ' . $this->getQuery($filter->filter),
+            $filter instanceof NotFilter
+                => ($this->isChildDateFilter($filter) ? '(*:* AND ' : '')
+                . 'NOT ' . $this->getQuery($filter->filter)
+                . ($this->isChildDateFilter($filter) ? ')' : ''),
             $filter instanceof QueryFilter => $filter->query,
             $filter instanceof QueryTemplateFilter => $this->getQueryTemplateFilter($filter),
             $filter instanceof TeaserPropertyFilter => $this->getTeaserPropertyFilter($filter),
