@@ -108,6 +108,12 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $spContentType = [$resource->objectType];
         if ($data->getBool('media') !== true) {
             $spContentType[] = 'article';
+        } else {
+            $mediaContainerId = $data->getInt('mediaContainer.id');
+            if ($mediaContainerId !== 0) {
+                $mediaWithContainerId = $mediaContainerId . "-" . $resource->id;
+                $doc->id = $mediaWithContainerId;
+            }
         }
         $contentSectionTypes = $data->getArray('contentSectionTypes');
         $spContentType = array_merge($spContentType, $contentSectionTypes);

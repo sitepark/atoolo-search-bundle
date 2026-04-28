@@ -32,6 +32,12 @@ services:
       - '%atoolo_search.solr.connection.proxy%'
       - '%atoolo_search.solr.connection.timeout%'
 
+  Atoolo\Search\Service\Search\InternalIdBasedResourceFactory:
+    arguments:
+      - '@atoolo_resource.resource_loader'
+      - '@atoolo_resource.id_path_mapper'
+    tags:
+      - { name: 'atoolo_search.resource_factory', priority: 12 }
   Atoolo\Search\Service\Search\InternalResourceFactory:
     arguments:
       - '@atoolo_resource.resource_loader'

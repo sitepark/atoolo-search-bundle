@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer\SiteKit;
 
-use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Resource\Resource;
-use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Exception\DocumentEnrichingException;
 use Atoolo\Search\Service\Indexer\ContentCollector;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema2xDocumentEnricher;
 use DateTime;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(DefaultSchema2xDocumentEnricher::class)]
 class DefaultSchema2xDocumentEnricherTest extends TestCase
 {
     private DefaultSchema2xDocumentEnricher $enricher;
@@ -34,7 +34,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 if ($location->location === 'throwException') {
                     throw new InvalidResourceException($location);
                 }
-                return $this->createResource([
+                return Resource::create([
                     'siteGroup' => ['id' => 999],
                 ]);
             });
@@ -58,21 +58,16 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichSpId(): void
     {
-        $resource = new Resource(
-            '',
-            '123',
-            '',
-            '',
-            ResourceLanguage::default(),
-            new DataBag([]),
-        );
+        $resource = Resource::create([
+            'id' => '123',
+        ]);
         $doc = $this->enrichWithResource($resource);
         $this->assertEquals('123', $doc->sp_id, 'unexpected id');
     }
 
     public function testEnrichName(): void
     {
-        $resource = $this->createResource([
+        $resource = Resource::create([
             'name' => 'test',
         ]);
         $doc = $this->enrichWithResource($resource);
@@ -81,7 +76,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichObjectType(): void
     {
-        $resource = $this->createResource([
+        $resource = Resource::create([
             'objectType' => 'test',
         ]);
         $doc = $this->enrichWithResource($resource);
@@ -125,7 +120,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichCrawlProcessId(): void
     {
-        $resource = $this->createResource([]);
+        $resource = Resource::create([]);
         $doc = $this->enricher->enrichDocument(
             $resource,
             new IndexSchema2xDocument(),
@@ -421,7 +416,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichSpSitesWithInvalidRootResource(): void
     {
-        $resource = $this->createResource([
+        $resource = Resource::create([
             'url' => 'throwException',
         ]);
 
@@ -805,6 +800,47 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         );
     }
 
+    public function testEnrichMediaResourceWithContainerIdChangesDocId(): void
+    {
+        $doc = $this->enrichWithData([
+            'id' => '200',
+            'media' => true,
+            'mediaContainer' => ['id' => 100],
+        ]);
+        $this->assertEquals(
+            '100-200',
+            $doc->id,
+            'doc id should be composed of container id and resource id for media with container',
+        );
+    }
+
+    public function testEnrichMediaResourceWithContainerIdExcludesArticle(): void
+    {
+        $doc = $this->enrichWithData([
+            'objectType' => 'download',
+            'media' => true,
+            'mediaContainer' => ['id' => 100],
+        ]);
+        $this->assertNotContains(
+            'article',
+            $doc->sp_contenttype,
+            'media resource should not have "article" content type',
+        );
+    }
+
+    public function testEnrichMediaResourceWithoutContainerIdKeepsDocId(): void
+    {
+        $doc = $this->enrichWithData([
+            'id' => '200',
+            'media' => true,
+        ]);
+        $this->assertEquals(
+            '200',
+            $doc->id,
+            'doc id should remain unchanged for media without container id',
+        );
+    }
+
     public function testEnrichSearchTip(): void
     {
         $doc = $this->enrichWithData([
@@ -838,7 +874,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     private function enrichWithData(
         array $data,
     ): IndexSchema2xDocument {
-        $resource = $this->createResource($data);
+        $resource = Resource::create($data);
         /** @var IndexSchema2xDocument $doc */
         $doc = $this->enricher->enrichDocument(
             $resource,
@@ -846,20 +882,5 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             'progress-id',
         );
         return $doc;
-    }
-
-    /**
-     * @param array<string, array<string,mixed>> $data
-     */
-    private function createResource(array $data): Resource
-    {
-        return new Resource(
-            $data['url'] ?? '',
-            $data['id'] ?? '123',
-            $data['name'] ?? '',
-            $data['objectType'] ?? '',
-            ResourceLanguage::of($data['locale'] ?? ''),
-            new DataBag($data),
-        );
     }
 }

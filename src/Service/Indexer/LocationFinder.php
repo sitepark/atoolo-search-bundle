@@ -31,7 +31,7 @@ class LocationFinder
     {
 
         $finder = new Finder();
-        $finder->in($this->getBasePath())->exclude('WEB-IES');
+        $finder->in($this->getBasePath())->exclude('WEB-IES')->exclude('tmp');
         $finder->name('*.php');
         $finder->notPath('#.*-1015t.php.*#'); // preview files
         $finder->files();
@@ -65,6 +65,9 @@ class LocationFinder
         foreach ($paths as $path) {
             if (!str_starts_with($path, '/')) {
                 $path = '/' . $path;
+            }
+            if ($this->excludePath($path, ['/WEB-IES/.*', '/tmp/.*'])) {
+                continue;
             }
             if ($this->excludePath($path, $excludes)) {
                 continue;
