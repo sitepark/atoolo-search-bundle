@@ -16,11 +16,11 @@ use Atoolo\Search\Service\Search\SolrSuggest;
 use Atoolo\Search\Service\SolrClientFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Solarium\Client;
 use Solarium\Core\Client\Response;
-use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 use Solarium\QueryType\Select\Result\Result as SelectResult;
 
@@ -31,31 +31,31 @@ class SolrSuggestTest extends TestCase
 
     private SolrSuggest $searcher;
 
+    private Client&MockObject $client;
+
     /**
      * @throws Exception
      */
     protected function setUp(): void
     {
-        $indexName = $this->createStub(IndexName::class);
-        $clientFactory = $this->createStub(
-            SolrClientFactory::class,
-        );
-        $client = $this->createStub(Client::class);
-        $clientFactory->method('create')->willReturn($client);
-
-        $query = $this->createStub(SolrSelectQuery::class);
-
-        $query->method('createFilterQuery')
-            ->willReturn(new FilterQuery());
-
-        $client->method('createSelect')->willReturn($query);
 
         $this->result = $this->createStub(SelectResult::class);
-        $client->method('select')->willReturn($this->result);
+        $this->client = $this->createConfiguredMock(Client::class, [
+            'createSelect' => new SolrSelectQuery(),
+            'select' => $this->result,
+        ]);
+
+        $clientFactory = $this->createConfiguredMock(
+            SolrClientFactory::class,
+            [
+                'create' => $this->client,
+            ],
+        );
+
 
         $schemaFieldMapper = $this->createStub(Schema2xFieldMapper::class);
-
         $queryTemplateResolver = $this->createStub(QueryTemplateResolver::class);
+        $indexName = $this->createStub(IndexName::class);
 
         $this->searcher = new SolrSuggest(
             $indexName,
@@ -143,5 +143,31 @@ END);
 
         $this->expectException(UnexpectedResultException::class);
         $this->searcher->suggest($query);
+    }
+
+    public function testCaseInsensitivity(): void
+    {
+        $query = new SuggestQuery(
+            'Test',
+            ResourceLanguage::default(),
+        );
+
+        $response = new Response(<<<END
+            {
+                "facet_counts" : {
+                }
+            }
+        END);
+        $this->result->method('getResponse')->willReturn($response);
+
+        $this->client->expects($this->once())
+            ->method('select')
+            ->with($this->callback(function (SolrSelectQuery $q) {
+                $prefix = $q->getParams()['facet.prefix'] ?? '';
+                return $prefix === 'test';
+            }));
+
+        $this->searcher->suggest($query);
+
     }
 }
