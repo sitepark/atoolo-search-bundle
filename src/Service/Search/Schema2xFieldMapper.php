@@ -50,7 +50,8 @@ class Schema2xFieldMapper
             $facet instanceof SiteFacet => 'sp_site',
             $facet instanceof SourceFacet => 'sp_source',
             $facet instanceof ContentTypeFacet => 'contenttype',
-            $facet instanceof RelativeDateRangeFacet, $facet instanceof AbsoluteDateRangeFacet => 'sp_date',
+            $facet instanceof RelativeDateRangeFacet,
+            $facet instanceof AbsoluteDateRangeFacet => 'sp_date',
             default => throw new InvalidArgumentException(
                 'Unsupported facet-field-class ' . get_class($facet),
             ),
@@ -81,7 +82,7 @@ class Schema2xFieldMapper
             $filter instanceof SourceFilter => 'sp_source',
             $filter instanceof ContentTypeFilter => 'contenttype',
             $filter instanceof RelativeDateRangeFilter,
-            $filter instanceof AbsoluteDateRangeFilter => 'sp_date_from',
+            $filter instanceof AbsoluteDateRangeFilter => 'sp_date',
             $filter instanceof SpatialOrbitalFilter,
             $filter instanceof SpatialArbitraryRectangleFilter => $this->getGeoPointField(),
             $filter instanceof GeoLocatedFilter => 'sp_geo_points',
