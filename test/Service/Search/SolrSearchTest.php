@@ -866,7 +866,8 @@ class SolrSearchTest extends TestCase
 
         $expectedQueries = [
             '{!parent which=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_PARENT->value . '}',
-            '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}(searchString)',
+            '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}'
+            . '{!edismax qf=\'sp_title^1.4 keywords^1.2 description^1.0 title^1.0 url^0.9 content^0.8\'}(searchString)',
         ];
         $callCount = 0;
         $this->filterQuery->expects($this->exactly(2))

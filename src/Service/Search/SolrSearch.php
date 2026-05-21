@@ -242,7 +242,9 @@ class SolrSearch implements Search
         $parentFilterQueryString
             = '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}';
         if (!empty($query->text)) {
-            $parentFilterQueryString .= '(' . $query->text . ')';
+            $boosting = $query->boosting ?? new DefaultBoosting();
+            $parentFilterQueryString
+                .= '{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\'}(' . $query->text . ')';
         }
         $parentFilterQuery->setQuery($parentFilterQueryString);
 
