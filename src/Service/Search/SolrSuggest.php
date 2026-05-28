@@ -66,7 +66,7 @@ class SolrSuggest implements Suggest
         $solrQuery->addParam("facet", "true");
         $solrQuery->addParam("facet.sort", "count");
         $solrQuery->addParam("facet.method", "enum");
-        $solrQuery->addParam("facet.prefix", $query->text);
+        $solrQuery->addParam("facet.prefix", mb_strtolower($query->text));
         $solrQuery->addParam("facet.limit", $query->limit);
         $solrQuery->addParam("facet.field", $this->indexSuggestField);
         $solrQuery->addParam("facet.mincount", $query->minHitCount);
