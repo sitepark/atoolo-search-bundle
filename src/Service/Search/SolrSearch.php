@@ -78,8 +78,8 @@ class SolrSearch implements Search
         if ($query->expandByDate) {
             /*
              * 1. search parents with child-filter, parent-filter and parent-facetts
-             * 2. search children with parent-filter, child-date-filter and  child-date-facetts
-             * 2. Merge all facets and return children (with merged parent-fields?)
+             * 2. search children with parent-filter, child-date-filter and child-date-facetts
+             * 2. Merge all facets and return children (with merged parent-fields)
              */
             $solrParentQuery = $this->buildSolrDateParentQuery($client, $query);
             /** @var SelectResult $solrParentsResult */
@@ -184,7 +184,6 @@ class SolrSearch implements Search
             $this->addSpellcheck($solrQuery);
         }
         $solrQuery->setOmitHeader(false);
-        //$this->addSortToSolrQuery($solrQuery, $query->sort);
         $solrQuery->setFields(self::QUERY_FIELDS_REQUIRED);
 
         $this->addTextFilterToSolrQuery($solrQuery, $query->text);
