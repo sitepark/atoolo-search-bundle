@@ -26,8 +26,11 @@ use Atoolo\Search\Dto\Search\Result\SpellcheckWord;
 use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\Search\QueryTemplateResolver;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
+use Atoolo\Search\Service\Search\SolrQueryBuilder;
+use Atoolo\Search\Service\Search\SolrQueryConfigurator;
 use Atoolo\Search\Service\Search\SolrQueryModifier;
 use Atoolo\Search\Service\Search\SolrQueryType;
+use Atoolo\Search\Service\Search\SolrResultBuilder;
 use Atoolo\Search\Service\Search\SolrResultToResourceResolver;
 use Atoolo\Search\Service\Search\SolrSearch;
 use Atoolo\Search\Service\SolrClientFactory;
@@ -109,14 +112,20 @@ class SolrSearchTest extends TestCase
 
         $this->requestStack = $this->createStub(RequestStack::class);
 
-        $this->searcher = new SolrSearch(
-            $indexName,
-            $clientFactory,
-            $resultToResourceResolver,
+        $solrConfigurator = new SolrQueryConfigurator(
             $schemaFieldMapper,
             $queryTemplateResolver,
             $this->requestStack,
             [$solrQueryModifier],
+        );
+        $queryBuilder = new SolrQueryBuilder($solrConfigurator);
+        $resultBuilder = new SolrResultBuilder($resultToResourceResolver);
+
+        $this->searcher = new SolrSearch(
+            $indexName,
+            $clientFactory,
+            $queryBuilder,
+            $resultBuilder,
         );
     }
 
