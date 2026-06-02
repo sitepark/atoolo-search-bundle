@@ -6,6 +6,7 @@ namespace Atoolo\Search\Service\Search;
 
 use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\AndFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\CategoryFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\FieldFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Filter\GeoLocatedFilter;
@@ -27,6 +28,7 @@ class SolrQueryFilterAppender
         private readonly SolrSelectQuery $solrQuery,
         private readonly Schema2xFieldMapper $fieldMapper,
         private readonly QueryTemplateResolver $queryTemplateResolver,
+        private readonly SolrQueryType $queryType,
     ) {}
 
     public function excludeArchived(): void
@@ -38,19 +40,72 @@ class SolrQueryFilterAppender
 
     public function append(Filter $filter): void
     {
-        $key = $filter->key ?? uniqid('', true);
-        $filterQuery = $this->solrQuery->createFilterQuery($key);
-        $filterQuery->setQuery($this->getQuery($filter));
-        $filterQuery->setTags(array_merge($filter->tags, [$key]));
+        /*
+         * Differentiate between date-parent, date-child or default search.
+         * The date-* searches work with nested documents. The default search
+         * only with the root documents.
+         */
+        if ($this->isParentDateFilter($filter)) {
+            $dateFilterParams = $this->solrQuery->getParams()[SolrQueryType::QUERY_TYPE_PARENT->value] ?? [];
+            $dateFilterParams[] = $this->getQuery($filter);
+            $this->solrQuery->addParam(SolrQueryType::QUERY_TYPE_PARENT->value, $dateFilterParams);
+
+        } elseif ($this->isChildDateFilter($filter)) {
+            $dateFilterParams = $this->solrQuery->getParams()[SolrQueryType::QUERY_TYPE_CHILD->value] ?? [];
+            $dateFilterParams[] = $this->getQuery($filter);
+            $this->solrQuery->addParam(SolrQueryType::QUERY_TYPE_CHILD->value, $dateFilterParams);
+        } else {
+            $key = $filter->key ?? uniqid('', true);
+            $filterQuery = $this->solrQuery->createFilterQuery($key);
+            $filterQuery->setQuery($this->getQuery($filter));
+            $filterQuery->setTags(array_merge($filter->tags, [$key]));
+        }
     }
 
+    /**
+     * returns true, if this appender works in a nested parent-query and the given
+     * filter is a date filter of the children
+     * @param Filter $filter
+     * @return bool
+     */
+    private function isParentDateFilter(Filter $filter): bool
+    {
+        return  ($this->queryType === SolrQueryType::QUERY_TYPE_PARENT)
+            && (
+                $filter instanceof AbsoluteDateRangeFilter
+                || $filter instanceof RelativeDateRangeFilter
+                || $filter instanceof CategoryFilter
+            );
+    }
+
+    /**
+     * returns true, if this appender works in a nested child-query and the given
+     * filter is no date filter of the children
+     * @param Filter $filter
+     * @return bool
+     */
+    private function isChildDateFilter(Filter $filter): bool
+    {
+        return $this->queryType === SolrQueryType::QUERY_TYPE_CHILD
+            && !($filter instanceof AbsoluteDateRangeFilter)
+            && !($filter instanceof RelativeDateRangeFilter)
+            && !($filter instanceof CategoryFilter);
+    }
+
+    /**
+     * @param Filter $filter
+     * @return string
+     */
     private function getQuery(Filter $filter): string
     {
         return match (true) {
             $filter instanceof FieldFilter => $this->getFieldQuery($filter),
             $filter instanceof AndFilter => $this->getAndQuery($filter),
             $filter instanceof OrFilter => $this->getOrQuery($filter),
-            $filter instanceof NotFilter => 'NOT ' . $this->getQuery($filter->filter),
+            $filter instanceof NotFilter
+                => ($this->isChildDateFilter($filter) ? '(*:* AND ' : '')
+                . 'NOT ' . $this->getQuery($filter->filter)
+                . ($this->isChildDateFilter($filter) ? ')' : ''),
             $filter instanceof QueryFilter => $filter->query,
             $filter instanceof QueryTemplateFilter => $this->getQueryTemplateFilter($filter),
             $filter instanceof TeaserPropertyFilter => $this->getTeaserPropertyFilter($filter),
@@ -107,7 +162,7 @@ class SolrQueryFilterAppender
         $filterValue = count($values) === 1
             ? $values[0]
             : '(' . implode(' ', $values) . ')';
-        return $field . ':' . $filterValue;
+        return $field . ':' . $filterValue . ($this->isChildDateFilter($filter) ? ' NOT _nest_parent_:*' : '');
     }
 
     private function getFilterField(Filter $filter): string
@@ -142,7 +197,8 @@ class SolrQueryFilterAppender
         if (empty($query)) {
             return '';
         }
-        return '(' . implode(' AND ', $query) . ')';
+        return '(' . implode(' AND ', $query) . ')'
+            . ($this->isChildDateFilter($filter) ? ' NOT _nest_parent_:*' : '');
     }
 
     private function getAbsoluteDateRangeQuery(
@@ -216,9 +272,7 @@ class SolrQueryFilterAppender
     private function getSpatialArbitraryRectangleQuery(
         SpatialArbitraryRectangleFilter $filter,
     ): string {
-
         $field = $this->getFilterField($filter);
-
         return $field
             . ':[ '
             . $filter->lowerLeftCorner->lat

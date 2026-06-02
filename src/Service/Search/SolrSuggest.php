@@ -93,6 +93,7 @@ class SolrSuggest implements Suggest
             $solrQuery,
             $this->schemaFieldMapper,
             $this->queryTemplateResolver,
+            SolrQueryType::QUERY_TYPE_DEFAULT,
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);

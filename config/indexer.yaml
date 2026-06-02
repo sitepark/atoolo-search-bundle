@@ -49,6 +49,7 @@ services:
     arguments:
       - '@atoolo_resource.navigation_hierarchy_loader'
       - '@atoolo_search.indexer.content_collector.sitekit'
+      - '@atoolo_search.indexer.solr_index_service'
     tags:
       - { name: 'atoolo_search.indexer.document_enricher.schema2x', priority: 100 }
 

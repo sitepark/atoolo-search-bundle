@@ -62,16 +62,31 @@ services:
   atoolo_search.explain_builder:
     class: Atoolo\Search\Service\Search\SolrExplainBuilder
 
+  atoolo_search.query_configurator:
+    class: Atoolo\Search\Service\Search\SolrQueryConfigurator
+    arguments:
+      - '@atoolo_search.field_mapper'
+      - '@atoolo_search.query_template_resolver'
+      - '@request_stack'
+      - !tagged_iterator atoolo_search.query_modifier
+
+  atoolo_search.solr_query_Builder:
+      class: Atoolo\Search\Service\Search\SolrQueryBuilder
+      arguments:
+          - '@atoolo_search.query_configurator'
+
+  atoolo_search.solr_result_Builder:
+      class: Atoolo\Search\Service\Search\SolrResultBuilder
+      arguments:
+          - '@atoolo_search.result_to_resource_resolver'
+
   atoolo_search.search:
     class: Atoolo\Search\Service\Search\SolrSearch
     arguments:
       - '@atoolo_search.index_name'
       - '@atoolo_search.solarium_client_factory'
-      - '@atoolo_search.result_to_resource_resolver'
-      - '@atoolo_search.field_mapper'
-      - '@atoolo_search.query_template_resolver'
-      - '@request_stack'
-      - !tagged_iterator atoolo_search.query_modifier
+      - '@atoolo_search.solr_query_Builder'
+      - '@atoolo_search.solr_result_Builder'
 
   atoolo_search.suggest:
     class: Atoolo\Search\Service\Search\SolrSuggest

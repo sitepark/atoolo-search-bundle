@@ -100,6 +100,12 @@ class ExternalResourceFactoryTest extends TestCase
         );
     }
 
+    /**
+     * @return void
+     * @throws \PHPUnit\Framework\MockObject\Exception/**
+     * @deprecated sp_date_list within the created document is no longer supported.
+     *              Each date must be an nested document (see sp_date_documents)
+     */
     public function testWithScheduling(): void
     {
         $document = $this->createDocument('https://www.sitepark.com');
@@ -128,6 +134,14 @@ class ExternalResourceFactoryTest extends TestCase
         );
     }
 
+    /**
+     * @param string $url
+     * @param string $title
+     * @return Document
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     * @deprecated sp_date_list is no longer supported. each date must be an
+     *              nested document (see sp_date_documents)
+     */
     private function createDocument(string $url, string $title = ''): Document
     {
         $document = $this->createStub(Document::class);
