@@ -77,7 +77,6 @@ class SolrQueryConfigurator
         bool $explain,
         bool $expandByDate,
     ): void {
-        $solrQuery->setFields(SolrSearch::QUERY_FIELDS_REQUIRED);
         if ($explain) {
             $solrQuery->addField('explain:[explain style=nl]');
         }
