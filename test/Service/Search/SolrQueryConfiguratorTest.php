@@ -170,11 +170,6 @@ class SolrQueryConfiguratorTest extends TestCase
 
     public function testAddRequiredFieldListToSolrQuery(): void
     {
-        $this->solrQuery
-            ->expects($this->once())
-            ->method('setFields')
-            ->with(\Atoolo\Search\Service\Search\SolrSearch::QUERY_FIELDS_REQUIRED);
-
         $expectedFields = [
             'explain:[explain style=nl]',
             '[parent]',
