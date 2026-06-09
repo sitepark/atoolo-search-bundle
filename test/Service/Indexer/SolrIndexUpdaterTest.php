@@ -6,6 +6,7 @@ namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\SolrIndexUpdater;
+use Solarium\QueryType\Update\Query\Command\Add as AddCommand;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -48,5 +49,22 @@ class SolrIndexUpdaterTest extends TestCase
             ->method('addDocuments')
             ->with([$doc]);
         $this->updater->update();
+    }
+
+    public function testClearDocuments(): void
+    {
+        $doc = $this->updater->createDocument();
+        $this->updater->addDocument($doc);
+        $addCommand = new AddCommand();
+        $addCommand->addDocument($doc);
+        $this->updateQuery->method('getCommands')->willReturn(
+            [$addCommand],
+        );
+
+        $this->updateQuery->expects($this->once())
+            ->method('remove')
+            ->with($addCommand);
+
+        $this->updater->clearDocuments();
     }
 }

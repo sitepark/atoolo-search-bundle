@@ -33,6 +33,13 @@ class SolrIndexUpdater
         $this->documents[] = $document;
     }
 
+    public function clearDocuments(): void
+    {
+        foreach ($this->update->getCommands() as $command) {
+            $this->update->remove($command);
+        };
+    }
+
     public function update(): UpdateResult
     {
         $this->update->addDocuments($this->documents);
