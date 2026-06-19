@@ -67,16 +67,16 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         IndexDocument $doc,
         string $processId,
     ): IndexDocument {
-        $this->enrichCommonFields($resource, $doc);
         $doc->crawl_process_id = $processId;
+
+        $this->enrichCommonFields($resource, $doc);
+        $this->enrichCategoryFields($resource, $doc);
+        $this->enrichGroupFields($resource, $doc);
 
         if ($doc->sp_objecttype === 'searchTip') {
             return $doc;
         }
-
         $this->enrichCommonTextFields($resource, $doc);
-        $this->enrichCategoryFields($resource, $doc);
-        $this->enrichGroupFields($resource, $doc);
         $this->enrichDateFields($resource, $doc);
         $this->enrichNestedEventDocuments($resource, $doc);
         $this->enrichAccessFields($resource, $doc);
@@ -129,6 +129,11 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $doc->sp_language = $lang;
         $doc->meta_content_language = $lang;
         $doc->sp_archive = $base->getBool('archive');
+
+        $doc->sp_contenttype = [$resource->objectType];
+        if ($data->getBool('media') !== true) {
+            $doc->sp_contenttype[] = 'article';
+        }
 
         $contentType = $base->getString(
             'mime',
@@ -340,7 +345,10 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         if ($base->has('teaser.text')) {
             $spContentType[] = 'teaserText';
         }
-        $doc->sp_contenttype = $spContentType;
+        $doc->sp_contenttype = array_merge(
+            $doc->sp_contenttype ?? [],
+            ...$spContentType,
+        );
 
         $headline = $base->getString('teaser.headline')
             ?: $metadata->getString('headline')
