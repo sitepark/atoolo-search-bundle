@@ -123,6 +123,11 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         }
         $doc->sp_group_path = $groupPathAsIdList;
 
+        $doc->sp_contenttype = [$resource->objectType];
+        if ($data->getBool('media') !== true) {
+            $doc->sp_contenttype[] = 'article';
+        }
+
         // searchTips need their groups and categories for filtering.
         if ($doc->sp_objecttype === 'searchTip') {
             return $doc;
@@ -138,10 +143,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         }
 
         /** @var string[] $spContentType */
-        $spContentType = [$resource->objectType];
-        if ($data->getBool('media') !== true) {
-            $spContentType[] = 'article';
-        }
+        $spContentType = $doc->sp_contenttype;
         $contentSectionTypes = $data->getArray('contentSectionTypes');
         $spContentType = array_merge($spContentType, $contentSectionTypes);
 
