@@ -865,7 +865,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 ],
                 [
                     'id' => 1006,
-                    'groupType' => 'commonGroup'
+                    'groupType' => 'commonGroup',
                 ],
             ],
             'searchindexdata.content' => 'search content',
@@ -881,9 +881,6 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             $doc->content,
             'searchTip should not have content',
         );
-
-
-
     }
 
     private function enrichWithResource(
