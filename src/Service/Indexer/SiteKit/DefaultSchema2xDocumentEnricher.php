@@ -326,13 +326,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         }
 
         /** @var string[] $spContentType */
-        $spContentType = [$resource->objectType];
-        if ($data->getBool('media') !== true) {
-            $spContentType[] = 'article';
-        }
-        $contentSectionTypes = $data->getArray('contentSectionTypes');
-        $spContentType = array_merge($spContentType, $contentSectionTypes);
-
+        $spContentType = $data->getArray('contentSectionTypes');
         if ($base->has('teaser.image')) {
             $spContentType[] = 'teaserImage';
         }
@@ -347,7 +341,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         }
         $doc->sp_contenttype = array_merge(
             $doc->sp_contenttype ?? [],
-            ...$spContentType,
+            $spContentType,
         );
 
         $headline = $base->getString('teaser.headline')
