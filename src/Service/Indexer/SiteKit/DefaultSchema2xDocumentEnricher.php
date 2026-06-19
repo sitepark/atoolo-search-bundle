@@ -91,6 +91,39 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $metadata->getArray('boostKeywords'),
         );
 
+        /** @var array<array{id: int}> $categoryList */
+        $categoryList = $metadata->getArray('categories');
+        if (!empty($categoryList)) {
+            $categoryIdList = [];
+            foreach ($categoryList as $category) {
+                $categoryIdList[] = (string) $category['id'];
+            }
+            $doc->sp_category = $categoryIdList;
+        }
+
+        /** @var array<array{id: int}> $categoryPath */
+        $categoryPath = $metadata->getArray('categoriesPath');
+        if (!empty($categoryPath)) {
+            $categoryIdPath = [];
+            foreach ($categoryPath as $category) {
+                $categoryIdPath[] = (string) $category['id'];
+            }
+            $doc->sp_category_path = $categoryIdPath;
+        }
+
+        /** @var array<array{id: int}> $groupPath */
+        $groupPath = $data->getArray('groupPath');
+        $groupPathAsIdList = [];
+        foreach ($groupPath as $group) {
+            $groupPathAsIdList[] = $group['id'];
+        }
+
+        if (count($groupPathAsIdList) > 2) {
+            $doc->sp_group = $groupPathAsIdList[count($groupPathAsIdList) - 2];
+        }
+        $doc->sp_group_path = $groupPathAsIdList;
+
+        // searchTips need their groups and categories for filtering.
         if ($doc->sp_objecttype === 'searchTip') {
             return $doc;
         }
@@ -182,38 +215,6 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         if (!empty($wktPrimaryList)) {
             $doc->sp_geo_points = $wktPrimaryList;
         }
-
-        /** @var array<array{id: int}> $categoryList */
-        $categoryList = $metadata->getArray('categories');
-        if (!empty($categoryList)) {
-            $categoryIdList = [];
-            foreach ($categoryList as $category) {
-                $categoryIdList[] = (string) $category['id'];
-            }
-            $doc->sp_category = $categoryIdList;
-        }
-
-        /** @var array<array{id: int}> $categoryPath */
-        $categoryPath = $metadata->getArray('categoriesPath');
-        if (!empty($categoryPath)) {
-            $categoryIdPath = [];
-            foreach ($categoryPath as $category) {
-                $categoryIdPath[] = (string) $category['id'];
-            }
-            $doc->sp_category_path = $categoryIdPath;
-        }
-
-        /** @var array<array{id: int}> $groupPath */
-        $groupPath = $data->getArray('groupPath');
-        $groupPathAsIdList = [];
-        foreach ($groupPath as $group) {
-            $groupPathAsIdList[] = $group['id'];
-        }
-
-        if (count($groupPathAsIdList) > 2) {
-            $doc->sp_group = $groupPathAsIdList[count($groupPathAsIdList) - 2];
-        }
-        $doc->sp_group_path = $groupPathAsIdList;
 
         $doc->sp_date = $this->toDateTime(
             $base->getInt('date'),
