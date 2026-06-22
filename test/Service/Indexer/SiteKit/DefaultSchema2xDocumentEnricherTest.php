@@ -131,6 +131,37 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             'unexpected description',
         );
     }
+    public function testEnrichDescriptionWithIntoAndDescription(): void
+    {
+        $doc = $this->enrichWithData(
+            ['metadata'
+                => [
+                    'intro' => 'abc',
+                    'description' => 'def',
+                ],
+            ],
+        );
+        $this->assertEquals(
+            'abc',
+            $doc->description,
+            'unexpected description',
+        );
+    }
+    public function testEnrichDescriptionWithoutInto(): void
+    {
+        $doc = $this->enrichWithData(
+            ['metadata'
+                => [
+                    'description' => 'def',
+                ],
+            ],
+        );
+        $this->assertEquals(
+            'def',
+            $doc->description,
+            'unexpected description',
+        );
+    }
 
     public function testEnrichCanonical(): void
     {

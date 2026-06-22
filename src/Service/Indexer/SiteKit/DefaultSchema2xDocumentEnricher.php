@@ -317,13 +317,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $metadata = new DataBag($data->getAssociativeArray('metadata'));
 
         $doc->title = $base->getString('title');
-        $doc->description = $metadata->getString('description');
-
-        if (empty($doc->description)) {
-            $doc->description = $resource->data->getString(
-                'metadata.intro',
-            );
-        }
+        $doc->description = $metadata->getString('intro', $metadata->getString('description'));
 
         /** @var string[] $spContentType */
         $spContentType = $data->getArray('contentSectionTypes');
