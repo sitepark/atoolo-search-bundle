@@ -845,10 +845,41 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             'base' => [
                 'title' => 'Abc',
             ],
+            'metadata' => [
+                'keywords' => ['testKeyword'],
+                'categories' => [
+                    [
+                        'id' => 1234,
+                        'title' => 'a',
+                    ],
+                    [
+                        'id' => 5678,
+                        'title' => 'b',
+                    ],
+                ],
+            ],
+            'groupPath' => [
+                [
+                    'id' => 1002,
+                    'groupType' => 'rootGroup',
+                ],
+                [
+                    'id' => 1006,
+                    'groupType' => 'commonGroup',
+                ],
+            ],
+            'searchindexdata.content' => 'search content',
         ]);
+        $this->assertEquals('testKeyword', $doc->keywords[0]);
+        $this->assertEquals(2, count($doc->sp_category));
+        $this->assertEquals(2, count($doc->sp_group_path));
         $this->assertNull(
             $doc->sp_title,
             'searchTip should not have sp_title',
+        );
+        $this->assertNull(
+            $doc->content,
+            'searchTip should not have content',
         );
     }
 
