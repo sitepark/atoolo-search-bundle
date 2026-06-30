@@ -7,6 +7,8 @@ namespace Atoolo\Search\Service\Indexer\SiteKit;
 use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Resource\Resource;
+use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Exception\DocumentEnrichingException;
 use Atoolo\Search\Service\Indexer\ContentCollector;
 use Atoolo\Search\Service\Indexer\DocumentEnricher;
@@ -15,6 +17,8 @@ use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\SolrIndexService;
 use DateTime;
 use Exception;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * @phpstan-type Phone array{
@@ -46,8 +50,13 @@ use Exception;
  * }
  * @implements DocumentEnricher<IndexSchema2xDocument>
  */
-class DefaultSchema2xDocumentEnricher implements DocumentEnricher
+class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
+    /** @var array<string,string> */
+    private array $categoryTitleCache = [];
+
     public function __construct(
         private readonly SiteKitNavigationHierarchyLoader $navigationLoader,
         private readonly ContentCollector $contentCollector,
@@ -56,6 +65,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
 
     public function cleanup(): void
     {
+        $this->categoryTitleCache = [];
         $this->navigationLoader->cleanup();
     }
 
@@ -273,10 +283,10 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
     }
 
     /**
-    * @template E of IndexSchema2xDocument
-    * @param Resource $resource
-    * @param E $doc
-    */
+     * @template E of IndexSchema2xDocument
+     * @param Resource $resource
+     * @param E $doc
+     */
     private function enrichAccessFields(
         Resource $resource,
         IndexDocument $doc,
@@ -384,10 +394,16 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $contactPoint = $resource->data->getArray('metadata.contactPoint');
         $content[] = $this->contactPointToContent($contactPoint);
 
-        /** @var array<array{name?:string}> $categories */
+        /** @var array<array{name?:string,url?:string}> $categories */
         $categories = $resource->data->getArray('metadata.categories');
         foreach ($categories as $category) {
-            $content[] = $category['name'] ?? '';
+            $categoryUrl = $category['url'] ?? null;
+            $categoryTitle = $categoryUrl !== null
+                ? $this->loadCategoryTitle($categoryUrl, $resource->lang)
+                : '';
+            $content[] = !empty($categoryTitle)
+                ? $categoryTitle
+                : ($category['name'] ?? '');
         }
 
         $cleanContent = preg_replace(
@@ -399,6 +415,35 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         $doc->content = trim($cleanContent ?? '');
 
         return $doc;
+    }
+
+    private function loadCategoryTitle(
+        string $url,
+        ResourceLanguage $lang,
+    ): string {
+        $cacheKey = $url . ':' . $lang->code;
+        if (array_key_exists($cacheKey, $this->categoryTitleCache)) {
+            return $this->categoryTitleCache[$cacheKey];
+        }
+
+        $title = '';
+        try {
+            $categoryResource = $this->navigationLoader->load(
+                ResourceLocation::of($url, $lang),
+            );
+            $title = $categoryResource->data->getString('base.title', '');
+        } catch (\Throwable $th) {
+            $this->logger?->error(
+                sprintf('unable to load category with url "%s"', $url),
+                [
+                    'error' => $th,
+                    'url' => $url,
+                ],
+            );
+        }
+
+        $this->categoryTitleCache[$cacheKey] = $title;
+        return $title;
     }
 
     /**
@@ -446,8 +491,8 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
     }
 
     /**
-    * @param ContactPoint $contactPoint
-    * @return string
+     * @param ContactPoint $contactPoint
+     * @return string
      */
     private function contactPointToContent(array $contactPoint): string
     {
