@@ -809,6 +809,99 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         );
     }
 
+    public function testEnrichContentUsesCategoryTitleFromResource(): void
+    {
+        $categoryResource = $this->createResource([
+            'base' => ['title' => 'Category Title'],
+        ]);
+        $this->navigationLoader
+            ->method('load')
+            ->willReturn($categoryResource);
+
+        $doc = $this->enrichWithData([
+            'metadata' => [
+                'categories' => [
+                    ['id' => 1, 'name' => 'CategoryName', 'url' => '/category.php'],
+                ],
+            ],
+            'searchindexdata' => ['content' => 'abc'],
+        ]);
+
+        $this->assertStringContainsString(
+            'Category Title',
+            $doc->content,
+            'expected category base.title in content',
+        );
+        $this->assertStringNotContainsString(
+            'CategoryName',
+            $doc->content,
+            'expected category name to be replaced by base.title',
+        );
+    }
+
+    public function testEnrichContentFallsBackToCategoryNameOnLoadFailure(): void
+    {
+        $this->navigationLoader
+            ->method('load')
+            ->willThrowException(new \RuntimeException('not found'));
+
+        $doc = $this->enrichWithData([
+            'metadata' => [
+                'categories' => [
+                    ['id' => 1, 'name' => 'CategoryName', 'url' => '/missing.php'],
+                ],
+            ],
+        ]);
+
+        $this->assertStringContainsString(
+            'CategoryName',
+            $doc->content,
+            'expected fallback to category name on load failure',
+        );
+    }
+
+    public function testEnrichContentCachesDuplicateCategoryUrls(): void
+    {
+        $categoryResource = $this->createResource([
+            'base' => ['title' => 'Cached Title'],
+        ]);
+        $this->navigationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn($categoryResource);
+
+        $this->enrichWithData([
+            'metadata' => [
+                'categories' => [
+                    ['id' => 1, 'name' => 'A', 'url' => '/cat.php'],
+                    ['id' => 2, 'name' => 'B', 'url' => '/cat.php'],
+                ],
+            ],
+        ]);
+    }
+
+    public function testCleanupResetsCategoryTitleCache(): void
+    {
+        $categoryResource = $this->createResource([
+            'base' => ['title' => 'Title'],
+        ]);
+        $this->navigationLoader
+            ->expects($this->exactly(2))
+            ->method('load')
+            ->willReturn($categoryResource);
+
+        $data = [
+            'metadata' => [
+                'categories' => [
+                    ['id' => 1, 'name' => 'A', 'url' => '/cat.php'],
+                ],
+            ],
+        ];
+        $this->enrichWithData($data);
+        $this->enricher->cleanup();
+        $this->enrichWithData($data);
+    }
+
     public function testEnrichContactPointContent(): void
     {
         $doc = $this->enrichWithData([
