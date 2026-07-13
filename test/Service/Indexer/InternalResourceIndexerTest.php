@@ -136,6 +136,7 @@ class InternalResourceIndexerTest extends TestCase
             new DataBag([
                 'cleanupThreshold' =>  10,
                 'chunkSize' => 10,
+                'schemaVersion' => '3.0',
             ]),
         );
         $this->indexerConfigurationLoader = $this->createMock(

@@ -411,6 +411,14 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
         Resource $resource,
         IndexDocument $doc,
     ): void {
+        if ($doc instanceof IndexSchema2xDocument
+            && (
+                $doc->getSchemaVersion() === null
+                || version_compare($doc->getSchemaVersion(), '3.0', '<')
+            )
+        ) {
+            return;
+        }
         $metadata = new DataBag($resource->data->getAssociativeArray('metadata'));
         /** @var array<array{from:int, to?:int, contentType:string}> $schedulingList */
         $schedulingList = $metadata->getArray('scheduling');
@@ -425,7 +433,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher
             $to = isset($scheduling['to']) ? $this->toDateTime($scheduling['to']) : $from;
             if ($from !== null && $from->format('Ymd') >= $currentDay) {
                 /** @var IndexSchema2xDocument $dateChild */
-                $dateChild = $this->indexService->updater($resource->lang)->createDocument();
+                $dateChild = $this->indexService->updater($resource->lang)->createDocument($doc->getSchemaVersion());
                 $doc->sp_date_documents[] = $dateChild;
 
                 $this->enrichCommonFields($resource, $dateChild);
