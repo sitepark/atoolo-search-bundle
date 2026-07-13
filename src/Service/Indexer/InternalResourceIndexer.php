@@ -240,7 +240,7 @@ class InternalResourceIndexer implements Indexer
         $excludes = $config->data->getArray(
             'excludes',
         );
-        return new IndexerParameter(
+        return $this->parameter = new IndexerParameter(
             $config->name,
             $config->data->getInt(
                 'cleanupThreshold',
@@ -251,6 +251,10 @@ class InternalResourceIndexer implements Indexer
                 500,
             ),
             $excludes,
+            $config->data->getString(
+                'schemaVersion',
+                '2.1',
+            ),
         );
     }
 
@@ -459,7 +463,7 @@ class InternalResourceIndexer implements Indexer
             }
             try {
                 /** @var IndexSchema2xDocument $doc */
-                $doc = $updater->createDocument();
+                $doc = $updater->createDocument($this->parameter->schemaVersion);
                 foreach ($this->documentEnricherList as $enricher) {
                     /** @var IndexSchema2xDocument $doc */
                     $doc = $enricher->enrichDocument(

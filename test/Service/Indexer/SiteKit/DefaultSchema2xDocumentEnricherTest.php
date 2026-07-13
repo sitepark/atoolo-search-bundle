@@ -640,14 +640,17 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $dateB->setTime(12, 0, 0, 0);
         $dateB->add(new \DateInterval('P3D'));
 
-        $doc = $this->enrichWithData([
-            'metadata' => [
-                'scheduling' => [
-                    ['from' => $dateA->getTimestamp(), 'contentType' => 'test'],
-                    ['from' => $dateB->getTimestamp(), 'contentType' => 'test'],
+        $doc = $this->enrichWithData(
+            [
+                'metadata' => [
+                    'scheduling' => [
+                        ['from' => $dateA->getTimestamp(), 'contentType' => 'test'],
+                        ['from' => $dateB->getTimestamp(), 'contentType' => 'test'],
+                    ],
                 ],
             ],
-        ]);
+            '3.0',
+        );
         $this->assertEquals(
             2,
             count($doc->sp_date_documents),
@@ -664,6 +667,57 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             'unexpected date-document in sp_date_document',
         );
     }
+    public function testEnrichDateListWithOldSchemaVersion(): void
+    {
+        $dateA = new Datetime();
+        //reset microseconds
+        $dateA->setTime(12, 0, 0, 0);
+        // cause DateInterval doesn't consider microseconds
+        $dateA->add(new \DateInterval('P1D'));
+
+        $dateB = new Datetime();
+        $dateB->setTime(12, 0, 0, 0);
+        $dateB->add(new \DateInterval('P3D'));
+
+        $doc = $this->enrichWithData(
+            [
+                'metadata' => [
+                    'scheduling' => [
+                        ['from' => $dateA->getTimestamp(), 'contentType' => 'test'],
+                        ['from' => $dateB->getTimestamp(), 'contentType' => 'test'],
+                    ],
+                ],
+            ],
+            '2.0', // old schema
+        );
+        $this->assertNull($doc->sp_date_documents, 'unexpected sp_date_documents count');
+    }
+
+    public function testEnrichEmptyDateListViaScheduling(): void
+    {
+        $dateA = new Datetime();
+        //reset microseconds
+        $dateA->setTime(12, 0, 0, 0);
+        // cause DateInterval doesn't consider microseconds
+        $dateA->add(new \DateInterval('P1D'));
+
+        $dateB = new Datetime();
+        $dateB->setTime(12, 0, 0, 0);
+        $dateB->add(new \DateInterval('P3D'));
+
+        $doc = $this->enrichWithData(
+            [
+                'metadata' => [
+                    'scheduling' => [
+                    ],
+                ],
+            ],
+            '3.0',
+        );
+        self::assertNull($doc->sp_date_documents, 'unexpected sp_date_documents count');
+    }
+
+
 
     public function testEnrichDateListViaSchedulingDependOnCurrentDate(): void
     {
@@ -679,15 +733,18 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         $afterNextDate->setTime(12, 0, 0, 0);
         $afterNextDate->add(new \DateInterval('P14D'));
 
-        $doc = $this->enrichWithData([
-            'metadata' => [
-                'scheduling' => [
-                    ['from' => $pastDate->getTimestamp(), 'contentType' => 'schedule_start'],
-                    ['from' => $nextDate->getTimestamp(), 'contentType' => 'schedule_start'],
-                    ['from' => $afterNextDate->getTimestamp(), 'contentType' => 'schedule_start'],
+        $doc = $this->enrichWithData(
+            [
+                'metadata' => [
+                    'scheduling' => [
+                        ['from' => $pastDate->getTimestamp(), 'contentType' => 'schedule_start'],
+                        ['from' => $nextDate->getTimestamp(), 'contentType' => 'schedule_start'],
+                        ['from' => $afterNextDate->getTimestamp(), 'contentType' => 'schedule_start'],
+                    ],
                 ],
             ],
-        ]);
+            '3.0',
+        );
 
         $this->assertEquals(
             [$nextDate, $afterNextDate],
@@ -1024,12 +1081,15 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
      */
     private function enrichWithData(
         array $data,
+        ?string $schemeVersion = null,
     ): IndexSchema2xDocument {
         $resource = $this->createResource($data);
         /** @var IndexSchema2xDocument $doc */
+        $doc = new IndexSchema2xDocument();
+        $doc->setSchemaVersion($schemeVersion);
         $doc = $this->enricher->enrichDocument(
             $resource,
-            new IndexSchema2xDocument(),
+            $doc,
             'progress-id',
         );
         return $doc;

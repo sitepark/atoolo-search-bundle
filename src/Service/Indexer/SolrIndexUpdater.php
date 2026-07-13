@@ -21,10 +21,13 @@ class SolrIndexUpdater
         private readonly UpdateQuery $update,
     ) {}
 
-    public function createDocument(): Document
+    public function createDocument(?string $schemaVersion = "2.1"): Document
     {
         /** @var Document $doc */
         $doc = $this->update->createDocument();
+        if ($doc instanceof IndexSchema2xDocument) {
+            $doc->setSchemaVersion($schemaVersion);
+        }
         return $doc;
     }
 

@@ -9,6 +9,8 @@ use Solarium\QueryType\Update\Query\Document;
 
 class IndexSchema2xDocument extends Document implements IndexDocument
 {
+    private ?string $schemaVersion = null;
+
     private const INHERITED_FIELDS = [
         'fields',
         'modifiers',
@@ -211,6 +213,16 @@ class IndexSchema2xDocument extends Document implements IndexDocument
      * @var array<string,bool>
      */
     private array $metaSingleBool = [];
+
+    public function getSchemaVersion(): ?string
+    {
+        return $this->schemaVersion;
+    }
+
+    public function setSchemaVersion(?string $schemaVersion): void
+    {
+        $this->schemaVersion = $schemaVersion;
+    }
 
     /**
      * @param int|int[] $value

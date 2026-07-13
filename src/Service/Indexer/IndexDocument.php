@@ -9,4 +9,8 @@ namespace Atoolo\Search\Service\Indexer;
  * The fields are different depending on the schema.
  * The interface is implemented per schema.
  */
-interface IndexDocument {}
+interface IndexDocument
+{
+    public function getSchemaVersion(): ?string;
+    public function setSchemaVersion(?string $schemaVersion): void;
+}

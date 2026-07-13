@@ -14,6 +14,7 @@ class IndexerParameter
         public readonly int $cleanupThreshold = 0,
         public readonly int $chunkSize = 500,
         public readonly array $excludes = [],
+        public readonly ?string $schemaVersion = null,
     ) {
         if ($this->chunkSize < 10) {
             throw new \InvalidArgumentException(
