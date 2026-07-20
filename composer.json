@@ -15,7 +15,7 @@
         "ext-xmlreader": "*",
         "atoolo/resource-bundle": "^1",
         "dragonmantank/cron-expression": "^3.6",
-        "solarium/solarium": "^6.4.1",
+        "solarium/solarium": "^7.0.0",
         "soundasleep/html2text": "^2.1",
         "symfony/config": "^6.3 || ^7.4.7",
         "symfony/console": "^6.3 || ^7.4.7",
