@@ -249,7 +249,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareIn
             $doc->sp_date_list = [$doc->sp_date];
         }
 
-        /** @var array<array{from:int, contentType:string}> $schedulingList */
+        /** @var array<array{from:int, to:int|null, contentType:string}> $schedulingList */
         $schedulingList = $metadata->getArray('scheduling');
         if (!empty($schedulingList)) {
             $dateList = [];
@@ -258,13 +258,22 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareIn
             $now = new \DateTime();
             $currentDay = $now->format('Ymd');
 
+            $minDateFrom = null;
+            $maxDateTo = null;
             foreach ($schedulingList as $scheduling) {
                 $contentTypeList[] = explode(' ', $scheduling['contentType']);
                 $from = $this->toDateTime($scheduling['from']);
+                $to = isset($scheduling['to']) ? $this->toDateTime($scheduling['to']) : null;
                 if ($from !== null) {
                     $day = $from->format('Ymd');
                     if ($day >= $currentDay) {
                         $dateList[] = $from;
+                    }
+                    if ($minDateFrom === null || $from < $minDateFrom) {
+                        $minDateFrom = $from;
+                    }
+                    if ($to !== null && ($maxDateTo === null || $to > $maxDateTo)) {
+                        $maxDateTo = $to;
                     }
                 }
             }
@@ -276,6 +285,12 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareIn
 
             if (count($dateList) > 0) {
                 $doc->sp_date = $dateList[0];
+            }
+            if ($minDateFrom != null) {
+                $doc->sp_date_from = $minDateFrom;
+            }
+            if ($maxDateTo != null) {
+                $doc->sp_date_to = $maxDateTo;
             }
             /** @deprecated but still in use for non graphQl search queries */
             $doc->sp_date_list = $dateList;
