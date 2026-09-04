@@ -272,7 +272,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareIn
                     if ($minDateFrom === null || $from < $minDateFrom) {
                         $minDateFrom = $from;
                     }
-                    if ($maxDateTo === null || ($to !== null && $to > $maxDateTo)) {
+                    if ($to !== null && ($maxDateTo === null || $to > $maxDateTo)) {
                         $maxDateTo = $to;
                     }
                 }
