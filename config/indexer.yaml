@@ -56,6 +56,9 @@ services:
       - '@atoolo_index.indexer.configuration_loader'
       - 'internal'
       - '@atoolo_index.index_name'
+      # the solr indexer stays available even without
+      # configs/indexer/internal.php, as it was before 1.18
+      - true
       - '@atoolo_index.indexer.php_limit_increaser'
       - '@logger'
     tags:
