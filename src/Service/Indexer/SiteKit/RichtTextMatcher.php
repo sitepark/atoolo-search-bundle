@@ -4,27 +4,21 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer\SiteKit;
 
-use Atoolo\Resource\Resource;
-use Soundasleep\Html2Text;
-use Soundasleep\Html2TextException;
-
-class RichtTextMatcher implements ContentMatcher
-{
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @inheritDoc
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\SiteKit\RichtTextMatcher instead
      */
-    public function match(array $path, array $value, Resource $resource): string|false
-    {
-        $modelType = $value['modelType'] ?? false;
-        if ($modelType !== 'html.richText') {
-            return false;
-        }
+    class RichtTextMatcher extends \Atoolo\Index\Service\Indexer\SiteKit\RichtTextMatcher {}
+}
 
-        $text = $value['text'] ?? false;
-        $convertOptions = [
-            'ignore_errors' => true,
-            'drop_links' => true,
-        ];
-        return is_string($text) ? Html2Text::convert($text, $convertOptions) : false;
-    }
+if (!class_exists(RichtTextMatcher::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        RichtTextMatcher::class,
+        \Atoolo\Index\Service\Indexer\SiteKit\RichtTextMatcher::class,
+    );
+    class_alias(\Atoolo\Index\Service\Indexer\SiteKit\RichtTextMatcher::class, RichtTextMatcher::class);
 }

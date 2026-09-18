@@ -17,10 +17,14 @@ services:
     tags:
       - { name: 'container.env_var_loader' }
 
+  # Deprecated, removed in 2.0: the index name moved to
+  # atoolo/index-bundle.
   atoolo_search.index_name:
-    class: Atoolo\Search\Service\ResourceChannelBasedIndexName
-    arguments:
-      - '@atoolo_resource.resource_channel'
+    alias: atoolo_index.index_name
+    deprecated:
+      package: 'atoolo/search-bundle'
+      version: '1.18'
+      message: 'The "%alias_id%" service is deprecated, use "atoolo_index.index_name" instead.'
 
   atoolo_search.solarium_client_factory:
     class: Atoolo\Search\Service\ParameterSolrClientFactory
@@ -83,7 +87,7 @@ services:
   atoolo_search.search:
     class: Atoolo\Search\Service\Search\SolrSearch
     arguments:
-      - '@atoolo_search.index_name'
+      - '@atoolo_index.index_name'
       - '@atoolo_search.solarium_client_factory'
       - '@atoolo_search.solr_query_Builder'
       - '@atoolo_search.solr_result_Builder'
@@ -91,7 +95,7 @@ services:
   atoolo_search.suggest:
     class: Atoolo\Search\Service\Search\SolrSuggest
     arguments:
-      - '@atoolo_search.index_name'
+      - '@atoolo_index.index_name'
       - '@atoolo_search.solarium_client_factory'
       - '@atoolo_search.field_mapper'
       - '@atoolo_search.query_template_resolver'
@@ -99,7 +103,7 @@ services:
   atoolo_search.more_like_this:
     class: Atoolo\Search\Service\Search\SolrMoreLikeThis
     arguments:
-      - '@atoolo_search.index_name'
+      - '@atoolo_index.index_name'
       - '@atoolo_search.solarium_client_factory'
       - '@atoolo_search.result_to_resource_resolver'
       - '@atoolo_search.field_mapper'

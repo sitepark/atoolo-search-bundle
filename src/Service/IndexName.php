@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service;
 
-use Atoolo\Resource\ResourceLanguage;
-use Atoolo\Search\Exception\UnsupportedIndexLanguageException;
-
-interface IndexName
-{
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @throws UnsupportedIndexLanguageException Is thrown if no valid index
-     *  can be determined for the language.
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\IndexName instead
      */
-    public function name(ResourceLanguage $lang): string;
+    interface IndexName extends \Atoolo\Index\Service\IndexName {}
+}
 
-    /**
-     * The returned list contains the default index name and the index
-     * name of all language-specific indexes.
-     *
-     * @return string[]
-     */
-    public function names(): array;
+if (!interface_exists(IndexName::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        IndexName::class,
+        \Atoolo\Index\Service\IndexName::class,
+    );
+    class_alias(\Atoolo\Index\Service\IndexName::class, IndexName::class);
 }

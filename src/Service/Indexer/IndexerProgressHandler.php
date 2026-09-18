@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use Atoolo\Search\Dto\Indexer\IndexerStatus;
-use Throwable;
+if (false) { // @phpstan-ignore if.alwaysFalse
+    /**
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\IndexerProgressHandler instead
+     */
+    interface IndexerProgressHandler extends \Atoolo\Index\Service\Indexer\IndexerProgressHandler {}
+}
 
-interface IndexerProgressHandler
-{
-    public function prepare(string $message): void;
-    public function start(int $total): void;
-    public function startUpdate(int $total): void;
-    public function advance(int $step): void;
-    public function skip(int $step): void;
-    public function error(Throwable $throwable): void;
-    public function finish(): void;
-    public function abort(): void;
-
-    public function getStatus(): IndexerStatus;
+if (!interface_exists(IndexerProgressHandler::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        IndexerProgressHandler::class,
+        \Atoolo\Index\Service\Indexer\IndexerProgressHandler::class,
+    );
+    class_alias(\Atoolo\Index\Service\Indexer\IndexerProgressHandler::class, IndexerProgressHandler::class);
 }

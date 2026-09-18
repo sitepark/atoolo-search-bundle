@@ -4,34 +4,21 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer\SiteKit;
 
-use Atoolo\Resource\Resource;
-
-/**
- * The `ContentMatcher` interface is implemented in order to extract from the
- * content structure of resources the content that is relevant for the `content`
- * field of the search index.
- */
-interface ContentMatcher
-{
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @param string[] $path Contains all array-keys of the nested data
-     * structure that lead to the transferred value. E.g. ['a', 'b', 'c']
-     * for the following structure.
-     * ```
-     * [
-     *   'a' => [
-     *     'b' => [
-     *       'c' => [
-     *         ...
-     *       ]
-     *     ]
-     *   ]
-     * ]
-     * ```
-     * @param array<mixed, mixed> $value Value within a data structure
-     *        that is to be checked.
-     * @return string|false The extracted content or `false` if the
-     *         content is not relevant for the search index.
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\SiteKit\ContentMatcher instead
      */
-    public function match(array $path, array $value, Resource $resource): string|false;
+    interface ContentMatcher extends \Atoolo\Index\Service\Indexer\SiteKit\ContentMatcher {}
+}
+
+if (!interface_exists(ContentMatcher::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        ContentMatcher::class,
+        \Atoolo\Index\Service\Indexer\SiteKit\ContentMatcher::class,
+    );
+    class_alias(\Atoolo\Index\Service\Indexer\SiteKit\ContentMatcher::class, ContentMatcher::class);
 }

@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console;
 
-use Symfony\Component\Console\Application as BaseApplication;
-use Symfony\Component\Console\Command\Command;
-
-class Application extends BaseApplication
-{
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @param iterable<Command> $commands
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Console\Application instead
      */
-    public function __construct(iterable $commands = [])
-    {
-        parent::__construct();
-        foreach ($commands as $command) {
-            $this->add($command);
-        }
-    }
+    class Application extends \Atoolo\Index\Console\Application {}
+}
+
+if (!class_exists(Application::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        Application::class,
+        \Atoolo\Index\Console\Application::class,
+    );
+    class_alias(\Atoolo\Index\Console\Application::class, Application::class);
 }

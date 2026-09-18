@@ -4,38 +4,21 @@ declare(strict_types=1);
 
 namespace Atoolo\Search;
 
-use Atoolo\Search\Dto\Indexer\IndexerStatus;
-use Atoolo\Search\Service\Indexer\IndexerProgressHandler;
-
-/**
- * The service interface for indexing a search index.
- *
- * The main task of an indexer is to systematically analyze documents or
- * content in order to extract relevant information from them. This information
- * is structured and stored in a search index to enable efficient search
- * queries. The indexer organizes the data and extracts hierarchical structures
- * that search engines use to deliver fast and accurate search results.
- */
-interface Indexer
-{
-    public function getName(): string;
-
-    public function getSource(): string;
-
-    public function getProgressHandler(): IndexerProgressHandler;
-
-    public function setProgressHandler(
-        IndexerProgressHandler $progressHandler,
-    ): void;
-
-    public function index(): IndexerStatus;
-
-    public function abort(): void;
-
-    public function enabled(): bool;
-
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @param string[] $idList
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Indexer instead
      */
-    public function remove(array $idList): void;
+    interface Indexer extends \Atoolo\Index\Indexer {}
+}
+
+if (!interface_exists(Indexer::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        Indexer::class,
+        \Atoolo\Index\Indexer::class,
+    );
+    class_alias(\Atoolo\Index\Indexer::class, Indexer::class);
 }

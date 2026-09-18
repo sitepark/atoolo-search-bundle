@@ -6,24 +6,6 @@ services:
         Symfony\Component\Console\Command\Command:
             tags: ['command']
 
-    Atoolo\Search\Console\:
-        resource: '../src/Console'
-
-    atoolo_search.indexer.console.progress_bar:
-      class:  'Atoolo\Search\Console\Command\Io\IndexerProgressBar'
-
-    Atoolo\Search\Console\Command\Indexer:
-      arguments:
-        - '@atoolo_resource.resource_channel'
-        - '@atoolo_search.indexer.console.progress_bar'
-        - '@atoolo_search.indexer.indexer_collection'
-
-    Atoolo\Search\Console\Command\IndexerInternalResourceUpdate:
-      arguments:
-        - '@atoolo_resource.resource_channel'
-        - '@atoolo_search.indexer.console.progress_bar'
-        - '@atoolo_search.indexer.internal_resource_indexer'
-
     Atoolo\Search\Console\Command\Search:
       arguments:
         - '@atoolo_resource.resource_channel'
@@ -39,12 +21,36 @@ services:
         - '@atoolo_resource.resource_channel'
         - '@atoolo_search.more_like_this'
 
+    # --- Deprecated commands, removed in 2.0 ---------------------------
+
+    Atoolo\Search\Console\Command\Indexer:
+      arguments:
+        - '@atoolo_resource.resource_channel'
+        - '@atoolo_index.indexer.console.progress_bar'
+        - '@atoolo_index.indexer.indexer_collection'
+
+    Atoolo\Search\Console\Command\IndexerInternalResourceUpdate:
+      arguments:
+        - '@atoolo_resource.resource_channel'
+        - '@atoolo_index.indexer.console.progress_bar'
+        - '@atoolo_index.indexer.indexer_collection'
+
     Atoolo\Search\Console\Command\DumpIndexDocument:
       arguments:
         - '@atoolo_resource.resource_channel'
-        - '@atoolo_search.indexer.index_document_dumper'
+        - '@atoolo_index.indexer.index_document_dumper_collection'
+
+    atoolo_search.indexer.console.progress_bar:
+      alias: atoolo_index.indexer.console.progress_bar
+      deprecated:
+        package: 'atoolo/search-bundle'
+        version: '1.18'
+        message: 'The "%alias_id%" service is deprecated, use "atoolo_index.indexer.console.progress_bar" instead.'
 
     Atoolo\Search\Console\Application:
+        alias: Atoolo\Index\Console\Application
         public: true
-        arguments:
-            - !tagged_iterator command
+        deprecated:
+          package: 'atoolo/search-bundle'
+          version: '1.18'
+          message: 'The "%alias_id%" service is deprecated, use "Atoolo\Index\Console\Application" instead.'

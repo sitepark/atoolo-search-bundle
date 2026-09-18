@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search;
 
+use Atoolo\Search\DependencyInjection\Compiler\LegacyIndexerTagPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\GlobFileLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -34,5 +35,7 @@ class AtooloSearchBundle extends Bundle
         $loader->load('indexer.yaml');
         $loader->load('commands.yaml');
         $loader->load('serializer.yaml');
+
+        $container->addCompilerPass(new LegacyIndexerTagPass());
     }
 }

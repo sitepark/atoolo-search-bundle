@@ -4,30 +4,21 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-class IndexingAborter
-{
-    public function __construct(
-        private readonly string $workdir,
-        private readonly string $type,
-    ) {}
+if (false) { // @phpstan-ignore if.alwaysFalse
+    /**
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\IndexingAborter instead
+     */
+    class IndexingAborter extends \Atoolo\Index\Service\Indexer\IndexingAborter {}
+}
 
-    public function isAbortionRequested(string $index): bool
-    {
-        return file_exists($this->getAbortMarkerFile($index));
-    }
-
-    public function requestAbortion(string $index): void
-    {
-        touch($this->getAbortMarkerFile($index));
-    }
-
-    public function resetAbortionRequest(string $index): void
-    {
-        unlink($this->getAbortMarkerFile($index));
-    }
-
-    private function getAbortMarkerFile(string $index): string
-    {
-        return $this->workdir . '/' . $this->type . '-' . $index . '.abort';
-    }
+if (!class_exists(IndexingAborter::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        IndexingAborter::class,
+        \Atoolo\Index\Service\Indexer\IndexingAborter::class,
+    );
+    class_alias(\Atoolo\Index\Service\Indexer\IndexingAborter::class, IndexingAborter::class);
 }

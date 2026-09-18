@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\SolrIndexService;
-use Atoolo\Search\Service\IndexName;
+use Atoolo\Search\Service\Indexer\SolrUpdateResult;
+use Atoolo\Index\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -14,6 +16,7 @@ use PHPUnit\Framework\TestCase;
 use Solarium\Client;
 use Solarium\QueryType\Server\CoreAdmin\Result\Result as CoreAdminResult;
 use Solarium\QueryType\Server\CoreAdmin\Result\StatusResult;
+use Solarium\QueryType\Update\Query\Query as UpdateQuery;
 
 #[CoversClass(SolrIndexService::class)]
 class SolrIndexServiceTest extends TestCase
@@ -51,6 +54,34 @@ class SolrIndexServiceTest extends TestCase
     {
         $this->client->expects($this->once())->method('createUpdate');
         $this->indexService->updater(ResourceLanguage::default());
+    }
+
+    public function testUpdaterUsesSolrDocumentAndResult(): void
+    {
+        $updateQuery = $this->createMock(UpdateQuery::class);
+        $updateQuery->expects($this->once())
+            ->method('setDocumentClass')
+            ->with(IndexSchema2xDocument::class);
+        $updateQuery->expects($this->once())
+            ->method('setResultClass')
+            ->with(SolrUpdateResult::class);
+        $this->client->method('createUpdate')->willReturn($updateQuery);
+
+        $this->indexService->updater(ResourceLanguage::default());
+    }
+
+    public function testPrepareIndexingDeletesErrorProtocol(): void
+    {
+        $updateQuery = $this->createMock(UpdateQuery::class);
+        $updateQuery->expects($this->once())
+            ->method('addDeleteQuery')
+            ->with('crawl_status:error OR crawl_status:warning');
+        $this->client->method('createUpdate')->willReturn($updateQuery);
+
+        $this->indexService->prepareIndexing(
+            ResourceLanguage::default(),
+            'internal',
+        );
     }
 
     public function testGetIndex(): void
