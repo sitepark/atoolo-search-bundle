@@ -36,8 +36,6 @@ $atooloSearchLegacyAliases = [
         => 'Atoolo\\Index\\Dto\\Indexer\\IndexerStatus',
     'Atoolo\\Search\\Dto\\Indexer\\IndexerStatusState'
         => 'Atoolo\\Index\\Dto\\Indexer\\IndexerStatusState',
-    'Atoolo\\Search\\Dto\\Indexer\\InternalResourceIndexerEvent'
-        => 'Atoolo\\Index\\Dto\\Indexer\\InternalResourceIndexerEvent',
     'Atoolo\\Search\\Exception\\DocumentEnrichingException'
         => 'Atoolo\\Index\\Exception\\DocumentEnrichingException',
     'Atoolo\\Search\\Exception\\UnsupportedIndexLanguageException'

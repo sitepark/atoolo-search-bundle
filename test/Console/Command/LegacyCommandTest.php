@@ -6,6 +6,7 @@ namespace Atoolo\Search\Test\Console\Command;
 
 use Atoolo\Index\Console\Application;
 use Atoolo\Index\Console\Command\Io\IndexerProgressBar;
+use Atoolo\Index\Service\Indexer\IndexDocument;
 use Atoolo\Index\Service\Indexer\IndexDocumentDumper;
 use Atoolo\Index\Service\Indexer\IndexDocumentDumperCollection;
 use Atoolo\Index\Service\Indexer\IndexerCollection;
@@ -82,11 +83,15 @@ class LegacyCommandTest extends TestCase
     {
         $internal = $this->createStub(IndexDocumentDumper::class);
         $internal->method('getSource')->willReturn('internal');
-        $internal->method('dump')->willReturn([['sp_id' => '123']]);
+        $internal->method('dump')->willReturn([
+            $this->createDocument(['sp_id' => '123']),
+        ]);
 
         $other = $this->createStub(IndexDocumentDumper::class);
         $other->method('getSource')->willReturn('genai');
-        $other->method('dump')->willReturn([['id' => '123']]);
+        $other->method('dump')->willReturn([
+            $this->createDocument(['id' => '123']),
+        ]);
 
         $command = new DumpIndexDocument(
             $this->resourceChannel,
@@ -105,6 +110,16 @@ class LegacyCommandTest extends TestCase
             $tester->getDisplay(),
             'the solr document should be dumped without asking for a source',
         );
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     */
+    private function createDocument(array $data): IndexDocument
+    {
+        $document = $this->createStub(IndexDocument::class);
+        $document->method('jsonSerialize')->willReturn($data);
+        return $document;
     }
 
     public function testDeprecationNoticeIsPrinted(): void
