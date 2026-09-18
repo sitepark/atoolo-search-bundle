@@ -19,13 +19,8 @@ if (false) { // @phpstan-ignore if.alwaysFalse
     }
 }
 
-if (!enum_exists(IndexerStatusState::class, false)) {
-    trigger_deprecation(
-        'atoolo/search-bundle',
-        '1.18',
-        'Class "%s" is deprecated, use "%s" instead.',
-        IndexerStatusState::class,
-        \Atoolo\Index\Dto\Indexer\IndexerStatusState::class,
-    );
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(IndexerStatusState::class, false)) {
     class_alias(\Atoolo\Index\Dto\Indexer\IndexerStatusState::class, IndexerStatusState::class);
 }

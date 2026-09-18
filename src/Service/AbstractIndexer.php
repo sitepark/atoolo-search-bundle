@@ -12,13 +12,8 @@ if (false) { // @phpstan-ignore if.alwaysFalse
     abstract class AbstractIndexer extends \Atoolo\Index\Service\AbstractIndexer {}
 }
 
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
 if (!class_exists(AbstractIndexer::class, false)) {
-    trigger_deprecation(
-        'atoolo/search-bundle',
-        '1.18',
-        'Class "%s" is deprecated, use "%s" instead.',
-        AbstractIndexer::class,
-        \Atoolo\Index\Service\AbstractIndexer::class,
-    );
     class_alias(\Atoolo\Index\Service\AbstractIndexer::class, AbstractIndexer::class);
 }

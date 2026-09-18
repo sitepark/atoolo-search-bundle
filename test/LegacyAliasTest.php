@@ -12,12 +12,12 @@ use ReflectionClass;
  * The indexer core moved to atoolo/index-bundle. The old names stay
  * available as aliases until 2.0.
  *
- * Note the limit of a `class_alias` based layer: PHP does not autoload for
- * parameter and return type checks. A type hint on a deprecated name only
- * matches an object of the new class once that deprecated name has been
- * loaded - by a `use` plus `new`, an `instanceof`, an `extends` or an
- * `implements` somewhere. Host code that only type hints the old name has
- * to import the new one.
+ * PHP does not autoload for parameter and return type checks, so a host
+ * method that type hints a deprecated name would reject an object of the new
+ * class while the alias is unregistered. `src/legacy-aliases.php` therefore
+ * registers every alias eagerly through composer's `files` autoloading;
+ * {@see LegacyAliasTest::testAliasIsRegisteredEagerly()} and
+ * {@see LegacyAliasTest::testConsumerIndexerStillWorks()} guard that.
  */
 class LegacyAliasTest extends TestCase
 {
@@ -75,6 +75,20 @@ class LegacyAliasTest extends TestCase
     }
 
     #[DataProvider('aliasProvider')]
+    public function testAliasIsRegisteredEagerly(
+        string $old,
+        string $new,
+        string $kind,
+    ): void {
+        $this->assertTrue(
+            class_exists($old, false) || interface_exists($old, false),
+            $old . ' has to be aliased before anything autoloads it, '
+            . 'otherwise a parameter type hint on it rejects a '
+            . $new . ' instance',
+        );
+    }
+
+    #[DataProvider('aliasProvider')]
     public function testAlias(string $old, string $new, string $kind): void
     {
         $exists = match ($kind) {
@@ -93,6 +107,38 @@ class LegacyAliasTest extends TestCase
         $this->assertTrue(
             is_a($new, $old, true),
             $new . ' should be usable where ' . $old . ' is expected',
+        );
+    }
+
+    /**
+     * An indexer of a consumer project, constructed with the services of the
+     * index-bundle the container now hands over.
+     */
+    public function testConsumerIndexerStillWorks(): void
+    {
+        $indexName = $this->createStub(
+            \Atoolo\Index\Service\IndexName::class,
+        );
+        $indexName->method('name')->willReturn('test');
+
+        $indexer = new LegacyConsumerIndexer(
+            $indexName,
+            $this->createStub(
+                \Atoolo\Index\Service\Indexer\IndexerProgressHandler::class,
+            ),
+            $this->createStub(
+                \Atoolo\Index\Service\Indexer\IndexingAborter::class,
+            ),
+            $this->createStub(
+                \Atoolo\Index\Service\Indexer\IndexerConfigurationLoader::class,
+            ),
+            'mysource',
+        );
+
+        $this->assertEquals(
+            'mysource',
+            $indexer->getSource(),
+            'unexpected source',
         );
     }
 }

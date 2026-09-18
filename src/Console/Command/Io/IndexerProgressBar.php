@@ -12,13 +12,8 @@ if (false) { // @phpstan-ignore if.alwaysFalse
     class IndexerProgressBar extends \Atoolo\Index\Console\Command\Io\IndexerProgressBar {}
 }
 
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
 if (!class_exists(IndexerProgressBar::class, false)) {
-    trigger_deprecation(
-        'atoolo/search-bundle',
-        '1.18',
-        'Class "%s" is deprecated, use "%s" instead.',
-        IndexerProgressBar::class,
-        \Atoolo\Index\Console\Command\Io\IndexerProgressBar::class,
-    );
     class_alias(\Atoolo\Index\Console\Command\Io\IndexerProgressBar::class, IndexerProgressBar::class);
 }

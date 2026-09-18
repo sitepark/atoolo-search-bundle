@@ -12,13 +12,8 @@ if (false) { // @phpstan-ignore if.alwaysFalse
     class DocumentEnrichingException extends \Atoolo\Index\Exception\DocumentEnrichingException {}
 }
 
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
 if (!class_exists(DocumentEnrichingException::class, false)) {
-    trigger_deprecation(
-        'atoolo/search-bundle',
-        '1.18',
-        'Class "%s" is deprecated, use "%s" instead.',
-        DocumentEnrichingException::class,
-        \Atoolo\Index\Exception\DocumentEnrichingException::class,
-    );
     class_alias(\Atoolo\Index\Exception\DocumentEnrichingException::class, DocumentEnrichingException::class);
 }

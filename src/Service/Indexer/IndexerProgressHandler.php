@@ -12,13 +12,8 @@ if (false) { // @phpstan-ignore if.alwaysFalse
     interface IndexerProgressHandler extends \Atoolo\Index\Service\Indexer\IndexerProgressHandler {}
 }
 
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
 if (!interface_exists(IndexerProgressHandler::class, false)) {
-    trigger_deprecation(
-        'atoolo/search-bundle',
-        '1.18',
-        'Class "%s" is deprecated, use "%s" instead.',
-        IndexerProgressHandler::class,
-        \Atoolo\Index\Service\Indexer\IndexerProgressHandler::class,
-    );
     class_alias(\Atoolo\Index\Service\Indexer\IndexerProgressHandler::class, IndexerProgressHandler::class);
 }

@@ -15,13 +15,8 @@ if (false) { // @phpstan-ignore if.alwaysFalse
     interface DocumentEnricher extends \Atoolo\Index\Service\Indexer\DocumentEnricher {}
 }
 
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
 if (!interface_exists(DocumentEnricher::class, false)) {
-    trigger_deprecation(
-        'atoolo/search-bundle',
-        '1.18',
-        'Class "%s" is deprecated, use "%s" instead.',
-        DocumentEnricher::class,
-        \Atoolo\Index\Service\Indexer\DocumentEnricher::class,
-    );
     class_alias(\Atoolo\Index\Service\Indexer\DocumentEnricher::class, DocumentEnricher::class);
 }

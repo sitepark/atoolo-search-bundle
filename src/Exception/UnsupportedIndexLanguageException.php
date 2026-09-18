@@ -12,13 +12,8 @@ if (false) { // @phpstan-ignore if.alwaysFalse
     class UnsupportedIndexLanguageException extends \Atoolo\Index\Exception\UnsupportedIndexLanguageException {}
 }
 
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
 if (!class_exists(UnsupportedIndexLanguageException::class, false)) {
-    trigger_deprecation(
-        'atoolo/search-bundle',
-        '1.18',
-        'Class "%s" is deprecated, use "%s" instead.',
-        UnsupportedIndexLanguageException::class,
-        \Atoolo\Index\Exception\UnsupportedIndexLanguageException::class,
-    );
     class_alias(\Atoolo\Index\Exception\UnsupportedIndexLanguageException::class, UnsupportedIndexLanguageException::class);
 }
