@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Search;
 
-use Atoolo\Resource\Service\IdPathMapper;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Resource\ResourceLocation;
+use Atoolo\Resource\Service\IdPathMapper;
 use LogicException;
 use Solarium\QueryType\Select\Result\Document;
 
@@ -26,7 +26,7 @@ class InternalIdBasedResourceFactory implements ResourceFactory
 
     public function accept(Document $document, ResourceLanguage $lang): bool
     {
-        if ($this->idPathMapper === null) {
+        if ($this->idPathMapper === null || !$this->idPathMapper->enabled()) {
             return false;
         }
         return $this->isInternalResource($document);
