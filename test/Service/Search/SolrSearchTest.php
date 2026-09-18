@@ -23,7 +23,7 @@ use Atoolo\Search\Dto\Search\Result\FacetGroup;
 use Atoolo\Search\Dto\Search\Result\Spellcheck;
 use Atoolo\Search\Dto\Search\Result\SpellcheckSuggestion;
 use Atoolo\Search\Dto\Search\Result\SpellcheckWord;
-use Atoolo\Search\Service\IndexName;
+use Atoolo\Index\Service\IndexName;
 use Atoolo\Search\Service\Search\QueryTemplateResolver;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryBuilder;

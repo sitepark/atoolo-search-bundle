@@ -4,66 +4,42 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command;
 
-use Atoolo\Resource\ResourceChannel;
-use Atoolo\Search\Console\Command\Io\TypifiedInput;
-use Atoolo\Search\Service\Indexer\IndexDocumentDumper;
-use JsonException;
+use Atoolo\Index\Console\Command\DumpIndexDocument as IndexDumpDocument;
+use Atoolo\Index\Console\Command\Io\TypifiedInput;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @deprecated since atoolo/search-bundle 1.18, use `index:dump-document` of
+ *   atoolo/index-bundle instead. Will be removed in 2.0.
+ */
 #[AsCommand(
     name: 'search:dump-index-document',
-    description: 'Dump a index document',
+    description: 'Dump a index document (deprecated, use index:dump-document)',
 )]
-class DumpIndexDocument extends Command
+class DumpIndexDocument extends IndexDumpDocument
 {
-    public function __construct(
-        private readonly ResourceChannel $channel,
-        private readonly IndexDocumentDumper $dumper,
-    ) {
-        parent::__construct();
-    }
-
-    protected function configure(): void
-    {
-        $this
-            ->setHelp('Command to dump a index-document')
-            ->addArgument(
-                'paths',
-                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
-                'Resources paths or directories of resources to be indexed.',
-            )
-        ;
-    }
+    use DeprecatedCommandNotice;
 
     /**
-     * @throws JsonException
+     * The source is pinned, so that the output of this command keeps showing
+     * the Solr document, no matter which other targets are installed.
      */
-    protected function execute(
+    protected function getRequestedSource(TypifiedInput $input): string
+    {
+        return 'internal';
+    }
+
+    protected function initialize(
         InputInterface $input,
         OutputInterface $output,
-    ): int {
-
-        $typedInput = new TypifiedInput($input);
-
-        $paths = $typedInput->getArrayArgument('paths');
-
-        $io = new SymfonyStyle($input, $output);
-        $io->title('Channel: ' . $this->channel->name);
-
-        $dump = $this->dumper->dump($paths);
-
-        foreach ($dump as $fields) {
-            $output->writeln(json_encode(
-                $fields,
-                JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT,
-            ));
-        }
-
-        return Command::SUCCESS;
+    ): void {
+        $this->noticeRenamedCommand(
+            $output,
+            'search:dump-index-document',
+            'index:dump-document',
+        );
+        parent::initialize($input, $output);
     }
 }

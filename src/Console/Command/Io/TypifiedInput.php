@@ -4,61 +4,21 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command\Io;
 
-use InvalidArgumentException;
-use Symfony\Component\Console\Input\InputInterface;
-
-/**
-* This class can be used to obtain type-safe return values.
- * Necessary to pass the PHPStan checks.
- */
-class TypifiedInput
-{
-    public function __construct(private readonly InputInterface $input) {}
-
-    public function getStringOption(string $name): string
-    {
-        $value = $this->input->getOption($name);
-        if (!is_string($value)) {
-            throw new InvalidArgumentException(
-                'option ' . $name . ' must be a string: ' . $value,
-            );
-        }
-        return $value;
-    }
-
-    public function getIntOption(string $name): int
-    {
-        $value = $this->input->getOption($name);
-        if (!is_numeric($value)) {
-            throw new InvalidArgumentException(
-                'option ' . $name . ' must be a integer: ' . $value,
-            );
-        }
-        return (int) $value;
-    }
-
-    public function getStringArgument(string $name): string
-    {
-        $value = $this->input->getArgument($name);
-        if (!is_string($value)) {
-            throw new InvalidArgumentException(
-                'argument ' . $name . ' must be a string',
-            );
-        }
-        return $value;
-    }
-
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @return string[]
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Console\Command\Io\TypifiedInput instead
      */
-    public function getArrayArgument(string $name): array
-    {
-        $value = $this->input->getArgument($name);
-        if (!is_array($value)) {
-            throw new InvalidArgumentException(
-                'argument ' . $name . ' must be a array',
-            );
-        }
-        return $value;
-    }
+    class TypifiedInput extends \Atoolo\Index\Console\Command\Io\TypifiedInput {}
+}
+
+if (!class_exists(TypifiedInput::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        TypifiedInput::class,
+        \Atoolo\Index\Console\Command\Io\TypifiedInput::class,
+    );
+    class_alias(\Atoolo\Index\Console\Command\Io\TypifiedInput::class, TypifiedInput::class);
 }

@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Indexer;
 
 use Atoolo\Resource\ResourceLanguage;
-use Atoolo\Search\Dto\Indexer\InternalResourceIndexerEvent;
+use Atoolo\Index\Dto\Indexer\InternalResourceIndexerEvent;
+use Atoolo\Index\Service\Indexer\InternalResourceIndexer;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Lock\LockFactory;

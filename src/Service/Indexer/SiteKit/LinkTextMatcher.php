@@ -4,25 +4,21 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer\SiteKit;
 
-use Atoolo\Resource\Resource;
-
-/**
- * Add Linktext of external Links
- */
-class LinkTextMatcher implements ContentMatcher
-{
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @inheritDoc
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\SiteKit\LinkTextMatcher instead
      */
-    public function match(array $path, array $value, Resource $resource): string|false
-    {
-        $modelType = $value['modelType'] ?? false;
-        $linkType = $value['external'] ?? false;
-        if ($modelType !== 'content.link.link' || $linkType === false) {
-            return false;
-        }
+    class LinkTextMatcher extends \Atoolo\Index\Service\Indexer\SiteKit\LinkTextMatcher {}
+}
 
-        $text = $value['label'] ?? false;
-        return is_string($text) ? strip_tags($text) : false;
-    }
+if (!class_exists(LinkTextMatcher::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        LinkTextMatcher::class,
+        \Atoolo\Index\Service\Indexer\SiteKit\LinkTextMatcher::class,
+    );
+    class_alias(\Atoolo\Index\Service\Indexer\SiteKit\LinkTextMatcher::class, LinkTextMatcher::class);
 }

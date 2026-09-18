@@ -6,7 +6,7 @@ namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceLanguage;
-use Atoolo\Search\Console\Command\Io\TypifiedInput;
+use Atoolo\Index\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\Service\Search\SolrMoreLikeThis;

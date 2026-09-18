@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Indexer;
 
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
+use Atoolo\Index\Service\Indexer\IndexDocument;
 use Atoolo\Search\Service\Indexer\SolrIndexUpdater;
+use Atoolo\Search\Service\Indexer\SolrUpdateResult;
+use InvalidArgumentException;
 use Solarium\QueryType\Update\Query\Command\Add as AddCommand;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -29,6 +32,9 @@ class SolrIndexUpdaterTest extends TestCase
             new IndexSchema2xDocument(),
         );
         $this->client = $this->createMock(Client::class);
+        $this->client->method('update')->willReturn(
+            $this->createStub(SolrUpdateResult::class),
+        );
         $this->updater = new SolrIndexUpdater(
             $this->client,
             $this->updateQuery,
@@ -49,6 +55,12 @@ class SolrIndexUpdaterTest extends TestCase
             ->method('addDocuments')
             ->with([$doc]);
         $this->updater->update();
+    }
+
+    public function testAddForeignDocument(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->updater->addDocument($this->createStub(IndexDocument::class));
     }
 
     public function testClearDocuments(): void

@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Atoolo\Search\Service\Indexer;
 
 use Atoolo\Resource\ResourceLanguage;
-use Atoolo\Search\Dto\Indexer\IndexerStatus;
+use Atoolo\Index\Dto\Indexer\IndexerStatus;
 use Atoolo\Search\Dto\Indexer\SolrXmlIndexerParameter;
-use Atoolo\Search\Service\AbstractIndexer;
-use Atoolo\Search\Service\IndexName;
+use Atoolo\Index\Service\AbstractIndexer;
+use Atoolo\Index\Service\Indexer\IndexerConfigurationLoader;
+use Atoolo\Index\Service\Indexer\IndexerProgressHandler;
+use Atoolo\Index\Service\Indexer\IndexingAborter;
+use Atoolo\Index\Service\IndexName;
 use Exception;
 
 /**

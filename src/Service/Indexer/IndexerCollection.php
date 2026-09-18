@@ -4,37 +4,21 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use Atoolo\Search\Indexer;
-use InvalidArgumentException;
-
-class IndexerCollection
-{
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @param iterable<Indexer> $indexers
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\IndexerCollection instead
      */
-    public function __construct(
-        private readonly iterable $indexers,
-    ) {}
+    class IndexerCollection extends \Atoolo\Index\Service\Indexer\IndexerCollection {}
+}
 
-    public function getIndexer(string $source): Indexer
-    {
-        foreach ($this->indexers as $indexer) {
-            if ($indexer->getSource() === $source) {
-                return $indexer;
-            }
-        }
-        throw new InvalidArgumentException(
-            'Indexer not found for source: ' . $source,
-        );
-    }
-
-    /**
-     * @return array<Indexer>
-     */
-    public function getIndexers(): array
-    {
-        return $this->indexers instanceof \Traversable
-            ? iterator_to_array($this->indexers)
-            : $this->indexers;
-    }
+if (!class_exists(IndexerCollection::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        IndexerCollection::class,
+        \Atoolo\Index\Service\Indexer\IndexerCollection::class,
+    );
+    class_alias(\Atoolo\Index\Service\Indexer\IndexerCollection::class, IndexerCollection::class);
 }

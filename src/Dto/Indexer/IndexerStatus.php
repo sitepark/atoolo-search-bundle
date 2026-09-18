@@ -4,83 +4,21 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Indexer;
 
-use DateTime;
+if (false) { // @phpstan-ignore if.alwaysFalse
+    /**
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Dto\Indexer\IndexerStatus instead
+     */
+    class IndexerStatus extends \Atoolo\Index\Dto\Indexer\IndexerStatus {}
+}
 
-/**
- * @phpstan-type JsonStatus array{
- *  state: ?string,
- *  statusLine: ?string,
- *  startTime: int,
- *  endTime: ?int,
- *  total: int,
- *  processed: int,
- *  skipped: ?int,
- *  lastUpdate: ?int,
- *  updated: ?int,
- *  errors: ?int
- * }
- */
-class IndexerStatus
-{
-    public function __construct(
-        public IndexerStatusState $state,
-        public readonly DateTime $startTime,
-        public ?DateTime $endTime,
-        public int $total,
-        public int $processed,
-        public int $skipped,
-        public DateTime $lastUpdate,
-        public int $updated,
-        public int $errors,
-        public string $prepareMessage = '',
-    ) {}
-
-    public static function empty(): IndexerStatus
-    {
-        $now = new DateTime();
-        return new IndexerStatus(
-            IndexerStatusState::UNKNOWN,
-            $now,
-            $now,
-            0,
-            0,
-            0,
-            $now,
-            0,
-            0,
-        );
-    }
-
-    public function getStatusLine(): string
-    {
-
-        $endTime = $this->endTime;
-        if ($endTime === null || $endTime->getTimestamp() === 0) {
-            $endTime = new DateTime();
-        }
-        $duration = $this->startTime->diff($endTime);
-
-        $lastUpdate = $this->lastUpdate;
-        if ($lastUpdate->getTimestamp() === 0) {
-            $lastUpdate = $endTime;
-        }
-
-        if ($this->state === IndexerStatusState::PREPARING) {
-            return
-                '[' . $this->state->name . '] '
-                . 'start: ' . $this->startTime->format('d.m.Y H:i') . ', '
-                . 'time: ' . $duration->format('%Hh %Im %Ss') . ', '
-                . 'message: ' . $this->prepareMessage;
-        }
-
-        return
-            '[' . $this->state->name . '] '
-            . 'start: ' . $this->startTime->format('d.m.Y H:i') . ', '
-            . 'time: ' . $duration->format('%Hh %Im %Ss') . ', '
-            . 'processed: ' . $this->processed . "/" . $this->total . ', '
-            . 'skipped: ' . $this->skipped . ', '
-            . 'lastUpdate: ' . $lastUpdate->format('d.m.Y H:i') . ', '
-            . 'updated: ' . $this->updated . ', '
-            . 'errors: ' . $this->errors;
-    }
+if (!class_exists(IndexerStatus::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        IndexerStatus::class,
+        \Atoolo\Index\Dto\Indexer\IndexerStatus::class,
+    );
+    class_alias(\Atoolo\Index\Dto\Indexer\IndexerStatus::class, IndexerStatus::class);
 }

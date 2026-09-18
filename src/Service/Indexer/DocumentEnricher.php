@@ -4,32 +4,24 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use Atoolo\Resource\Resource;
-use Atoolo\Search\Exception\DocumentEnrichingException;
-
-/**
- * This interface can be used to implement enricher with the help of which a
- * Solr document can be enriched on the basis of a resource.
- *
- * @template T of IndexDocument
- */
-interface DocumentEnricher
-{
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @template E of T
-     * @param E $doc
-     * @return E
-     * @throws DocumentEnrichingException
+     * @template T of \Atoolo\Index\Service\Indexer\IndexDocument
+     * @extends \Atoolo\Index\Service\Indexer\DocumentEnricher<T>
+     *
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\DocumentEnricher instead
      */
-    public function enrichDocument(
-        Resource $resource,
-        IndexDocument $doc,
-        string $processId,
-    ): IndexDocument;
+    interface DocumentEnricher extends \Atoolo\Index\Service\Indexer\DocumentEnricher {}
+}
 
-    /**
-     * Can be used, for example, to clear the loader's
-     * cache if the loader uses a cache.
-     */
-    public function cleanup(): void;
+if (!interface_exists(DocumentEnricher::class, false)) {
+    trigger_deprecation(
+        'atoolo/search-bundle',
+        '1.18',
+        'Class "%s" is deprecated, use "%s" instead.',
+        DocumentEnricher::class,
+        \Atoolo\Index\Service\Indexer\DocumentEnricher::class,
+    );
+    class_alias(\Atoolo\Index\Service\Indexer\DocumentEnricher::class, DocumentEnricher::class);
 }
