@@ -12,13 +12,8 @@ if (false) { // @phpstan-ignore if.alwaysFalse
     class IndexerConfiguration extends \Atoolo\Index\Dto\Indexer\IndexerConfiguration {}
 }
 
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
 if (!class_exists(IndexerConfiguration::class, false)) {
-    trigger_deprecation(
-        'atoolo/search-bundle',
-        '1.18',
-        'Class "%s" is deprecated, use "%s" instead.',
-        IndexerConfiguration::class,
-        \Atoolo\Index\Dto\Indexer\IndexerConfiguration::class,
-    );
     class_alias(\Atoolo\Index\Dto\Indexer\IndexerConfiguration::class, IndexerConfiguration::class);
 }

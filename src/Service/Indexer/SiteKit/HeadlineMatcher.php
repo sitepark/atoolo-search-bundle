@@ -12,13 +12,8 @@ if (false) { // @phpstan-ignore if.alwaysFalse
     class HeadlineMatcher extends \Atoolo\Index\Service\Indexer\SiteKit\HeadlineMatcher {}
 }
 
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
 if (!class_exists(HeadlineMatcher::class, false)) {
-    trigger_deprecation(
-        'atoolo/search-bundle',
-        '1.18',
-        'Class "%s" is deprecated, use "%s" instead.',
-        HeadlineMatcher::class,
-        \Atoolo\Index\Service\Indexer\SiteKit\HeadlineMatcher::class,
-    );
     class_alias(\Atoolo\Index\Service\Indexer\SiteKit\HeadlineMatcher::class, HeadlineMatcher::class);
 }

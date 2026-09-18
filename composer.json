@@ -45,6 +45,9 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
+        "files": [
+            "src/legacy-aliases.php"
+        ],
         "psr-4": {
             "Atoolo\\Search\\": "src"
         }

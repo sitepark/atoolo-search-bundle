@@ -12,13 +12,8 @@ if (false) { // @phpstan-ignore if.alwaysFalse
     class InternalResourceIndexer extends \Atoolo\Index\Service\Indexer\InternalResourceIndexer {}
 }
 
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
 if (!class_exists(InternalResourceIndexer::class, false)) {
-    trigger_deprecation(
-        'atoolo/search-bundle',
-        '1.18',
-        'Class "%s" is deprecated, use "%s" instead.',
-        InternalResourceIndexer::class,
-        \Atoolo\Index\Service\Indexer\InternalResourceIndexer::class,
-    );
     class_alias(\Atoolo\Index\Service\Indexer\InternalResourceIndexer::class, InternalResourceIndexer::class);
 }
