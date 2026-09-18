@@ -35,7 +35,6 @@ class LegacyAliasTest extends TestCase
             ['Dto\Indexer\IndexerParameter', 'class'],
             ['Dto\Indexer\IndexerStatus', 'class'],
             ['Dto\Indexer\IndexerStatusState', 'enum'],
-            ['Dto\Indexer\InternalResourceIndexerEvent', 'class'],
             ['Exception\DocumentEnrichingException', 'class'],
             ['Exception\UnsupportedIndexLanguageException', 'class'],
             ['Service\AbstractIndexer', 'class'],

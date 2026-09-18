@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer;
 
-use Atoolo\Index\Dto\Indexer\InternalResourceIndexerEvent;
+use Atoolo\Search\Dto\Indexer\InternalResourceIndexerEvent;
 use Atoolo\Index\Service\Indexer\InternalResourceIndexer;
 use Atoolo\Search\Service\Indexer\InternalResourceIndexerScheduler;
 use PHPUnit\Framework\Attributes\CoversClass;
