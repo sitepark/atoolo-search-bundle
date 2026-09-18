@@ -25,6 +25,7 @@ class InternalIdBasedResourceFactoryTest extends TestCase
     {
         $this->resourceLoader = $this->createStub(ResourceLoader::class);
         $this->idPathMapper = $this->createStub(IdPathMapper::class);
+        $this->idPathMapper->method('enabled')->willReturn(true);
     }
 
     public function testAcceptReturnsFalseWhenIdPathMapperIsNull(): void
