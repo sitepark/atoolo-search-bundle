@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
 if (false) { // @phpstan-ignore if.alwaysFalse
     /**
      * @template T of \Atoolo\Index\Service\Indexer\IndexDocument
@@ -20,3 +23,4 @@ if (false) { // @phpstan-ignore if.alwaysFalse
 if (!interface_exists(DocumentEnricher::class, false)) {
     class_alias(\Atoolo\Index\Service\Indexer\DocumentEnricher::class, DocumentEnricher::class);
 }
+// @codeCoverageIgnoreEnd

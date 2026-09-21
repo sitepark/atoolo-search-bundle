@@ -18,9 +18,11 @@ declare(strict_types=1);
  * tags, parameters and commands keep their runtime deprecation, because
  * those are resolved by name and can be reported precisely.
  *
- * @codeCoverageIgnore
+ * The file runs while composer bootstraps the autoloader, before any
+ * coverage collection starts, so its lines can never show up as covered.
  */
 
+// @codeCoverageIgnoreStart
 $atooloSearchLegacyAliases = [
     'Atoolo\\Search\\Console\\Application'
         => 'Atoolo\\Index\\Console\\Application',
@@ -101,3 +103,4 @@ foreach ($atooloSearchLegacyAliases as $atooloSearchOld => $atooloSearchNew) {
 }
 
 unset($atooloSearchLegacyAliases, $atooloSearchOld, $atooloSearchNew);
+// @codeCoverageIgnoreEnd

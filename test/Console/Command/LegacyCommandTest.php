@@ -10,6 +10,7 @@ use Atoolo\Index\Service\Indexer\IndexDocument;
 use Atoolo\Index\Service\Indexer\IndexDocumentDumper;
 use Atoolo\Index\Service\Indexer\IndexDocumentDumperCollection;
 use Atoolo\Index\Service\Indexer\IndexerCollection;
+use Atoolo\Index\Service\Indexer\UpdatableIndexer;
 use Atoolo\Search\Console\Command\DumpIndexDocument;
 use Atoolo\Search\Console\Command\Indexer;
 use Atoolo\Search\Console\Command\IndexerInternalResourceUpdate;
@@ -136,6 +137,36 @@ class LegacyCommandTest extends TestCase
 
         $this->assertStringContainsString(
             'use "index:indexer" instead',
+            $tester->getErrorOutput(),
+            'the rename notice should go to stderr',
+        );
+    }
+
+    public function testUpdateNoticeIsPrinted(): void
+    {
+        $indexer = $this->createStub(UpdatableIndexer::class);
+        $indexer->method('enabled')->willReturn(true);
+        $indexer->method('getSource')->willReturn('internal');
+        $indexer->method('getName')->willReturn('Internal');
+
+        $command = new IndexerInternalResourceUpdate(
+            $this->resourceChannel,
+            $this->createStub(IndexerProgressBar::class),
+            new IndexerCollection([$indexer]),
+        );
+        $application = new Application([$command]);
+
+        $tester = new CommandTester(
+            $application->find('search:indexer:update-internal-resources'),
+        );
+        $tester->execute(
+            ['paths' => ['a.php']],
+            ['capture_stderr_separately' => true],
+        );
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString(
+            'use "index:update" instead',
             $tester->getErrorOutput(),
             'the rename notice should go to stderr',
         );
