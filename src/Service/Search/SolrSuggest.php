@@ -9,7 +9,7 @@ use Atoolo\Search\Dto\Search\Query\SuggestQuery;
 use Atoolo\Search\Dto\Search\Result\Suggestion;
 use Atoolo\Search\Dto\Search\Result\SuggestResult;
 use Atoolo\Search\Exception\UnexpectedResultException;
-use Atoolo\Search\Service\IndexName;
+use Atoolo\Index\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use Atoolo\Search\Suggest;
 use JsonException;
@@ -66,7 +66,7 @@ class SolrSuggest implements Suggest
         $solrQuery->addParam("facet", "true");
         $solrQuery->addParam("facet.sort", "count");
         $solrQuery->addParam("facet.method", "enum");
-        $solrQuery->addParam("facet.prefix", $query->text);
+        $solrQuery->addParam("facet.prefix", mb_strtolower($query->text));
         $solrQuery->addParam("facet.limit", $query->limit);
         $solrQuery->addParam("facet.field", $this->indexSuggestField);
         $solrQuery->addParam("facet.mincount", $query->minHitCount);
@@ -93,6 +93,7 @@ class SolrSuggest implements Suggest
             $solrQuery,
             $this->schemaFieldMapper,
             $this->queryTemplateResolver,
+            SolrQueryType::QUERY_TYPE_DEFAULT,
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);

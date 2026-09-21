@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Index\Service\Indexer\IndexDocument;
 use DateTime;
 use Solarium\QueryType\Update\Query\Document;
 
@@ -58,6 +59,10 @@ class IndexSchema2xDocument extends Document implements IndexDocument
      * @var DateTime[]
      */
     public ?array $sp_date_list = null;
+    /**
+    * @var IndexSchema2xDocument[] $sp_date_documents
+    */
+    public ?array $sp_date_documents = null;
     public ?bool $sp_archive = null;
     public ?string $sp_title = null;
     public ?string $sp_sortvalue = null;

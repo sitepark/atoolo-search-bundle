@@ -95,9 +95,7 @@ class SolrDateMapper
         if ($round === DateRangeRound::END_OF_YEAR) {
             return '/YEAR+1YEAR-1SECOND';
         }
-        if ($round === DateRangeRound::END_OF_PREVIOUS_YEAR) {
-            return '/YEAR-1SECOND';
-        }
+        return '/YEAR-1SECOND';
     }
 
     public static function roundStart(

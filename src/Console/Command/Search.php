@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Search\Console\Command;
 
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Search\Console\Command\Io\TypifiedInput;
+use Atoolo\Index\Console\Command\Io\TypifiedInput;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Query\SearchQueryBuilder;
 use Atoolo\Search\Dto\Search\Result\SearchResult;

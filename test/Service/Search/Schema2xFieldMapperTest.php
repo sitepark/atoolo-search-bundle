@@ -61,8 +61,8 @@ class Schema2xFieldMapperTest extends TestCase
             [ GroupFacet::class, 'sp_group_path' ],
             [ ObjectTypeFacet::class, 'sp_objecttype' ],
             [ SiteFacet::class, 'sp_site' ],
-            [ RelativeDateRangeFacet::class, 'sp_date_list' ],
-            [ AbsoluteDateRangeFacet::class, 'sp_date_list' ],
+            [ RelativeDateRangeFacet::class, 'sp_date' ],
+            [ AbsoluteDateRangeFacet::class, 'sp_date' ],
         ];
     }
 
@@ -78,8 +78,8 @@ class Schema2xFieldMapperTest extends TestCase
             [ GroupFilter::class, 'sp_group_path' ],
             [ ObjectTypeFilter::class, 'sp_objecttype' ],
             [ SiteFilter::class, 'sp_site' ],
-            [ RelativeDateRangeFilter::class, 'sp_date_list' ],
-            [ AbsoluteDateRangeFilter::class, 'sp_date_list' ],
+            [ RelativeDateRangeFilter::class, 'sp_date' ],
+            [ AbsoluteDateRangeFilter::class, 'sp_date' ],
             [ GeoLocatedFilter::class, 'sp_geo_points' ],
             [ SpatialOrbitalFilter::class, 'sp_geo_points' ],
             [ SpatialArbitraryRectangleFilter::class, 'sp_geo_points' ],

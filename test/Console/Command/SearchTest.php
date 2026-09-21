@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Console\Command;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceChannel;
-use Atoolo\Search\Console\Application;
+use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Resource\ResourceTenant;
+use Atoolo\Index\Console\Application;
 use Atoolo\Search\Console\Command\Search;
 use Atoolo\Search\Dto\Search\Result\Facet;
 use Atoolo\Search\Dto\Search\Result\FacetGroup;
@@ -29,10 +32,23 @@ class SearchTest extends TestCase
      */
     public function setUp(): void
     {
-        $resourceChannel = ResourceChannel::create([
-            'name' => 'WWW',
-            'searchIndex' => 'test',
-        ]);
+        $resourceTanent = $this->createMock(ResourceTenant::class);
+        $resourceChannel = new ResourceChannel(
+            '',
+            'WWW',
+            '',
+            '',
+            false,
+            '',
+            '',
+            '',
+            '',
+            '',
+            'test',
+            [],
+            new DataBag([]),
+            $resourceTanent,
+        );
 
         $this->solrSearch = $this->createStub(SolrSearch::class);
         $command = new Search($resourceChannel, $this->solrSearch);
@@ -46,9 +62,15 @@ class SearchTest extends TestCase
     public function testExecute(): void
     {
 
-        $resultResource = Resource::create([
-            'url' => '/test.php',
-        ]);
+        $resultResource = new Resource(
+            '/test.php',
+            '',
+            '',
+            '',
+            '',
+            ResourceLanguage::default(),
+            new DataBag([]),
+        );
         $result = new SearchResult(
             1,
             1,

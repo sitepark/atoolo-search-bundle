@@ -86,6 +86,13 @@ class SearchQueryBuilderTest extends TestCase
         $this->assertTrue($query->archive, 'archive should be true');
     }
 
+    public function testSetExpandByDate(): void
+    {
+        $this->builder->expandByDate(true);
+        $query = $this->builder->build();
+        $this->assertTrue($query->expandByDate, 'expandByDate should be true');
+    }
+
     /**
      * @throws Exception
      */

@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service;
 
-use Atoolo\Resource\ResourceLanguage;
-use Atoolo\Search\Exception\UnsupportedIndexLanguageException;
-
-interface IndexName
-{
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @throws UnsupportedIndexLanguageException Is thrown if no valid index
-     *  can be determined for the language.
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\IndexName instead
      */
-    public function name(ResourceLanguage $lang): string;
-
-    /**
-     * The returned list contains the default index name and the index
-     * name of all language-specific indexes.
-     *
-     * @return string[]
-     */
-    public function names(): array;
+    interface IndexName extends \Atoolo\Index\Service\IndexName {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!interface_exists(IndexName::class, false)) {
+    class_alias(\Atoolo\Index\Service\IndexName::class, IndexName::class);
+}
+// @codeCoverageIgnoreEnd

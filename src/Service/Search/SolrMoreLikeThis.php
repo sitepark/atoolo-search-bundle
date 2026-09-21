@@ -9,7 +9,7 @@ use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\MoreLikeThisQuery;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\MoreLikeThis;
-use Atoolo\Search\Service\IndexName;
+use Atoolo\Index\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use Solarium\Core\Client\Client;
 use Solarium\QueryType\MoreLikeThis\Query as SolrMoreLikeThisQuery;
@@ -71,6 +71,7 @@ class SolrMoreLikeThis implements MoreLikeThis
             $solrQuery,
             $this->schemaFieldMapper,
             $this->queryTemplateResolver,
+            SolrQueryType::QUERY_TYPE_DEFAULT,
         );
         foreach ($filterList as $filter) {
             $filterAppender->append($filter);

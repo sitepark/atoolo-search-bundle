@@ -4,37 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use Atoolo\Search\Indexer;
-use InvalidArgumentException;
-
-class IndexerCollection
-{
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @param iterable<Indexer> $indexers
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\IndexerCollection instead
      */
-    public function __construct(
-        private readonly iterable $indexers,
-    ) {}
-
-    public function getIndexer(string $source): Indexer
-    {
-        foreach ($this->indexers as $indexer) {
-            if ($indexer->getSource() === $source) {
-                return $indexer;
-            }
-        }
-        throw new InvalidArgumentException(
-            'Indexer not found for source: ' . $source,
-        );
-    }
-
-    /**
-     * @return array<Indexer>
-     */
-    public function getIndexers(): array
-    {
-        return $this->indexers instanceof \Traversable
-            ? iterator_to_array($this->indexers)
-            : $this->indexers;
-    }
+    class IndexerCollection extends \Atoolo\Index\Service\Indexer\IndexerCollection {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(IndexerCollection::class, false)) {
+    class_alias(\Atoolo\Index\Service\Indexer\IndexerCollection::class, IndexerCollection::class);
+}
+// @codeCoverageIgnoreEnd

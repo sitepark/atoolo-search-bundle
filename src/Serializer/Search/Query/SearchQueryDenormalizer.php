@@ -30,15 +30,19 @@ class SearchQueryDenormalizer implements DenormalizerInterface, DenormalizerAwar
         }
         $builder = new SearchQueryBuilder();
         if (isset($data['text'])) {
+            // @phpstan-ignore argument.type
             $builder->text($data['text']);
         }
         if (isset($data['lang'])) {
+            // @phpstan-ignore argument.type
             $builder->lang(ResourceLanguage::of($data['lang']));
         }
         if (isset($data['offset'])) {
+            // @phpstan-ignore argument.type
             $builder->offset($data['offset']);
         }
         if (isset($data['limit'])) {
+            // @phpstan-ignore argument.type
             $builder->limit($data['limit']);
         }
         if (isset($data['sort'])) {
@@ -54,12 +58,15 @@ class SearchQueryDenormalizer implements DenormalizerInterface, DenormalizerAwar
             $builder->facet(...$this->denormalizer->denormalize($data['facets'], Facet::class . '[]'));
         }
         if (isset($data['archive'])) {
+            // @phpstan-ignore argument.type
             $builder->archive($data['archive']);
         }
         if (isset($data['defaultQueryOperator'])) {
+            // @phpstan-ignore argument.type
             $builder->defaultQueryOperator(QueryOperator::from($data['defaultQueryOperator']));
         }
         if (isset($data['timeZone'])) {
+            // @phpstan-ignore argument.type
             $builder->timeZone(new \DateTimeZone($data['timeZone']));
         }
         if (isset($data['boosting'])) {
@@ -71,6 +78,7 @@ class SearchQueryDenormalizer implements DenormalizerInterface, DenormalizerAwar
             );
         }
         if (isset($data['explain'])) {
+            // @phpstan-ignore argument.type
             $builder->explain($data['explain']);
         }
         return $builder->build();

@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Indexer;
 
-class IndexerParameter
-{
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @param array<string> $excludes
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Dto\Indexer\IndexerParameter instead
      */
-    public function __construct(
-        public readonly string $name,
-        public readonly int $cleanupThreshold = 0,
-        public readonly int $chunkSize = 500,
-        public readonly array $excludes = [],
-    ) {
-        if ($this->chunkSize < 10) {
-            throw new \InvalidArgumentException(
-                'chunk size must be greater than 9',
-            );
-        }
-    }
+    class IndexerParameter extends \Atoolo\Index\Dto\Indexer\IndexerParameter {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(IndexerParameter::class, false)) {
+    class_alias(\Atoolo\Index\Dto\Indexer\IndexerParameter::class, IndexerParameter::class);
+}
+// @codeCoverageIgnoreEnd

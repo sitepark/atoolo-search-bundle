@@ -4,32 +4,23 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use Atoolo\Resource\Resource;
-use Atoolo\Search\Exception\DocumentEnrichingException;
-
-/**
- * This interface can be used to implement enricher with the help of which a
- * Solr document can be enriched on the basis of a resource.
- *
- * @template T of IndexDocument
- */
-interface DocumentEnricher
-{
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @template E of T
-     * @param E $doc
-     * @return E
-     * @throws DocumentEnrichingException
+     * @template T of \Atoolo\Index\Service\Indexer\IndexDocument
+     * @extends \Atoolo\Index\Service\Indexer\DocumentEnricher<T>
+     *
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\DocumentEnricher instead
      */
-    public function enrichDocument(
-        Resource $resource,
-        IndexDocument $doc,
-        string $processId,
-    ): IndexDocument;
-
-    /**
-     * Can be used, for example, to clear the loader's
-     * cache if the loader uses a cache.
-     */
-    public function cleanup(): void;
+    interface DocumentEnricher extends \Atoolo\Index\Service\Indexer\DocumentEnricher {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!interface_exists(DocumentEnricher::class, false)) {
+    class_alias(\Atoolo\Index\Service\Indexer\DocumentEnricher::class, DocumentEnricher::class);
+}
+// @codeCoverageIgnoreEnd

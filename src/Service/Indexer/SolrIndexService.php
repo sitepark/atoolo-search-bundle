@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Index\Service\IndexName;
+use Atoolo\Index\Service\Indexer\IndexService;
 use Atoolo\Resource\ResourceLanguage;
-use Atoolo\Search\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use Solarium\Client;
 
-class SolrIndexService
+class SolrIndexService implements IndexService
 {
     public function __construct(
         private readonly IndexName $index,
@@ -26,8 +27,23 @@ class SolrIndexService
         $client = $this->createClient($lang);
         $update = $client->createUpdate();
         $update->setDocumentClass(IndexSchema2xDocument::class);
+        $update->setResultClass(SolrUpdateResult::class);
 
         return new SolrIndexUpdater($client, $update);
+    }
+
+    /**
+     * Solr keeps an error protocol of the previous run in the index. It is
+     * deleted before a new full run starts.
+     */
+    public function prepareIndexing(
+        ResourceLanguage $lang,
+        string $source,
+    ): void {
+        $this->deleteByQuery(
+            $lang,
+            'crawl_status:error OR crawl_status:warning',
+        );
     }
 
     public function deleteExcludingProcessId(

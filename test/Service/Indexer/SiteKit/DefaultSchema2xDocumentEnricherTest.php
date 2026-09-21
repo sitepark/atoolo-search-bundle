@@ -4,24 +4,28 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Indexer\SiteKit;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Loader\SiteKitNavigationHierarchyLoader;
 use Atoolo\Resource\Resource;
-use Atoolo\Search\Exception\DocumentEnrichingException;
-use Atoolo\Search\Service\Indexer\ContentCollector;
+use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Index\Exception\DocumentEnrichingException;
+use Atoolo\Index\Service\Indexer\ContentCollector;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema2xDocumentEnricher;
+use Atoolo\Search\Service\Indexer\SolrIndexService;
+use Atoolo\Search\Service\Indexer\SolrIndexUpdater;
 use DateTime;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(DefaultSchema2xDocumentEnricher::class)]
 class DefaultSchema2xDocumentEnricherTest extends TestCase
 {
     private DefaultSchema2xDocumentEnricher $enricher;
 
     private SiteKitNavigationHierarchyLoader&MockObject $navigationLoader;
+
+    private SolrIndexService&MockObject $solrIndexService;
 
     public function setUp(): void
     {
@@ -34,7 +38,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 if ($location->location === 'throwException') {
                     throw new InvalidResourceException($location);
                 }
-                return Resource::create([
+                return $this->createResource([
                     'siteGroup' => ['id' => 999],
                 ]);
             });
@@ -43,9 +47,23 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             ->method('collect')
             ->willReturn('collected content');
 
+        $updater = $this->createMock(SolrIndexUpdater::class);
+        $updater->method('createDocument')
+            ->willReturnCallback(function () {
+                return new IndexSchema2xDocument();
+            });
+        $this->solrIndexService = $this->createMock(
+            SolrIndexService::class,
+        );
+        //SolrIndexUpdater
+        $this->solrIndexService
+            ->method('updater')
+            ->willReturn($updater);
+
         $this->enricher = new DefaultSchema2xDocumentEnricher(
             $this->navigationLoader,
             $contentCollector,
+            $this->solrIndexService,
         );
     }
 
@@ -58,16 +76,22 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichSpId(): void
     {
-        $resource = Resource::create([
-            'id' => '123',
-        ]);
+        $resource = new Resource(
+            '',
+            '',
+            '123',
+            '',
+            '',
+            ResourceLanguage::default(),
+            new DataBag([]),
+        );
         $doc = $this->enrichWithResource($resource);
         $this->assertEquals('123', $doc->sp_id, 'unexpected id');
     }
 
     public function testEnrichName(): void
     {
-        $resource = Resource::create([
+        $resource = $this->createResource([
             'name' => 'test',
         ]);
         $doc = $this->enrichWithResource($resource);
@@ -76,7 +100,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichObjectType(): void
     {
-        $resource = Resource::create([
+        $resource = $this->createResource([
             'objectType' => 'test',
         ]);
         $doc = $this->enrichWithResource($resource);
@@ -108,6 +132,37 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             'unexpected description',
         );
     }
+    public function testEnrichDescriptionWithIntoAndDescription(): void
+    {
+        $doc = $this->enrichWithData(
+            ['metadata'
+                => [
+                    'intro' => 'abc',
+                    'description' => 'def',
+                ],
+            ],
+        );
+        $this->assertEquals(
+            'abc',
+            $doc->description,
+            'unexpected description',
+        );
+    }
+    public function testEnrichDescriptionWithoutInto(): void
+    {
+        $doc = $this->enrichWithData(
+            ['metadata'
+                => [
+                    'description' => 'def',
+                ],
+            ],
+        );
+        $this->assertEquals(
+            'def',
+            $doc->description,
+            'unexpected description',
+        );
+    }
 
     public function testEnrichCanonical(): void
     {
@@ -120,7 +175,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichCrawlProcessId(): void
     {
-        $resource = Resource::create([]);
+        $resource = $this->createResource([]);
         $doc = $this->enricher->enrichDocument(
             $resource,
             new IndexSchema2xDocument(),
@@ -416,7 +471,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
     public function testEnrichSpSitesWithInvalidRootResource(): void
     {
-        $resource = Resource::create([
+        $resource = $this->createResource([
             'url' => 'throwException',
         ]);
 
@@ -594,11 +649,20 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 ],
             ],
         ]);
-
+        $this->assertEquals(
+            2,
+            count($doc->sp_date_documents),
+            'unexpected sp_date_documents count',
+        );
         $this->assertEquals(
             [$dateA, $dateB],
-            $doc->sp_date_list,
-            'unexpected sp_date',
+            array_map(
+                function ($document) {
+                    return $document->sp_date;
+                },
+                $doc->sp_date_documents,
+            ),
+            'unexpected date-document in sp_date_document',
         );
     }
 
@@ -628,8 +692,13 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
 
         $this->assertEquals(
             [$nextDate, $afterNextDate],
-            $doc->sp_date_list,
-            'unexpected sp_date_list',
+            array_map(
+                function ($document) {
+                    return $document->sp_date;
+                },
+                $doc->sp_date_documents,
+            ),
+            'unexpected sp_date_documents list',
         );
     }
 
@@ -741,6 +810,99 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         );
     }
 
+    public function testEnrichContentUsesCategoryTitleFromResource(): void
+    {
+        $categoryResource = $this->createResource([
+            'base' => ['title' => 'Category Title'],
+        ]);
+        $this->navigationLoader
+            ->method('load')
+            ->willReturn($categoryResource);
+
+        $doc = $this->enrichWithData([
+            'metadata' => [
+                'categories' => [
+                    ['id' => 1, 'name' => 'CategoryName', 'url' => '/category.php'],
+                ],
+            ],
+            'searchindexdata' => ['content' => 'abc'],
+        ]);
+
+        $this->assertStringContainsString(
+            'Category Title',
+            $doc->content,
+            'expected category base.title in content',
+        );
+        $this->assertStringNotContainsString(
+            'CategoryName',
+            $doc->content,
+            'expected category name to be replaced by base.title',
+        );
+    }
+
+    public function testEnrichContentFallsBackToCategoryNameOnLoadFailure(): void
+    {
+        $this->navigationLoader
+            ->method('load')
+            ->willThrowException(new \RuntimeException('not found'));
+
+        $doc = $this->enrichWithData([
+            'metadata' => [
+                'categories' => [
+                    ['id' => 1, 'name' => 'CategoryName', 'url' => '/missing.php'],
+                ],
+            ],
+        ]);
+
+        $this->assertStringContainsString(
+            'CategoryName',
+            $doc->content,
+            'expected fallback to category name on load failure',
+        );
+    }
+
+    public function testEnrichContentCachesDuplicateCategoryUrls(): void
+    {
+        $categoryResource = $this->createResource([
+            'base' => ['title' => 'Cached Title'],
+        ]);
+        $this->navigationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn($categoryResource);
+
+        $this->enrichWithData([
+            'metadata' => [
+                'categories' => [
+                    ['id' => 1, 'name' => 'A', 'url' => '/cat.php'],
+                    ['id' => 2, 'name' => 'B', 'url' => '/cat.php'],
+                ],
+            ],
+        ]);
+    }
+
+    public function testCleanupResetsCategoryTitleCache(): void
+    {
+        $categoryResource = $this->createResource([
+            'base' => ['title' => 'Title'],
+        ]);
+        $this->navigationLoader
+            ->expects($this->exactly(2))
+            ->method('load')
+            ->willReturn($categoryResource);
+
+        $data = [
+            'metadata' => [
+                'categories' => [
+                    ['id' => 1, 'name' => 'A', 'url' => '/cat.php'],
+                ],
+            ],
+        ];
+        $this->enrichWithData($data);
+        $this->enricher->cleanup();
+        $this->enrichWithData($data);
+    }
+
     public function testEnrichContactPointContent(): void
     {
         $doc = $this->enrichWithData([
@@ -800,6 +962,52 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         );
     }
 
+    public function testEnrichSearchTip(): void
+    {
+        $doc = $this->enrichWithData([
+            'objectType' => 'searchTip',
+            'name' => 'Sample Tip',
+            'base' => [
+                'title' => 'Abc',
+            ],
+            'metadata' => [
+                'keywords' => ['testKeyword'],
+                'categories' => [
+                    [
+                        'id' => 1234,
+                        'title' => 'a',
+                    ],
+                    [
+                        'id' => 5678,
+                        'title' => 'b',
+                    ],
+                ],
+            ],
+            'groupPath' => [
+                [
+                    'id' => 1002,
+                    'groupType' => 'rootGroup',
+                ],
+                [
+                    'id' => 1006,
+                    'groupType' => 'commonGroup',
+                ],
+            ],
+            'searchindexdata.content' => 'search content',
+        ]);
+        $this->assertEquals('testKeyword', $doc->keywords[0]);
+        $this->assertEquals(2, count($doc->sp_category));
+        $this->assertEquals(2, count($doc->sp_group_path));
+        $this->assertNull(
+            $doc->sp_title,
+            'searchTip should not have sp_title',
+        );
+        $this->assertNull(
+            $doc->content,
+            'searchTip should not have content',
+        );
+    }
+
     public function testEnrichMediaResourceWithContainerIdChangesDocId(): void
     {
         $doc = $this->enrichWithData([
@@ -841,21 +1049,6 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         );
     }
 
-    public function testEnrichSearchTip(): void
-    {
-        $doc = $this->enrichWithData([
-            'objectType' => 'searchTip',
-            'name' => 'Sample Tip',
-            'base' => [
-                'title' => 'Abc',
-            ],
-        ]);
-        $this->assertNull(
-            $doc->sp_title,
-            'searchTip should not have sp_title',
-        );
-    }
-
     private function enrichWithResource(
         Resource $resource,
     ): IndexSchema2xDocument {
@@ -874,7 +1067,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     private function enrichWithData(
         array $data,
     ): IndexSchema2xDocument {
-        $resource = Resource::create($data);
+        $resource = $this->createResource($data);
         /** @var IndexSchema2xDocument $doc */
         $doc = $this->enricher->enrichDocument(
             $resource,
@@ -882,5 +1075,21 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             'progress-id',
         );
         return $doc;
+    }
+
+    /**
+     * @param array<string, mixed>> $data
+     */
+    private function createResource(array $data): Resource
+    {
+        return new Resource(
+            $data['location'] ?? $data['url'] ?? '',
+            $data['url'] ?? '',
+            $data['id'] ?? '123',
+            $data['name'] ?? '',
+            $data['objectType'] ?? '',
+            ResourceLanguage::of($data['locale'] ?? ''),
+            new DataBag($data),
+        );
     }
 }

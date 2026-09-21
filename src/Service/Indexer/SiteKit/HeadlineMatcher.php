@@ -4,28 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer\SiteKit;
 
-use Atoolo\Resource\Resource;
-
-class HeadlineMatcher implements ContentMatcher
-{
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @inheritDoc
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\SiteKit\HeadlineMatcher instead
      */
-    public function match(array $path, array $value, Resource $resource): string|false
-    {
-        $len = count($path);
-        if ($len < 2) {
-            return false;
-        }
-
-        if (
-            $path[$len - 2] !== 'items'
-            || $path[$len - 1] !== 'model'
-        ) {
-            return false;
-        }
-
-        $headline = $value['headline'] ?? false;
-        return is_string($headline) ? $headline : false;
-    }
+    class HeadlineMatcher extends \Atoolo\Index\Service\Indexer\SiteKit\HeadlineMatcher {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(HeadlineMatcher::class, false)) {
+    class_alias(\Atoolo\Index\Service\Indexer\SiteKit\HeadlineMatcher::class, HeadlineMatcher::class);
+}
+// @codeCoverageIgnoreEnd

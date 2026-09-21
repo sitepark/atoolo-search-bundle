@@ -4,46 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use Atoolo\Resource\ResourceLoader;
-use Atoolo\Resource\ResourceLocation;
-
-class IndexDocumentDumper
-{
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @param iterable<DocumentEnricher<IndexDocument>> $documentEnricherList
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\IndexDocumentDumper instead
      */
-    public function __construct(
-        private readonly ResourceLoader $resourceLoader,
-        private readonly iterable $documentEnricherList,
-    ) {}
-
-    /**
-     * @param string[] $paths
-     * @return array<int,array<string,mixed>>
-     *    Returns the raw array data of the documents to be able to
-     *    output them as JSON, for example.
-     */
-    public function dump(array $paths): array
-    {
-        $documents = [];
-        foreach ($paths as $path) {
-            $location = ResourceLocation::of($path);
-            $resource = $this->resourceLoader->load($location);
-            $doc = new IndexSchema2xDocument();
-            $processId = 'process-id';
-
-            foreach ($this->documentEnricherList as $enricher) {
-                /** @var IndexSchema2xDocument $doc */
-                $doc = $enricher->enrichDocument(
-                    $resource,
-                    $doc,
-                    $processId,
-                );
-            }
-
-            $documents[] = $doc->getFields();
-        }
-
-        return $documents;
-    }
+    class IndexDocumentDumper extends \Atoolo\Index\Service\Indexer\IndexDocumentDumper {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(IndexDocumentDumper::class, false)) {
+    class_alias(\Atoolo\Index\Service\Indexer\IndexDocumentDumper::class, IndexDocumentDumper::class);
+}
+// @codeCoverageIgnoreEnd

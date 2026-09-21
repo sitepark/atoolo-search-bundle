@@ -4,25 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer\SiteKit;
 
-use Atoolo\Resource\Resource;
-
-/**
- * Add Linktext of external Links
- */
-class LinkTextMatcher implements ContentMatcher
-{
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @inheritDoc
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\SiteKit\LinkTextMatcher instead
      */
-    public function match(array $path, array $value, Resource $resource): string|false
-    {
-        $modelType = $value['modelType'] ?? false;
-        $linkType = $value['external'] ?? false;
-        if ($modelType !== 'content.link.link' || $linkType === false) {
-            return false;
-        }
-
-        $text = $value['label'] ?? false;
-        return is_string($text) ? strip_tags($text) : false;
-    }
+    class LinkTextMatcher extends \Atoolo\Index\Service\Indexer\SiteKit\LinkTextMatcher {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(LinkTextMatcher::class, false)) {
+    class_alias(\Atoolo\Index\Service\Indexer\SiteKit\LinkTextMatcher::class, LinkTextMatcher::class);
+}
+// @codeCoverageIgnoreEnd

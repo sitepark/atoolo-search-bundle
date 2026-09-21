@@ -4,27 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer\SiteKit;
 
-use Atoolo\Resource\Resource;
-use Soundasleep\Html2Text;
-use Soundasleep\Html2TextException;
-
-class RichtTextMatcher implements ContentMatcher
-{
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @inheritDoc
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\SiteKit\RichtTextMatcher instead
      */
-    public function match(array $path, array $value, Resource $resource): string|false
-    {
-        $modelType = $value['modelType'] ?? false;
-        if ($modelType !== 'html.richText') {
-            return false;
-        }
-
-        $text = $value['text'] ?? false;
-        $convertOptions = [
-            'ignore_errors' => true,
-            'drop_links' => true,
-        ];
-        return is_string($text) ? Html2Text::convert($text, $convertOptions) : false;
-    }
+    class RichtTextMatcher extends \Atoolo\Index\Service\Indexer\SiteKit\RichtTextMatcher {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(RichtTextMatcher::class, false)) {
+    class_alias(\Atoolo\Index\Service\Indexer\SiteKit\RichtTextMatcher::class, RichtTextMatcher::class);
+}
+// @codeCoverageIgnoreEnd

@@ -4,26 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Exception;
 
-use Atoolo\Resource\ResourceLocation;
-use RuntimeException;
-
-class DocumentEnrichingException extends RuntimeException
-{
-    public function __construct(
-        private readonly ResourceLocation $location,
-        string $message = "",
-        int $code = 0,
-        ?\Throwable $previous = null,
-    ) {
-        parent::__construct(
-            $location->__toString() . ': ' . $message,
-            $code,
-            $previous,
-        );
-    }
-
-    public function getLocation(): ResourceLocation
-    {
-        return $this->location;
-    }
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
+    /**
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Exception\DocumentEnrichingException instead
+     */
+    class DocumentEnrichingException extends \Atoolo\Index\Exception\DocumentEnrichingException {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(DocumentEnrichingException::class, false)) {
+    class_alias(\Atoolo\Index\Exception\DocumentEnrichingException::class, DocumentEnrichingException::class);
+}
+// @codeCoverageIgnoreEnd
