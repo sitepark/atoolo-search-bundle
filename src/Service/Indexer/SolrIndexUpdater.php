@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Index\Service\Indexer\IndexDocument;
+use Atoolo\Index\Service\Indexer\IndexUpdater;
+use InvalidArgumentException;
 use Solarium\Client;
 use Solarium\QueryType\Update\Query\Document;
 use Solarium\QueryType\Update\Query\Query as UpdateQuery;
-use Solarium\QueryType\Update\Result as UpdateResult;
 
-class SolrIndexUpdater
+class SolrIndexUpdater implements IndexUpdater
 {
     /**
      * @var Document[]
@@ -21,15 +23,26 @@ class SolrIndexUpdater
         private readonly UpdateQuery $update,
     ) {}
 
-    public function createDocument(): Document
+    public function createDocument(): IndexSchema2xDocument
     {
-        /** @var Document $doc */
+        /** @var IndexSchema2xDocument $doc */
         $doc = $this->update->createDocument();
         return $doc;
     }
 
-    public function addDocument(Document $document): void
+    /**
+     * The port declares {@see IndexDocument}. Parameters are contravariant,
+     * so the type cannot be narrowed to the Solr document in the signature;
+     * it is checked here instead.
+     */
+    public function addDocument(IndexDocument $document): void
     {
+        if (!$document instanceof Document) {
+            throw new InvalidArgumentException(
+                'Solr can only index a '
+                . Document::class . ', got ' . $document::class,
+            );
+        }
         $this->documents[] = $document;
     }
 
@@ -40,10 +53,12 @@ class SolrIndexUpdater
         };
     }
 
-    public function update(): UpdateResult
+    public function update(): SolrUpdateResult
     {
         $this->update->addDocuments($this->documents);
         $this->documents = [];
-        return $this->client->update($this->update);
+        /** @var SolrUpdateResult $result */
+        $result = $this->client->update($this->update);
+        return $result;
     }
 }

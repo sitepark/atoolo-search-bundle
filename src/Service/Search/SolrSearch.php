@@ -8,7 +8,7 @@ use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
 use Atoolo\Search\Search;
-use Atoolo\Search\Service\IndexName;
+use Atoolo\Index\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
 use Solarium\Core\Client\Client;
 use Solarium\QueryType\Select\Result\Result as SelectResult;

@@ -13,6 +13,7 @@
         "php": ">=8.1 <8.6.0",
         "ext-intl": "*",
         "ext-xmlreader": "*",
+        "atoolo/index-bundle": "^1",
         "atoolo/resource-bundle": "^1",
         "dragonmantank/cron-expression": "^3.6",
         "solarium/solarium": "^6.4.1",
@@ -20,13 +21,12 @@
         "symfony/config": "^6.3 || ^7.4.7",
         "symfony/console": "^6.3 || ^7.4.7",
         "symfony/dependency-injection": "^6.3 || ^7.4.7",
+        "symfony/deprecation-contracts": "^2.5 || ^3",
         "symfony/dotenv": "^6.3 || ^7.4.7",
         "symfony/event-dispatcher": "^6.3 || ^7.4.4",
-        "symfony/finder": "^6.3 || ^7.4.6",
         "symfony/http-kernel": "^6.3 || ^7.4.7",
         "symfony/lock": "^6.3 || ^7.4.6",
         "symfony/messenger": "^6.3 || ^7.4.7",
-        "symfony/property-access": "^6.3 || ^7.4.4",
         "symfony/scheduler": "^6.3 || ^7.4.4",
         "symfony/serializer": "^6.3 || ^7.4.7",
         "symfony/yaml": "^6.3 || ^7.4.6"
@@ -45,6 +45,9 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
+        "files": [
+            "src/legacy-aliases.php"
+        ],
         "psr-4": {
             "Atoolo\\Search\\": "src"
         }

@@ -4,58 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
-use Atoolo\Resource\Resource;
-use Atoolo\Search\Service\Indexer\SiteKit\ContentMatcher;
-
-class ContentCollector
-{
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @param iterable<ContentMatcher> $matchers
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\ContentCollector instead
      */
-    public function __construct(private readonly iterable $matchers) {}
-
-    /**
-    * @param array<mixed,mixed> $data
-     */
-    public function collect(array $data, Resource $resource): string
-    {
-        $content = $this->walk([], $data, $resource);
-        return implode(' ', $content);
-    }
-
-    /**
-     * @param string[] $path
-     * @param array<mixed,mixed> $data
-     * @return string[]
-     */
-    private function walk(array $path, array $data, Resource $resource): array
-    {
-        $contentCollections = [];
-        foreach ($data as $key => $value) {
-            if (!is_array($value)) {
-                continue;
-            }
-
-            if (is_string($key)) {
-                $path[] = $key;
-            }
-
-            $matcherContent = [];
-            foreach ($this->matchers as $matcher) {
-                $content = $matcher->match($path, $value, $resource);
-                if (!is_string($content)) {
-                    continue;
-                }
-                $matcherContent[] = $content;
-            }
-            $contentCollections[] = $matcherContent;
-            $contentCollections[] = $this->walk($path, $value, $resource);
-
-            if (is_string($key)) {
-                array_pop($path);
-            }
-        }
-
-        return array_merge(...$contentCollections);
-    }
+    class ContentCollector extends \Atoolo\Index\Service\Indexer\ContentCollector {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(ContentCollector::class, false)) {
+    class_alias(\Atoolo\Index\Service\Indexer\ContentCollector::class, ContentCollector::class);
+}
+// @codeCoverageIgnoreEnd

@@ -7,7 +7,7 @@ namespace Atoolo\Search\Test\Console\Command;
 use Atoolo\Resource\DataBag;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceTenant;
-use Atoolo\Search\Console\Application;
+use Atoolo\Index\Console\Application;
 use Atoolo\Search\Console\Command\SolrSuggestBuilder;
 use Atoolo\Search\Console\Command\Suggest;
 use Atoolo\Search\Dto\Search\Result\Suggestion;

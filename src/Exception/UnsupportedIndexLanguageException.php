@@ -4,32 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Exception;
 
-use Atoolo\Resource\ResourceLanguage;
-use RuntimeException;
-
-class UnsupportedIndexLanguageException extends RuntimeException
-{
-    public function __construct(
-        private readonly string $index,
-        private readonly ResourceLanguage $lang,
-        string $message = "",
-        int $code = 0,
-        ?\Throwable $previous = null,
-    ) {
-        parent::__construct(
-            $index . '/' . $lang->code . ': ' . $message,
-            $code,
-            $previous,
-        );
-    }
-
-    public function getIndex(): string
-    {
-        return $this->index;
-    }
-
-    public function getLang(): ResourceLanguage
-    {
-        return $this->lang;
-    }
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
+    /**
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Exception\UnsupportedIndexLanguageException instead
+     */
+    class UnsupportedIndexLanguageException extends \Atoolo\Index\Exception\UnsupportedIndexLanguageException {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(UnsupportedIndexLanguageException::class, false)) {
+    class_alias(\Atoolo\Index\Exception\UnsupportedIndexLanguageException::class, UnsupportedIndexLanguageException::class);
+}
+// @codeCoverageIgnoreEnd

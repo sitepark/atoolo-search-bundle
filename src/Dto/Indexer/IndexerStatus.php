@@ -4,83 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Dto\Indexer;
 
-use DateTime;
-
-/**
- * @phpstan-type JsonStatus array{
- *  state: ?string,
- *  statusLine: ?string,
- *  startTime: int,
- *  endTime: ?int,
- *  total: int,
- *  processed: int,
- *  skipped: ?int,
- *  lastUpdate: ?int,
- *  updated: ?int,
- *  errors: ?int
- * }
- */
-class IndexerStatus
-{
-    public function __construct(
-        public IndexerStatusState $state,
-        public readonly DateTime $startTime,
-        public ?DateTime $endTime,
-        public int $total,
-        public int $processed,
-        public int $skipped,
-        public DateTime $lastUpdate,
-        public int $updated,
-        public int $errors,
-        public string $prepareMessage = '',
-    ) {}
-
-    public static function empty(): IndexerStatus
-    {
-        $now = new DateTime();
-        return new IndexerStatus(
-            IndexerStatusState::UNKNOWN,
-            $now,
-            $now,
-            0,
-            0,
-            0,
-            $now,
-            0,
-            0,
-        );
-    }
-
-    public function getStatusLine(): string
-    {
-
-        $endTime = $this->endTime;
-        if ($endTime === null || $endTime->getTimestamp() === 0) {
-            $endTime = new DateTime();
-        }
-        $duration = $this->startTime->diff($endTime);
-
-        $lastUpdate = $this->lastUpdate;
-        if ($lastUpdate->getTimestamp() === 0) {
-            $lastUpdate = $endTime;
-        }
-
-        if ($this->state === IndexerStatusState::PREPARING) {
-            return
-                '[' . $this->state->name . '] '
-                . 'start: ' . $this->startTime->format('d.m.Y H:i') . ', '
-                . 'time: ' . $duration->format('%Hh %Im %Ss') . ', '
-                . 'message: ' . $this->prepareMessage;
-        }
-
-        return
-            '[' . $this->state->name . '] '
-            . 'start: ' . $this->startTime->format('d.m.Y H:i') . ', '
-            . 'time: ' . $duration->format('%Hh %Im %Ss') . ', '
-            . 'processed: ' . $this->processed . "/" . $this->total . ', '
-            . 'skipped: ' . $this->skipped . ', '
-            . 'lastUpdate: ' . $lastUpdate->format('d.m.Y H:i') . ', '
-            . 'updated: ' . $this->updated . ', '
-            . 'errors: ' . $this->errors;
-    }
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
+    /**
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Dto\Indexer\IndexerStatus instead
+     */
+    class IndexerStatus extends \Atoolo\Index\Dto\Indexer\IndexerStatus {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(IndexerStatus::class, false)) {
+    class_alias(\Atoolo\Index\Dto\Indexer\IndexerStatus::class, IndexerStatus::class);
+}
+// @codeCoverageIgnoreEnd

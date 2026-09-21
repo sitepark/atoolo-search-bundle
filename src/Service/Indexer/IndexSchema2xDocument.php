@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer;
 
+use Atoolo\Index\Service\Indexer\IndexDocument;
 use DateTime;
 use Solarium\QueryType\Update\Query\Document;
 

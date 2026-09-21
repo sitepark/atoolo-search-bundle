@@ -4,61 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Console\Command\Io;
 
-use InvalidArgumentException;
-use Symfony\Component\Console\Input\InputInterface;
-
-/**
-* This class can be used to obtain type-safe return values.
- * Necessary to pass the PHPStan checks.
- */
-class TypifiedInput
-{
-    public function __construct(private readonly InputInterface $input) {}
-
-    public function getStringOption(string $name): string
-    {
-        $value = $this->input->getOption($name);
-        if (!is_string($value)) {
-            throw new InvalidArgumentException(
-                'option ' . $name . ' must be a string: ' . $value,
-            );
-        }
-        return $value;
-    }
-
-    public function getIntOption(string $name): int
-    {
-        $value = $this->input->getOption($name);
-        if (!is_numeric($value)) {
-            throw new InvalidArgumentException(
-                'option ' . $name . ' must be a integer: ' . $value,
-            );
-        }
-        return (int) $value;
-    }
-
-    public function getStringArgument(string $name): string
-    {
-        $value = $this->input->getArgument($name);
-        if (!is_string($value)) {
-            throw new InvalidArgumentException(
-                'argument ' . $name . ' must be a string',
-            );
-        }
-        return $value;
-    }
-
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @return string[]
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Console\Command\Io\TypifiedInput instead
      */
-    public function getArrayArgument(string $name): array
-    {
-        $value = $this->input->getArgument($name);
-        if (!is_array($value)) {
-            throw new InvalidArgumentException(
-                'argument ' . $name . ' must be a array',
-            );
-        }
-        return $value;
-    }
+    class TypifiedInput extends \Atoolo\Index\Console\Command\Io\TypifiedInput {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(TypifiedInput::class, false)) {
+    class_alias(\Atoolo\Index\Console\Command\Io\TypifiedInput::class, TypifiedInput::class);
+}
+// @codeCoverageIgnoreEnd

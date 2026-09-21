@@ -4,44 +4,20 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Service\Indexer\SiteKit;
 
-use Atoolo\Resource\Resource;
-
-/**
- *  @phpstan-type Model array{quote?: ?string, citation?: ?string}
- */
-class QuoteSectionMatcher implements ContentMatcher
-{
+// The declaration only serves IDEs, static analysis and the classmap; the
+// alias itself is registered by src/legacy-aliases.php before any test runs.
+// @codeCoverageIgnoreStart
+if (false) { // @phpstan-ignore if.alwaysFalse
     /**
-     * @inheritDoc
+     * @deprecated since atoolo/search-bundle 1.18,
+     *   use \Atoolo\Index\Service\Indexer\SiteKit\QuoteSectionMatcher instead
      */
-    public function match(array $path, array $value, Resource $resource): string|false
-    {
-        $len = count($path);
-        if ($len < 1) {
-            return false;
-        }
-
-        if (
-            $path[$len - 1] !== 'items'
-        ) {
-            return false;
-        }
-
-        if (($value['type'] ?? '') !== 'quote') {
-            return false;
-        }
-
-        $model = $value['model'] ?? false;
-        if (!is_array($model)) {
-            return false;
-        }
-
-        /** @var Model $model */
-
-        $content = [];
-        $content[] = $model['quote'] ?? '';
-        $content[] = $model['citation'] ?? '';
-
-        return implode(' ', $content);
-    }
+    class QuoteSectionMatcher extends \Atoolo\Index\Service\Indexer\SiteKit\QuoteSectionMatcher {}
 }
+
+// The alias is normally registered eagerly by src/legacy-aliases.php. This
+// is the fallback for the case that the deprecated name is autoloaded first.
+if (!class_exists(QuoteSectionMatcher::class, false)) {
+    class_alias(\Atoolo\Index\Service\Indexer\SiteKit\QuoteSectionMatcher::class, QuoteSectionMatcher::class);
+}
+// @codeCoverageIgnoreEnd
