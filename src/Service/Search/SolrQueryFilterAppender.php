@@ -264,9 +264,7 @@ class SolrQueryFilterAppender
             return '{!geofilt ' . implode(' ', $params) . '}';
         }
 
-        if ($filter->mode === SpatialOrbitalMode::BOUNDING_BOX) {
-            return '{!bbox ' . implode(' ', $params) . '}';
-        }
+        return '{!bbox ' . implode(' ', $params) . '}';
     }
 
     private function getSpatialArbitraryRectangleQuery(

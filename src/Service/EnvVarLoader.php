@@ -26,7 +26,7 @@ class EnvVarLoader implements EnvVarLoaderInterface
         $solrUrl = $_SERVER['SOLR_URL'] ?? '';
         $resourceRoot = $_SERVER['RESOURCE_ROOT'] ?? '';
 
-        if (empty($solrUrl) && !empty($resourceRoot)) {
+        if (empty($solrUrl) && is_string($resourceRoot) && !empty($resourceRoot)) {
             $solrUrl = $this->determineSolrUrlForCliCallInDevEnvironments(
                 $resourceRoot,
             );
@@ -83,7 +83,9 @@ class EnvVarLoader implements EnvVarLoaderInterface
             if (is_file($dir . '/.env')) {
                 $dotenv = new Dotenv();
                 $dotenv->load($dir . '/.env');
-                return 'https://solr-' . $_ENV['SERVER_BASE_NAME'];
+                $serverBaseName = $_ENV['SERVER_BASE_NAME'] ?? '';
+                return 'https://solr-'
+                    . (is_string($serverBaseName) ? $serverBaseName : '');
             }
         }
 

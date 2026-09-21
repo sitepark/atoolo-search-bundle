@@ -81,6 +81,7 @@ class ExternalResourceFactory implements ResourceFactory
         }
 
         if (is_array($value)) {
+            /** @var array<string> $value */
             return implode(' ', $value);
         }
 

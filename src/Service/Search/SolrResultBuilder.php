@@ -112,7 +112,8 @@ class SolrResultBuilder
         foreach ($solrFacet as $value => $count) {
             if (!is_int($count)) {
                 throw new InvalidArgumentException(
-                    'facet count should be a int: ' . $count,
+                    'facet count should be a int: '
+                    . (is_scalar($count) ? (string) $count : get_debug_type($count)),
                 );
             }
             $facetList[] = new Facet((string) $value, $count);

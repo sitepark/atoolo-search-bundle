@@ -123,10 +123,9 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareIn
         /** @var string[] $keyword */
         $keyword = $metadata->getArray('keywords');
         $doc->keywords = $keyword;
-        $doc->sp_boost_keywords = implode(
-            ' ',
-            $metadata->getArray('boostKeywords'),
-        );
+        /** @var string[] $boostKeywords */
+        $boostKeywords = $metadata->getArray('boostKeywords');
+        $doc->sp_boost_keywords = implode(' ', $boostKeywords);
         $doc->sp_changed = $this->toDateTime(
             $data->getInt('changed'),
         );
