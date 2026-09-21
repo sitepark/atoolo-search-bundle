@@ -25,6 +25,7 @@ class SolrSearch implements Search
         'id',
         'sp_id',
         'sp_objecttype',
+        'sp_source',
         'sp_date',
         'sp_date_from',
         'sp_date_to',

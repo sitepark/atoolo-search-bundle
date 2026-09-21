@@ -78,6 +78,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     {
         $resource = new Resource(
             '',
+            '',
             '123',
             '',
             '',
@@ -1007,6 +1008,47 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         );
     }
 
+    public function testEnrichMediaResourceWithContainerIdChangesDocId(): void
+    {
+        $doc = $this->enrichWithData([
+            'id' => '200',
+            'media' => true,
+            'mediaContainer' => ['id' => 100],
+        ]);
+        $this->assertEquals(
+            '100-200',
+            $doc->id,
+            'doc id should be composed of container id and resource id for media with container',
+        );
+    }
+
+    public function testEnrichMediaResourceWithContainerIdExcludesArticle(): void
+    {
+        $doc = $this->enrichWithData([
+            'objectType' => 'download',
+            'media' => true,
+            'mediaContainer' => ['id' => 100],
+        ]);
+        $this->assertNotContains(
+            'article',
+            $doc->sp_contenttype,
+            'media resource should not have "article" content type',
+        );
+    }
+
+    public function testEnrichMediaResourceWithoutContainerIdKeepsDocId(): void
+    {
+        $doc = $this->enrichWithData([
+            'id' => '200',
+            'media' => true,
+        ]);
+        $this->assertEquals(
+            '200',
+            $doc->id,
+            'doc id should remain unchanged for media without container id',
+        );
+    }
+
     private function enrichWithResource(
         Resource $resource,
     ): IndexSchema2xDocument {
@@ -1041,6 +1083,7 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     private function createResource(array $data): Resource
     {
         return new Resource(
+            $data['location'] ?? $data['url'] ?? '',
             $data['url'] ?? '',
             $data['id'] ?? '123',
             $data['name'] ?? '',

@@ -28,7 +28,7 @@ class InternalResourceFactory implements ResourceFactory
         if ($location === null) {
             return false;
         }
-        return str_ends_with($location, '.php');
+        return $this->resourceLoader->exists(ResourceLocation::of($location, $lang));
     }
 
     public function create(Document $document, ResourceLanguage $lang): Resource

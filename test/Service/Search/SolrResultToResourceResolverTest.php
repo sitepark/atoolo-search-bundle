@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Atoolo\Search\Test\Service\Search;
 
 use ArrayIterator;
-use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Service\Search\ResourceFactory;
@@ -120,14 +119,7 @@ class SolrResultToResourceResolverTest extends TestCase
 
         $resourceFactory = $this->createStub(ResourceFactory::class);
         $resourceFactory->method('accept')->willReturn(true);
-        $resource = new Resource(
-            'location',
-            'id',
-            'name',
-            'objectType',
-            ResourceLanguage::default(),
-            new DataBag([]),
-        );
+        $resource = Resource::create([]);
         $resourceFactory->method('create')->willReturn($resource);
 
         $explainBuilder = $this->createStub(SolrExplainBuilder::class);
@@ -161,14 +153,7 @@ class SolrResultToResourceResolverTest extends TestCase
 
         $resourceFactory = $this->createStub(ResourceFactory::class);
         $resourceFactory->method('accept')->willReturn(true);
-        $resource = new Resource(
-            'location',
-            'id',
-            'name',
-            'objectType',
-            ResourceLanguage::default(),
-            new DataBag([]),
-        );
+        $resource = Resource::create([]);
         $resourceFactory->method('create')->willReturn($resource);
 
         $explainBuilder = $this->createMock(SolrExplainBuilder::class);

@@ -67,6 +67,7 @@ class SearchTest extends TestCase
             '',
             '',
             '',
+            '',
             ResourceLanguage::default(),
             new DataBag([]),
         );
