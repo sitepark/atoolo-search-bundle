@@ -83,13 +83,15 @@ class LegacyCommandTest extends TestCase
     public function testDumpPinsInternalSource(): void
     {
         $internal = $this->createStub(IndexDocumentDumper::class);
+        $internal->method('getId')->willReturn('internal');
         $internal->method('getSource')->willReturn('internal');
         $internal->method('dump')->willReturn([
             $this->createDocument(['sp_id' => '123']),
         ]);
 
         $other = $this->createStub(IndexDocumentDumper::class);
-        $other->method('getSource')->willReturn('genai');
+        $other->method('getId')->willReturn('genai');
+        $other->method('getSource')->willReturn('internal');
         $other->method('dump')->willReturn([
             $this->createDocument(['id' => '123']),
         ]);

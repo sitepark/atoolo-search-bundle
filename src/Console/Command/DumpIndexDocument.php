@@ -31,6 +31,16 @@ class DumpIndexDocument extends IndexDumpDocument
         return 'internal';
     }
 
+    /**
+     * Other targets may index the `internal` source as well, so the id of
+     * the solr indexer is pinned, too. Older versions of the index-bundle
+     * do not ask for it and rely on the source alone.
+     */
+    protected function getRequestedId(TypifiedInput $input): string
+    {
+        return 'internal';
+    }
+
     protected function initialize(
         InputInterface $input,
         OutputInterface $output,
