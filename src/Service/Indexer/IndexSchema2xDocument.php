@@ -13,6 +13,10 @@ class IndexSchema2xDocument extends Document implements IndexDocument
         'fields',
         'modifiers',
         'fieldBoosts',
+        'helper',
+        'boost',
+        'key',
+        'version',
     ];
 
     private const META_FIELDS = [
