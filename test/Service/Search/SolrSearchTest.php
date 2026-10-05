@@ -879,7 +879,7 @@ class SolrSearchTest extends TestCase
             . '{!edismax qf=\'sp_title^1.4 keywords^1.2 description^1.0 title^1.0 url^0.9 content^0.8\'}(searchString)',
         ];
         $callCount = 0;
-        $this->filterQuery->expects($this->exactly(2))
+        $this->filterQuery->expects($this->once())
             ->method('setQuery')
             ->willReturnCallback(function ($query) use ($expectedQueries, &$callCount) {
                 $this->assertEquals($expectedQueries[$callCount], $query);
