@@ -884,7 +884,7 @@ class SolrSearchTest extends TestCase
             . ' v=$childtext}',
         ];
         $callCount = 0;
-        $this->filterQuery->expects($this->exactly(2))
+        $this->filterQuery->expects($this->once())
             ->method('setQuery')
             ->willReturnCallback(function ($query) use ($expectedQueries, &$callCount) {
                 $this->assertEquals($expectedQueries[$callCount], $query);

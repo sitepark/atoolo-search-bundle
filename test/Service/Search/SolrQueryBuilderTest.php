@@ -304,7 +304,7 @@ class SolrQueryBuilderTest extends TestCase
             ->willReturn($this->solrQuery);
 
         $this->solrQuery
-            ->expects($this->once())
+            ->expects($this->never())
             ->method('createFilterQuery')
             ->with(SolrQueryType::QUERY_TYPE_CHILD->value)
             ->willReturn($filterQuery);
@@ -393,7 +393,7 @@ class SolrQueryBuilderTest extends TestCase
             ->willReturn($this->solrQuery);
 
         $this->solrQuery
-            ->expects($this->once())
+            ->expects($this->never())
             ->method('createFilterQuery')
             ->with(SolrQueryType::QUERY_TYPE_CHILD->value)
             ->willReturn($filterQuery);
@@ -402,7 +402,7 @@ class SolrQueryBuilderTest extends TestCase
                               . '+(*:* -_nest_parent_:*) +{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\''
                               . ' v=$childtext}';
 
-        $filterQuery
+        $this->solrQuery
             ->expects($this->once())
             ->method('setQuery')
             ->with($expectedQueryString);
