@@ -83,7 +83,6 @@ class SolrQueryBuilder
     ): SolrSelectQuery {
         $solrQuery = $client->createSelect();
 
-        $parentFilterQuery = $solrQuery->createFilterQuery(SolrQueryType::QUERY_TYPE_CHILD->value);
         $parentFilterQueryString
             = '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}';
         if (!empty($query->text)) {
@@ -91,7 +90,7 @@ class SolrQueryBuilder
             $parentFilterQueryString
                 .= '{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\'}(' . $query->text . ')';
         }
-        $parentFilterQuery->setQuery($parentFilterQueryString);
+        $solrQuery->setQuery($parentFilterQueryString);
 
         $solrQuery->setStart($query->offset);
         $solrQuery->setRows($query->limit);
