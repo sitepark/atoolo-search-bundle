@@ -75,12 +75,12 @@ class SolrQueryConfigurator
     public function addRequiredFieldListToSolrQuery(
         SolrSelectQuery $solrQuery,
         bool $explain,
-        bool $expandByDate,
+        bool $searchByDate,
     ): void {
         if ($explain) {
             $solrQuery->addField('explain:[explain style=nl]');
         }
-        if ($expandByDate) {
+        if ($searchByDate) {
             $solrQuery->addField('[parent]');
             $solrQuery->addField('_nest_path_');
             $solrQuery->addField('_nest_parent_');
@@ -200,7 +200,6 @@ class SolrQueryConfigurator
     public function addFacetListToSolrQuery(
         SolrSelectQuery $solrQuery,
         array $facetList,
-        bool $expandByDate,
     ): void {
         $facetAppender = new SolrQueryFacetAppender(
             $solrQuery,
@@ -242,7 +241,6 @@ class SolrQueryConfigurator
     public function addChildFacetListToSolrQuery(
         SolrSelectQuery $solrQuery,
         array $facetList,
-        bool $expandByDate,
     ): void {
         $facetAppender = new SolrQueryFacetAppender(
             $solrQuery,
