@@ -29,7 +29,7 @@ class SolrQueryBuilder
         $this->configurator->configureBasicSettings($solrQuery, $query);
         $this->configurator->addParentDocumentFilter($solrQuery);
         $this->configurator->addSortToSolrQuery($solrQuery, $query->sort);
-        $this->configurator->addRequiredFieldListToSolrQuery($solrQuery, $query->explain, $query->expandByDate);
+        $this->configurator->addRequiredFieldListToSolrQuery($solrQuery, $query->explain, $query->searchByDate);
         $this->configurator->addTextFilterToSolrQuery($solrQuery, $query->text);
         $this->configurator->addQueryDefaultOperatorToSolrQuery($solrQuery, $query->defaultQueryOperator);
         $this->configurator->addFilterQueriesToSolrQuery(
@@ -38,7 +38,7 @@ class SolrQueryBuilder
             $query->archive,
             SolrQueryType::QUERY_TYPE_DEFAULT,
         );
-        $this->configurator->addFacetListToSolrQuery($solrQuery, $query->facets, $query->expandByDate);
+        $this->configurator->addFacetListToSolrQuery($solrQuery, $query->facets);
         $this->configurator->addDistanceField($solrQuery, $query->distanceReferencePoint);
         $this->configurator->addTimezone($solrQuery, $query->timeZone);
         $this->configurator->addBoosting($solrQuery, $query->boosting);
@@ -112,7 +112,7 @@ class SolrQueryBuilder
         $solrQuery->setRows($query->limit);
         $solrQuery->setOmitHeader(false);
         $this->configurator->addSortToSolrQuery($solrQuery, $query->sort);
-        $this->configurator->addRequiredFieldListToSolrQuery($solrQuery, $query->explain, $query->expandByDate);
+        $this->configurator->addRequiredFieldListToSolrQuery($solrQuery, $query->explain, $query->searchByDate);
         $this->configurator->addQueryDefaultOperatorToSolrQuery($solrQuery, $query->defaultQueryOperator);
 
         $this->configurator->addFilterQueriesToSolrQuery(
@@ -121,7 +121,7 @@ class SolrQueryBuilder
             $query->archive,
             SolrQueryType::QUERY_TYPE_CHILD,
         );
-        $this->configurator->addChildFacetListToSolrQuery($solrQuery, $query->facets, $query->expandByDate);
+        $this->configurator->addChildFacetListToSolrQuery($solrQuery, $query->facets);
         $this->configurator->addTimezone($solrQuery, $query->timeZone);
 
         return $solrQuery;

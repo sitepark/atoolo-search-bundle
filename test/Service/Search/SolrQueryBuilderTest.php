@@ -45,6 +45,7 @@ class SolrQueryBuilderTest extends TestCase
             archive: false,
             spellcheck: false,
             explain: false,
+            searchByDate: false,
             expandByDate: false,
             distanceReferencePoint: null,
             defaultQueryOperator: \Atoolo\Search\Dto\Search\Query\QueryOperator::AND,
@@ -100,7 +101,7 @@ class SolrQueryBuilderTest extends TestCase
         $this->configurator
             ->expects($this->once())
             ->method('addFacetListToSolrQuery')
-            ->with($this->solrQuery, [], false);
+            ->with($this->solrQuery, []);
 
         $this->configurator
             ->expects($this->once())
@@ -135,6 +136,7 @@ class SolrQueryBuilderTest extends TestCase
             archive: false,
             spellcheck: true,
             explain: false,
+            searchByDate: true,
             expandByDate: true,
             distanceReferencePoint: null,
             defaultQueryOperator: \Atoolo\Search\Dto\Search\Query\QueryOperator::AND,
@@ -289,6 +291,7 @@ class SolrQueryBuilderTest extends TestCase
             archive: false,
             spellcheck: false,
             explain: true,
+            searchByDate: true,
             expandByDate: true,
             distanceReferencePoint: null,
             defaultQueryOperator: \Atoolo\Search\Dto\Search\Query\QueryOperator::OR,
@@ -352,7 +355,7 @@ class SolrQueryBuilderTest extends TestCase
         $this->configurator
             ->expects($this->once())
             ->method('addChildFacetListToSolrQuery')
-            ->with($this->solrQuery, [], true);
+            ->with($this->solrQuery, []);
 
         $this->configurator
             ->expects($this->once())
@@ -378,6 +381,7 @@ class SolrQueryBuilderTest extends TestCase
             archive: false,
             spellcheck: false,
             explain: false,
+            searchByDate: true,
             expandByDate: true,
             distanceReferencePoint: null,
             defaultQueryOperator: \Atoolo\Search\Dto\Search\Query\QueryOperator::AND,
