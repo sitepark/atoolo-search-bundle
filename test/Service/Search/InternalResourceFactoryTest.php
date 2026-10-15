@@ -33,6 +33,9 @@ class InternalResourceFactoryTest extends TestCase
     public function testAccept(): void
     {
         $document = $this->createDocument('/test.php');
+        $this->resourceLoader
+            ->method('exists')
+            ->willReturn(true);
         $this->assertTrue(
             $this->factory->accept($document, ResourceLanguage::default()),
             'should be accepted',

@@ -142,6 +142,11 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareIn
         $doc->sp_contenttype = [$resource->objectType];
         if ($data->getBool('media') !== true) {
             $doc->sp_contenttype[] = 'article';
+        } else {
+            $mediaContainerId = $data->getInt('mediaContainer.id');
+            if ($mediaContainerId !== 0) {
+                $doc->id = $mediaContainerId . '-' . $resource->id;
+            }
         }
 
         $contentType = $base->getString(

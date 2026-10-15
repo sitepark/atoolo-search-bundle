@@ -54,6 +54,7 @@ class MoreLikeThisTest extends TestCase
             '',
             '',
             '',
+            '',
             ResourceLanguage::default(),
             new DataBag([]),
         );
@@ -84,6 +85,7 @@ class MoreLikeThisTest extends TestCase
 
         $resultResource = new Resource(
             '/test2.php',
+            '',
             '',
             '',
             '',
