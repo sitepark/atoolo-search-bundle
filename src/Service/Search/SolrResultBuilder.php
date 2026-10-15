@@ -154,7 +154,7 @@ class SolrResultBuilder
             );
             $suggestion = new SpellcheckWord(
                 $suggestion->getWord() ?? '',
-                $suggestion->getFrequency(),
+                $suggestion->getFrequency() ?? 0,
             );
             $suggestions[] = new SpellcheckSuggestion(
                 $original,
