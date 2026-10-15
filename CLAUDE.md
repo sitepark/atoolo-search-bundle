@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 composer install
 
 # Auto-fix code style
-composer cs-fix
+composer fix
 
 # Run all static analysis (phplint, phpstan level 9, php-cs-fixer, compatibility)
 composer analyse
@@ -33,7 +33,7 @@ composer report
 
 To run a single test class:
 ```bash
-./vendor/bin/phpunit test/Service/Search/InternalResourceFactoryTest.php
+./tools/phpunit.phar test/Service/Search/InternalResourceFactoryTest.php
 ```
 
 ## Architecture
