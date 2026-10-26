@@ -15,6 +15,10 @@ use Solarium\QueryType\Select\Result\Document;
  * Internal resources are the data that the CMS provides in the form of
  * aggregated PHP files. The Solr document field url specifies which resource
  * is required. If the URL ends with .php, this factory is used.
+ * Nested date documents of events have the URL of the event with a query
+ * string (`?date=<timestamp>`). The event is loaded without it and the query
+ * string is appended to the url of the resource, so that each hit keeps its
+ * date.
  */
 class InternalResourceFactory implements ResourceFactory
 {
@@ -38,11 +42,40 @@ class InternalResourceFactory implements ResourceFactory
             throw new LogicException('document should contain an url');
         }
         $location = ResourceLocation::of($url, $lang);
-        return $this->resourceLoader->load($location);
+        $resource = $this->resourceLoader->load($location);
+        $query = $this->getQuery($document);
+        if ($query === null) {
+            return $resource;
+        }
+        return new Resource(
+            location: $resource->location,
+            url: $resource->url . '?' . $query,
+            id: $resource->id,
+            name: $resource->name,
+            objectType: $resource->objectType,
+            lang: $resource->lang,
+            data: $resource->data,
+        );
     }
 
     private function getUrl(Document $document): ?string
     {
-        return $document->getFields()['url'] ?? null;
+        $url = $this->getRawUrl($document);
+        if ($url === null) {
+            return null;
+        }
+        return strstr($url, '?', true) ?: $url;
+    }
+
+    private function getQuery(Document $document): ?string
+    {
+        $query = parse_url($this->getRawUrl($document) ?? '', PHP_URL_QUERY);
+        return is_string($query) && $query !== '' ? $query : null;
+    }
+
+    private function getRawUrl(Document $document): ?string
+    {
+        $url = $document->getFields()['url'] ?? null;
+        return is_string($url) ? $url : null;
     }
 }

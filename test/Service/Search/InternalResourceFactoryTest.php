@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Atoolo\Search\Test\Service\Search;
 
+use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Resource\ResourceLoader;
+use Atoolo\Resource\ResourceLocation;
 use Atoolo\Search\Service\Search\InternalResourceFactory;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -73,6 +75,33 @@ class InternalResourceFactoryTest extends TestCase
             $this->factory->create($document, ResourceLanguage::of('de')),
             'unexpected resource',
         );
+    }
+
+    public function testCreateWithQueryString(): void
+    {
+        $document = $this->createDocument('/event.php?date=1788249600');
+        $event = new Resource(
+            location: '/event.php',
+            url: '/event.php',
+            id: '123',
+            name: 'Event',
+            objectType: 'eventsCalendar-event',
+            lang: ResourceLanguage::of('de'),
+            data: new DataBag(['id' => 123]),
+        );
+        $resourceLoader = $this->createMock(ResourceLoader::class);
+        $resourceLoader->expects($this->once())
+            ->method('load')
+            ->with(ResourceLocation::of('/event.php', ResourceLanguage::of('de')))
+            ->willReturn($event);
+        $factory = new InternalResourceFactory($resourceLoader);
+
+        $resource = $factory->create($document, ResourceLanguage::of('de'));
+
+        $this->assertSame('/event.php', $resource->location, 'location of the event');
+        $this->assertSame('/event.php?date=1788249600', $resource->url, 'url with the date');
+        $this->assertSame($event->id, $resource->id);
+        $this->assertSame($event->data, $resource->data);
     }
 
     public function testCreateWithoutUrl(): void
