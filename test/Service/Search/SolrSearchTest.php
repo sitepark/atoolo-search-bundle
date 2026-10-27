@@ -25,7 +25,9 @@ use Atoolo\Search\Dto\Search\Result\SpellcheckSuggestion;
 use Atoolo\Search\Dto\Search\Result\SpellcheckWord;
 use Atoolo\Index\Service\IndexName;
 use Atoolo\Search\Service\Search\QueryTemplateResolver;
+use Atoolo\Search\Exception\UnexpectedSchemaException;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
+use Atoolo\Search\Service\Search\SchemaFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryBuilder;
 use Atoolo\Search\Service\Search\SolrQueryConfigurator;
 use Atoolo\Search\Service\Search\SolrQueryModifier;
@@ -107,6 +109,7 @@ class SolrSearchTest extends TestCase
             Schema2xFieldMapper::class,
         );
         $schemaFieldMapper->method('getGeoPointField')->willReturn('geo_points');
+        $schemaFieldMapper->method('hasNestedDocuments')->willReturn(true);
 
         $queryTemplateResolver = $this->createStub(QueryTemplateResolver::class);
 
@@ -126,6 +129,7 @@ class SolrSearchTest extends TestCase
             $clientFactory,
             $queryBuilder,
             $resultBuilder,
+            $schemaFieldMapper,
         );
     }
 
@@ -896,6 +900,45 @@ class SolrSearchTest extends TestCase
             ->method('addParam');
 
         $searchResult = $this->searcher->search($query);
+    }
+
+    public function testSearchWithExpandDateThrowsForSchema2x(): void
+    {
+        $indexName = $this->createStub(IndexName::class);
+        $clientFactory = $this->createStub(SolrClientFactory::class);
+        $queryBuilder = $this->createStub(SolrQueryBuilder::class);
+        $resultBuilder = $this->createStub(SolrResultBuilder::class);
+
+        $schemaFieldMapper = $this->createStub(SchemaFieldMapper::class);
+        $schemaFieldMapper->method('hasNestedDocuments')->willReturn(false);
+
+        $searcher = new SolrSearch(
+            $indexName,
+            $clientFactory,
+            $queryBuilder,
+            $resultBuilder,
+            $schemaFieldMapper,
+        );
+
+        $query = new SearchQuery(
+            text: '',
+            lang: ResourceLanguage::default(),
+            offset: 0,
+            limit: 10,
+            sort: [],
+            filter: [],
+            facets: [],
+            spellcheck: false,
+            archive: false,
+            expandByDate: true,
+            defaultQueryOperator: QueryOperator::OR,
+            timeZone: null,
+            boosting: null,
+            distanceReferencePoint: null,
+        );
+
+        $this->expectException(UnexpectedSchemaException::class);
+        $searcher->search($query);
     }
 
     /**

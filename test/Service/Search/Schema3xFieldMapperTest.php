@@ -1,0 +1,233 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Atoolo\Search\Test\Service\Search;
+
+use Atoolo\Search\Dto\Search\Query\Facet\AbsoluteDateRangeFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\CategoryFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\ContentSectionTypeFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\ContentTypeFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\Facet;
+use Atoolo\Search\Dto\Search\Query\Facet\GroupFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\SiteFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\SourceFacet;
+use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\CategoryFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\ContentSectionTypeFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\ContentTypeFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\Filter;
+use Atoolo\Search\Dto\Search\Query\Filter\GeoLocatedFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\GroupFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\IdFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SiteFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SourceFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\TeaserPropertyFilter;
+use Atoolo\Search\Dto\Search\Query\GeoPoint;
+use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
+use Atoolo\Search\Dto\Search\Query\Sort\CustomField;
+use Atoolo\Search\Dto\Search\Query\Sort\Date;
+use Atoolo\Search\Dto\Search\Query\Sort\Direction;
+use Atoolo\Search\Dto\Search\Query\Sort\Name;
+use Atoolo\Search\Dto\Search\Query\Sort\Natural;
+use Atoolo\Search\Dto\Search\Query\Sort\Score;
+use Atoolo\Search\Dto\Search\Query\Sort\SpatialDist;
+use Atoolo\Search\Service\Search\Schema3xFieldMapper;
+use Exception;
+use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+
+#[CoversClass(Schema3xFieldMapper::class)]
+class Schema3xFieldMapperTest extends TestCase
+{
+    private Schema3xFieldMapper $mapper;
+
+    public function setUp(): void
+    {
+        $this->mapper = new Schema3xFieldMapper();
+    }
+
+    /**
+     * @return array<array{class-string, string}>
+     */
+    public static function getFacets(): array
+    {
+        return [
+            [ CategoryFacet::class, 'sp_category_path' ],
+            [ ContentSectionTypeFacet::class, 'sp_contenttype' ],
+            [ GroupFacet::class, 'sp_group_path' ],
+            [ ObjectTypeFacet::class, 'sp_objecttype' ],
+            [ SiteFacet::class, 'sp_site' ],
+            [ SourceFacet::class, 'sp_source' ],
+            [ ContentTypeFacet::class, 'contenttype' ],
+            [ RelativeDateRangeFacet::class, 'sp_date' ],
+            [ AbsoluteDateRangeFacet::class, 'sp_date' ],
+        ];
+    }
+
+    /**
+     * @return array<array{class-string, string}>
+     */
+    public static function getFilter(): array
+    {
+        return [
+            [ IdFilter::class, 'id' ],
+            [ CategoryFilter::class, 'sp_category_path' ],
+            [ ContentSectionTypeFilter::class, 'sp_contenttype' ],
+            [ TeaserPropertyFilter::class, 'sp_contenttype' ],
+            [ GroupFilter::class, 'sp_group_path' ],
+            [ ObjectTypeFilter::class, 'sp_objecttype' ],
+            [ SiteFilter::class, 'sp_site' ],
+            [ SourceFilter::class, 'sp_source' ],
+            [ ContentTypeFilter::class, 'contenttype' ],
+            [ RelativeDateRangeFilter::class, 'sp_date' ],
+            [ AbsoluteDateRangeFilter::class, 'sp_date' ],
+            [ GeoLocatedFilter::class, 'sp_geo_points' ],
+            [ SpatialOrbitalFilter::class, 'sp_geo_points' ],
+            [ SpatialArbitraryRectangleFilter::class, 'sp_geo_points' ],
+        ];
+    }
+
+    /**
+     * @return array<array{class-string, string}>
+     */
+    public static function getSortCriteria(): array
+    {
+        return [
+            [ Name::class, 'sp_name' ],
+            [ Date::class, 'sp_date' ],
+            [ Natural::class, 'sp_sortvalue' ],
+            [ Score::class, 'score' ],
+        ];
+    }
+
+    /**
+     * @param class-string $facetClass
+     * @throws Exception
+     */
+    #[DataProvider('getFacets')]
+    public function testGetFacetField(
+        string $facetClass,
+        string $expected,
+    ): void {
+        /** @var Facet $facet */
+        $facet = $this->createStub($facetClass);
+        $this->assertEquals(
+            $expected,
+            $this->mapper->getFacetField($facet),
+        );
+    }
+
+    public function testUnsupportedFacetField(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->mapper->getFacetField(
+            $this->createStub(Facet::class),
+        );
+    }
+
+    public function testGetArchiveField(): void
+    {
+        $this->assertEquals(
+            'sp_archive',
+            $this->mapper->getArchiveField(),
+        );
+    }
+
+    public function testGetGeoPointField(): void
+    {
+        $this->assertEquals(
+            'sp_geo_points',
+            $this->mapper->getGeoPointField(),
+        );
+    }
+
+    public function testHasNestedDocuments(): void
+    {
+        $this->assertTrue($this->mapper->hasNestedDocuments());
+    }
+
+    public function testGetNestedDocumentsField(): void
+    {
+        $this->assertEquals(
+            '_nest_parent_',
+            $this->mapper->getNestedDocumentsField(),
+        );
+    }
+
+    /**
+     * @param class-string $filterClass
+     * @throws Exception
+     */
+    #[DataProvider('getFilter')]
+    public function testGetFilterField(
+        string $filterClass,
+        string $expected,
+    ): void {
+        /** @var Filter $filter */
+        $filter = $this->createStub($filterClass);
+        $this->assertEquals(
+            $expected,
+            $this->mapper->getFilterField($filter),
+        );
+    }
+
+    public function testUnsupportedFilterField(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->mapper->getFilterField(
+            $this->createStub(Filter::class),
+        );
+    }
+
+    /**
+     * @param class-string $sortCriteriaClass
+     * @throws Exception
+     */
+    #[DataProvider('getSortCriteria')]
+    public function testGetSortField(
+        string $sortCriteriaClass,
+        string $expected,
+    ): void {
+        /** @var Criteria $criteria */
+        $criteria = $this->createStub($sortCriteriaClass);
+        $this->assertEquals(
+            $expected,
+            $this->mapper->getSortField($criteria),
+        );
+    }
+
+    public function testGetSortSpatialDistField(): void
+    {
+        $criteria = new SpatialDist(Direction::ASC, new GeoPoint(1, 2));
+        $this->assertEquals(
+            'geodist(sp_geo_points,2,1)',
+            $this->mapper->getSortField($criteria),
+        );
+    }
+
+    public function testGetSortCustomField(): void
+    {
+        $criteria = new CustomField('custom_field');
+        $this->assertEquals(
+            'custom_field',
+            $this->mapper->getSortField($criteria),
+        );
+    }
+
+    public function testUnsupportedSortField(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->mapper->getSortField(
+            $this->createStub(Criteria::class),
+        );
+    }
+}

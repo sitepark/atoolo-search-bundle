@@ -7,14 +7,17 @@ namespace Atoolo\Search\Test\Service\Search;
 use Atoolo\Search\Dto\Search\Query\Facet\AbsoluteDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\CategoryFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\ContentSectionTypeFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\ContentTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\Facet;
 use Atoolo\Search\Dto\Search\Query\Facet\GroupFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\ObjectTypeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\RelativeDateRangeFacet;
 use Atoolo\Search\Dto\Search\Query\Facet\SiteFacet;
+use Atoolo\Search\Dto\Search\Query\Facet\SourceFacet;
 use Atoolo\Search\Dto\Search\Query\Filter\AbsoluteDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\CategoryFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ContentSectionTypeFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\ContentTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\Filter;
 use Atoolo\Search\Dto\Search\Query\Filter\GeoLocatedFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\GroupFilter;
@@ -22,9 +25,12 @@ use Atoolo\Search\Dto\Search\Query\Filter\IdFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\ObjectTypeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\RelativeDateRangeFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SiteFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\SourceFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialArbitraryRectangleFilter;
 use Atoolo\Search\Dto\Search\Query\Filter\SpatialOrbitalFilter;
+use Atoolo\Search\Dto\Search\Query\Filter\TeaserPropertyFilter;
 use Atoolo\Search\Dto\Search\Query\GeoPoint;
+use Atoolo\Search\Exception\UnexpectedSchemaException;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Dto\Search\Query\Sort\CustomField;
 use Atoolo\Search\Dto\Search\Query\Sort\Date;
@@ -61,6 +67,8 @@ class Schema2xFieldMapperTest extends TestCase
             [ GroupFacet::class, 'sp_group_path' ],
             [ ObjectTypeFacet::class, 'sp_objecttype' ],
             [ SiteFacet::class, 'sp_site' ],
+            [ SourceFacet::class, 'sp_source' ],
+            [ ContentTypeFacet::class, 'contenttype' ],
             [ RelativeDateRangeFacet::class, 'sp_date' ],
             [ AbsoluteDateRangeFacet::class, 'sp_date' ],
         ];
@@ -78,6 +86,9 @@ class Schema2xFieldMapperTest extends TestCase
             [ GroupFilter::class, 'sp_group_path' ],
             [ ObjectTypeFilter::class, 'sp_objecttype' ],
             [ SiteFilter::class, 'sp_site' ],
+            [ SourceFilter::class, 'sp_source' ],
+            [ ContentTypeFilter::class, 'contenttype' ],
+            [ TeaserPropertyFilter::class, 'sp_contenttype' ],
             [ RelativeDateRangeFilter::class, 'sp_date' ],
             [ AbsoluteDateRangeFilter::class, 'sp_date' ],
             [ GeoLocatedFilter::class, 'sp_geo_points' ],
@@ -198,5 +209,24 @@ class Schema2xFieldMapperTest extends TestCase
             'sp_archive',
             $this->mapper->getArchiveField(),
         );
+    }
+
+    public function testGetGeoPointField(): void
+    {
+        $this->assertEquals(
+            'sp_geo_points',
+            $this->mapper->getGeoPointField(),
+        );
+    }
+
+    public function testHasNestedDocuments(): void
+    {
+        $this->assertFalse($this->mapper->hasNestedDocuments());
+    }
+
+    public function testGetNestedDocumentsField(): void
+    {
+        $this->expectException(UnexpectedSchemaException::class);
+        $this->mapper->getNestedDocumentsField();
     }
 }

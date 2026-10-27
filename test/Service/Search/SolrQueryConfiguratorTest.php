@@ -18,6 +18,7 @@ use Atoolo\Search\Dto\Search\Query\Sort\Direction;
 use Atoolo\Search\Dto\Search\Query\Sort\Name;
 use Atoolo\Search\Service\Search\QueryTemplateResolver;
 use Atoolo\Search\Service\Search\Schema2xFieldMapper;
+use Atoolo\Search\Service\Search\SchemaFieldMapper;
 use Atoolo\Search\Service\Search\SolrQueryConfigurator;
 use Atoolo\Search\Service\Search\SolrQueryModifier;
 use Atoolo\Search\Service\Search\SolrQueryType;
@@ -561,5 +562,45 @@ class SolrQueryConfiguratorTest extends TestCase
             null,
         );
         $this->configurator->configureBasicSettings($this->solrQuery, $query);
+    }
+
+    public function testAddParentDocumentFilterWithNestedDocuments(): void
+    {
+        $fieldMapper = $this->createMock(SchemaFieldMapper::class);
+        $fieldMapper->method('hasNestedDocuments')->willReturn(true);
+        $fieldMapper->method('getNestedDocumentsField')->willReturn('_nest_parent_');
+
+        $configurator = new SolrQueryConfigurator(
+            $fieldMapper,
+            $this->templateResolver,
+            $this->requestStack,
+        );
+
+        $filterQuery = $this->createMock(FilterQuery::class);
+        $filterQuery
+            ->expects($this->once())
+            ->method('setQuery')
+            ->with('-_nest_parent_:*');
+
+        $this->solrQuery
+            ->expects($this->once())
+            ->method('createFilterQuery')
+            ->with('nested-parent')
+            ->willReturn($filterQuery);
+
+        $configurator->addParentDocumentFilter($this->solrQuery);
+    }
+
+    public function testAddParentDocumentFilterWithoutNestedDocuments(): void
+    {
+        $this->fieldMapper
+            ->method('hasNestedDocuments')
+            ->willReturn(false);
+
+        $this->solrQuery
+            ->expects($this->never())
+            ->method('createFilterQuery');
+
+        $this->configurator->addParentDocumentFilter($this->solrQuery);
     }
 }

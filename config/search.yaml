@@ -97,6 +97,7 @@ services:
       - '@atoolo_search.solarium_client_factory'
       - '@atoolo_search.solr_query_Builder'
       - '@atoolo_search.solr_result_Builder'
+      - '@atoolo_search.field_mapper'
 
   atoolo_search.suggest:
     class: Atoolo\Search\Service\Search\SolrSuggest

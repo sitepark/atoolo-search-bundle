@@ -24,7 +24,7 @@ class SolrMoreLikeThis implements MoreLikeThis
         private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
         private readonly SolrResultToResourceResolver $resultToResourceResolver,
-        private readonly Schema2xFieldMapper $schemaFieldMapper,
+        private readonly SchemaFieldMapper $schemaFieldMapper,
         private readonly QueryTemplateResolver $queryTemplateResolver,
     ) {}
 
