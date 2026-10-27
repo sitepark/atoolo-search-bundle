@@ -47,9 +47,15 @@ class InternalResourceFactory implements ResourceFactory
         if ($query === null) {
             return $resource;
         }
+        // Only the query string is taken from the Solr document. The url of
+        // the document is the one of the resource at indexing time, the url
+        // of the loaded resource is the current one. So a hit of a single
+        // date has the same url as the hit of its event, plus the query
+        // string, even if the index is not up to date.
+        $separator = str_contains($resource->url, '?') ? '&' : '?';
         return new Resource(
             location: $resource->location,
-            url: $resource->url . '?' . $query,
+            url: $resource->url . $separator . $query,
             id: $resource->id,
             name: $resource->name,
             objectType: $resource->objectType,
