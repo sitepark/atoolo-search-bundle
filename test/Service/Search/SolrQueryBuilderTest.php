@@ -353,12 +353,18 @@ class SolrQueryBuilderTest extends TestCase
             ->willReturn($filterQuery);
 
         $expectedQueryString = '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}'
-                              . '{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\'}(search text)';
+                              . '+(*:* -_nest_parent_:*) +{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\''
+                              . ' v=$childtext}';
 
         $filterQuery
             ->expects($this->once())
             ->method('setQuery')
             ->with($expectedQueryString);
+
+        $this->solrQuery
+            ->expects($this->once())
+            ->method('addParam')
+            ->with('childtext', 'search text');
 
         $result = $this->builder->buildDateChildQuery($this->client, $query);
 
