@@ -64,6 +64,11 @@ class SolrQueryBuilderTest extends TestCase
 
         $this->configurator
             ->expects($this->once())
+            ->method('addParentDocumentFilter')
+            ->with($this->solrQuery);
+
+        $this->configurator
+            ->expects($this->once())
             ->method('addSortToSolrQuery')
             ->with($this->solrQuery, $query->sort);
 

@@ -7,6 +7,7 @@ namespace Atoolo\Search\Service\Search;
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Result\SearchResult;
+use Atoolo\Search\Exception\UnexpectedSchemaException;
 use Atoolo\Search\Search;
 use Atoolo\Index\Service\IndexName;
 use Atoolo\Search\Service\SolrClientFactory;
@@ -36,6 +37,7 @@ class SolrSearch implements Search
         private readonly SolrClientFactory $clientFactory,
         private readonly SolrQueryBuilder $queryBuilder,
         private readonly SolrResultBuilder $resultBuilder,
+        private readonly SchemaFieldMapper $schemaFieldMapper,
     ) {}
 
     public function search(SearchQuery $query): SearchResult
@@ -48,6 +50,13 @@ class SolrSearch implements Search
          * whereas all other searches only search within root documents.
          */
         if ($query->expandByDate) {
+            if (!$this->schemaFieldMapper->hasNestedDocuments()) {
+                throw new UnexpectedSchemaException(
+                    'schema 2x does not support nested documents. '
+                    . 'check your \'field_mapper\' config',
+                );
+            }
+
             /*
             * 1. search parents with child-filter, parent-filter and parent-facetts
             * 2. search children with parent-filter, child-date-filter and child-date-facetts

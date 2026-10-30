@@ -36,9 +36,10 @@ use Atoolo\Search\Dto\Search\Query\Sort\Name;
 use Atoolo\Search\Dto\Search\Query\Sort\Natural;
 use Atoolo\Search\Dto\Search\Query\Sort\Score;
 use Atoolo\Search\Dto\Search\Query\Sort\SpatialDist;
+use Atoolo\Search\Exception\UnexpectedSchemaException;
 use InvalidArgumentException;
 
-class Schema2xFieldMapper
+class Schema2xFieldMapper implements SchemaFieldMapper
 {
     public function getFacetField(Facet $facet): string
     {
@@ -68,6 +69,15 @@ class Schema2xFieldMapper
         return 'sp_geo_points';
     }
 
+    public function hasNestedDocuments(): bool
+    {
+        return false;
+    }
+
+    public function getNestedDocumentsField(): string
+    {
+        throw new UnexpectedSchemaException('schema 2x does not support nested documents');
+    }
 
     public function getFilterField(Filter $filter): string
     {

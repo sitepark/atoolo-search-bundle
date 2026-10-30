@@ -20,7 +20,7 @@ class SolrQueryFacetAppender
 {
     public function __construct(
         private readonly SolrSelectQuery $solrQuery,
-        private readonly Schema2xFieldMapper $fieldMapper,
+        private readonly SchemaFieldMapper $fieldMapper,
         private readonly QueryTemplateResolver $queryTemplateResolver,
     ) {}
 
