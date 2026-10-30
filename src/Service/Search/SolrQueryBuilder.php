@@ -11,6 +11,11 @@ use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 
 class SolrQueryBuilder
 {
+    /**
+     * Request parameter with the search text of the date child query.
+     */
+    private const CHILD_TEXT_PARAM = 'childtext';
+
     public function __construct(
         private readonly SolrQueryConfigurator $configurator,
     ) {}
@@ -88,9 +93,14 @@ class SolrQueryBuilder
         $parentFilterQueryString
             = '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}';
         if (!empty($query->text)) {
+            // The text is searched in the parents only. The children contain
+            // the text fields of their parent too, but the parent query of a
+            // block join must not match any child, otherwise Solr fails.
             $boosting = $query->boosting ?? new DefaultBoosting();
             $parentFilterQueryString
-                .= '{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\'}(' . $query->text . ')';
+                .= '+(*:* -_nest_parent_:*) +{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\''
+                . ' v=$' . self::CHILD_TEXT_PARAM . '}';
+            $solrQuery->addParam(self::CHILD_TEXT_PARAM, $query->text);
         }
         $parentFilterQuery->setQuery($parentFilterQueryString);
 
