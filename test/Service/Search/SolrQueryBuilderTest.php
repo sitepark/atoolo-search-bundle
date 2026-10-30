@@ -230,6 +230,52 @@ class SolrQueryBuilderTest extends TestCase
         $this->assertSame($this->solrQuery, $result);
     }
 
+    public function testBuildDateChildQueryWithoutText(): void
+    {
+        $query = new SearchQuery(
+            text: '',
+            facets: [],
+            filter: [],
+            sort: [],
+            limit: 10,
+            offset: 0,
+            lang: ResourceLanguage::default(),
+            archive: false,
+            spellcheck: false,
+            explain: false,
+            expandByDate: true,
+            distanceReferencePoint: null,
+            defaultQueryOperator: \Atoolo\Search\Dto\Search\Query\QueryOperator::AND,
+            boosting: null,
+            timeZone: null,
+        );
+
+        $filterQuery = $this->createMock(\Solarium\QueryType\Select\Query\FilterQuery::class);
+
+        $this->client
+            ->method('createSelect')
+            ->willReturn($this->solrQuery);
+
+        $this->solrQuery
+            ->method('createFilterQuery')
+            ->with(SolrQueryType::QUERY_TYPE_CHILD->value)
+            ->willReturn($filterQuery);
+
+        $filterQuery
+            ->expects($this->once())
+            ->method('setQuery')
+            ->with(
+                '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}'
+                . '*:* -_nest_parent_:*',
+            );
+
+        $this->solrQuery
+            ->expects($this->never())
+            ->method('addParam');
+
+        $this->builder->buildDateChildQuery($this->client, $query);
+    }
+
     public function testBuildDateChildQuery(): void
     {
         $query = new SearchQuery(

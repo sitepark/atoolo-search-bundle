@@ -101,6 +101,11 @@ class SolrQueryBuilder
                 .= '+(*:* -_nest_parent_:*) +{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\''
                 . ' v=$' . self::CHILD_TEXT_PARAM . '}';
             $solrQuery->addParam(self::CHILD_TEXT_PARAM, $query->text);
+        } else {
+            // Without a parent query Solr takes the filters as parent query.
+            // Filters on fields the children contain too (e.g. groups,
+            // categories) would match children then.
+            $parentFilterQueryString .= '*:* -_nest_parent_:*';
         }
         $parentFilterQuery->setQuery($parentFilterQueryString);
 
