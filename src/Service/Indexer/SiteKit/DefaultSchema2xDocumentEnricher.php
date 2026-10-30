@@ -54,6 +54,12 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareIn
 {
     use LoggerAwareTrait;
 
+    /**
+     * URL parameter of a nested date document with the begin of the date
+     * as Unix timestamp (`<url>?date=<timestamp>`).
+     */
+    public const DATE_OCCURRENCE_PARAMETER = 'date';
+
     /** @var array<string,string> */
     private array $categoryTitleCache = [];
 
@@ -485,7 +491,8 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareIn
                 $this->enrichAccessFields($resource, $dateChild);
 
                 $dateChild->id = $dateChild->id . '-' . $from->getTimestamp();
-                $dateChild->url = $dateChild->url . '?date=' . $from->getTimestamp();
+                $dateChild->url = $dateChild->url
+                    . '?' . self::DATE_OCCURRENCE_PARAMETER . '=' . $from->getTimestamp();
                 $dateChild->sp_date =  $from;
 
                 $dateChild->sp_date_from = $from;
