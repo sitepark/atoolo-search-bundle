@@ -38,7 +38,6 @@ use Atoolo\Search\Dto\Search\Query\Sort\Score;
 use Atoolo\Search\Dto\Search\Query\Sort\SpatialDist;
 use Atoolo\Search\Exception\UnexpectedSchemaException;
 use InvalidArgumentException;
-use Symfony\Component\Mailer\Exception\UnsupportedSchemeException;
 
 class Schema2xFieldMapper implements SchemaFieldMapper
 {
