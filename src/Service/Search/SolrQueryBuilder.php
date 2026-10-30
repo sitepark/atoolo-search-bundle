@@ -22,6 +22,7 @@ class SolrQueryBuilder
         $solrQuery = $client->createSelect();
 
         $this->configurator->configureBasicSettings($solrQuery, $query);
+        $this->configurator->addParentDocumentFilter($solrQuery);
         $this->configurator->addSortToSolrQuery($solrQuery, $query->sort);
         $this->configurator->addRequiredFieldListToSolrQuery($solrQuery, $query->explain, $query->expandByDate);
         $this->configurator->addTextFilterToSolrQuery($solrQuery, $query->text);

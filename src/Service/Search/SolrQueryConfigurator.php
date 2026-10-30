@@ -14,6 +14,7 @@ use Atoolo\Search\Dto\Search\Query\QueryOperator;
 use Atoolo\Search\Dto\Search\Query\SearchQuery;
 use Atoolo\Search\Dto\Search\Query\Sort\Criteria;
 use Atoolo\Search\Service\Search\SiteKit\DefaultBoosting;
+use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query as SolrSelectQuery;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -23,7 +24,7 @@ class SolrQueryConfigurator
      * @param iterable<SolrQueryModifier> $solrQueryModifierList
      */
     public function __construct(
-        private readonly Schema2xFieldMapper $schemaFieldMapper,
+        private readonly SchemaFieldMapper $schemaFieldMapper,
         private readonly QueryTemplateResolver $queryTemplateResolver,
         private readonly RequestStack $requestStack,
         private readonly iterable $solrQueryModifierList = [],
@@ -168,6 +169,17 @@ class SolrQueryConfigurator
         if (!$archive) {
             $filterAppender->excludeArchived();
         }
+    }
+
+    public function addParentDocumentFilter(SolrSelectQuery $solrQuery): void
+    {
+        if (!$this->schemaFieldMapper->hasNestedDocuments()) {
+            return;
+        }
+        $filterQuery = $solrQuery->createFilterQuery('nested-parent');
+        $filterQuery->setQuery(
+            '-' . $this->schemaFieldMapper->getNestedDocumentsField() . ':*',
+        );
     }
 
     public function addDistanceField(

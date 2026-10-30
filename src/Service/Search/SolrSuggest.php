@@ -31,7 +31,7 @@ class SolrSuggest implements Suggest
     public function __construct(
         private readonly IndexName $index,
         private readonly SolrClientFactory $clientFactory,
-        private readonly Schema2xFieldMapper $schemaFieldMapper,
+        private readonly SchemaFieldMapper $schemaFieldMapper,
         private readonly QueryTemplateResolver $queryTemplateResolver,
         private readonly string $indexSuggestField = 'raw_content',
     ) {}
