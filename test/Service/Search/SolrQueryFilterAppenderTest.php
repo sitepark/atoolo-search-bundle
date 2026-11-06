@@ -599,7 +599,7 @@ class SolrQueryFilterAppenderTest extends TestCase
 
         $this->solrQuery->expects($this->once())
             ->method('addParam')
-            ->with(SolrQueryType::QUERY_TYPE_CHILD->value, ['test:fieldFilter NOT _nest_parent_:*']);
+            ->with(SolrQueryType::QUERY_TYPE_CHILD->value, ['test:fieldFilter NOT _nest_path_:*']);
 
         $this->childAppender->append($field);
     }

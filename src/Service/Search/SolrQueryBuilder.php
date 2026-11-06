@@ -54,7 +54,7 @@ class SolrQueryBuilder
 
         $parentFilterQuery = $solrQuery->createFilterQuery(SolrQueryType::QUERY_TYPE_PARENT->value);
         $parentFilterQuery->setQuery(
-            "{!parent which='*:* -_nest_parent_:*' filters=\$" . SolrQueryType::QUERY_TYPE_PARENT->value . "}",
+            "{!parent which='*:* -_nest_path_:*' filters=\$" . SolrQueryType::QUERY_TYPE_PARENT->value . "}",
         );
 
         $solrQuery->setStart(0);
@@ -91,21 +91,21 @@ class SolrQueryBuilder
 
         $parentFilterQuery = $solrQuery->createFilterQuery(SolrQueryType::QUERY_TYPE_CHILD->value);
         $parentFilterQueryString
-            = '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}';
+            = '{!child of=\'*:* -_nest_path_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}';
         if (!empty($query->text)) {
             // The text is searched in the parents only. The children contain
             // the text fields of their parent too, but the parent query of a
             // block join must not match any child, otherwise Solr fails.
             $boosting = $query->boosting ?? new DefaultBoosting();
             $parentFilterQueryString
-                .= '+(*:* -_nest_parent_:*) +{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\''
+                .= '+(*:* -_nest_path_:*) +{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\''
                 . ' v=$' . self::CHILD_TEXT_PARAM . '}';
             $solrQuery->addParam(self::CHILD_TEXT_PARAM, $query->text);
         } else {
             // Without a parent query Solr takes the filters as parent query.
             // Filters on fields the children contain too (e.g. groups,
             // categories) would match children then.
-            $parentFilterQueryString .= '*:* -_nest_parent_:*';
+            $parentFilterQueryString .= '*:* -_nest_path_:*';
         }
         $parentFilterQuery->setQuery($parentFilterQueryString);
 
