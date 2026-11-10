@@ -42,6 +42,7 @@ class LegacyContainerTest extends TestCase
                 'atoolo_search.search',
                 'atoolo_search.suggest',
                 'atoolo_search.more_like_this',
+                'atoolo_search.field_mapper',
                 'logger',
             ] as $id
         ) {
