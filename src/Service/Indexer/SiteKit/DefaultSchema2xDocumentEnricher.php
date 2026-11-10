@@ -15,6 +15,7 @@ use Atoolo\Index\Service\Indexer\DocumentEnricher;
 use Atoolo\Index\Service\Indexer\IndexDocument;
 use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\SolrIndexService;
+use Atoolo\Search\Service\Search\SchemaFieldMapper;
 use DateTime;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
@@ -67,6 +68,7 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareIn
         private readonly SiteKitNavigationHierarchyLoader $navigationLoader,
         private readonly ContentCollector $contentCollector,
         private readonly SolrIndexService $indexService,
+        private readonly SchemaFieldMapper $schemaFieldMapper,
     ) {}
 
     public function cleanup(): void
@@ -94,7 +96,11 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareIn
         }
         $this->enrichCommonTextFields($resource, $doc);
         $this->enrichDateFields($resource, $doc);
-        $this->enrichNestedEventDocuments($resource, $doc);
+        // Only schemas with nested documents (3.x) know sp_date_documents.
+        // A 2.x schema rejects the whole document with "unknown field".
+        if ($this->schemaFieldMapper->hasNestedDocuments()) {
+            $this->enrichNestedEventDocuments($resource, $doc);
+        }
         $this->enrichAccessFields($resource, $doc);
         $this->enrichContent($resource, $doc);
 

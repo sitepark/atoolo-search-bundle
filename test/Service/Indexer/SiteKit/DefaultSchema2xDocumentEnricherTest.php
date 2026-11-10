@@ -15,6 +15,8 @@ use Atoolo\Search\Service\Indexer\IndexSchema2xDocument;
 use Atoolo\Search\Service\Indexer\SiteKit\DefaultSchema2xDocumentEnricher;
 use Atoolo\Search\Service\Indexer\SolrIndexService;
 use Atoolo\Search\Service\Indexer\SolrIndexUpdater;
+use Atoolo\Search\Service\Search\Schema2xFieldMapper;
+use Atoolo\Search\Service\Search\Schema3xFieldMapper;
 use DateTime;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -26,6 +28,8 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
     private SiteKitNavigationHierarchyLoader&MockObject $navigationLoader;
 
     private SolrIndexService&MockObject $solrIndexService;
+
+    private ContentCollector $contentCollector;
 
     public function setUp(): void
     {
@@ -60,10 +64,12 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
             ->method('updater')
             ->willReturn($updater);
 
+        $this->contentCollector = $contentCollector;
         $this->enricher = new DefaultSchema2xDocumentEnricher(
             $this->navigationLoader,
             $contentCollector,
             $this->solrIndexService,
+            new Schema3xFieldMapper(),
         );
     }
 
@@ -663,6 +669,37 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
                 $doc->sp_date_documents,
             ),
             'unexpected date-document in sp_date_document',
+        );
+    }
+
+    public function testEnrichNoDateDocumentsWithoutNestedDocumentSchema(): void
+    {
+        $enricher = new DefaultSchema2xDocumentEnricher(
+            $this->navigationLoader,
+            $this->contentCollector,
+            $this->solrIndexService,
+            new Schema2xFieldMapper(),
+        );
+        $date = new DateTime();
+        $date->add(new \DateInterval('P1D'));
+        $resource = $this->createResource([
+            'metadata' => [
+                'scheduling' => [
+                    ['from' => $date->getTimestamp(), 'contentType' => 'test'],
+                ],
+            ],
+        ]);
+
+        /** @var IndexSchema2xDocument $doc */
+        $doc = $enricher->enrichDocument(
+            $resource,
+            new IndexSchema2xDocument(),
+            '',
+        );
+
+        $this->assertNull(
+            $doc->sp_date_documents,
+            'a 2.x schema does not know sp_date_documents',
         );
     }
 
