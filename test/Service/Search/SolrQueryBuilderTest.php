@@ -245,6 +245,7 @@ class SolrQueryBuilderTest extends TestCase
             archive: false,
             spellcheck: false,
             explain: false,
+            searchByDate: true,
             expandByDate: true,
             distanceReferencePoint: null,
             defaultQueryOperator: \Atoolo\Search\Dto\Search\Query\QueryOperator::AND,
@@ -252,18 +253,15 @@ class SolrQueryBuilderTest extends TestCase
             timeZone: null,
         );
 
-        $filterQuery = $this->createMock(\Solarium\QueryType\Select\Query\FilterQuery::class);
-
         $this->client
             ->method('createSelect')
             ->willReturn($this->solrQuery);
 
         $this->solrQuery
-            ->method('createFilterQuery')
-            ->with(SolrQueryType::QUERY_TYPE_CHILD->value)
-            ->willReturn($filterQuery);
+            ->expects($this->never())
+            ->method('createFilterQuery');
 
-        $filterQuery
+        $this->solrQuery
             ->expects($this->once())
             ->method('setQuery')
             ->with(

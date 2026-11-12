@@ -953,6 +953,7 @@ class SolrSearchTest extends TestCase
             facets: [],
             spellcheck: false,
             archive: false,
+            searchByDate: true,
             expandByDate: true,
             defaultQueryOperator: QueryOperator::OR,
             timeZone: null,
