@@ -401,21 +401,31 @@ class SolrQueryBuilderTest extends TestCase
             ->willReturn($filterQuery);
 
         $expectedQueryString = '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}'
-                              . '+(*:* -_nest_parent_:*) +{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\''
-                              . ' v=$childtext}';
+                              . '+(*:* -_nest_parent_:*) +{!edismax qf=$childqf v=$childtext}';
 
         $this->solrQuery
             ->expects($this->once())
             ->method('setQuery')
             ->with($expectedQueryString);
 
+        $addedParams = [];
         $this->solrQuery
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('addParam')
-            ->with('childtext', 'search text');
+            ->willReturnCallback(function (string $name, mixed $value) use (&$addedParams) {
+                $addedParams[$name] = $value;
+                return $this->solrQuery;
+            });
 
         $result = $this->builder->buildDateChildQuery($this->client, $query);
 
         $this->assertSame($this->solrQuery, $result);
+        $this->assertSame(
+            [
+                'childqf' => implode(' ', $boosting->queryFields),
+                'childtext' => 'search text',
+            ],
+            $addedParams,
+        );
     }
 }

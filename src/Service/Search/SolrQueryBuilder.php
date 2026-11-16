@@ -15,6 +15,7 @@ class SolrQueryBuilder
      * Request parameter with the search text of the date child query.
      */
     private const CHILD_TEXT_PARAM = 'childtext';
+    private const CHILD_QUERY_FIELDS_PARAM = 'childqf';
 
     public function __construct(
         private readonly SolrQueryConfigurator $configurator,
@@ -96,9 +97,12 @@ class SolrQueryBuilder
             // the text fields of their parent too, but the parent query of a
             // block join must not match any child, otherwise Solr fails.
             $boosting = $query->boosting ?? new DefaultBoosting();
+            // Text and query fields are passed as dereferenced parameters,
+            // so that they can never break out of the local params.
             $parentFilterQueryString
-                .= '+(*:* -_nest_parent_:*) +{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\''
+                .= '+(*:* -_nest_parent_:*) +{!edismax qf=$' . self::CHILD_QUERY_FIELDS_PARAM
                 . ' v=$' . self::CHILD_TEXT_PARAM . '}';
+            $solrQuery->addParam(self::CHILD_QUERY_FIELDS_PARAM, implode(' ', $boosting->queryFields));
             $solrQuery->addParam(self::CHILD_TEXT_PARAM, $query->text);
         } else {
             // Without a parent query Solr takes the filters as parent query.
