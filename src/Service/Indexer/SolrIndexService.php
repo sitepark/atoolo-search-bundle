@@ -9,6 +9,7 @@ use Atoolo\Index\Service\Indexer\IndexService;
 use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Search\Service\SolrClientFactory;
 use Solarium\Client;
+use Solarium\Core\Query\Helper;
 
 class SolrIndexService implements IndexService
 {
@@ -55,6 +56,31 @@ class SolrIndexService implements IndexService
             $lang,
             '-crawl_process_id:' . $processId . ' AND '
             . ' sp_source:' . $source,
+        );
+    }
+
+    /**
+     * @param string[] $idList ids of the resources (`sp_id`)
+     */
+    public function deleteByIdListExcludingProcessId(
+        ResourceLanguage $lang,
+        string $source,
+        array $idList,
+        string $processId,
+    ): void {
+        if ($idList === []) {
+            return;
+        }
+        $helper = new Helper();
+        $ids = array_map(
+            static fn(string $id) => $helper->escapeTerm($id),
+            $idList,
+        );
+        $this->deleteByQuery(
+            $lang,
+            'sp_id:(' . implode(' ', $ids) . ')'
+            . ' AND sp_source:' . $helper->escapeTerm($source)
+            . ' AND -crawl_process_id:' . $helper->escapeTerm($processId),
         );
     }
 

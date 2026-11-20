@@ -496,6 +496,10 @@ class DefaultSchema2xDocumentEnricher implements DocumentEnricher, LoggerAwareIn
                 $this->enrichContent($resource, $dateChild);
                 $this->enrichAccessFields($resource, $dateChild);
 
+                // The child must carry the process id of its parent. Without
+                // it the cleanup of a run (`-crawl_process_id:<pid>`) would
+                // treat the just written child as stale and delete it.
+                $dateChild->crawl_process_id = $doc->crawl_process_id;
                 $dateChild->id = $dateChild->id . '-' . $from->getTimestamp();
                 $dateChild->url = $dateChild->url
                     . '?' . self::DATE_OCCURRENCE_PARAMETER . '=' . $from->getTimestamp();

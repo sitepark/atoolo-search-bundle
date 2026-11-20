@@ -104,6 +104,59 @@ class SolrIndexServiceTest extends TestCase
         );
     }
 
+    public function testDeleteByIdListExcludingProcessId(): void
+    {
+        $updateQuery = $this->createMock(UpdateQuery::class);
+        $updateQuery->expects($this->once())
+            ->method('addDeleteQuery')
+            ->with(
+                'sp_id:(123 456) AND sp_source:internal'
+                . ' AND -crawl_process_id:6aff2835ad7d73.00236392',
+            );
+        $this->client->method('createUpdate')->willReturn($updateQuery);
+        $this->client->expects($this->once())
+            ->method('update')
+            ->with($updateQuery);
+
+        $this->indexService->deleteByIdListExcludingProcessId(
+            ResourceLanguage::default(),
+            'internal',
+            ['123', '456'],
+            '6aff2835ad7d73.00236392',
+        );
+    }
+
+    public function testDeleteByIdListExcludingProcessIdEscapesIds(): void
+    {
+        $updateQuery = $this->createMock(UpdateQuery::class);
+        $updateQuery->expects($this->once())
+            ->method('addDeleteQuery')
+            ->with(
+                'sp_id:(a\\:b) AND sp_source:internal'
+                . ' AND -crawl_process_id:pid',
+            );
+        $this->client->method('createUpdate')->willReturn($updateQuery);
+
+        $this->indexService->deleteByIdListExcludingProcessId(
+            ResourceLanguage::default(),
+            'internal',
+            ['a:b'],
+            'pid',
+        );
+    }
+
+    public function testDeleteByIdListExcludingProcessIdWithEmptyList(): void
+    {
+        $this->client->expects($this->never())->method('createUpdate');
+
+        $this->indexService->deleteByIdListExcludingProcessId(
+            ResourceLanguage::default(),
+            'internal',
+            [],
+            'pid',
+        );
+    }
+
     public function testDeleteByIdListForAllLanguages(): void
     {
         $this->client->expects($this->exactly(2))->method('createUpdate');
