@@ -21,6 +21,6 @@ class Schema3xFieldMapper extends Schema2xFieldMapper
 
     public function getNestedDocumentsField(): string
     {
-        return '_nest_parent_';
+        return '_nest_path_';
     }
 }

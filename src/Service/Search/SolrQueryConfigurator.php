@@ -84,7 +84,6 @@ class SolrQueryConfigurator
         if ($searchByDate) {
             $solrQuery->addField('[parent]');
             $solrQuery->addField('_nest_path_');
-            $solrQuery->addField('_nest_parent_');
             $solrQuery->addField('_root_');
         }
     }

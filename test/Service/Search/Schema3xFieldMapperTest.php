@@ -158,7 +158,7 @@ class Schema3xFieldMapperTest extends TestCase
     public function testGetNestedDocumentsField(): void
     {
         $this->assertEquals(
-            '_nest_parent_',
+            '_nest_path_',
             $this->mapper->getNestedDocumentsField(),
         );
     }

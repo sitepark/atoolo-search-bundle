@@ -55,7 +55,7 @@ class SolrQueryBuilder
 
         $parentFilterQuery = $solrQuery->createFilterQuery(SolrQueryType::QUERY_TYPE_PARENT->value);
         $parentFilterQuery->setQuery(
-            "{!parent which='*:* -_nest_parent_:*' filters=\$" . SolrQueryType::QUERY_TYPE_PARENT->value . "}",
+            "{!parent which='*:* -_nest_path_:*' filters=\$" . SolrQueryType::QUERY_TYPE_PARENT->value . "}",
         );
 
         $solrQuery->setStart(0);
@@ -91,7 +91,7 @@ class SolrQueryBuilder
         $solrQuery = $client->createSelect();
 
         $parentFilterQueryString
-            = '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}';
+            = '{!child of=\'*:* -_nest_path_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}';
         if (!empty($query->text)) {
             // The text is searched in the parents only. The children contain
             // the text fields of their parent too, but the parent query of a
@@ -100,7 +100,7 @@ class SolrQueryBuilder
             // Text and query fields are passed as dereferenced parameters,
             // so that they can never break out of the local params.
             $parentFilterQueryString
-                .= '+(*:* -_nest_parent_:*) +{!edismax qf=$' . self::CHILD_QUERY_FIELDS_PARAM
+                .= '+(*:* -_nest_path_:*) +{!edismax qf=$' . self::CHILD_QUERY_FIELDS_PARAM
                 . ' v=$' . self::CHILD_TEXT_PARAM . '}';
             $solrQuery->addParam(self::CHILD_QUERY_FIELDS_PARAM, implode(' ', $boosting->queryFields));
             $solrQuery->addParam(self::CHILD_TEXT_PARAM, $query->text);
@@ -108,7 +108,7 @@ class SolrQueryBuilder
             // Without a parent query Solr takes the filters as parent query.
             // Filters on fields the children contain too (e.g. groups,
             // categories) would match children then.
-            $parentFilterQueryString .= '*:* -_nest_parent_:*';
+            $parentFilterQueryString .= '*:* -_nest_path_:*';
         }
         $solrQuery->setQuery($parentFilterQueryString);
 

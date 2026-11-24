@@ -160,7 +160,7 @@ class SolrQueryBuilderTest extends TestCase
         $filterQuery
             ->expects($this->once())
             ->method('setQuery')
-            ->with("{!parent which='*:* -_nest_parent_:*' filters=\$" . SolrQueryType::QUERY_TYPE_PARENT->value . "}");
+            ->with("{!parent which='*:* -_nest_path_:*' filters=\$" . SolrQueryType::QUERY_TYPE_PARENT->value . "}");
 
         $this->solrQuery
             ->expects($this->once())
@@ -265,8 +265,8 @@ class SolrQueryBuilderTest extends TestCase
             ->expects($this->once())
             ->method('setQuery')
             ->with(
-                '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}'
-                . '*:* -_nest_parent_:*',
+                '{!child of=\'*:* -_nest_path_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}'
+                . '*:* -_nest_path_:*',
             );
 
         $this->solrQuery
@@ -400,8 +400,8 @@ class SolrQueryBuilderTest extends TestCase
             ->with(SolrQueryType::QUERY_TYPE_CHILD->value)
             ->willReturn($filterQuery);
 
-        $expectedQueryString = '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}'
-                              . '+(*:* -_nest_parent_:*) +{!edismax qf=$childqf v=$childtext}';
+        $expectedQueryString = '{!child of=\'*:* -_nest_path_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}'
+                              . '+(*:* -_nest_path_:*) +{!edismax qf=$childqf v=$childtext}';
 
         $this->solrQuery
             ->expects($this->once())

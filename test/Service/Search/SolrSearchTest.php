@@ -899,9 +899,9 @@ class SolrSearchTest extends TestCase
         );
 
         $expectedQueries = [
-            '{!parent which=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_PARENT->value . '}',
-            '{!child of=\'*:* -_nest_parent_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}'
-            . '+(*:* -_nest_parent_:*) +{!edismax qf=$childqf v=$childtext}',
+            '{!parent which=\'*:* -_nest_path_:*\' filters=$' . SolrQueryType::QUERY_TYPE_PARENT->value . '}',
+            '{!child of=\'*:* -_nest_path_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}'
+            . '+(*:* -_nest_path_:*) +{!edismax qf=$childqf v=$childtext}',
         ];
         $callCount = 0;
         $this->filterQuery->expects($this->once())

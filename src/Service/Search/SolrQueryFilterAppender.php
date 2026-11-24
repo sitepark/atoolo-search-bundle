@@ -162,7 +162,7 @@ class SolrQueryFilterAppender
         $filterValue = count($values) === 1
             ? $values[0]
             : '(' . implode(' ', $values) . ')';
-        return $field . ':' . $filterValue . ($this->isChildDateFilter($filter) ? ' NOT _nest_parent_:*' : '');
+        return $field . ':' . $filterValue . ($this->isChildDateFilter($filter) ? ' NOT _nest_path_:*' : '');
     }
 
     private function getFilterField(Filter $filter): string
@@ -198,7 +198,7 @@ class SolrQueryFilterAppender
             return '';
         }
         return '(' . implode(' AND ', $query) . ')'
-            . ($this->isChildDateFilter($filter) ? ' NOT _nest_parent_:*' : '');
+            . ($this->isChildDateFilter($filter) ? ' NOT _nest_path_:*' : '');
     }
 
     private function getAbsoluteDateRangeQuery(
