@@ -672,6 +672,29 @@ class DefaultSchema2xDocumentEnricherTest extends TestCase
         );
     }
 
+    public function testEnrichDateDocumentsCarryProcessId(): void
+    {
+        $date = new DateTime();
+        $date->add(new \DateInterval('P1D'));
+
+        $doc = $this->enrichWithData([
+            'metadata' => [
+                'scheduling' => [
+                    ['from' => $date->getTimestamp(), 'contentType' => 'test'],
+                ],
+            ],
+        ]);
+
+        $this->assertEquals(
+            ['progress-id'],
+            array_map(
+                fn(IndexSchema2xDocument $child) => $child->crawl_process_id,
+                $doc->sp_date_documents ?? [],
+            ),
+            'date documents must carry the process id of their parent',
+        );
+    }
+
     public function testEnrichNoDateDocumentsWithoutNestedDocumentSchema(): void
     {
         $enricher = new DefaultSchema2xDocumentEnricher(
