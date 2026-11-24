@@ -176,13 +176,12 @@ class SolrQueryConfiguratorTest extends TestCase
             'explain:[explain style=nl]',
             '[parent]',
             '_nest_path_',
-            '_nest_parent_',
             '_root_',
         ];
         $callIndex = 0;
 
         $this->solrQuery
-            ->expects($this->exactly(5))
+            ->expects($this->exactly(4))
             ->method('addField')
             ->willReturnCallback(function (string $field) use (&$callIndex, $expectedFields): SolrSelectQuery {
                 $this->assertSame($expectedFields[$callIndex], $field);
@@ -572,7 +571,7 @@ class SolrQueryConfiguratorTest extends TestCase
     {
         $fieldMapper = $this->createMock(SchemaFieldMapper::class);
         $fieldMapper->method('hasNestedDocuments')->willReturn(true);
-        $fieldMapper->method('getNestedDocumentsField')->willReturn('_nest_parent_');
+        $fieldMapper->method('getNestedDocumentsField')->willReturn('_nest_path_');
 
         $configurator = new SolrQueryConfigurator(
             $fieldMapper,
@@ -584,7 +583,7 @@ class SolrQueryConfiguratorTest extends TestCase
         $filterQuery
             ->expects($this->once())
             ->method('setQuery')
-            ->with('-_nest_parent_:*');
+            ->with('-_nest_path_:*');
 
         $this->solrQuery
             ->expects($this->once())
