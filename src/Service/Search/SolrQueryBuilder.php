@@ -15,6 +15,7 @@ class SolrQueryBuilder
      * Request parameter with the search text of the date child query.
      */
     private const CHILD_TEXT_PARAM = 'childtext';
+    private const CHILD_QUERY_FIELDS_PARAM = 'childqf';
 
     public function __construct(
         private readonly SolrQueryConfigurator $configurator,
@@ -29,7 +30,7 @@ class SolrQueryBuilder
         $this->configurator->configureBasicSettings($solrQuery, $query);
         $this->configurator->addParentDocumentFilter($solrQuery);
         $this->configurator->addSortToSolrQuery($solrQuery, $query->sort);
-        $this->configurator->addRequiredFieldListToSolrQuery($solrQuery, $query->explain, $query->expandByDate);
+        $this->configurator->addRequiredFieldListToSolrQuery($solrQuery, $query->explain, $query->searchByDate);
         $this->configurator->addTextFilterToSolrQuery($solrQuery, $query->text);
         $this->configurator->addQueryDefaultOperatorToSolrQuery($solrQuery, $query->defaultQueryOperator);
         $this->configurator->addFilterQueriesToSolrQuery(
@@ -38,7 +39,7 @@ class SolrQueryBuilder
             $query->archive,
             SolrQueryType::QUERY_TYPE_DEFAULT,
         );
-        $this->configurator->addFacetListToSolrQuery($solrQuery, $query->facets, $query->expandByDate);
+        $this->configurator->addFacetListToSolrQuery($solrQuery, $query->facets);
         $this->configurator->addDistanceField($solrQuery, $query->distanceReferencePoint);
         $this->configurator->addTimezone($solrQuery, $query->timeZone);
         $this->configurator->addBoosting($solrQuery, $query->boosting);
@@ -89,7 +90,6 @@ class SolrQueryBuilder
     ): SolrSelectQuery {
         $solrQuery = $client->createSelect();
 
-        $parentFilterQuery = $solrQuery->createFilterQuery(SolrQueryType::QUERY_TYPE_CHILD->value);
         $parentFilterQueryString
             = '{!child of=\'*:* -_nest_path_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}';
         if (!empty($query->text)) {
@@ -97,9 +97,12 @@ class SolrQueryBuilder
             // the text fields of their parent too, but the parent query of a
             // block join must not match any child, otherwise Solr fails.
             $boosting = $query->boosting ?? new DefaultBoosting();
+            // Text and query fields are passed as dereferenced parameters,
+            // so that they can never break out of the local params.
             $parentFilterQueryString
-                .= '+(*:* -_nest_path_:*) +{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\''
+                .= '+(*:* -_nest_path_:*) +{!edismax qf=$' . self::CHILD_QUERY_FIELDS_PARAM
                 . ' v=$' . self::CHILD_TEXT_PARAM . '}';
+            $solrQuery->addParam(self::CHILD_QUERY_FIELDS_PARAM, implode(' ', $boosting->queryFields));
             $solrQuery->addParam(self::CHILD_TEXT_PARAM, $query->text);
         } else {
             // Without a parent query Solr takes the filters as parent query.
@@ -107,13 +110,13 @@ class SolrQueryBuilder
             // categories) would match children then.
             $parentFilterQueryString .= '*:* -_nest_path_:*';
         }
-        $parentFilterQuery->setQuery($parentFilterQueryString);
+        $solrQuery->setQuery($parentFilterQueryString);
 
         $solrQuery->setStart($query->offset);
         $solrQuery->setRows($query->limit);
         $solrQuery->setOmitHeader(false);
         $this->configurator->addSortToSolrQuery($solrQuery, $query->sort);
-        $this->configurator->addRequiredFieldListToSolrQuery($solrQuery, $query->explain, $query->expandByDate);
+        $this->configurator->addRequiredFieldListToSolrQuery($solrQuery, $query->explain, $query->searchByDate);
         $this->configurator->addQueryDefaultOperatorToSolrQuery($solrQuery, $query->defaultQueryOperator);
 
         $this->configurator->addFilterQueriesToSolrQuery(
@@ -122,7 +125,7 @@ class SolrQueryBuilder
             $query->archive,
             SolrQueryType::QUERY_TYPE_CHILD,
         );
-        $this->configurator->addChildFacetListToSolrQuery($solrQuery, $query->facets, $query->expandByDate);
+        $this->configurator->addChildFacetListToSolrQuery($solrQuery, $query->facets);
         $this->configurator->addTimezone($solrQuery, $query->timeZone);
 
         return $solrQuery;

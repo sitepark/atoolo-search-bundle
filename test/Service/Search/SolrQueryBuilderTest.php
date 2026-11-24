@@ -45,6 +45,7 @@ class SolrQueryBuilderTest extends TestCase
             archive: false,
             spellcheck: false,
             explain: false,
+            searchByDate: false,
             expandByDate: false,
             distanceReferencePoint: null,
             defaultQueryOperator: \Atoolo\Search\Dto\Search\Query\QueryOperator::AND,
@@ -100,7 +101,7 @@ class SolrQueryBuilderTest extends TestCase
         $this->configurator
             ->expects($this->once())
             ->method('addFacetListToSolrQuery')
-            ->with($this->solrQuery, [], false);
+            ->with($this->solrQuery, []);
 
         $this->configurator
             ->expects($this->once())
@@ -135,6 +136,7 @@ class SolrQueryBuilderTest extends TestCase
             archive: false,
             spellcheck: true,
             explain: false,
+            searchByDate: true,
             expandByDate: true,
             distanceReferencePoint: null,
             defaultQueryOperator: \Atoolo\Search\Dto\Search\Query\QueryOperator::AND,
@@ -243,6 +245,7 @@ class SolrQueryBuilderTest extends TestCase
             archive: false,
             spellcheck: false,
             explain: false,
+            searchByDate: true,
             expandByDate: true,
             distanceReferencePoint: null,
             defaultQueryOperator: \Atoolo\Search\Dto\Search\Query\QueryOperator::AND,
@@ -250,18 +253,15 @@ class SolrQueryBuilderTest extends TestCase
             timeZone: null,
         );
 
-        $filterQuery = $this->createMock(\Solarium\QueryType\Select\Query\FilterQuery::class);
-
         $this->client
             ->method('createSelect')
             ->willReturn($this->solrQuery);
 
         $this->solrQuery
-            ->method('createFilterQuery')
-            ->with(SolrQueryType::QUERY_TYPE_CHILD->value)
-            ->willReturn($filterQuery);
+            ->expects($this->never())
+            ->method('createFilterQuery');
 
-        $filterQuery
+        $this->solrQuery
             ->expects($this->once())
             ->method('setQuery')
             ->with(
@@ -289,6 +289,7 @@ class SolrQueryBuilderTest extends TestCase
             archive: false,
             spellcheck: false,
             explain: true,
+            searchByDate: true,
             expandByDate: true,
             distanceReferencePoint: null,
             defaultQueryOperator: \Atoolo\Search\Dto\Search\Query\QueryOperator::OR,
@@ -304,7 +305,7 @@ class SolrQueryBuilderTest extends TestCase
             ->willReturn($this->solrQuery);
 
         $this->solrQuery
-            ->expects($this->once())
+            ->expects($this->never())
             ->method('createFilterQuery')
             ->with(SolrQueryType::QUERY_TYPE_CHILD->value)
             ->willReturn($filterQuery);
@@ -352,7 +353,7 @@ class SolrQueryBuilderTest extends TestCase
         $this->configurator
             ->expects($this->once())
             ->method('addChildFacetListToSolrQuery')
-            ->with($this->solrQuery, [], true);
+            ->with($this->solrQuery, []);
 
         $this->configurator
             ->expects($this->once())
@@ -378,6 +379,7 @@ class SolrQueryBuilderTest extends TestCase
             archive: false,
             spellcheck: false,
             explain: false,
+            searchByDate: true,
             expandByDate: true,
             distanceReferencePoint: null,
             defaultQueryOperator: \Atoolo\Search\Dto\Search\Query\QueryOperator::AND,
@@ -393,27 +395,37 @@ class SolrQueryBuilderTest extends TestCase
             ->willReturn($this->solrQuery);
 
         $this->solrQuery
-            ->expects($this->once())
+            ->expects($this->never())
             ->method('createFilterQuery')
             ->with(SolrQueryType::QUERY_TYPE_CHILD->value)
             ->willReturn($filterQuery);
 
         $expectedQueryString = '{!child of=\'*:* -_nest_path_:*\' filters=$' . SolrQueryType::QUERY_TYPE_CHILD->value . '}'
-                              . '+(*:* -_nest_path_:*) +{!edismax qf=\'' . implode(' ', $boosting->queryFields) . '\''
-                              . ' v=$childtext}';
+                              . '+(*:* -_nest_path_:*) +{!edismax qf=$childqf v=$childtext}';
 
-        $filterQuery
+        $this->solrQuery
             ->expects($this->once())
             ->method('setQuery')
             ->with($expectedQueryString);
 
+        $addedParams = [];
         $this->solrQuery
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('addParam')
-            ->with('childtext', 'search text');
+            ->willReturnCallback(function (string $name, mixed $value) use (&$addedParams) {
+                $addedParams[$name] = $value;
+                return $this->solrQuery;
+            });
 
         $result = $this->builder->buildDateChildQuery($this->client, $query);
 
         $this->assertSame($this->solrQuery, $result);
+        $this->assertSame(
+            [
+                'childqf' => implode(' ', $boosting->queryFields),
+                'childtext' => 'search text',
+            ],
+            $addedParams,
+        );
     }
 }

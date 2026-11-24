@@ -56,6 +56,12 @@ class SearchQueryDenormalizer implements DenormalizerInterface, DenormalizerAwar
         if (isset($data['archive'])) {
             $builder->archive($data['archive']);
         }
+        if (isset($data['expandByDate'])) {
+            $builder->expandByDate($data['expandByDate']);
+        }
+        if (isset($data['searchByDate'])) {
+            $builder->searchByDate($data['searchByDate']);
+        }
         if (isset($data['defaultQueryOperator'])) {
             $builder->defaultQueryOperator(QueryOperator::from($data['defaultQueryOperator']));
         }

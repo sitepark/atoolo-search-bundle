@@ -135,6 +135,8 @@ class SearchQueryDenormalizerTest extends TestCase
             'lang' => 'DE',
             'timeZone' => 'Europe/Berlin',
             'defaultQueryOperator' => 'AND',
+            'searchByDate' => true,
+            'expandByDate' => true,
             'distanceReferencePoint' => [
                 'lng' => 0.2,
                 'lat' => 0.5,
@@ -337,6 +339,8 @@ class SearchQueryDenormalizerTest extends TestCase
             ->lang(ResourceLanguage::of('DE'))
             ->timeZone(new \DateTimeZone('Europe/Berlin'))
             ->defaultQueryOperator(QueryOperator::AND)
+            ->searchByDate(true)
+            ->expandByDate(true)
             ->facet(
                 new AbsoluteDateRangeFacet(
                     'absoluteDateRange',
